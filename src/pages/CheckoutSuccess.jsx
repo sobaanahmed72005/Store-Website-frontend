@@ -39,7 +39,7 @@ export default function CheckoutSuccess() {
             </p>
           )}
           <p className="text-[14px] text-[#4b4b4b] mb-8">
-            Your payment was confirmed via Paymob. We'll prepare your order and send you shipping updates by email.
+            Your payment was confirmed. We'll prepare your order and send you shipping updates by email.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">

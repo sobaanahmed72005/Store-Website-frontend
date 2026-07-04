@@ -43,13 +43,13 @@ export const api = {
   del: (path, opts) => request(path, { ...opts, method: 'DELETE' }),
 }
 
-export async function uploadImage(file) {
+export async function uploadImage(file, endpoint = '/admin/upload') {
   const formData = new FormData()
   formData.append('image', file)
 
   const headers = { 'X-Store-Slug': getStoreSlug() }
 
-  const res = await fetch(`${BASE_URL}/admin/upload`, {
+  const res = await fetch(`${BASE_URL}${endpoint}`, {
     method: 'POST',
     headers,
     credentials: 'include',

@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from 'react'
-import { api, BASE_URL } from '../../api/client'
+import { api, BASE_URL, resolveImageUrl } from '../../api/client'
 import { useCurrency } from '../../context/CurrencyContext'
 import { markOrdersSeen } from '../../utils/orderNotifications'
 
@@ -45,7 +45,6 @@ const PAYMENT_METHOD_LABEL = {
   jazzcash: 'JazzCash',
   easypaisa: 'EasyPaisa',
   cod: 'Cash on Delivery',
-  paymob: 'Paymob',
 }
 
 export default function AdminOrders() {
@@ -277,8 +276,31 @@ export default function AdminOrders() {
                         </div>
                         {order.payment_method && (
                           <div className="text-[13px] text-[#4b4b4b] mb-2">
-                            Payment: {PAYMENT_METHOD_LABEL[order.payment_method] || order.payment_method}
-                            {order.payment_reference ? ` — Ref: ${order.payment_reference}` : ''}
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span>
+                                Payment: {PAYMENT_METHOD_LABEL[order.payment_method] || order.payment_method}
+                                {order.payment_reference ? ` — Ref: ${order.payment_reference}` : ''}
+                              </span>
+                              {!!order.is_duplicate_reference && (
+                                <span className="rounded-full bg-red-100 text-red-700 text-[11px] font-medium px-2 py-0.5">
+                                  Reference reused on another order — verify carefully
+                                </span>
+                              )}
+                            </div>
+                            {order.payment_proof_image && (
+                              <a
+                                href={resolveImageUrl(order.payment_proof_image)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-block mt-2"
+                              >
+                                <img
+                                  src={resolveImageUrl(order.payment_proof_image)}
+                                  alt="Payment proof"
+                                  className="h-20 w-auto rounded border border-[#dedede] object-cover"
+                                />
+                              </a>
+                            )}
                           </div>
                         )}
                         {order.items ? (

@@ -5,7 +5,7 @@ import Logo from '../components/Logo'
 import { useCurrency } from '../context/CurrencyContext'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
-import { api } from '../api/client'
+import { api, uploadImage } from '../api/client'
 import { useSeo } from '../hooks/useSeo'
 
 function Input({ ...props }) {
@@ -125,9 +125,13 @@ export default function Checkout() {
   const [discountError, setDiscountError] = useState('')
   const [applyingDiscount, setApplyingDiscount] = useState(false)
   const [paymentMethods, setPaymentMethods] = useState({})
-  const [paymobEnabled, setPaymobEnabled] = useState(false)
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null)
   const [paymentReference, setPaymentReference] = useState('')
+  const [paymentProofImage, setPaymentProofImage] = useState('')
+  const [uploadingProof, setUploadingProof] = useState(false)
+  const [proofError, setProofError] = useState('')
+  const [helplinePhone, setHelplinePhone] = useState('')
+  const [helplineEmail, setHelplineEmail] = useState('')
 
   useEffect(() => {
     api.get('/content/shipping-settings').then((data) => setShippingFee(Number(data.fee) || 1800)).catch(() => {})
@@ -141,20 +145,15 @@ export default function Checkout() {
       })
       .catch(() => {})
     api
-      .get('/payments/paymob/enabled')
+      .get('/content/footer-brand')
       .then((data) => {
-        if (data.enabled) {
-          setPaymobEnabled(true)
-          setSelectedPaymentMethod((prev) => prev ?? 'paymob')
-        }
+        setHelplinePhone((data.phone || '').split('|')[0].trim())
+        setHelplineEmail(data.email || '')
       })
       .catch(() => {})
   }, [])
 
-  const enabledPaymentMethods = [
-    ...(paymobEnabled ? [['paymob', { label: 'Pay Online via Paymob', isPaymob: true }]] : []),
-    ...Object.entries(paymentMethods).filter(([, method]) => method.enabled),
-  ]
+  const enabledPaymentMethods = Object.entries(paymentMethods).filter(([, method]) => method.enabled)
 
   const shipping = items.length > 0 ? shippingFee : 0
   const discountAmount = appliedDiscount?.discount_amount || 0
@@ -183,6 +182,22 @@ export default function Checkout() {
     setDiscountError('')
   }
 
+  const handleProofUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setProofError('')
+    setUploadingProof(true)
+    try {
+      const data = await uploadImage(file, '/orders/payment-proof')
+      setPaymentProofImage(data.url)
+    } catch (err) {
+      setProofError(err.message || 'Upload failed')
+      setPaymentProofImage('')
+    } finally {
+      setUploadingProof(false)
+    }
+  }
+
   if (!user) {
     return <Navigate to="/signin" state={{ from: '/checkout' }} replace />
   }
@@ -198,10 +213,14 @@ export default function Checkout() {
       setError('Please select a payment method')
       return
     }
+    if (selectedPaymentMethod !== 'cod' && (!paymentReference.trim() || !paymentProofImage)) {
+      setError('Please enter your transaction reference and upload a screenshot of your payment')
+      return
+    }
     setSubmitting(true)
     try {
       const shippingAddress = [form.address1, form.address2].filter(Boolean).join(', ')
-      const order = await api.post(
+      await api.post(
         '/orders',
         {
           shipping_name: form.fullName,
@@ -213,21 +232,11 @@ export default function Checkout() {
           items: items.map((item) => ({ id: item.id, title: item.title, image: item.image, price: item.price, quantity: item.qty })),
           discount_code: appliedDiscount?.code,
           payment_method: selectedPaymentMethod,
-          payment_reference: selectedPaymentMethod === 'paymob' ? undefined : paymentReference,
+          payment_reference: paymentReference,
+          payment_proof_image: paymentProofImage,
         },
         { auth: true }
       )
-
-      if (selectedPaymentMethod === 'paymob') {
-        // Create Paymob session and redirect — cart cleared on success page
-        const { checkoutUrl } = await api.post(
-          '/payments/paymob/session',
-          { order_id: order.id },
-          { auth: true }
-        )
-        window.location.href = checkoutUrl
-        return
-      }
 
       setOrderPlaced(true)
       clearCart()
@@ -321,29 +330,51 @@ export default function Checkout() {
                         name={method.label}
                         onClick={() => setSelectedPaymentMethod(key)}
                       >
-                        {selectedPaymentMethod === key && method.isPaymob && (
-                          <div onClick={(e) => e.stopPropagation()}>
-                            You'll be redirected to Paymob's secure checkout page to complete your payment. Your order
-                            is confirmed automatically once payment goes through.
-                          </div>
-                        )}
-                        {selectedPaymentMethod === key && !method.isPaymob && (
+                        {selectedPaymentMethod === key && (
                           <PaymentMethodDetails methodKey={key} method={method} />
                         )}
                       </RadioCard>
                     ))}
-                    {selectedPaymentMethod && selectedPaymentMethod !== 'paymob' && selectedPaymentMethod !== 'cod' && (
-                      <Input
-                        name="paymentReference"
-                        type="text"
-                        placeholder="Transaction ID / Reference (optional, speeds up confirmation)"
-                        value={paymentReference}
-                        onChange={(e) => setPaymentReference(e.target.value)}
-                      />
+                    {selectedPaymentMethod && selectedPaymentMethod !== 'cod' && (
+                      <>
+                        <Input
+                          name="paymentReference"
+                          type="text"
+                          placeholder="Transaction ID / Reference"
+                          value={paymentReference}
+                          onChange={(e) => setPaymentReference(e.target.value)}
+                          required
+                        />
+                        <div>
+                          <label className="block text-[13px] text-[#4b4b4b] mb-1">
+                            Upload a screenshot of your payment
+                          </label>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleProofUpload}
+                            className="w-full text-[13px] text-[#4b4b4b]"
+                          />
+                          {uploadingProof && <p className="text-[12px] text-[#9ca3af] mt-1">Uploading...</p>}
+                          {paymentProofImage && !uploadingProof && (
+                            <p className="text-[12px] text-green-700 mt-1">Screenshot uploaded ✓</p>
+                          )}
+                          {proofError && <p className="text-[12px] text-red-600 mt-1">{proofError}</p>}
+                        </div>
+                        {(helplinePhone || helplineEmail) && (
+                          <div className="rounded-md border border-[#d1d5db] bg-[#f9fafb] text-[12px] text-[#4b4b4b] px-4 py-3">
+                            Facing an issue while transferring your payment? Contact our helpline
+                            {helplinePhone && <> at <a href={`tel:${helplinePhone}`} className="text-cz-primary underline">{helplinePhone}</a></>}
+                            {helplinePhone && helplineEmail && ' or'}
+                            {helplineEmail && <> email us at <a href={`mailto:${helplineEmail}`} className="text-cz-primary underline">{helplineEmail}</a></>}
+                            {' '}and we'll help you sort it out.
+                          </div>
+                        )}
+                      </>
                     )}
                     <p className="text-[12px] text-[#9ca3af]">
                       By placing an order, you acknowledge and agree to our store policies and terms.
-                      {selectedPaymentMethod !== 'paymob' && " We'll confirm your order once payment is received."}
+                      We'll confirm your order once payment is received.
                     </p>
                   </div>
                 )}
@@ -439,12 +470,10 @@ export default function Checkout() {
 
                 <button
                   type="submit"
-                  disabled={submitting || enabledPaymentMethods.length === 0}
+                  disabled={submitting || uploadingProof || enabledPaymentMethods.length === 0}
                   className="w-full rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[15px] font-medium py-4 mt-6 transition-colors disabled:opacity-60"
                 >
-                  {submitting
-                    ? selectedPaymentMethod === 'paymob' ? 'Redirecting to Paymob...' : 'Placing Order...'
-                    : selectedPaymentMethod === 'paymob' ? 'Pay with Paymob →' : 'Complete Order'}
+                  {submitting ? 'Placing Order...' : 'Complete Order'}
                 </button>
               </div>
             </div>
