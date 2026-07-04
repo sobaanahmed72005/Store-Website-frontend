@@ -3,10 +3,14 @@ import Navbar from '../components/Navbar'
 import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
+import { useSeo } from '../hooks/useSeo'
 
 export default function NotFound() {
+  // The SPA fallback serves this with a 200 status (no real server-side 404 to give it),
+  // so noindex is the only way to stop it from being treated as indexable content.
+  useSeo({ title: 'Page Not Found', noindex: true })
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-cz-page flex flex-col">
       <Navbar />
       <Header />
       <CategoryMenu />

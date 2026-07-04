@@ -2,32 +2,69 @@ import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import Logo from '../../components/Logo'
+import TwoFactorCodeForm from '../../components/TwoFactorCodeForm'
 import { ADMIN_PATH } from '../../config/adminPath'
+import { useSeo } from '../../hooks/useSeo'
 
 export default function AdminLogin() {
-  const { login, logout, user, loading } = useAuth()
+  useSeo({ title: 'Admin Sign In', noindex: true })
+  const { login, verifyTwoFactor, logout, user, loading } = useAuth()
   const navigate = useNavigate()
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
+  const [challengeId, setChallengeId] = useState(null)
 
   if (user?.role === 'admin') {
     return <Navigate to={ADMIN_PATH} replace />
+  }
+
+  const requireAdminOrReject = (loggedInUser) => {
+    if (loggedInUser.role !== 'admin') {
+      logout()
+      setError('This account does not have admin access.')
+      return false
+    }
+    return true
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     try {
-      const loggedInUser = await login(form.email, form.password)
-      if (loggedInUser.role !== 'admin') {
-        logout()
-        setError('This account does not have admin access.')
+      const data = await login(form.email, form.password)
+      if (data.requires2fa) {
+        setChallengeId(data.challengeId)
         return
       }
-      navigate(ADMIN_PATH, { replace: true })
+      if (requireAdminOrReject(data.user)) {
+        navigate(ADMIN_PATH, { replace: true })
+      }
     } catch (err) {
       setError(err.message)
     }
+  }
+
+  const handleTwoFactorSubmit = async (code) => {
+    setError('')
+    try {
+      const loggedInUser = await verifyTwoFactor(challengeId, code)
+      if (requireAdminOrReject(loggedInUser)) {
+        navigate(ADMIN_PATH, { replace: true })
+      }
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
+  if (challengeId) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-cz-topbar px-5">
+        <Logo variant="light" textClassName="text-2xl mb-6" />
+        <div className="w-full max-w-[380px] bg-white rounded-[10px] border border-[#dedede] p-8">
+          <TwoFactorCodeForm onSubmit={handleTwoFactorSubmit} loading={loading} error={error} />
+        </div>
+      </div>
+    )
   }
 
   return (

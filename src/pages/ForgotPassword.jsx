@@ -5,8 +5,10 @@ import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
 import { api } from '../api/client'
+import { useSeo } from '../hooks/useSeo'
 
 export default function ForgotPassword() {
+  useSeo({ title: 'Forgot Password', noindex: true })
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -27,7 +29,7 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-cz-page flex flex-col">
       <Navbar />
       <Header />
       <CategoryMenu />

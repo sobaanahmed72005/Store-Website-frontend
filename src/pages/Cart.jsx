@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Header from '../components/Header'
@@ -7,6 +8,7 @@ import { MinusIcon, PlusIcon, TrashIcon, CartIcon } from '../components/icons'
 import { useCurrency } from '../context/CurrencyContext'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
+import { useSeo } from '../hooks/useSeo'
 
 function QuantityStepper({ qty, onDecrease, onIncrease }) {
   return (
@@ -29,15 +31,24 @@ function QuantityStepper({ qty, onDecrease, onIncrease }) {
 }
 
 export default function Cart() {
+  useSeo({ title: 'Your Cart', noindex: true })
   const { format } = useCurrency()
-  const { items, updateQty, removeFromCart, subTotal } = useCart()
+  const { items, updateQty, removeFromCart, subTotal, refreshPrices } = useCart()
   const { user } = useAuth()
+  const [priceNotice, setPriceNotice] = useState(null)
+
+  useEffect(() => {
+    refreshPrices().then(({ changed, removed }) => {
+      if (changed.length > 0 || removed.length > 0) setPriceNotice({ changed, removed })
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const totalProducts = items.length
   const totalItems = items.reduce((sum, item) => sum + item.qty, 0)
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-cz-page flex flex-col">
       <Navbar />
       <Header />
       <CategoryMenu />
@@ -57,6 +68,21 @@ export default function Cart() {
             <span>Cart</span>
           </div>
         </section>
+
+        {priceNotice && (
+          <div className="w-full rounded-[8px] bg-amber-50 border border-amber-200 px-4 py-3 mb-4 text-[13px] text-amber-800">
+            {priceNotice.changed.map((c) => (
+              <div key={c.title}>
+                The price of <strong>{c.title}</strong> changed from {format(c.from)} to {format(c.to)} — updated below.
+              </div>
+            ))}
+            {priceNotice.removed.map((title) => (
+              <div key={title}>
+                <strong>{title}</strong> is no longer available and was removed from your cart.
+              </div>
+            ))}
+          </div>
+        )}
 
         {items.length === 0 ? (
           <div className="flex flex-col items-center text-center py-10">

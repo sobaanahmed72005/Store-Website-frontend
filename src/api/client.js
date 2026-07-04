@@ -9,21 +9,18 @@ function getStoreSlug() {
   return parts.length > 1 ? parts[0] : 'main'
 }
 
-function getToken() {
-  return localStorage.getItem('cz_token')
-}
-
-async function request(path, { method = 'GET', body, auth = false } = {}) {
+// Call sites may also pass `auth: true` — accepted silently and not destructured here. It's
+// purely documentation that an endpoint requires a signed-in session; every request already
+// sends the httpOnly session cookie via `credentials: 'include'` below regardless, so there's
+// nothing extra to gate on that flag.
+async function request(path, { method = 'GET', body } = {}) {
   const headers = { 'X-Store-Slug': getStoreSlug() }
   if (body) headers['Content-Type'] = 'application/json'
-  if (auth) {
-    const token = getToken()
-    if (token) headers.Authorization = `Bearer ${token}`
-  }
 
   const res = await fetch(`${BASE_URL}${path}`, {
     method,
     headers,
+    credentials: 'include',
     body: body ? JSON.stringify(body) : undefined,
   })
 
@@ -47,16 +44,15 @@ export const api = {
 }
 
 export async function uploadImage(file) {
-  const token = getToken()
   const formData = new FormData()
   formData.append('image', file)
 
   const headers = { 'X-Store-Slug': getStoreSlug() }
-  if (token) headers.Authorization = `Bearer ${token}`
 
   const res = await fetch(`${BASE_URL}/admin/upload`, {
     method: 'POST',
     headers,
+    credentials: 'include',
     body: formData,
   })
   const data = await res.json()

@@ -1,12 +1,14 @@
 import { Link, useSearchParams } from 'react-router-dom'
 import Logo from '../components/Logo'
+import { useSeo } from '../hooks/useSeo'
 
 export default function CheckoutCancelled() {
+  useSeo({ title: 'Payment Cancelled', noindex: true })
   const [params] = useSearchParams()
   const orderId = params.get('orderId')
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-cz-page flex flex-col">
       <div className="bg-white border-b border-[#dedede]">
         <div className="max-w-[1280px] mx-auto px-5 py-5">
           <Link to="/">

@@ -10,6 +10,9 @@ import ProductCard from '../components/ProductCard'
 import Footer from '../components/Footer'
 import { api, resolveImageUrl } from '../api/client'
 import { getEffectivePrice } from '../utils/pricing'
+import { useSeo } from '../hooks/useSeo'
+import { useSiteSettings } from '../context/SiteSettingsContext'
+import { SITE_TAGLINE } from '../config/seoDefaults'
 
 function SectionHeading({ heading, seeAllHref }) {
   return (
@@ -57,6 +60,7 @@ export default function Home() {
   const [featured, setFeatured] = useState([])
   const [newArrivals, setNewArrivals] = useState([])
   const [onSale, setOnSale] = useState([])
+  const { siteName, logoUrl } = useSiteSettings()
 
   useEffect(() => {
     api.get('/products?featured=1').then(setFeatured).catch(() => setFeatured([]))
@@ -64,8 +68,32 @@ export default function Home() {
     api.get('/products?on_sale=1').then(setOnSale).catch(() => setOnSale([]))
   }, [])
 
+  const origin = window.location.origin
+  useSeo({
+    title: siteName || 'IT Network',
+    description: SITE_TAGLINE,
+    canonical: `${origin}/`,
+    image: logoUrl,
+    jsonLd: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: siteName || 'IT Network',
+        url: origin,
+        logo: logoUrl || undefined,
+        description: SITE_TAGLINE,
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: siteName || 'IT Network',
+        url: origin,
+      },
+    ],
+  })
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-cz-page">
       <AnnouncementBar />
       <Navbar />
       <Header />

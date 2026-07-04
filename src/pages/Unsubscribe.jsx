@@ -5,8 +5,10 @@ import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
 import { api } from '../api/client'
+import { useSeo } from '../hooks/useSeo'
 
 export default function Unsubscribe() {
+  useSeo({ title: 'Unsubscribe', noindex: true })
   const [searchParams] = useSearchParams()
   const email = searchParams.get('email')
   const token = searchParams.get('token')
@@ -29,7 +31,7 @@ export default function Unsubscribe() {
   }, [email, token])
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-cz-page flex flex-col">
       <Navbar />
       <Header />
       <CategoryMenu />

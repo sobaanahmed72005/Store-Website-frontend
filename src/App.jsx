@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useSiteSettings } from './context/SiteSettingsContext'
 import { ADMIN_PATH } from './config/adminPath'
+import ScrollToTop from './components/ScrollToTop'
 import Home from './pages/Home'
 import Product from './pages/Product'
 import Products from './pages/Products'
@@ -51,6 +52,7 @@ import AdminBanners from './pages/admin/AdminBanners'
 import AdminAnnouncement from './pages/admin/AdminAnnouncement'
 import AdminEmailTemplates from './pages/admin/AdminEmailTemplates'
 import AdminPromotionalEmails from './pages/admin/AdminPromotionalEmails'
+import AdminAuditLog from './pages/admin/AdminAuditLog'
 
 function StoreNotFound() {
   return (
@@ -80,7 +82,9 @@ function App() {
   }
 
   return (
-    <Routes>
+    <>
+      <ScrollToTop />
+      <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/product/:slug" element={<Product />} />
       <Route path="/laptops" element={<Navigate to="/category/laptops" replace />} />
@@ -139,10 +143,12 @@ function App() {
         <Route path="privacy-policy" element={<AdminPrivacyPolicy />} />
         <Route path="newsletter" element={<AdminNewsletter />} />
         <Route path="promo-emails" element={<AdminPromotionalEmails />} />
+        <Route path="audit-log" element={<AdminAuditLog />} />
         <Route path="*" element={<AdminNotFound />} />
       </Route>
       <Route path="*" element={<NotFound />} />
-    </Routes>
+      </Routes>
+    </>
   )
 }
 

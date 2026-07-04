@@ -9,6 +9,7 @@ import { useCurrency } from '../context/CurrencyContext'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
 import { api } from '../api/client'
+import { useSeo } from '../hooks/useSeo'
 
 function ProfileSection() {
   const { user, updateSession } = useAuth()
@@ -25,7 +26,7 @@ function ProfileSection() {
     setSaved(false)
     try {
       const data = await api.put('/auth/me', { name, email }, { auth: true })
-      updateSession(data.user, data.token)
+      updateSession(data.user)
       setSaved(true)
     } catch (err) {
       setError(err.message)
@@ -219,6 +220,7 @@ const STATUS_LABEL = {
 }
 
 export default function Account() {
+  useSeo({ title: 'My Account', noindex: true })
   const { user, logout } = useAuth()
   const { format } = useCurrency()
   const location = useLocation()
@@ -253,7 +255,7 @@ export default function Account() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-cz-page flex flex-col">
       <Navbar />
       <Header />
       <CategoryMenu />

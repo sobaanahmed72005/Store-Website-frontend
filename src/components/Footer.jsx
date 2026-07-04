@@ -10,8 +10,10 @@ import {
   YoutubeIcon,
   WhatsappIcon,
   TiktokIcon,
+  ChevronDownIcon,
 } from './icons'
 import SiteLink from './SiteLink'
+import Logo from './Logo'
 import { api } from '../api/client'
 import { useSiteSettings } from '../context/SiteSettingsContext'
 import { useAuth } from '../context/AuthContext'
@@ -144,6 +146,37 @@ function Newsletter() {
   )
 }
 
+function FooterColumn({ col }) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <div className="flex flex-col w-full border-b border-black/10 sm:border-none">
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        className="flex items-center justify-between w-full py-[15px] sm:py-0 sm:pointer-events-none sm:mb-5"
+      >
+        <span className="text-[16px] font-semibold text-black">{col.heading}</span>
+        <ChevronDownIcon
+          size={14}
+          className={`text-black transition-transform sm:hidden ${open ? 'rotate-180' : ''}`}
+        />
+      </button>
+      <div className={`flex-col ${open ? 'flex' : 'hidden'} sm:flex pb-[15px] sm:pb-0`}>
+        {col.links.map((link) => (
+          <SiteLink
+            key={link.label}
+            href={link.href}
+            className="text-[14px] text-black mb-[15px] hover:underline"
+          >
+            {link.label}
+          </SiteLink>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function Footer() {
   const { siteName } = useSiteSettings()
   const [brand, setBrand] = useState(DEFAULT_BRAND)
@@ -167,7 +200,7 @@ export default function Footer() {
       <div className="bg-cz-gold-light max-w-[1400px] 2xl:max-w-[1800px] min-[2000px]:max-w-[2200px] mx-auto px-5 py-[35px] lg:py-10">
         <div className="flex flex-col lg:flex-row gap-[40px]">
           <div className="w-full lg:w-[40%] flex flex-col items-center lg:items-start text-center lg:text-left">
-            <span className="text-[16px] font-semibold text-black mb-5">{siteName}</span>
+            <Logo textClassName="text-[16px] mb-5" />
             <p className="text-[14px] text-black">{brand.description}</p>
 
             <div className="flex flex-col gap-[10px] mt-5">
@@ -225,18 +258,7 @@ export default function Footer() {
 
           <div className="w-full lg:flex-1 grid grid-cols-1 sm:grid-cols-3 gap-[20px]">
             {columns.map((col) => (
-              <div key={col.heading} className="flex flex-col w-full">
-                <span className="text-[16px] font-semibold text-black mb-5">{col.heading}</span>
-                {col.links.map((link) => (
-                  <SiteLink
-                    key={link.label}
-                    href={link.href}
-                    className="text-[14px] text-black mb-[15px] hover:underline"
-                  >
-                    {link.label}
-                  </SiteLink>
-                ))}
-              </div>
+              <FooterColumn key={col.heading} col={col} />
             ))}
           </div>
         </div>
@@ -244,6 +266,7 @@ export default function Footer() {
 
       <div className="bg-cz-topbar text-white text-[12px] max-w-[1400px] 2xl:max-w-[1800px] min-[2000px]:max-w-[2200px] mx-auto px-5 py-[15px]">
         <p className="text-center">© {new Date().getFullYear()} {siteName}. All Rights Reserved</p>
+        <p className="text-center text-white/50 mt-1">Powered by IT Solutions</p>
       </div>
     </footer>
   )

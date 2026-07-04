@@ -5,6 +5,8 @@ import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
 import { api } from '../api/client'
+import { useSeo } from '../hooks/useSeo'
+import { useSiteSettings } from '../context/SiteSettingsContext'
 
 const DEFAULT_CONTENT = {
   paragraphs: [],
@@ -14,6 +16,7 @@ const DEFAULT_CONTENT = {
 }
 
 export default function AboutUs() {
+  const { siteName } = useSiteSettings()
   const [content, setContent] = useState(DEFAULT_CONTENT)
 
   useEffect(() => {
@@ -23,8 +26,14 @@ export default function AboutUs() {
       .catch(() => {})
   }, [])
 
+  useSeo({
+    title: `About Us | ${siteName || 'IT Network'}`,
+    description: content.paragraphs?.[0]?.slice(0, 155) || `Learn more about ${siteName || 'IT Network'} — who we are and what we stand for.`,
+    canonical: `${window.location.origin}/about-us`,
+  })
+
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-cz-page flex flex-col">
       <Navbar />
       <Header />
       <CategoryMenu />

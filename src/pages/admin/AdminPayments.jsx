@@ -8,23 +8,24 @@ const emptyMethods = {
   cod: { enabled: false, label: 'Cash on Delivery', instructions: '' },
 }
 
-const emptySafepay = { enabled: false, sandbox: true, api_key: '', has_secret: false }
+const emptyPaymob = { enabled: false, sandbox: true, public_key: '', integration_ids: '', has_secret: false, has_hmac_secret: false }
 
 export default function AdminPayments() {
   const [methods, setMethods] = useState(emptyMethods)
-  const [safepay, setSafepay] = useState(emptySafepay)
-  const [safepaySecret, setSafepaySecret] = useState('')
+  const [paymob, setPaymob] = useState(emptyPaymob)
+  const [paymobSecret, setPaymobSecret] = useState('')
+  const [paymobHmacSecret, setPaymobHmacSecret] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [savingSafepay, setSavingSafepay] = useState(false)
+  const [savingPaymob, setSavingPaymob] = useState(false)
   const [error, setError] = useState('')
   const [saved, setSaved] = useState(false)
-  const [savedSafepay, setSavedSafepay] = useState(false)
+  const [savedPaymob, setSavedPaymob] = useState(false)
 
   useEffect(() => {
     Promise.all([
       api.get('/content/payment-settings').then((data) => setMethods({ ...emptyMethods, ...data.methods })),
-      api.get('/admin/payment-gateways/safepay', { auth: true }).then(setSafepay),
+      api.get('/admin/payment-gateways/paymob', { auth: true }).then(setPaymob),
     ])
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
@@ -48,26 +49,29 @@ export default function AdminPayments() {
     }
   }
 
-  const handleSafepaySubmit = async (e) => {
+  const handlePaymobSubmit = async (e) => {
     e.preventDefault()
-    setSavingSafepay(true)
+    setSavingPaymob(true)
     setError('')
-    setSavedSafepay(false)
+    setSavedPaymob(false)
     try {
-      await api.put('/admin/payment-gateways/safepay', {
-        enabled: safepay.enabled,
-        sandbox: safepay.sandbox,
-        api_key: safepay.api_key,
-        secret_key: safepaySecret || undefined,
+      await api.put('/admin/payment-gateways/paymob', {
+        enabled: paymob.enabled,
+        sandbox: paymob.sandbox,
+        public_key: paymob.public_key,
+        integration_ids: paymob.integration_ids,
+        secret_key: paymobSecret || undefined,
+        hmac_secret: paymobHmacSecret || undefined,
       }, { auth: true })
-      setSavedSafepay(true)
-      setSafepaySecret('')
-      const fresh = await api.get('/admin/payment-gateways/safepay', { auth: true })
-      setSafepay(fresh)
+      setSavedPaymob(true)
+      setPaymobSecret('')
+      setPaymobHmacSecret('')
+      const fresh = await api.get('/admin/payment-gateways/paymob', { auth: true })
+      setPaymob(fresh)
     } catch (err) {
       setError(err.message)
     } finally {
-      setSavingSafepay(false)
+      setSavingPaymob(false)
     }
   }
 
@@ -77,27 +81,27 @@ export default function AdminPayments() {
     <div className="p-8 max-w-[640px]">
       <h1 className="text-[22px] font-semibold text-[#212121] mb-1">Payment Methods</h1>
       <p className="text-[13px] text-[#4b4b4b] mb-6">
-        Configure your payment options. Safepay auto-confirms payments; bank/wallet methods require manual verification in Admin → Orders.
+        Configure your payment options. Paymob auto-confirms payments; bank/wallet methods require manual verification in Admin → Orders.
       </p>
 
       {error && <div className="text-[14px] text-red-600 mb-4">{error}</div>}
 
-      {/* ── Safepay gateway ── */}
+      {/* ── Paymob gateway ── */}
       <div className="mb-2 text-[13px] font-semibold text-[#4b4b4b] uppercase tracking-wide">Online Gateway</div>
-      <form onSubmit={handleSafepaySubmit} className="flex flex-col gap-4 mb-8">
+      <form onSubmit={handlePaymobSubmit} className="flex flex-col gap-4 mb-8">
         <div className="bg-white rounded-[10px] border border-[#dedede] p-6 flex flex-col gap-4">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <div className="text-[15px] font-semibold text-[#212121]">Safepay</div>
+              <div className="text-[15px] font-semibold text-[#212121]">Paymob</div>
               <div className="text-[12px] text-[#9ca3af] mt-0.5">
-                Customers pay online — payment is confirmed automatically. Apply at getsafepay.com.
+                Customers pay online (card, JazzCash, EasyPaisa) — payment is confirmed automatically. Get your keys from your Paymob dashboard.
               </div>
             </div>
             <label className="flex items-center gap-2 shrink-0 mt-1">
               <input
                 type="checkbox"
-                checked={safepay.enabled}
-                onChange={(e) => setSafepay((p) => ({ ...p, enabled: e.target.checked }))}
+                checked={paymob.enabled}
+                onChange={(e) => setPaymob((p) => ({ ...p, enabled: e.target.checked }))}
               />
               <span className="text-[13px] text-[#4b4b4b]">Enabled</span>
             </label>
@@ -106,44 +110,74 @@ export default function AdminPayments() {
           <label className="flex items-center gap-2 text-[13px] text-[#4b4b4b]">
             <input
               type="checkbox"
-              checked={safepay.sandbox}
-              onChange={(e) => setSafepay((p) => ({ ...p, sandbox: e.target.checked }))}
+              checked={paymob.sandbox}
+              onChange={(e) => setPaymob((p) => ({ ...p, sandbox: e.target.checked }))}
             />
-            Sandbox / Test mode (uncheck for live payments)
+            Test mode (using test API keys — uncheck once you switch to live keys)
           </label>
 
           <div>
-            <label className="block text-[13px] text-[#4b4b4b] mb-1">API Key</label>
+            <label className="block text-[13px] text-[#4b4b4b] mb-1">Public Key</label>
             <input
-              value={safepay.api_key}
-              onChange={(e) => setSafepay((p) => ({ ...p, api_key: e.target.value }))}
-              placeholder="sec_xxxxxxxxxx"
+              value={paymob.public_key}
+              onChange={(e) => setPaymob((p) => ({ ...p, public_key: e.target.value }))}
+              placeholder="pk_test_xxxxxxxxxx"
               className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2.5 outline-none focus:border-cz-primary font-mono"
             />
           </div>
 
           <div>
             <label className="block text-[13px] text-[#4b4b4b] mb-1">
-              Secret Key {safepay.has_secret && <span className="text-green-700">(saved)</span>}
+              Secret Key {paymob.has_secret && <span className="text-green-700">(saved)</span>}
             </label>
             <input
               type="password"
-              value={safepaySecret}
-              onChange={(e) => setSafepaySecret(e.target.value)}
-              placeholder={safepay.has_secret ? 'Leave blank to keep existing key' : 'Enter your Safepay secret key'}
+              value={paymobSecret}
+              onChange={(e) => setPaymobSecret(e.target.value)}
+              placeholder={paymob.has_secret ? 'Leave blank to keep existing key' : 'Enter your Paymob secret key'}
               className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2.5 outline-none focus:border-cz-primary font-mono"
             />
+          </div>
+
+          <div>
+            <label className="block text-[13px] text-[#4b4b4b] mb-1">
+              HMAC Secret {paymob.has_hmac_secret && <span className="text-green-700">(saved)</span>}
+            </label>
+            <input
+              type="password"
+              value={paymobHmacSecret}
+              onChange={(e) => setPaymobHmacSecret(e.target.value)}
+              placeholder={paymob.has_hmac_secret ? 'Leave blank to keep existing key' : 'Found in your Paymob dashboard profile tab'}
+              className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2.5 outline-none focus:border-cz-primary font-mono"
+            />
+            <p className="text-[12px] text-[#9ca3af] mt-1">
+              A separate key from the Secret Key above — used only to verify that payment confirmations really came from Paymob.
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-[13px] text-[#4b4b4b] mb-1">Integration IDs</label>
+            <input
+              value={paymob.integration_ids}
+              onChange={(e) => setPaymob((p) => ({ ...p, integration_ids: e.target.value }))}
+              placeholder="e.g. 123456, 123457"
+              className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2.5 outline-none focus:border-cz-primary font-mono"
+            />
+            <p className="text-[12px] text-[#9ca3af] mt-1">
+              Comma-separated Integration IDs from your Paymob dashboard — one per enabled payment channel (card, JazzCash, EasyPaisa).
+              In your Paymob dashboard, also set each integration's webhook/callback URL to this store's payment webhook address.
+            </p>
           </div>
 
           <div className="flex items-center gap-3">
             <button
               type="submit"
-              disabled={savingSafepay}
+              disabled={savingPaymob}
               className="rounded-md bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-medium px-5 py-2.5 transition-colors disabled:opacity-60"
             >
-              {savingSafepay ? 'Saving...' : 'Save Safepay Settings'}
+              {savingPaymob ? 'Saving...' : 'Save Paymob Settings'}
             </button>
-            {savedSafepay && <span className="text-[13px] text-green-700">Saved.</span>}
+            {savedPaymob && <span className="text-[13px] text-green-700">Saved.</span>}
           </div>
         </div>
       </form>

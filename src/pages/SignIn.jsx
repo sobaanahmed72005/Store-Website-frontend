@@ -4,8 +4,10 @@ import Navbar from '../components/Navbar'
 import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
+import TwoFactorCodeForm from '../components/TwoFactorCodeForm'
 import { useAuth } from '../context/AuthContext'
 import { ADMIN_PATH } from '../config/adminPath'
+import { useSeo } from '../hooks/useSeo'
 
 function AuthInput({ type = 'text', name, placeholder, value, onChange }) {
   return (
@@ -26,28 +28,64 @@ function AuthInput({ type = 'text', name, placeholder, value, onChange }) {
 }
 
 export default function SignIn() {
-  const { login, loading } = useAuth()
+  useSeo({ title: 'Sign In', noindex: true })
+  const { login, verifyTwoFactor, loading } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
+  const [challengeId, setChallengeId] = useState(null)
 
   const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+
+  const goToDestination = (user) => {
+    const redirectTo = location.state?.from || (user.role === 'admin' ? ADMIN_PATH : '/')
+    navigate(redirectTo, { replace: true })
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     try {
-      const user = await login(form.email, form.password)
-      const redirectTo = location.state?.from || (user.role === 'admin' ? ADMIN_PATH : '/')
-      navigate(redirectTo, { replace: true })
+      const data = await login(form.email, form.password)
+      if (data.requires2fa) {
+        setChallengeId(data.challengeId)
+        return
+      }
+      goToDestination(data.user)
     } catch (err) {
       setError(err.message)
     }
   }
 
+  const handleTwoFactorSubmit = async (code) => {
+    setError('')
+    try {
+      const user = await verifyTwoFactor(challengeId, code)
+      goToDestination(user)
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
+  if (challengeId) {
+    return (
+      <div className="min-h-screen bg-cz-page flex flex-col">
+        <Navbar />
+        <Header />
+        <CategoryMenu />
+        <div className="flex-1 flex items-center justify-center py-[50px] px-5">
+          <div className="w-full max-w-[420px] mx-auto">
+            <TwoFactorCodeForm onSubmit={handleTwoFactorSubmit} loading={loading} error={error} />
+          </div>
+        </div>
+        <Footer />
+      </div>
+    )
+  }
+
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-cz-page flex flex-col">
       <Navbar />
       <Header />
       <CategoryMenu />

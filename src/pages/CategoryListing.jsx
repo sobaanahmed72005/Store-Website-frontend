@@ -9,6 +9,8 @@ import { GridIcon, ListIcon } from '../components/icons'
 import { FilterAccordion, CheckboxGroup, PriceRangeFilter } from '../components/filters/FilterPrimitives'
 import { api, resolveImageUrl } from '../api/client'
 import { getEffectivePrice } from '../utils/pricing'
+import { useSeo } from '../hooks/useSeo'
+import { useSiteSettings } from '../context/SiteSettingsContext'
 
 function CategoryNotFound({ slug }) {
   const label = slug
@@ -17,7 +19,7 @@ function CategoryNotFound({ slug }) {
     .join(' ')
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-cz-page flex flex-col">
       <Navbar />
       <Header />
       <CategoryMenu />
@@ -41,6 +43,7 @@ function CategoryNotFound({ slug }) {
 
 export default function CategoryListing() {
   const { slug } = useParams()
+  const { siteName } = useSiteSettings()
   const [dbCategory, setDbCategory] = useState(null)
   const [dbChecked, setDbChecked] = useState(false)
   const [products, setProducts] = useState([])
@@ -122,6 +125,29 @@ export default function CategoryListing() {
     })
   }
 
+  const origin = window.location.origin
+  const canonical = `${origin}/category/${slug}`
+  useSeo({
+    title: dbCategory ? `${dbCategory.name} | ${siteName || 'IT Network'}` : undefined,
+    description: dbCategory?.description
+      ? dbCategory.description.slice(0, 155)
+      : dbCategory
+        ? `Shop ${dbCategory.name} at ${siteName || 'IT Network'} — competitive prices and fast delivery.`
+        : undefined,
+    canonical: dbCategory ? canonical : undefined,
+    noindex: !dbCategory,
+    jsonLd: dbCategory
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: `${origin}/` },
+            { '@type': 'ListItem', position: 2, name: dbCategory.name, item: canonical },
+          ],
+        }
+      : undefined,
+  })
+
   if (!dbChecked) return null
   if (!dbCategory) return <CategoryNotFound slug={slug} />
 
@@ -129,7 +155,7 @@ export default function CategoryListing() {
   const brands = [...new Set(products.map((p) => p.brand).filter(Boolean))].map((b) => ({ id: b, label: b }))
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-cz-page flex flex-col">
       <Navbar />
       <Header />
       <CategoryMenu />

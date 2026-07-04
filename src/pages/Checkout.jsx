@@ -6,6 +6,7 @@ import { useCurrency } from '../context/CurrencyContext'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
 import { api } from '../api/client'
+import { useSeo } from '../hooks/useSeo'
 
 function Input({ ...props }) {
   return (
@@ -89,6 +90,7 @@ function PaymentMethodDetails({ methodKey, method }) {
 }
 
 export default function Checkout() {
+  useSeo({ title: 'Checkout', noindex: true })
   const { format } = useCurrency()
   const { items, subTotal, clearCart } = useCart()
   const { user } = useAuth()
@@ -123,7 +125,7 @@ export default function Checkout() {
   const [discountError, setDiscountError] = useState('')
   const [applyingDiscount, setApplyingDiscount] = useState(false)
   const [paymentMethods, setPaymentMethods] = useState({})
-  const [safepayEnabled, setSafepayEnabled] = useState(false)
+  const [paymobEnabled, setPaymobEnabled] = useState(false)
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null)
   const [paymentReference, setPaymentReference] = useState('')
 
@@ -139,18 +141,18 @@ export default function Checkout() {
       })
       .catch(() => {})
     api
-      .get('/payments/safepay/enabled')
+      .get('/payments/paymob/enabled')
       .then((data) => {
         if (data.enabled) {
-          setSafepayEnabled(true)
-          setSelectedPaymentMethod((prev) => prev ?? 'safepay')
+          setPaymobEnabled(true)
+          setSelectedPaymentMethod((prev) => prev ?? 'paymob')
         }
       })
       .catch(() => {})
   }, [])
 
   const enabledPaymentMethods = [
-    ...(safepayEnabled ? [['safepay', { label: 'Pay Online via Safepay', isSafepay: true }]] : []),
+    ...(paymobEnabled ? [['paymob', { label: 'Pay Online via Paymob', isPaymob: true }]] : []),
     ...Object.entries(paymentMethods).filter(([, method]) => method.enabled),
   ]
 
@@ -211,15 +213,15 @@ export default function Checkout() {
           items: items.map((item) => ({ id: item.id, title: item.title, image: item.image, price: item.price, quantity: item.qty })),
           discount_code: appliedDiscount?.code,
           payment_method: selectedPaymentMethod,
-          payment_reference: selectedPaymentMethod === 'safepay' ? undefined : paymentReference,
+          payment_reference: selectedPaymentMethod === 'paymob' ? undefined : paymentReference,
         },
         { auth: true }
       )
 
-      if (selectedPaymentMethod === 'safepay') {
-        // Create Safepay session and redirect — cart cleared on success page
+      if (selectedPaymentMethod === 'paymob') {
+        // Create Paymob session and redirect — cart cleared on success page
         const { checkoutUrl } = await api.post(
-          '/payments/safepay/session',
+          '/payments/paymob/session',
           { order_id: order.id },
           { auth: true }
         )
@@ -238,7 +240,7 @@ export default function Checkout() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-cz-page">
       <div className="bg-white border-b border-[#dedede]">
         <div className="max-w-[1280px] 2xl:max-w-[1800px] min-[2000px]:max-w-[2200px] mx-auto px-5">
           <div className="flex justify-between items-center py-5">
@@ -319,18 +321,18 @@ export default function Checkout() {
                         name={method.label}
                         onClick={() => setSelectedPaymentMethod(key)}
                       >
-                        {selectedPaymentMethod === key && method.isSafepay && (
+                        {selectedPaymentMethod === key && method.isPaymob && (
                           <div onClick={(e) => e.stopPropagation()}>
-                            You'll be redirected to Safepay's secure checkout page to complete your payment. Your order
+                            You'll be redirected to Paymob's secure checkout page to complete your payment. Your order
                             is confirmed automatically once payment goes through.
                           </div>
                         )}
-                        {selectedPaymentMethod === key && !method.isSafepay && (
+                        {selectedPaymentMethod === key && !method.isPaymob && (
                           <PaymentMethodDetails methodKey={key} method={method} />
                         )}
                       </RadioCard>
                     ))}
-                    {selectedPaymentMethod && selectedPaymentMethod !== 'safepay' && selectedPaymentMethod !== 'cod' && (
+                    {selectedPaymentMethod && selectedPaymentMethod !== 'paymob' && selectedPaymentMethod !== 'cod' && (
                       <Input
                         name="paymentReference"
                         type="text"
@@ -341,7 +343,7 @@ export default function Checkout() {
                     )}
                     <p className="text-[12px] text-[#9ca3af]">
                       By placing an order, you acknowledge and agree to our store policies and terms.
-                      {selectedPaymentMethod !== 'safepay' && " We'll confirm your order once payment is received."}
+                      {selectedPaymentMethod !== 'paymob' && " We'll confirm your order once payment is received."}
                     </p>
                   </div>
                 )}
@@ -441,8 +443,8 @@ export default function Checkout() {
                   className="w-full rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[15px] font-medium py-4 mt-6 transition-colors disabled:opacity-60"
                 >
                   {submitting
-                    ? selectedPaymentMethod === 'safepay' ? 'Redirecting to Safepay...' : 'Placing Order...'
-                    : selectedPaymentMethod === 'safepay' ? 'Pay with Safepay →' : 'Complete Order'}
+                    ? selectedPaymentMethod === 'paymob' ? 'Redirecting to Paymob...' : 'Placing Order...'
+                    : selectedPaymentMethod === 'paymob' ? 'Pay with Paymob →' : 'Complete Order'}
                 </button>
               </div>
             </div>

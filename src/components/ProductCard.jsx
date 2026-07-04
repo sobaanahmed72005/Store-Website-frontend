@@ -84,7 +84,7 @@ export default function ProductCard({
         {(discountPercent || isNew) && (
           <div className="absolute left-[15px] top-[15px] z-10 flex flex-col items-start gap-[5px]">
             {discountPercent ? (
-              <span className="rounded-[4px] bg-cz-lavender text-white text-[11px] font-semibold px-2.5 py-[3px]">
+              <span className="rounded-[4px] bg-cz-lavender text-cz-ink text-[11px] font-semibold px-2.5 py-[3px]">
                 {discountPercent}% Off
               </span>
             ) : null}
@@ -114,6 +114,8 @@ export default function ProductCard({
                 key={src}
                 src={src}
                 alt={title}
+                loading="lazy"
+                decoding="async"
                 className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-700 ${
                   i === activeIndex ? 'opacity-100' : 'opacity-0'
                 }`}

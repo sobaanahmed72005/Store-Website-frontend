@@ -22,21 +22,27 @@ export function AuthProvider({ children }) {
   }, [user])
 
   useEffect(() => {
-    if (!localStorage.getItem('cz_token')) return
     api
-      .get('/auth/me', { auth: true })
+      .get('/auth/me')
       .then((data) => setUser(data.user))
-      .catch(() => {
-        localStorage.removeItem('cz_token')
-        setUser(null)
-      })
+      .catch(() => setUser(null))
   }, [])
 
   const login = async (email, password) => {
     setLoading(true)
     try {
       const data = await api.post('/auth/login', { email, password })
-      localStorage.setItem('cz_token', data.token)
+      if (!data.requires2fa) setUser(data.user)
+      return data
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const verifyTwoFactor = async (challengeId, token) => {
+    setLoading(true)
+    try {
+      const data = await api.post('/auth/2fa/verify', { challengeId, token })
       setUser(data.user)
       return data.user
     } finally {
@@ -48,7 +54,6 @@ export function AuthProvider({ children }) {
     setLoading(true)
     try {
       const data = await api.post('/auth/register', { name, email, password, phone })
-      localStorage.setItem('cz_token', data.token)
       setUser(data.user)
       return data.user
     } finally {
@@ -57,17 +62,16 @@ export function AuthProvider({ children }) {
   }
 
   const logout = () => {
-    localStorage.removeItem('cz_token')
     setUser(null)
+    api.post('/auth/logout', {}).catch(() => {})
   }
 
-  const updateSession = (nextUser, token) => {
-    localStorage.setItem('cz_token', token)
+  const updateSession = (nextUser) => {
     setUser(nextUser)
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, updateSession, isAdmin: user?.role === 'admin' }}>
+    <AuthContext.Provider value={{ user, loading, login, verifyTwoFactor, register, logout, updateSession, isAdmin: user?.role === 'admin' }}>
       {children}
     </AuthContext.Provider>
   )

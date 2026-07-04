@@ -5,6 +5,8 @@ import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
 import { api } from '../api/client'
+import { useSeo } from '../hooks/useSeo'
+import { useSiteSettings } from '../context/SiteSettingsContext'
 
 const DEFAULT_CONTENT = {
   pageTitle: '',
@@ -12,6 +14,7 @@ const DEFAULT_CONTENT = {
 }
 
 export default function PrivacyPolicy() {
+  const { siteName } = useSiteSettings()
   const [content, setContent] = useState(DEFAULT_CONTENT)
 
   useEffect(() => {
@@ -21,8 +24,14 @@ export default function PrivacyPolicy() {
       .catch(() => {})
   }, [])
 
+  useSeo({
+    title: `Privacy Policy | ${siteName || 'IT Network'}`,
+    description: `Read the privacy policy at ${siteName || 'IT Network'}.`,
+    canonical: `${window.location.origin}/privacy-policy`,
+  })
+
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-cz-page flex flex-col">
       <Navbar />
       <Header />
       <CategoryMenu />

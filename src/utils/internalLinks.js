@@ -96,7 +96,7 @@ function deriveCategorySlug(pathname) {
   return `/category/${slug}`
 }
 
-const ALREADY_INTERNAL_PREFIXES = ['/category/', '/product/', '/platform/']
+const ALREADY_INTERNAL_PREFIXES = ['/category/', '/product/']
 
 export function resolveInternalPath(href) {
   if (!href) return null

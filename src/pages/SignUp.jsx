@@ -5,6 +5,7 @@ import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
 import { useAuth } from '../context/AuthContext'
+import { useSeo } from '../hooks/useSeo'
 
 function AuthInput({ type = 'text', name, placeholder, value, onChange, required = true }) {
   return (
@@ -25,6 +26,7 @@ function AuthInput({ type = 'text', name, placeholder, value, onChange, required
 }
 
 export default function SignUp() {
+  useSeo({ title: 'Create an Account', noindex: true })
   const { register, loading } = useAuth()
   const navigate = useNavigate()
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '' })
@@ -48,7 +50,7 @@ export default function SignUp() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-cz-page flex flex-col">
       <Navbar />
       <Header />
       <CategoryMenu />

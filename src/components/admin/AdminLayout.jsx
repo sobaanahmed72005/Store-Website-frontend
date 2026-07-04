@@ -5,6 +5,7 @@ import Logo from '../Logo'
 import { HamburgerIcon, CloseIcon } from '../icons'
 import { ADMIN_PATH } from '../../config/adminPath'
 import OrderNotificationBell from './OrderNotificationBell'
+import { useSeo } from '../../hooks/useSeo'
 
 const navItems = [
   { to: ADMIN_PATH, label: 'Dashboard', end: true },
@@ -30,9 +31,11 @@ const navItems = [
   { to: `${ADMIN_PATH}/privacy-policy`, label: 'Privacy Policy Page' },
   { to: `${ADMIN_PATH}/newsletter`, label: 'Newsletter' },
   { to: `${ADMIN_PATH}/promo-emails`, label: 'Promo Emails' },
+  { to: `${ADMIN_PATH}/audit-log`, label: 'Audit Log' },
 ]
 
 export default function AdminLayout() {
+  useSeo({ title: 'Admin', noindex: true })
   const { user, logout } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -101,7 +104,7 @@ export default function AdminLayout() {
           <button type="button" aria-label="Open menu" onClick={() => setSidebarOpen(true)}>
             <HamburgerIcon size={24} />
           </button>
-          <Logo variant="light" textClassName="text-base" />
+          <Logo variant="light" textClassName="text-lg" />
         </div>
 
         <div className="flex items-center justify-end bg-white border-b border-[#dedede] px-4 py-2">

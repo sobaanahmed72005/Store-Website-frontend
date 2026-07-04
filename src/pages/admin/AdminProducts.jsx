@@ -101,7 +101,7 @@ export default function AdminProducts() {
                           <span className="rounded-full bg-cz-accent text-cz-ink text-[11px] font-medium px-2 py-0.5">Featured</span>
                         )}
                         {Boolean(p.is_new_arrival) && (
-                          <span className="rounded-full bg-cz-lavender text-white text-[11px] font-medium px-2 py-0.5">New</span>
+                          <span className="rounded-full bg-cz-lavender text-cz-ink text-[11px] font-medium px-2 py-0.5">New</span>
                         )}
                         {Boolean(p.is_on_sale) && (
                           <span className="rounded-full bg-cz-primary text-white text-[11px] font-medium px-2 py-0.5">Sale</span>

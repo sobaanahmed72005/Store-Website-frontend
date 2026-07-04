@@ -16,6 +16,8 @@ import {
   TiktokIcon,
 } from '../components/icons'
 import { api } from '../api/client'
+import { useSeo } from '../hooks/useSeo'
+import { useSiteSettings } from '../context/SiteSettingsContext'
 
 const DEFAULT_BRAND = {
   address: '',
@@ -47,7 +49,14 @@ function Input({ label, ...props }) {
 }
 
 export default function Contact() {
+  const { siteName } = useSiteSettings()
   const [brand, setBrand] = useState(DEFAULT_BRAND)
+
+  useSeo({
+    title: `Contact Us | ${siteName || 'IT Network'}`,
+    description: `Get in touch with ${siteName || 'IT Network'} — store address, phone, email, and support hours.`,
+    canonical: `${window.location.origin}/contact`,
+  })
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' })
   const [submitting, setSubmitting] = useState(false)
   const [status, setStatus] = useState('idle')
@@ -81,7 +90,7 @@ export default function Contact() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-cz-page flex flex-col">
       <Navbar />
       <Header />
       <CategoryMenu />

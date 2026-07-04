@@ -7,10 +7,14 @@ import Footer from '../components/Footer'
 import ProductCard from '../components/ProductCard'
 import { api, resolveImageUrl } from '../api/client'
 import { getEffectivePrice } from '../utils/pricing'
+import { useSeo } from '../hooks/useSeo'
 
 export default function SearchResults() {
   const [searchParams] = useSearchParams()
   const query = searchParams.get('q') || ''
+  // Search result pages are dynamic/user-driven and low-value for organic search —
+  // noindex rather than robots.txt disallow, so the tag itself can still be crawled and honored.
+  useSeo({ title: query ? `Search results for "${query}"` : 'Search', noindex: true })
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -35,7 +39,7 @@ export default function SearchResults() {
   }, [query])
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-cz-page flex flex-col">
       <Navbar />
       <Header />
       <CategoryMenu />

@@ -6,6 +6,9 @@ Complete reference for everything on the website and in the admin panel: what ea
 
 ## Table of Contents
 
+- [Tech Stack](#tech-stack)
+- [Security Measures](#security-measures)
+
 ### Customer Website
 1. [Home Page](#1-home-page)
 2. [Shop & Product Listings](#2-shop--product-listings)
@@ -44,6 +47,72 @@ Complete reference for everything on the website and in the admin panel: what ea
 33. [Policies Page](#33-policies-page)
 34. [Privacy Policy Page](#34-privacy-policy-page)
 35. [Profile](#35-profile)
+
+---
+
+## Tech Stack
+
+A multi-tenant e-commerce platform: a single backend serves multiple storefronts (resolved by subdomain), each with its own catalog, orders, customers, and branding.
+
+### Frontend (`src/`)
+| Technology | Purpose |
+|---|---|
+| React 19 | UI library for storefront and admin dashboard |
+| React Router 7 | Client-side routing (storefront pages + `/admin/*` panel) |
+| Vite 8 | Dev server and production build tool |
+| Tailwind CSS 4 | Utility-first styling |
+| Recharts | Charts/graphs in the admin analytics and reports pages |
+| ESLint 10 | Linting |
+| Playwright | End-to-end browser testing |
+
+### Backend (`backend/`)
+| Technology | Purpose |
+|---|---|
+| Node.js + Express 5 | REST API server |
+| MySQL (`mysql2`) | Primary datastore, accessed via a connection pool with parameterized queries |
+| JSON Web Tokens (`jsonwebtoken`) | Session tokens, issued as HTTP-only cookies |
+| `bcryptjs` | Password hashing |
+| `otplib` + `qrcode` | TOTP-based two-factor authentication and QR provisioning |
+| `helmet` | Security-related HTTP response headers |
+| `cors` | Cross-origin request control |
+| `express-rate-limit` + custom limiters | Brute-force / abuse throttling |
+| `cookie-parser` | Reading http-only auth cookies |
+| `multer` | Multipart image upload handling |
+| `nodemailer` | Transactional email (verification, password reset, order notifications, promos) |
+| `pdfkit` | Generating invoice/order PDFs |
+| `dotenv` | Environment-based configuration/secrets |
+
+### Architecture
+- **Multi-tenant** — every request is resolved to a `business` by subdomain (or an `X-Store-Slug` header in dev) via `backend/middleware/tenant.js`. All customer, order, and catalog data is scoped by `business_id`.
+- **Store admin** — admins (`requireAuth` + `role: admin`) manage their own store's products, orders, customers, and settings.
+- **Decoupled SPA + API** — the React app talks to the Express API over `fetch` with `credentials: 'include'`, never handling raw JWTs in JS.
+
+---
+
+## Security Measures
+
+| Measure | Where | Details |
+|---|---|---|
+| Password hashing | `backend/controllers/authController.js` | `bcryptjs` with 12 salt rounds; passwords never stored or logged in plaintext |
+| Session tokens | `backend/utils/authCookies.js` | JWT stored in an `httpOnly`, `sameSite=lax` cookie (`secure` in production) — never exposed to client-side JS, mitigating XSS token theft |
+| Two-factor authentication (2FA) | `backend/utils/totp.js`, `backend/controllers/authController.js` | TOTP via `otplib`, single-use bcrypt-hashed recovery codes, and a short-lived (5 min), attempt-limited login "challenge" (`backend/utils/challengeStore.js`) that proves password verification without granting a real session |
+| Secrets encryption at rest | `backend/utils/crypto.js` | AES-256-GCM for stored payment/courier API credentials and TOTP secrets, keyed by `CREDENTIALS_ENCRYPTION_KEY` |
+| Login brute-force protection | `backend/middleware/loginRateLimit.js` | Per IP+email lockout after 5 failed attempts within a 15-minute window |
+| Signup / password-reset abuse protection | `backend/middleware/accountActionRateLimit.js` | Per-IP rate limit (10 requests / 15 min) via `express-rate-limit` on register, forgot-password, reset-password, and 2FA verify endpoints |
+| Email enumeration prevention | `forgotPassword` in `backend/controllers/authController.js` | Identical response returned whether or not the email is registered |
+| HTTP security headers | `backend/server.js` | `helmet` applied globally |
+| CORS allowlist | `backend/server.js` | Only the configured frontend host and its subdomains are allowed as origins (not a wildcard), required since cookies are sent cross-origin |
+| Tenant isolation | `backend/middleware/tenant.js`, `backend/middleware/auth.js` | Every query is scoped by `business_id`; a session JWT is rejected if used against a different store than it was issued for |
+| Role-based access control | `backend/middleware/auth.js` | `requireAuth`, `requireAdmin`, `requireSelfOrAdmin` gate store-level access by role |
+| SQL injection prevention | throughout `backend/controllers/*` | All queries use parameterized placeholders via `mysql2`, never string-concatenated SQL |
+| Time-safe token comparison | `backend/utils/unsubscribeToken.js` | HMAC-SHA256 unsubscribe tokens compared with `crypto.timingSafeEqual` to prevent timing attacks |
+| Payment webhook verification | `backend/controllers/safepayController.js` | Safepay webhook requests are rejected unless their HMAC signature header is present and valid, preventing forged "payment successful" callbacks |
+| File upload restrictions | `backend/middleware/upload.js` | `multer` restricts uploads to image MIME types only, 5 MB max, with randomized filenames |
+| Password/token expiry | `backend/controllers/authController.js` | Password reset tokens expire after 1 hour; login 2FA challenges expire after 5 minutes and lock after 5 failed attempts |
+| Minimum password length | `backend/controllers/authController.js` | Enforced (8+ characters) on change-password and reset-password |
+| Client-side route guarding | `src/components/admin/AdminRoute.jsx` | Admin UI routes redirect unauthenticated/non-admin users (defense in depth — the API itself is the real enforcement point) |
+
+**Note:** client-side route guards are a UX convenience, not a security boundary — all real authorization is enforced server-side by the middleware listed above.
 
 ---
 
@@ -191,7 +260,7 @@ Sign in with your admin email and password. On success you land on the Dashboard
 
 ### 13. Logging In
 
-Go to `/admin/login`. Enter your admin email and password. Incorrect credentials show an error — there is no lockout. After a successful login you are taken to the Dashboard. To log out, click **Logout (your name)** in the bottom-left of the sidebar.
+Go to `/admin/login`. Enter your admin email and password. Incorrect credentials show an error; after 5 failed attempts for the same email from the same IP, further attempts are locked out for 15 minutes (see [Security Measures](#security-measures)). After a successful login you are taken to the Dashboard. To log out, click **Logout (your name)** in the bottom-left of the sidebar.
 
 ---
 

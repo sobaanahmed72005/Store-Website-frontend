@@ -10,6 +10,8 @@ import { FilterAccordion, CheckboxGroup, PriceRangeFilter } from '../components/
 import { useCategories } from '../context/CategoryContext'
 import { api, resolveImageUrl } from '../api/client'
 import { getEffectivePrice } from '../utils/pricing'
+import { useSeo } from '../hooks/useSeo'
+import { useSiteSettings } from '../context/SiteSettingsContext'
 
 function categoryPath(slug) {
   return slug === 'laptops' ? '/laptops' : `/category/${slug}`
@@ -64,9 +66,19 @@ const SORT_OPTIONS = {
 }
 
 export default function Products() {
+  const { siteName } = useSiteSettings()
   const [searchParams] = useSearchParams()
   const activeFilter = Object.keys(FILTER_CONFIG).find((k) => searchParams.get(k) === '1') || null
   const pageTitle = activeFilter ? FILTER_CONFIG[activeFilter].label : 'All Products'
+
+  // /shop is the canonical all-products listing (richer filtering UI) — this page's
+  // content is a subset/near-duplicate of it, so every variant here points there
+  // to consolidate ranking signals instead of splitting them across near-identical pages.
+  useSeo({
+    title: `${pageTitle} | ${siteName || 'IT Network'}`,
+    description: `${pageTitle} at ${siteName || 'IT Network'} — competitive prices and fast delivery.`,
+    canonical: `${window.location.origin}/shop`,
+  })
 
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -110,7 +122,7 @@ export default function Products() {
   }, [products, selectedBrands, priceRange, sortBy])
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-cz-page flex flex-col">
       <Navbar />
       <Header />
       <CategoryMenu />

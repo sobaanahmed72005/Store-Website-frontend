@@ -4,29 +4,35 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-heading: "Instrument Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
 
-  /* Navy / steel blue family */
-  --color-cz-topbar: #102b53;
-  --color-cz-nav: #50698d;
-  --color-cz-header: #4e7ab1;
-  --color-cz-primary: #102b53;
-  --color-cz-primary-hover: #0c2242;
-  --color-cz-maroon-light: #7d9fc0;
+  /* Teal blue family — layered shades, white text */
+  --color-cz-topbar: #1e3f4f;
+  --color-cz-header: #2b6580;
+  --color-cz-nav: #4790ac;
+  --color-cz-primary: #35708f;
+  --color-cz-primary-hover: #244f66;
 
-  /* Golden family */
+  /* Sky blue accent */
+  --color-cz-sky: #6fb8d9;
+
+  /* Gold family — metallic gold */
   --color-cz-accent: #d4af37;
   --color-cz-accent-hover: #b8932e;
-  --color-cz-gold-light: #fbf3dc;
+  --color-cz-gold-light: #f7ecd9;
 
-  /* Lavender accent (product badges / wishlist) */
-  --color-cz-lavender: #ceb5d4;
+  /* Sea green accent (product badges / wishlist) */
+  --color-cz-lavender: #4fae8a;
 
-  --color-cz-ink: #102b53;
+  --color-cz-ink: #1f3a44;
+
+  /* Page background — warm cream instead of stark white */
+  --color-cz-page: #fbf6ec;
 }
 
 body {
   margin: 0;
   font-family: var(--font-sans);
   color: var(--color-cz-ink);
+  background-color: #fbf6ec;
 }
 
 .range-thumb {

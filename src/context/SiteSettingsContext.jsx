@@ -21,10 +21,6 @@ export function SiteSettingsProvider({ children }) {
   }, [])
 
   useEffect(() => {
-    document.title = siteName
-  }, [siteName])
-
-  useEffect(() => {
     const link = document.querySelector('link[rel="icon"]')
     if (link && logo) link.href = resolveImageUrl(logo)
   }, [logo])

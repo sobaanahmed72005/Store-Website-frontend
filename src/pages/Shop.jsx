@@ -10,6 +10,8 @@ import { FilterAccordion, CheckboxGroup, PriceRangeFilter } from '../components/
 import { useCategories } from '../context/CategoryContext'
 import { api, resolveImageUrl } from '../api/client'
 import { getEffectivePrice } from '../utils/pricing'
+import { useSeo } from '../hooks/useSeo'
+import { useSiteSettings } from '../context/SiteSettingsContext'
 
 function categoryPath(slug) {
   return slug === 'laptops' ? '/laptops' : `/category/${slug}`
@@ -58,12 +60,19 @@ const SORT_OPTIONS = {
 }
 
 export default function Shop() {
+  const { siteName } = useSiteSettings()
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [selectedBrands, setSelectedBrands] = useState(() => new Set())
   const [priceRange, setPriceRange] = useState(null)
   const [sortBy, setSortBy] = useState('newest')
+
+  useSeo({
+    title: `Shop All Products | ${siteName || 'IT Network'}`,
+    description: `Browse the full ${siteName || 'IT Network'} catalog — laptops, gaming gear, and PC components, with filters by brand and price.`,
+    canonical: `${window.location.origin}/shop`,
+  })
 
   useEffect(() => {
     api
@@ -97,7 +106,7 @@ export default function Shop() {
   }, [products, selectedBrands, priceRange, sortBy])
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-cz-page flex flex-col">
       <Navbar />
       <Header />
       <CategoryMenu />

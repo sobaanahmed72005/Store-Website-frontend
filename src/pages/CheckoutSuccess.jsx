@@ -2,8 +2,10 @@ import { useEffect } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import Logo from '../components/Logo'
+import { useSeo } from '../hooks/useSeo'
 
 export default function CheckoutSuccess() {
+  useSeo({ title: 'Payment Successful', noindex: true })
   const [params] = useSearchParams()
   const orderId = params.get('orderId')
   const { clearCart } = useCart()
@@ -13,7 +15,7 @@ export default function CheckoutSuccess() {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-cz-page flex flex-col">
       <div className="bg-white border-b border-[#dedede]">
         <div className="max-w-[1280px] mx-auto px-5 py-5">
           <Link to="/">
@@ -37,7 +39,7 @@ export default function CheckoutSuccess() {
             </p>
           )}
           <p className="text-[14px] text-[#4b4b4b] mb-8">
-            Your payment was confirmed via Safepay. We'll prepare your order and send you shipping updates by email.
+            Your payment was confirmed via Paymob. We'll prepare your order and send you shipping updates by email.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">

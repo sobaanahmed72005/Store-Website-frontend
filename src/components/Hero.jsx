@@ -64,7 +64,7 @@ export default function Hero() {
                           <p className="block text-[14px] font-normal text-[#212121] mb-[10px]">{slide.description}</p>
                         )}
                         {slide.cta && (
-                          <span className="inline-flex items-center justify-center gap-[5px] rounded-[5px] bg-cz-header text-white text-[13px] md:text-[14px] px-4 md:px-5 py-2.5 md:py-3 min-w-[20%]">
+                          <span className="inline-flex items-center justify-center gap-[5px] rounded-[5px] bg-cz-primary text-white text-[13px] md:text-[14px] px-4 md:px-5 py-2.5 md:py-3 min-w-[20%]">
                             {slide.cta}
                           </span>
                         )}
@@ -122,7 +122,7 @@ export default function Hero() {
                           </p>
                         )}
                         {banner.cta && (
-                          <span className="inline-flex items-center justify-center rounded-[5px] bg-cz-header text-white text-[13px] px-4 py-2">
+                          <span className="inline-flex items-center justify-center rounded-[5px] bg-cz-primary text-white text-[13px] px-4 py-2">
                             {banner.cta}
                           </span>
                         )}
@@ -131,7 +131,7 @@ export default function Hero() {
                   ) : (
                     banner.cta && (
                       <div className="absolute inset-0 flex items-end justify-start p-[17px]">
-                        <span className="inline-flex items-center justify-center gap-1 rounded-[5px] bg-cz-header text-white text-[13px] px-4 py-2">
+                        <span className="inline-flex items-center justify-center gap-1 rounded-[5px] bg-cz-primary text-white text-[13px] px-4 py-2">
                           {banner.cta}
                           <ChevronRightIcon size={16} />
                         </span>

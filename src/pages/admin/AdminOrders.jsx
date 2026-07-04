@@ -32,8 +32,8 @@ const STATUS_STYLE = {
   pending_payment:  'bg-blue-100 text-blue-700',
   pending:          'bg-cz-gold-light text-cz-ink',
   confirmed:        'bg-cz-accent text-cz-ink',
-  packed:           'bg-cz-lavender text-white',
-  shipped:          'bg-cz-maroon-light text-white',
+  packed:           'bg-cz-lavender text-cz-ink',
+  shipped:          'bg-cz-sky text-cz-ink',
   out_for_delivery: 'bg-amber-200 text-amber-900',
   delivered:        'bg-cz-primary text-white',
   returned:         'bg-purple-100 text-purple-700',
@@ -45,7 +45,7 @@ const PAYMENT_METHOD_LABEL = {
   jazzcash: 'JazzCash',
   easypaisa: 'EasyPaisa',
   cod: 'Cash on Delivery',
-  safepay: 'Safepay',
+  paymob: 'Paymob',
 }
 
 export default function AdminOrders() {
@@ -145,15 +145,12 @@ export default function AdminOrders() {
     setDownloadingInvoiceId(orderId)
     setError('')
     try {
-      const token = localStorage.getItem('cz_token')
       const slug = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
         ? 'main'
         : window.location.hostname.split('.')[0]
       const res = await fetch(`${BASE_URL}/admin/orders/${orderId}/invoice`, {
-        headers: {
-          Authorization: token ? `Bearer ${token}` : '',
-          'X-Store-Slug': slug,
-        },
+        headers: { 'X-Store-Slug': slug },
+        credentials: 'include',
       })
       if (!res.ok) throw new Error('Failed to generate invoice')
       const blob = await res.blob()

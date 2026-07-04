@@ -12,10 +12,12 @@ import { useWishlist } from '../context/WishlistContext'
 import { useCurrency, parsePkr } from '../context/CurrencyContext'
 import { api, resolveImageUrl } from '../api/client'
 import { getEffectivePrice } from '../utils/pricing'
+import { useSeo } from '../hooks/useSeo'
+import { useSiteSettings } from '../context/SiteSettingsContext'
 
 function ProductNotFound() {
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-cz-page flex flex-col">
       <Navbar />
       <Header />
       <CategoryMenu />
@@ -57,7 +59,7 @@ function Gallery({ images, title }) {
   return (
     <div className="flex flex-col gap-3">
       <div className="relative w-full aspect-square rounded-[10px] bg-white border border-[#dedede] overflow-hidden">
-        <img src={images[activeIndex]} alt={title} className="w-full h-full object-contain" />
+        <img src={images[activeIndex]} alt={title} fetchPriority="high" className="w-full h-full object-contain" />
         {images.length > 1 && (
           <>
             <button
@@ -90,7 +92,7 @@ function Gallery({ images, title }) {
                 i === activeIndex ? 'border-cz-primary' : 'border-[#dedede]'
               }`}
             >
-              <img src={src} alt={`${title} ${i + 1}`} className="w-full h-full object-contain" />
+              <img src={src} alt={`${title} ${i + 1}`} loading="lazy" decoding="async" className="w-full h-full object-contain" />
             </button>
           ))}
         </div>
@@ -124,6 +126,7 @@ export default function Product() {
   const { addToCart, closeCart } = useCart()
   const { isWishlisted, toggleWishlist } = useWishlist()
   const { format } = useCurrency()
+  const { siteName } = useSiteSettings()
 
   const [product, setProduct] = useState(null)
   const [checked, setChecked] = useState(false)
@@ -183,6 +186,50 @@ export default function Product() {
     return [...new Set(list)]
   }, [product])
 
+  const origin = window.location.origin
+  const canonical = `${origin}/product/${slug}`
+  useSeo({
+    title: product ? `${product.name} | ${siteName || 'IT Network'}` : undefined,
+    description: product?.description ? product.description.slice(0, 155) : undefined,
+    canonical: product ? canonical : undefined,
+    image: galleryImages[0],
+    noindex: !product,
+    jsonLd: product
+      ? [
+          {
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: product.name,
+            image: galleryImages,
+            description: product.description || undefined,
+            brand: product.brand ? { '@type': 'Brand', name: product.brand } : undefined,
+            sku: String(product.id),
+            offers: {
+              '@type': 'Offer',
+              url: canonical,
+              priceCurrency: 'PKR',
+              price: parsePkr(getEffectivePrice(product).price),
+              availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+            },
+            ...(reviewStats.count > 0
+              ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: reviewStats.average, reviewCount: reviewStats.count } }
+              : {}),
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Home', item: `${origin}/` },
+              ...(product.category_slug
+                ? [{ '@type': 'ListItem', position: 2, name: product.category_name, item: `${origin}/category/${product.category_slug}` }]
+                : []),
+              { '@type': 'ListItem', position: product.category_slug ? 3 : 2, name: product.name, item: canonical },
+            ],
+          },
+        ]
+      : undefined,
+  })
+
   if (!checked) return null
   if (!product) return <ProductNotFound />
 
@@ -234,7 +281,7 @@ export default function Product() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-cz-page flex flex-col">
       <Navbar />
       <Header />
       <CategoryMenu />
@@ -271,7 +318,7 @@ export default function Product() {
               <span className="text-[28px] font-semibold text-[#3d3d3d]">{format(pkrPrice)}</span>
               {oldPrice && <span className="text-[16px] text-[#3d3d3d] opacity-70 line-through">{format(oldPrice)}</span>}
               {discountPercent && (
-                <span className="rounded-[4px] bg-cz-lavender text-white text-[12px] font-semibold px-2.5 py-1">
+                <span className="rounded-[4px] bg-cz-lavender text-cz-ink text-[12px] font-semibold px-2.5 py-1">
                   {discountPercent}% Off
                 </span>
               )}
