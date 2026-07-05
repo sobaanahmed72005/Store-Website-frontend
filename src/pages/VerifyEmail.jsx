@@ -5,6 +5,7 @@ import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
 import { api } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 import { useSeo } from '../hooks/useSeo'
 
 export default function VerifyEmail() {
@@ -20,7 +21,7 @@ export default function VerifyEmail() {
         return
       }
       try {
-        await api.get(`/auth/verify-email?token=${encodeURIComponent(token)}`)
+        await api.get(ENDPOINTS.AUTH.VERIFY_EMAIL(token))
         setStatus('success')
       } catch {
         setStatus('error')

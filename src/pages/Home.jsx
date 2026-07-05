@@ -9,6 +9,7 @@ import Hero from '../components/Hero'
 import ProductCard from '../components/ProductCard'
 import Footer from '../components/Footer'
 import { api, resolveImageUrl } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 import { getEffectivePrice } from '../utils/pricing'
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../context/SiteSettingsContext'
@@ -63,9 +64,9 @@ export default function Home() {
   const { siteName, logoUrl } = useSiteSettings()
 
   useEffect(() => {
-    api.get('/products?featured=1').then(setFeatured).catch(() => setFeatured([]))
-    api.get('/products?new_arrival=1').then(setNewArrivals).catch(() => setNewArrivals([]))
-    api.get('/products?on_sale=1').then(setOnSale).catch(() => setOnSale([]))
+    api.get(ENDPOINTS.PRODUCTS.FEATURED).then(setFeatured).catch(() => setFeatured([]))
+    api.get(ENDPOINTS.PRODUCTS.NEW_ARRIVALS).then(setNewArrivals).catch(() => setNewArrivals([]))
+    api.get(ENDPOINTS.PRODUCTS.ON_SALE).then(setOnSale).catch(() => setOnSale([]))
   }, [])
 
   const origin = window.location.origin

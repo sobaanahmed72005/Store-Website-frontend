@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useState } from 'react'
 import { api, BASE_URL, resolveImageUrl } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { useCurrency } from '../../context/CurrencyContext'
 import { markOrdersSeen } from '../../utils/orderNotifications'
 
@@ -62,7 +63,7 @@ export default function AdminOrders() {
 
   const fetchOrders = () =>
     api
-      .get('/admin/orders', { auth: true })
+      .get(ENDPOINTS.ADMIN.ORDERS.BASE, { auth: true })
       .then((data) => {
         setOrders(data)
         if (data.length) markOrdersSeen(Math.max(...data.map((o) => o.id)))
@@ -79,7 +80,7 @@ export default function AdminOrders() {
     setError('')
     setNotice('')
     try {
-      const result = await api.put(`/admin/orders/${id}/status`, { status }, { auth: true })
+      const result = await api.put(ENDPOINTS.ADMIN.ORDERS.STATUS(id), { status }, { auth: true })
       setOrders((prev) =>
         prev.map((o) =>
           o.id === id
@@ -104,7 +105,7 @@ export default function AdminOrders() {
     setError('')
     setNotice('')
     try {
-      const result = await api.post(`/admin/orders/${orderId}/book-courier`, {}, { auth: true })
+      const result = await api.post(ENDPOINTS.ADMIN.ORDERS.BOOK_COURIER(orderId), {}, { auth: true })
       setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, courier_name: result.courier_name, tracking_number: result.tracking_number } : o)))
       setTrackingDrafts((prev) => ({ ...prev, [orderId]: { courier_name: result.courier_name, tracking_number: result.tracking_number } }))
       setNotice(`Order #${orderId} booked with Leopards — tracking number ${result.tracking_number}.`)
@@ -123,7 +124,7 @@ export default function AdminOrders() {
     setExpandedId(order.id)
     if (!order.items) {
       try {
-        const detail = await api.get(`/admin/orders/${order.id}`, { auth: true })
+        const detail = await api.get(ENDPOINTS.ADMIN.ORDERS.BY_ID(order.id), { auth: true })
         setOrders((prev) => prev.map((o) => (o.id === order.id ? { ...o, items: detail.items } : o)))
       } catch (err) {
         setError(err.message)
@@ -147,7 +148,7 @@ export default function AdminOrders() {
       const slug = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
         ? 'main'
         : window.location.hostname.split('.')[0]
-      const res = await fetch(`${BASE_URL}/admin/orders/${orderId}/invoice`, {
+      const res = await fetch(`${BASE_URL}${ENDPOINTS.ADMIN.ORDERS.INVOICE(orderId)}`, {
         headers: { 'X-Store-Slug': slug },
         credentials: 'include',
       })
@@ -173,7 +174,7 @@ export default function AdminOrders() {
     setError('')
     try {
       const draft = trackingDrafts[orderId]
-      await api.put(`/admin/orders/${orderId}/tracking`, draft, { auth: true })
+      await api.put(ENDPOINTS.ADMIN.ORDERS.TRACKING(orderId), draft, { auth: true })
       setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, ...draft } : o)))
     } catch (err) {
       setError(err.message)

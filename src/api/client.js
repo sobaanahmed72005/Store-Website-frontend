@@ -1,3 +1,5 @@
+import { ENDPOINTS } from './endpoints'
+
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
 const BASE_HOSTS = ['localhost', '127.0.0.1']
@@ -43,7 +45,7 @@ export const api = {
   del: (path, opts) => request(path, { ...opts, method: 'DELETE' }),
 }
 
-export async function uploadImage(file, endpoint = '/admin/upload') {
+export async function uploadImage(file, endpoint = ENDPOINTS.ADMIN.UPLOAD) {
   const formData = new FormData()
   formData.append('image', file)
 

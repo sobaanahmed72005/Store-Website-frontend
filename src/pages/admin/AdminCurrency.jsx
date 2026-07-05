@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { CURRENCY_CATALOG } from '../../context/CurrencyContext'
 
 export default function AdminCurrency() {
@@ -11,7 +12,7 @@ export default function AdminCurrency() {
   const [saved, setSaved] = useState(false)
 
   useEffect(() => {
-    Promise.all([api.get('/content/currency-settings'), api.get('/currency/rates')])
+    Promise.all([api.get(ENDPOINTS.CONTENT.CURRENCY_SETTINGS), api.get(ENDPOINTS.CURRENCY.RATES)])
       .then(([settings, rates]) => {
         setEnabled(settings.enabled?.length ? settings.enabled : ['PKR'])
         setRateInfo(rates)
@@ -30,7 +31,7 @@ export default function AdminCurrency() {
     setError('')
     setSaved(false)
     try {
-      await api.put('/admin/content/currency-settings', { enabled }, { auth: true })
+      await api.put(ENDPOINTS.ADMIN.CONTENT.CURRENCY_SETTINGS, { enabled }, { auth: true })
       setSaved(true)
     } catch (err) {
       setError(err.message)

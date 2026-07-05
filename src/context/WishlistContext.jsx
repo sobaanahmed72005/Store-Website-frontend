@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { api, resolveImageUrl } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 import { useAuth } from './AuthContext'
 
 const WishlistContext = createContext(null)
@@ -26,7 +27,7 @@ export function WishlistProvider({ children }) {
         return
       }
       try {
-        const rows = await api.get('/wishlist', { auth: true })
+        const rows = await api.get(ENDPOINTS.WISHLIST.BASE, { auth: true })
         setItems(rows.map(mapItem))
       } catch {
         setItems([])
@@ -42,17 +43,17 @@ export function WishlistProvider({ children }) {
 
     if (isWishlisted(product.id)) {
       setItems((prev) => prev.filter((item) => item.id !== product.id))
-      api.del(`/wishlist/${product.id}`, { auth: true }).catch(() => {})
+      api.del(ENDPOINTS.WISHLIST.BY_ID(product.id), { auth: true }).catch(() => {})
     } else {
       setItems((prev) => [mapItem(product), ...prev])
-      api.post('/wishlist', { product_id: product.id }, { auth: true }).catch(() => {})
+      api.post(ENDPOINTS.WISHLIST.BASE, { product_id: product.id }, { auth: true }).catch(() => {})
     }
     return true
   }
 
   const removeFromWishlist = (productId) => {
     setItems((prev) => prev.filter((item) => item.id !== productId))
-    api.del(`/wishlist/${productId}`, { auth: true }).catch(() => {})
+    api.del(ENDPOINTS.WISHLIST.BY_ID(productId), { auth: true }).catch(() => {})
   }
 
   return (

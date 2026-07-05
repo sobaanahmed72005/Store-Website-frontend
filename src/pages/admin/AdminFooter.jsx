@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 
 const emptyContent = {
   description: '',
@@ -60,7 +61,7 @@ export default function AdminFooter() {
 
   useEffect(() => {
     api
-      .get('/content/footer-brand')
+      .get(ENDPOINTS.CONTENT.FOOTER_BRAND)
       .then((data) =>
         setContent({
           description: data.description ?? '',
@@ -125,7 +126,7 @@ export default function AdminFooter() {
     setError('')
     setSaved(false)
     try {
-      await api.put('/admin/content/footer-brand', content, { auth: true })
+      await api.put(ENDPOINTS.ADMIN.CONTENT.FOOTER_BRAND, content, { auth: true })
       setSaved(true)
     } catch (err) {
       setError(err.message)

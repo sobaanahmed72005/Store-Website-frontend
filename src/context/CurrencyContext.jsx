@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { api } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 
 const CurrencyContext = createContext(null)
 const STORAGE_KEY = 'cz_currency'
@@ -36,7 +37,7 @@ export function CurrencyProvider({ children }) {
   const [currencies, setCurrencies] = useState(DEFAULT_CURRENCIES)
 
   useEffect(() => {
-    Promise.all([api.get('/content/currency-settings'), api.get('/currency/rates')])
+    Promise.all([api.get(ENDPOINTS.CONTENT.CURRENCY_SETTINGS), api.get(ENDPOINTS.CURRENCY.RATES)])
       .then(([settings, rateData]) => {
         const enabled = settings.enabled?.length ? settings.enabled : ['PKR']
         const next = {}

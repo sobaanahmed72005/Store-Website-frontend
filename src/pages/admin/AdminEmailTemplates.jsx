@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 
 const TEMPLATE_DEFAULTS = {
   signup: { subject: 'Verify your email address', message: "Thanks for creating an account with us! To get started, please verify your email address by clicking the button below." },
@@ -130,7 +131,7 @@ export default function AdminEmailTemplates() {
 
   useEffect(() => {
     setLoading(true)
-    api.get('/content/email-templates')
+    api.get(ENDPOINTS.CONTENT.EMAIL_TEMPLATES)
       .then((data) => {
         // Deep-merge fetched data with TEMPLATE_DEFAULTS so all 10 types are
         // always present in state, even if the DB only stored a subset.
@@ -166,7 +167,7 @@ export default function AdminEmailTemplates() {
     setError('')
     setSavedKey(null)
     try {
-      await api.put('/admin/content/email-templates', templates, { auth: true })
+      await api.put(ENDPOINTS.ADMIN.CONTENT.EMAIL_TEMPLATES, templates, { auth: true })
       setSavedKey(selected)
     } catch (err) {
       setError(err.message)

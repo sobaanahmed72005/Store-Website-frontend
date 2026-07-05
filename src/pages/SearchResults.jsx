@@ -6,6 +6,7 @@ import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
 import ProductCard from '../components/ProductCard'
 import { api, resolveImageUrl } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 import { getEffectivePrice } from '../utils/pricing'
 import { useSeo } from '../hooks/useSeo'
 
@@ -27,7 +28,7 @@ export default function SearchResults() {
       }
       setLoading(true)
       try {
-        const data = await api.get(`/products?search=${encodeURIComponent(query)}`)
+        const data = await api.get(ENDPOINTS.PRODUCTS.SEARCH(query))
         setResults(data)
       } catch {
         setResults([])

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 
 const emptyContent = {
   pageTitle: '',
@@ -15,7 +16,7 @@ export default function AdminPrivacyPolicy() {
 
   useEffect(() => {
     api
-      .get('/content/privacy-policy')
+      .get(ENDPOINTS.CONTENT.PRIVACY_POLICY)
       .then((data) =>
         setContent({
           pageTitle: data.pageTitle ?? '',
@@ -56,7 +57,7 @@ export default function AdminPrivacyPolicy() {
         pageTitle: content.pageTitle,
         sections: content.sections.filter((s) => s.heading.trim() !== ''),
       }
-      await api.put('/admin/content/privacy-policy', payload, { auth: true })
+      await api.put(ENDPOINTS.ADMIN.CONTENT.PRIVACY_POLICY, payload, { auth: true })
       setSaved(true)
     } catch (err) {
       setError(err.message)

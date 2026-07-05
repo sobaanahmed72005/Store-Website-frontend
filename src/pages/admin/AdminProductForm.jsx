@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { api, uploadImage, resolveImageUrl } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { ADMIN_PATH } from '../../config/adminPath'
 
 const emptyForm = {
@@ -43,13 +44,13 @@ export default function AdminProductForm() {
   const [galleryUploading, setGalleryUploading] = useState(false)
 
   useEffect(() => {
-    api.get('/admin/categories', { auth: true }).then(setCategories).catch(() => {})
+    api.get(ENDPOINTS.ADMIN.CATEGORIES.BASE, { auth: true }).then(setCategories).catch(() => {})
   }, [])
 
   useEffect(() => {
     if (!isEdit) return
     api
-      .get(`/admin/products/${id}`, { auth: true })
+      .get(ENDPOINTS.ADMIN.PRODUCTS.BY_ID(id), { auth: true })
       .then((p) => {
         setForm({
           name: p.name,
@@ -77,7 +78,7 @@ export default function AdminProductForm() {
       return
     }
     api
-      .get(`/admin/categories/${form.category_id}/attributes?merged=1`, { auth: true })
+      .get(ENDPOINTS.ADMIN.CATEGORIES.ATTRIBUTES_MERGED(form.category_id), { auth: true })
       .then((attrs) => {
         setAttributes(attrs)
         const validOptionIds = new Set(attrs.flatMap((a) => a.options.flatMap((o) => o.ids)))
@@ -171,9 +172,9 @@ export default function AdminProductForm() {
         images: galleryImages,
       }
       if (isEdit) {
-        await api.put(`/admin/products/${id}`, payload, { auth: true })
+        await api.put(ENDPOINTS.ADMIN.PRODUCTS.BY_ID(id), payload, { auth: true })
       } else {
-        await api.post('/admin/products', payload, { auth: true })
+        await api.post(ENDPOINTS.ADMIN.PRODUCTS.BASE, payload, { auth: true })
       }
       navigate(`${ADMIN_PATH}/products`)
     } catch (err) {

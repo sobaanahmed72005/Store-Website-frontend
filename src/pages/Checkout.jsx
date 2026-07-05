@@ -6,6 +6,7 @@ import { useCurrency } from '../context/CurrencyContext'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
 import { api, uploadImage } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 import { useSeo } from '../hooks/useSeo'
 
 function Input({ ...props }) {
@@ -134,7 +135,7 @@ export default function Checkout() {
   const [helplineEmail, setHelplineEmail] = useState('')
 
   useEffect(() => {
-    api.get('/content/shipping-settings').then((data) => setShippingFee(Number(data.fee) || 1800)).catch(() => {})
+    api.get(ENDPOINTS.CONTENT.SHIPPING_SETTINGS).then((data) => setShippingFee(Number(data.fee) || 1800)).catch(() => {})
     api
       .get('/content/payment-settings')
       .then((data) => {
@@ -166,7 +167,7 @@ export default function Checkout() {
     setApplyingDiscount(true)
     setDiscountError('')
     try {
-      const data = await api.post('/discount-codes/validate', { code: discountInput.trim(), subtotal: subTotal }, { auth: true })
+      const data = await api.post(ENDPOINTS.DISCOUNT_CODES.VALIDATE, { code: discountInput.trim(), subtotal: subTotal }, { auth: true })
       setAppliedDiscount(data)
     } catch (err) {
       setAppliedDiscount(null)
@@ -188,7 +189,7 @@ export default function Checkout() {
     setProofError('')
     setUploadingProof(true)
     try {
-      const data = await uploadImage(file, '/orders/payment-proof')
+      const data = await uploadImage(file, ENDPOINTS.ORDERS.PAYMENT_PROOF)
       setPaymentProofImage(data.url)
     } catch (err) {
       setProofError(err.message || 'Upload failed')
@@ -221,7 +222,7 @@ export default function Checkout() {
     try {
       const shippingAddress = [form.address1, form.address2].filter(Boolean).join(', ')
       await api.post(
-        '/orders',
+        ENDPOINTS.ORDERS.BASE,
         {
           shipping_name: form.fullName,
           shipping_address: shippingAddress,

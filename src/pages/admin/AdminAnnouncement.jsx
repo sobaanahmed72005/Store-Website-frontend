@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 
 const COLOR_PRESETS = [
   { label: 'Red (Sale)',   value: '#c62828' },
@@ -25,7 +26,7 @@ export default function AdminAnnouncement() {
 
   useEffect(() => {
     api
-      .get('/content/announcement-bar')
+      .get(ENDPOINTS.CONTENT.ANNOUNCEMENT_BAR)
       .then((data) => setForm((f) => ({ ...f, ...data })))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
@@ -36,7 +37,7 @@ export default function AdminAnnouncement() {
     setError('')
     setSaved(false)
     try {
-      await api.put('/admin/content/announcement-bar', form, { auth: true })
+      await api.put(ENDPOINTS.ADMIN.CONTENT.ANNOUNCEMENT_BAR, form, { auth: true })
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
     } catch (err) {

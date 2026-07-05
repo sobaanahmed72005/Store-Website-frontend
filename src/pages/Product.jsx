@@ -11,6 +11,7 @@ import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
 import { useCurrency, parsePkr } from '../context/CurrencyContext'
 import { api, resolveImageUrl } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 import { getEffectivePrice } from '../utils/pricing'
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../context/SiteSettingsContext'
@@ -271,7 +272,7 @@ export default function Product() {
     setReviewSubmitting(true)
     setReviewError('')
     try {
-      await api.post('/reviews', { product_id: product.id, rating: reviewForm.rating, comment: reviewForm.comment }, { auth: true })
+      await api.post(ENDPOINTS.REVIEWS.BASE, { product_id: product.id, rating: reviewForm.rating, comment: reviewForm.comment }, { auth: true })
       setReviewSubmitted(true)
     } catch (err) {
       setReviewError(err.message)

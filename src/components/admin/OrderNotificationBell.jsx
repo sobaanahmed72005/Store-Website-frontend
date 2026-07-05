@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { useCurrency } from '../../context/CurrencyContext'
 import { getLastSeenOrderId, markOrdersSeen, SEEN_EVENT } from '../../utils/orderNotifications'
 import { ADMIN_PATH } from '../../config/adminPath'
@@ -25,14 +26,14 @@ export default function OrderNotificationBell() {
         // First run ever: mark all existing orders as already-seen so the
         // admin isn't flooded with "new order" alerts for old history.
         if (!localStorage.getItem(BOOTSTRAP_KEY)) {
-          const initial = await api.get('/admin/orders/new?since_id=999999999', { auth: true })
+          const initial = await api.get(ENDPOINTS.ADMIN.ORDERS.NEW_SINCE(999999999), { auth: true })
           markOrdersSeen(initial.latestId)
           localStorage.setItem(BOOTSTRAP_KEY, '1')
           return
         }
 
         const sinceId = getLastSeenOrderId()
-        const data = await api.get(`/admin/orders/new?since_id=${sinceId}`, { auth: true })
+        const data = await api.get(ENDPOINTS.ADMIN.ORDERS.NEW_SINCE(sinceId), { auth: true })
         if (cancelled) return
         // Discard a stale response: if something else (e.g. visiting the Orders
         // page) advanced the seen-watermark while this request was in flight,

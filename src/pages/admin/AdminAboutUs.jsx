@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 
 const emptyContent = {
   paragraphs: [''],
@@ -17,7 +18,7 @@ export default function AdminAboutUs() {
 
   useEffect(() => {
     api
-      .get('/content/about-us')
+      .get(ENDPOINTS.CONTENT.ABOUT_US)
       .then((data) =>
         setContent({
           paragraphs: data.paragraphs?.length ? data.paragraphs : [''],
@@ -60,7 +61,7 @@ export default function AdminAboutUs() {
         storeAddress: content.storeAddress,
         storeTimings: content.storeTimings,
       }
-      await api.put('/admin/content/about-us', payload, { auth: true })
+      await api.put(ENDPOINTS.ADMIN.CONTENT.ABOUT_US, payload, { auth: true })
       setSaved(true)
     } catch (err) {
       setError(err.message)

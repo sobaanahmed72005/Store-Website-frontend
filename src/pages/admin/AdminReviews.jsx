@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 
 const emptyForm = { product_id: '', author_name: '', rating: '5', comment: '' }
 
@@ -21,14 +22,14 @@ export default function AdminReviews() {
   const loadReviews = (f = filter) => {
     setLoading(true)
     const qs = f === 'all' ? '' : `?status=${f}`
-    api.get(`/admin/reviews${qs}`, { auth: true })
+    api.get(ENDPOINTS.ADMIN.REVIEWS.LIST(qs), { auth: true })
       .then(setReviews)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
   }
 
   useEffect(() => {
-    api.get('/admin/products', { auth: true }).then(setProducts).catch(() => {})
+    api.get(ENDPOINTS.ADMIN.PRODUCTS.BASE, { auth: true }).then(setProducts).catch(() => {})
     loadReviews()
   }, [])
 
@@ -49,7 +50,7 @@ export default function AdminReviews() {
     setError('')
     try {
       await api.post(
-        `/admin/products/${form.product_id}/reviews`,
+        ENDPOINTS.ADMIN.PRODUCTS.REVIEWS(form.product_id),
         { author_name: form.author_name.trim(), rating: Number(form.rating), comment: form.comment || null },
         { auth: true },
       )
@@ -66,7 +67,7 @@ export default function AdminReviews() {
     setActingId(id)
     setError('')
     try {
-      await api.patch(`/admin/reviews/${id}`, { action }, { auth: true })
+      await api.patch(ENDPOINTS.ADMIN.REVIEWS.BY_ID(id), { action }, { auth: true })
       loadReviews()
     } catch (err) {
       setError(err.message)
@@ -80,7 +81,7 @@ export default function AdminReviews() {
     setActingId(id)
     setError('')
     try {
-      await api.del(`/admin/reviews/${id}`, { auth: true })
+      await api.del(ENDPOINTS.ADMIN.REVIEWS.BY_ID(id), { auth: true })
       loadReviews()
     } catch (err) {
       setError(err.message)

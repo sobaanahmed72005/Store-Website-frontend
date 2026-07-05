@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 
 const emptyForm = {
   provider: 'Leopards Courier',
@@ -26,7 +27,7 @@ export default function AdminCourier() {
 
   const loadSettings = () =>
     api
-      .get('/admin/courier-settings', { auth: true })
+      .get(ENDPOINTS.ADMIN.COURIER_SETTINGS.BASE, { auth: true })
       .then((data) => setForm({ ...emptyForm, ...data }))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
@@ -48,7 +49,7 @@ export default function AdminCourier() {
     setTestResult(null)
     try {
       await api.put(
-        '/admin/courier-settings',
+        ENDPOINTS.ADMIN.COURIER_SETTINGS.BASE,
         { ...form, api_key: apiKeyInput || undefined, api_password: apiPasswordInput || undefined },
         { auth: true }
       )
@@ -68,7 +69,7 @@ export default function AdminCourier() {
     setError('')
     setTestResult(null)
     try {
-      const result = await api.post('/admin/courier-settings/test', {}, { auth: true })
+      const result = await api.post(ENDPOINTS.ADMIN.COURIER_SETTINGS.TEST, {}, { auth: true })
       setTestResult(result.message)
     } catch (err) {
       setError(err.message)

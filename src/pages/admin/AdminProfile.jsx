@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api, uploadImage, resolveImageUrl } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { useSiteSettings } from '../../context/SiteSettingsContext'
 import { useAuth } from '../../context/AuthContext'
 
@@ -33,7 +34,7 @@ function BrandingSection() {
     setError('')
     setSaved(false)
     try {
-      await api.put('/admin/content/site-settings', { siteName: name, logo: logoValue }, { auth: true })
+      await api.put(ENDPOINTS.ADMIN.CONTENT.SITE_SETTINGS, { siteName: name, logo: logoValue }, { auth: true })
       setSiteName(name)
       setLogo(logoValue)
       setSaved(true)
@@ -100,7 +101,7 @@ function AccountSection() {
     setError('')
     setSaved(false)
     try {
-      const data = await api.put('/auth/me', { name, email }, { auth: true })
+      const data = await api.put(ENDPOINTS.AUTH.ME, { name, email }, { auth: true })
       updateSession(data.user)
       setSaved(true)
     } catch (err) {
@@ -167,7 +168,7 @@ function TwoFactorSection() {
   const [disableForm, setDisableForm] = useState({ password: '', token: '' })
 
   useEffect(() => {
-    api.get('/auth/2fa/status').then((data) => setStatus(data.enabled)).catch(() => setStatus(false))
+    api.get(ENDPOINTS.AUTH.TWO_FA_STATUS).then((data) => setStatus(data.enabled)).catch(() => setStatus(false))
   }, [])
 
   const startSetup = async (e) => {
@@ -175,7 +176,7 @@ function TwoFactorSection() {
     setError('')
     setBusy(true)
     try {
-      const data = await api.post('/auth/2fa/setup', { password: setupPassword })
+      const data = await api.post(ENDPOINTS.AUTH.TWO_FA_SETUP, { password: setupPassword })
       setSetupData(data)
       setEnabling(false)
       setSetupPassword('')
@@ -191,7 +192,7 @@ function TwoFactorSection() {
     setError('')
     setBusy(true)
     try {
-      const data = await api.post('/auth/2fa/confirm', { token: confirmToken })
+      const data = await api.post(ENDPOINTS.AUTH.TWO_FA_CONFIRM, { token: confirmToken })
       setRecoveryCodes(data.recoveryCodes)
       setStatus(true)
     } catch (err) {
@@ -217,7 +218,7 @@ function TwoFactorSection() {
     setError('')
     setBusy(true)
     try {
-      await api.post('/auth/2fa/disable', disableForm)
+      await api.post(ENDPOINTS.AUTH.TWO_FA_DISABLE, disableForm)
       setStatus(false)
       setDisabling(false)
       setDisableForm({ password: '', token: '' })
@@ -411,7 +412,7 @@ function PasswordSection() {
     setSaving(true)
     try {
       await api.put(
-        '/auth/change-password',
+        ENDPOINTS.AUTH.CHANGE_PASSWORD,
         { currentPassword: form.currentPassword, newPassword: form.newPassword },
         { auth: true }
       )

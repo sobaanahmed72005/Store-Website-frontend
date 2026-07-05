@@ -5,6 +5,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { useCurrency } from '../../context/CurrencyContext'
 import { ADMIN_PATH } from '../../config/adminPath'
 
@@ -113,24 +114,24 @@ export default function AdminReports() {
 
   useEffect(() => {
     Promise.all([
-      api.get('/admin/reports/revenue-summary', { auth: true }).then(setSummary),
-      api.get('/admin/reports/bottom-products?limit=10', { auth: true }).then(setBottomProducts),
-      api.get('/admin/reports/sales-by-city?limit=10', { auth: true }).then(setSalesByCity),
-      api.get('/admin/reports/order-status-breakdown', { auth: true }).then(setStatusBreakdown),
-      api.get('/admin/reports/payment-method-breakdown', { auth: true }).then(setPaymentBreakdown),
-      api.get('/admin/reports/order-value-histogram', { auth: true }).then(setValueHistogram),
-      api.get('/admin/reports/sale-split', { auth: true }).then(setSaleSplit),
+      api.get(ENDPOINTS.ADMIN.REPORTS.REVENUE_SUMMARY, { auth: true }).then(setSummary),
+      api.get(ENDPOINTS.ADMIN.REPORTS.BOTTOM_PRODUCTS(10), { auth: true }).then(setBottomProducts),
+      api.get(ENDPOINTS.ADMIN.REPORTS.SALES_BY_CITY(10), { auth: true }).then(setSalesByCity),
+      api.get(ENDPOINTS.ADMIN.REPORTS.ORDER_STATUS_BREAKDOWN, { auth: true }).then(setStatusBreakdown),
+      api.get(ENDPOINTS.ADMIN.REPORTS.PAYMENT_METHOD_BREAKDOWN, { auth: true }).then(setPaymentBreakdown),
+      api.get(ENDPOINTS.ADMIN.REPORTS.ORDER_VALUE_HISTOGRAM, { auth: true }).then(setValueHistogram),
+      api.get(ENDPOINTS.ADMIN.REPORTS.SALE_SPLIT, { auth: true }).then(setSaleSplit),
     ]).catch((err) => setError(err.message))
   }, [])
 
   useEffect(() => {
-    api.get(`/admin/reports/revenue-trend?period=${trendPeriod}`, { auth: true })
+    api.get(ENDPOINTS.ADMIN.REPORTS.REVENUE_TREND(trendPeriod), { auth: true })
       .then(setTrend)
       .catch((err) => setError(err.message))
   }, [trendPeriod])
 
   useEffect(() => {
-    api.get(`/admin/reports/top-products?limit=10&by=${topSortBy}`, { auth: true })
+    api.get(ENDPOINTS.ADMIN.REPORTS.TOP_PRODUCTS(10, topSortBy), { auth: true })
       .then(setTopProducts)
       .catch((err) => setError(err.message))
   }, [topSortBy])

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api, resolveImageUrl } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { useCurrency } from '../../context/CurrencyContext'
 import { getEffectivePrice } from '../../utils/pricing'
 import { ADMIN_PATH } from '../../config/adminPath'
@@ -13,7 +14,7 @@ export default function AdminProducts() {
 
   const fetchProducts = () =>
     api
-      .get('/admin/products', { auth: true })
+      .get(ENDPOINTS.ADMIN.PRODUCTS.BASE, { auth: true })
       .then(setProducts)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
@@ -25,7 +26,7 @@ export default function AdminProducts() {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this product? This cannot be undone.')) return
     try {
-      await api.del(`/admin/products/${id}`, { auth: true })
+      await api.del(ENDPOINTS.ADMIN.PRODUCTS.BY_ID(id), { auth: true })
       setProducts((prev) => prev.filter((p) => p.id !== id))
     } catch (err) {
       setError(err.message)

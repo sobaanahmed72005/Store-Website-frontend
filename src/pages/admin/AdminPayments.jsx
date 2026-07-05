@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 
 const emptyMethods = {
   bank_transfer: { enabled: false, label: 'Bank Transfer', bankName: '', accountTitle: '', accountNumber: '', instructions: '' },
@@ -16,7 +17,7 @@ export default function AdminPayments() {
   const [saved, setSaved] = useState(false)
 
   useEffect(() => {
-    api.get('/content/payment-settings')
+    api.get(ENDPOINTS.CONTENT.PAYMENT_SETTINGS)
       .then((data) => setMethods({ ...emptyMethods, ...data.methods }))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
@@ -31,7 +32,7 @@ export default function AdminPayments() {
     setError('')
     setSaved(false)
     try {
-      await api.put('/admin/content/payment-settings', { methods }, { auth: true })
+      await api.put(ENDPOINTS.ADMIN.CONTENT.PAYMENT_SETTINGS, { methods }, { auth: true })
       setSaved(true)
     } catch (err) {
       setError(err.message)

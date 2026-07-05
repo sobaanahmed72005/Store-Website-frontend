@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 
 const EMPTY_SLIDE = { image: '', tagline: '', title: '', description: '', cta: '', href: '', active: true }
 const EMPTY_SIDE = { image: '', tagline: '', title: '', description: '', cta: '', href: '', active: true }
@@ -52,7 +53,7 @@ export default function AdminBanners() {
 
   useEffect(() => {
     api
-      .get('/content/hero-banners')
+      .get(ENDPOINTS.CONTENT.HERO_BANNERS)
       .then((data) => {
         setSlides(data.slides || [])
         if (data.sideBanners?.length >= 2) setSideBanners(data.sideBanners)
@@ -116,7 +117,7 @@ export default function AdminBanners() {
     setError('')
     setSaved(false)
     try {
-      await api.put('/admin/content/hero-banners', { slides, sideBanners }, { auth: true })
+      await api.put(ENDPOINTS.ADMIN.CONTENT.HERO_BANNERS, { slides, sideBanners }, { auth: true })
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
     } catch (err) {

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 
 export default function AdminShipping() {
   const [fee, setFee] = useState('1800')
@@ -10,7 +11,7 @@ export default function AdminShipping() {
 
   useEffect(() => {
     api
-      .get('/content/shipping-settings')
+      .get(ENDPOINTS.CONTENT.SHIPPING_SETTINGS)
       .then((data) => setFee(String(data.fee ?? 1800)))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
@@ -22,7 +23,7 @@ export default function AdminShipping() {
     setError('')
     setSaved(false)
     try {
-      await api.put('/admin/content/shipping-settings', { fee: Number(fee) || 0 }, { auth: true })
+      await api.put(ENDPOINTS.ADMIN.CONTENT.SHIPPING_SETTINGS, { fee: Number(fee) || 0 }, { auth: true })
       setSaved(true)
     } catch (err) {
       setError(err.message)

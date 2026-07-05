@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { api } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 
 const AuthContext = createContext(null)
 
@@ -23,7 +24,7 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     api
-      .get('/auth/me')
+      .get(ENDPOINTS.AUTH.ME)
       .then((data) => setUser(data.user))
       .catch(() => setUser(null))
   }, [])
@@ -31,7 +32,7 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     setLoading(true)
     try {
-      const data = await api.post('/auth/login', { email, password })
+      const data = await api.post(ENDPOINTS.AUTH.LOGIN, { email, password })
       if (!data.requires2fa) setUser(data.user)
       return data
     } finally {
@@ -42,7 +43,7 @@ export function AuthProvider({ children }) {
   const verifyTwoFactor = async (challengeId, token) => {
     setLoading(true)
     try {
-      const data = await api.post('/auth/2fa/verify', { challengeId, token })
+      const data = await api.post(ENDPOINTS.AUTH.TWO_FA_VERIFY, { challengeId, token })
       setUser(data.user)
       return data.user
     } finally {
@@ -53,7 +54,7 @@ export function AuthProvider({ children }) {
   const register = async (name, email, password, phone) => {
     setLoading(true)
     try {
-      const data = await api.post('/auth/register', { name, email, password, phone })
+      const data = await api.post(ENDPOINTS.AUTH.REGISTER, { name, email, password, phone })
       setUser(data.user)
       return data.user
     } finally {
@@ -63,7 +64,7 @@ export function AuthProvider({ children }) {
 
   const logout = () => {
     setUser(null)
-    api.post('/auth/logout', {}).catch(() => {})
+    api.post(ENDPOINTS.AUTH.LOGOUT, {}).catch(() => {})
   }
 
   const updateSession = (nextUser) => {

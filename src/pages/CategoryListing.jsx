@@ -8,6 +8,7 @@ import ProductCard from '../components/ProductCard'
 import { GridIcon, ListIcon } from '../components/icons'
 import { FilterAccordion, CheckboxGroup, PriceRangeFilter } from '../components/filters/FilterPrimitives'
 import { api, resolveImageUrl } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 import { getEffectivePrice } from '../utils/pricing'
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../context/SiteSettingsContext'
@@ -62,7 +63,7 @@ export default function CategoryListing() {
     async function load() {
       setDbChecked(false)
       try {
-        const cat = await api.get(`/categories/${slug}`)
+        const cat = await api.get(ENDPOINTS.CATEGORIES.BY_SLUG(slug))
         setDbCategory(cat)
       } catch {
         setDbCategory(null)
@@ -77,7 +78,7 @@ export default function CategoryListing() {
     async function load() {
       setLoadingProducts(true)
       try {
-        const data = await api.get(`/products?category=${slug}`)
+        const data = await api.get(ENDPOINTS.PRODUCTS.BY_CATEGORY(slug))
         setProducts(data)
       } catch {
         setProducts([])

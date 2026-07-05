@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 
 export default function AdminNewsletter() {
   const [subscribers, setSubscribers] = useState([])
@@ -13,7 +14,7 @@ export default function AdminNewsletter() {
   const load = () => {
     setLoading(true)
     api
-      .get('/admin/newsletter', { auth: true })
+      .get(ENDPOINTS.ADMIN.NEWSLETTER.BASE, { auth: true })
       .then(setSubscribers)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
@@ -26,7 +27,7 @@ export default function AdminNewsletter() {
   const handleDelete = async (id) => {
     if (!window.confirm('Remove this subscriber?')) return
     try {
-      await api.del(`/admin/newsletter/${id}`, { auth: true })
+      await api.del(ENDPOINTS.ADMIN.NEWSLETTER.BY_ID(id), { auth: true })
       load()
     } catch (err) {
       setError(err.message)
@@ -43,7 +44,7 @@ export default function AdminNewsletter() {
     setError('')
     setSentMessage('')
     try {
-      const data = await api.post('/admin/newsletter/send', { subject, message }, { auth: true })
+      const data = await api.post(ENDPOINTS.ADMIN.NEWSLETTER.SEND, { subject, message }, { auth: true })
       setSentMessage(`Sent to ${data.sent} subscriber(s).`)
       setSubject('')
       setMessage('')

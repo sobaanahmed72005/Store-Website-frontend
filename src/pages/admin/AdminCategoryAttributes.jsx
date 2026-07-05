@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { ADMIN_PATH } from '../../config/adminPath'
 
 export default function AdminCategoryAttributes() {
@@ -17,8 +18,8 @@ export default function AdminCategoryAttributes() {
   const load = () => {
     setLoading(true)
     Promise.all([
-      api.get('/admin/categories', { auth: true }).then((cats) => cats.find((c) => String(c.id) === id)),
-      api.get(`/admin/categories/${id}/attributes?effective=1`, { auth: true }),
+      api.get(ENDPOINTS.ADMIN.CATEGORIES.BASE, { auth: true }).then((cats) => cats.find((c) => String(c.id) === id)),
+      api.get(ENDPOINTS.ADMIN.CATEGORIES.ATTRIBUTES_EFFECTIVE(id), { auth: true }),
     ])
       .then(([cat, attrs]) => {
         setCategory(cat)
@@ -37,7 +38,7 @@ export default function AdminCategoryAttributes() {
     if (!newAttrName.trim()) return
     setError('')
     try {
-      await api.post(`/admin/categories/${id}/attributes`, { name: newAttrName.trim() }, { auth: true })
+      await api.post(ENDPOINTS.ADMIN.CATEGORIES.ATTRIBUTES(id), { name: newAttrName.trim() }, { auth: true })
       setNewAttrName('')
       load()
     } catch (err) {
@@ -48,7 +49,7 @@ export default function AdminCategoryAttributes() {
   const handleDeleteAttribute = async (attrId) => {
     if (!window.confirm('Delete this filter and all its options? This also removes it from any products.')) return
     try {
-      await api.del(`/admin/attributes/${attrId}`, { auth: true })
+      await api.del(ENDPOINTS.ADMIN.ATTRIBUTES.BY_ID(attrId), { auth: true })
       load()
     } catch (err) {
       setError(err.message)
@@ -61,7 +62,7 @@ export default function AdminCategoryAttributes() {
     if (!value) return
     setError('')
     try {
-      await api.post(`/admin/attributes/${attrId}/options`, { value }, { auth: true })
+      await api.post(ENDPOINTS.ADMIN.ATTRIBUTES.OPTIONS(attrId), { value }, { auth: true })
       setOptionDrafts((prev) => ({ ...prev, [attrId]: '' }))
       load()
     } catch (err) {
@@ -71,7 +72,7 @@ export default function AdminCategoryAttributes() {
 
   const handleDeleteOption = async (optId) => {
     try {
-      await api.del(`/admin/options/${optId}`, { auth: true })
+      await api.del(ENDPOINTS.ADMIN.OPTIONS.BY_ID(optId), { auth: true })
       load()
     } catch (err) {
       setError(err.message)
@@ -83,7 +84,7 @@ export default function AdminCategoryAttributes() {
     if (!value?.trim() || value.trim() === opt.value) return
     setError('')
     try {
-      await api.patch(`/admin/options/${opt.id}`, { value: value.trim() }, { auth: true })
+      await api.patch(ENDPOINTS.ADMIN.OPTIONS.BY_ID(opt.id), { value: value.trim() }, { auth: true })
       load()
     } catch (err) {
       setError(err.message)

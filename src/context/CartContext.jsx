@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { api } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 import { useAuth } from './AuthContext'
 import { getEffectivePrice } from '../utils/pricing'
 
@@ -29,7 +30,7 @@ export function CartProvider({ children }) {
     if (!user || syncedForUser.current === user.id) return
 
     api
-      .get(`/cart/${user.id}`, { auth: true })
+      .get(ENDPOINTS.CART.BY_USER(user.id), { auth: true })
       .then((serverItems) => {
         if (serverItems.length > 0) {
           setItems(
@@ -52,7 +53,7 @@ export function CartProvider({ children }) {
 
   useEffect(() => {
     if (!user || syncedForUser.current !== user.id) return
-    api.put(`/cart/${user.id}`, { items }, { auth: true }).catch(() => {})
+    api.put(ENDPOINTS.CART.BY_USER(user.id), { items }, { auth: true }).catch(() => {})
   }, [items, user])
 
   const addToCart = (product, qty = 1) => {
@@ -91,7 +92,7 @@ export function CartProvider({ children }) {
     const results = await Promise.all(
       items.map(async (item) => {
         try {
-          const product = await api.get(`/products/${item.slug}`)
+          const product = await api.get(ENDPOINTS.PRODUCTS.BY_SLUG(item.slug))
           return { item, product }
         } catch {
           return { item, product: null }

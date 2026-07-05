@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api, uploadImage, resolveImageUrl } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { ADMIN_PATH } from '../../config/adminPath'
 
 const emptyForm = { name: '', slug: '', parent_id: '', image: '', description: '', show_in_nav: true, show_in_icons: true }
@@ -24,7 +25,7 @@ export default function AdminCategories() {
 
   const fetchCategories = () =>
     api
-      .get('/admin/categories', { auth: true })
+      .get(ENDPOINTS.ADMIN.CATEGORIES.BASE, { auth: true })
       .then(setCategories)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
@@ -94,9 +95,9 @@ export default function AdminCategories() {
     }
     try {
       if (editingId) {
-        await api.put(`/admin/categories/${editingId}`, payload, { auth: true })
+        await api.put(ENDPOINTS.ADMIN.CATEGORIES.BY_ID(editingId), payload, { auth: true })
       } else {
-        await api.post('/admin/categories', payload, { auth: true })
+        await api.post(ENDPOINTS.ADMIN.CATEGORIES.BASE, payload, { auth: true })
       }
       resetForm()
       load()
@@ -122,7 +123,7 @@ export default function AdminCategories() {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this category? Its subcategories will also be deleted and products in it will be unassigned.')) return
     try {
-      await api.del(`/admin/categories/${id}`, { auth: true })
+      await api.del(ENDPOINTS.ADMIN.CATEGORIES.BY_ID(id), { auth: true })
       load()
     } catch (err) {
       setError(err.message)

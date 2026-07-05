@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 
 const emptyContent = {
   pageTitle: '',
@@ -15,7 +16,7 @@ export default function AdminPolicies() {
 
   useEffect(() => {
     api
-      .get('/content/policies')
+      .get(ENDPOINTS.CONTENT.POLICIES)
       .then((data) =>
         setContent({
           pageTitle: data.pageTitle ?? '',
@@ -56,7 +57,7 @@ export default function AdminPolicies() {
         pageTitle: content.pageTitle,
         sections: content.sections.filter((s) => s.heading.trim() !== ''),
       }
-      await api.put('/admin/content/policies', payload, { auth: true })
+      await api.put(ENDPOINTS.ADMIN.CONTENT.POLICIES, payload, { auth: true })
       setSaved(true)
     } catch (err) {
       setError(err.message)

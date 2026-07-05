@@ -5,6 +5,7 @@ import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
 import { api } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 import { useSeo } from '../hooks/useSeo'
 
 export default function ForgotPassword() {
@@ -19,7 +20,7 @@ export default function ForgotPassword() {
     setError('')
     setSubmitting(true)
     try {
-      await api.post('/auth/forgot-password', { email })
+      await api.post(ENDPOINTS.AUTH.FORGOT_PASSWORD, { email })
       setSent(true)
     } catch (err) {
       setError(err.message)

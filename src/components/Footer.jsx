@@ -15,6 +15,7 @@ import {
 import SiteLink from './SiteLink'
 import Logo from './Logo'
 import { api } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 import { useSiteSettings } from '../context/SiteSettingsContext'
 import { useAuth } from '../context/AuthContext'
 
@@ -90,7 +91,7 @@ function Newsletter() {
     setStatus('submitting')
     setError('')
     try {
-      const data = await api.post('/newsletter/subscribe', { email })
+      const data = await api.post(ENDPOINTS.NEWSLETTER.SUBSCRIBE, { email })
       localStorage.setItem(SUBSCRIBED_STORAGE_KEY, email)
       setStatus('success')
       setAlreadySubscribed(Boolean(data.alreadySubscribed))

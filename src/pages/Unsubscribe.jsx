@@ -5,6 +5,7 @@ import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
 import { api } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 import { useSeo } from '../hooks/useSeo'
 
 export default function Unsubscribe() {
@@ -21,7 +22,7 @@ export default function Unsubscribe() {
         return
       }
       try {
-        await api.post('/newsletter/unsubscribe', { email, token })
+        await api.post(ENDPOINTS.NEWSLETTER.UNSUBSCRIBE, { email, token })
         setStatus('success')
       } catch {
         setStatus('error')

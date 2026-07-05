@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { useCurrency } from '../../context/CurrencyContext'
 
 const emptyForm = { code: '', discount_type: 'percent', discount_value: '', expires_at: '', reusable: false }
@@ -15,7 +16,7 @@ export default function AdminDiscountCodes() {
   const load = () => {
     setLoading(true)
     api
-      .get('/admin/discount-codes', { auth: true })
+      .get(ENDPOINTS.ADMIN.DISCOUNT_CODES.BASE, { auth: true })
       .then(setCodes)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
@@ -36,7 +37,7 @@ export default function AdminDiscountCodes() {
     setCreating(true)
     try {
       await api.post(
-        '/admin/discount-codes',
+        ENDPOINTS.ADMIN.DISCOUNT_CODES.BASE,
         {
           code: form.code,
           discount_type: form.discount_type,
@@ -57,7 +58,7 @@ export default function AdminDiscountCodes() {
 
   const toggleActive = async (codeRow) => {
     try {
-      await api.patch(`/admin/discount-codes/${codeRow.id}`, { is_active: !codeRow.is_active }, { auth: true })
+      await api.patch(ENDPOINTS.ADMIN.DISCOUNT_CODES.BY_ID(codeRow.id), { is_active: !codeRow.is_active }, { auth: true })
       load()
     } catch (err) {
       setError(err.message)
@@ -67,7 +68,7 @@ export default function AdminDiscountCodes() {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this discount code? Customers will no longer be able to apply it.')) return
     try {
-      await api.del(`/admin/discount-codes/${id}`, { auth: true })
+      await api.del(ENDPOINTS.ADMIN.DISCOUNT_CODES.BY_ID(id), { auth: true })
       load()
     } catch (err) {
       setError(err.message)

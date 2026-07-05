@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { useCurrency } from '../../context/CurrencyContext'
 
 export default function AdminCustomers() {
@@ -13,7 +14,7 @@ export default function AdminCustomers() {
 
   useEffect(() => {
     api
-      .get('/admin/customers', { auth: true })
+      .get(ENDPOINTS.ADMIN.CUSTOMERS.BASE, { auth: true })
       .then(setCustomers)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
@@ -27,7 +28,7 @@ export default function AdminCustomers() {
     setExpandedId(customer.id)
     if (!details[customer.id]) {
       try {
-        const detail = await api.get(`/admin/customers/${customer.id}`, { auth: true })
+        const detail = await api.get(ENDPOINTS.ADMIN.CUSTOMERS.BY_ID(customer.id), { auth: true })
         setDetails((prev) => ({ ...prev, [customer.id]: detail }))
       } catch (err) {
         setError(err.message)

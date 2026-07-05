@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 
 export default function AdminBulkSale() {
   const [products, setProducts] = useState([])
@@ -15,8 +16,8 @@ export default function AdminBulkSale() {
   const [result, setResult] = useState('')
 
   useEffect(() => {
-    api.get('/admin/products', { auth: true }).then(setProducts).catch(() => {})
-    api.get('/admin/categories', { auth: true }).then(setCategories).catch(() => {})
+    api.get(ENDPOINTS.ADMIN.PRODUCTS.BASE, { auth: true }).then(setProducts).catch(() => {})
+    api.get(ENDPOINTS.ADMIN.CATEGORIES.BASE, { auth: true }).then(setCategories).catch(() => {})
   }, [])
 
   const topLevelCategories = categories.filter((c) => !c.parent_id)
@@ -55,7 +56,7 @@ export default function AdminBulkSale() {
 
     setSaving(true)
     try {
-      const data = await api.post('/admin/products/bulk-sale', buildPayload('apply'), { auth: true })
+      const data = await api.post(ENDPOINTS.ADMIN.PRODUCTS.BULK_SALE,buildPayload('apply'), { auth: true })
       setResult(`Sale applied to ${data.updated} product(s).`)
     } catch (err) {
       setError(err.message)
@@ -72,7 +73,7 @@ export default function AdminBulkSale() {
 
     setSaving(true)
     try {
-      const data = await api.post('/admin/products/bulk-sale', buildPayload('clear'), { auth: true })
+      const data = await api.post(ENDPOINTS.ADMIN.PRODUCTS.BULK_SALE,buildPayload('clear'), { auth: true })
       setResult(`Sale cleared on ${data.updated} product(s).`)
     } catch (err) {
       setError(err.message)
