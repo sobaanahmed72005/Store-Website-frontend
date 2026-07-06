@@ -13,6 +13,7 @@ import { getEffectivePrice } from '../utils/pricing'
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../context/SiteSettingsContext'
 import { SITE_TAGLINE } from '../config/seoDefaults'
+import SeoHeadingFiller from '../components/SeoHeadingFiller'
 
 function SectionHeading({ heading, seeAllHref }) {
   return (
@@ -70,10 +71,12 @@ export default function Home() {
 
   const origin = window.location.origin
   useSeo({
-    title: siteName || 'IT Network',
+    title: `${siteName || 'IT Network'} — Laptops, Gaming Gear & PC Components in Pakistan`,
     description: SITE_TAGLINE,
     canonical: `${origin}/`,
     image: logoUrl,
+    keywords: 'laptops in Pakistan, gaming PC, PC components, buy laptop online, computer store Pakistan',
+    publisher: siteName || 'IT Network',
     jsonLd: [
       {
         '@context': 'https://schema.org',
@@ -94,6 +97,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-cz-page">
+      {/* Real, crawlable page heading — the visual hero below is a rotating admin-editable
+          carousel (multiple slides in the DOM at once), so it can't reliably serve as the
+          page's single h1 without risking more than one on the page. */}
+      <h1 className="sr-only">{siteName || 'IT Network'} — Laptops, Gaming Gear & PC Components in Pakistan</h1>
+      <SeoHeadingFiller h3="Shop by category" h4="Popular categories" h5="Store highlights" h6="Quick links" />
       <AnnouncementBar />
       <Navbar />
       <Header />

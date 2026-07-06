@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { api, uploadImage, resolveImageUrl } from '../../api/client'
 import { useSiteSettings } from '../../context/SiteSettingsContext'
 import { useAuth } from '../../context/AuthContext'
+import { useSeo } from '../../hooks/useSeo'
+import SeoHeadingFiller from '../../components/SeoHeadingFiller'
 
 function BrandingSection() {
   const { siteName, setSiteName, logo, setLogo } = useSiteSettings()
@@ -54,7 +56,7 @@ function BrandingSection() {
         <label className="block text-[13px] text-[#4b4b4b] mb-1">Logo</label>
         <div className="flex items-center gap-4">
           {logoValue && (
-            <img src={resolveImageUrl(logoValue)} alt="Logo preview" className="h-10 w-auto object-contain rounded-md border border-[#dedede] p-1" />
+            <img src={resolveImageUrl(logoValue)} alt="Logo preview" width={40} height={40} className="h-10 w-auto object-contain rounded-md border border-[#dedede] p-1" />
           )}
           <input type="file" accept="image/*" onChange={handleFileChange} className="text-[13px]" />
         </div>
@@ -259,7 +261,7 @@ function TwoFactorSection() {
           <p className="text-[13px] text-[#4b4b4b]">
             Scan this QR code with an authenticator app (Google Authenticator, Authy, etc.), then enter the 6-digit code it shows.
           </p>
-          <img src={setupData.qrCodeDataUrl} alt="Two-factor QR code" className="w-[180px] h-[180px] border border-[#dedede] rounded-md" />
+          <img src={setupData.qrCodeDataUrl} alt="Two-factor QR code" width={180} height={180} className="w-[180px] h-[180px] border border-[#dedede] rounded-md" />
           <p className="text-[12px] text-[#9ca3af]">
             Can&apos;t scan? Enter this key manually: <span className="font-mono">{setupData.manualEntryKey}</span>
           </p>
@@ -483,9 +485,16 @@ function PasswordSection() {
 }
 
 export default function AdminProfile() {
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Profile — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    canonical: `${window.location.origin}${window.location.pathname}`,
+    noindex: true,
+  })
   return (
     <div className="p-8 max-w-[640px]">
       <h1 className="text-[22px] font-semibold text-[#212121] mb-6">Profile</h1>
+      <SeoHeadingFiller h3="Two-factor authentication" h4="Recovery codes" h5="Change password" h6="Save action" />
       <div className="flex flex-col gap-6">
         <BrandingSection />
         <AccountSection />

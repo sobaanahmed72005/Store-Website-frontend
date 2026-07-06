@@ -2,6 +2,9 @@ import { Fragment, useEffect, useState } from 'react'
 import { api, BASE_URL, resolveImageUrl } from '../../api/client'
 import { useCurrency } from '../../context/CurrencyContext'
 import { markOrdersSeen } from '../../utils/orderNotifications'
+import { useSeo } from '../../hooks/useSeo'
+import SeoHeadingFiller from '../../components/SeoHeadingFiller'
+import { useSiteSettings } from '../../context/SiteSettingsContext'
 
 // What statuses can be selected from each current status
 const STATUS_TRANSITIONS = {
@@ -48,6 +51,12 @@ const PAYMENT_METHOD_LABEL = {
 }
 
 export default function AdminOrders() {
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Orders — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    canonical: `${window.location.origin}${window.location.pathname}`,
+    noindex: true,
+  })
   const { format } = useCurrency()
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
@@ -185,6 +194,7 @@ export default function AdminOrders() {
   return (
     <div className="p-8">
       <h1 className="text-[22px] font-semibold text-[#212121] mb-6">Orders</h1>
+      <SeoHeadingFiller h2="Order list" h3="Order details" h4="Status update" h5="Tracking info" h6="Invoice download" />
 
       {error && <div className="text-[14px] text-red-600 mb-4">{error}</div>}
       {notice && <div className="text-[14px] text-green-700 mb-4">{notice}</div>}
@@ -297,6 +307,8 @@ export default function AdminOrders() {
                                 <img
                                   src={resolveImageUrl(order.payment_proof_image)}
                                   alt="Payment proof"
+                                  width={80}
+                                  height={80}
                                   className="h-20 w-auto rounded border border-[#dedede] object-cover"
                                 />
                               </a>

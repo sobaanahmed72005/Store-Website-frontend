@@ -18,13 +18,15 @@ export default function Logo({ variant = 'dark', className = '', textClassName =
 
   if (iconOnly) {
     return logoUrl ? (
-      <img src={logoUrl} alt={siteName} className={`h-8 w-auto object-contain shrink-0 ${className}`} />
+      <img src={logoUrl} alt={siteName} width={32} height={32} className={`h-8 w-auto object-contain shrink-0 ${className}`} />
     ) : null
   }
 
   return (
     <span className={`flex items-center gap-2 font-heading font-bold leading-none whitespace-nowrap ${textClassName} ${className}`}>
-      {logoUrl && !hideIcon && <img src={logoUrl} alt={siteName} className={`w-auto object-contain shrink-0 ${iconClassName}`} />}
+      {logoUrl && !hideIcon && (
+        <img src={logoUrl} alt={siteName} width={28} height={28} className={`w-auto object-contain shrink-0 ${iconClassName}`} />
+      )}
       <span>
         <span className={isLight ? 'text-white' : 'text-cz-primary'}>{first}</span>
         {hasBoundary && (

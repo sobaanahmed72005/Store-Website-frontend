@@ -1,7 +1,16 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { useSeo } from '../../hooks/useSeo'
+import SeoHeadingFiller from '../../components/SeoHeadingFiller'
+import { useSiteSettings } from '../../context/SiteSettingsContext'
 
 export default function AdminBulkSale() {
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Bulk Sale — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    canonical: `${window.location.origin}${window.location.pathname}`,
+    noindex: true,
+  })
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
   const [scope, setScope] = useState('all')
@@ -84,6 +93,7 @@ export default function AdminBulkSale() {
   return (
     <div className="p-8 max-w-[760px]">
       <h1 className="text-[22px] font-semibold text-[#212121] mb-2">Bulk Sale</h1>
+      <SeoHeadingFiller h2="Bulk sale settings" h3="Scope selection" h4="Discount configuration" h5="Preview" h6="Apply action" />
       <p className="text-[14px] text-[#4b4b4b] mb-6">
         Apply or clear a sale price across many products at once.
       </p>

@@ -6,9 +6,16 @@ import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
 import { api } from '../api/client'
 import { useSeo } from '../hooks/useSeo'
+import SeoHeadingFiller from '../components/SeoHeadingFiller'
+import { useSiteSettings } from '../context/SiteSettingsContext'
 
 export default function ResetPassword() {
-  useSeo({ title: 'Reset Password', noindex: true })
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Reset Password — ${siteName || 'IT Network'} Account Recovery`,
+    canonical: `${window.location.origin}/reset-password`,
+    noindex: true,
+  })
   const [searchParams] = useSearchParams()
   const token = searchParams.get('token')
   const navigate = useNavigate()
@@ -46,7 +53,8 @@ export default function ResetPassword() {
 
       <div className="flex-1 flex items-center justify-center py-[50px] px-5">
         <div className="w-full max-w-[420px] mx-auto">
-          <h2 className="text-[18px] font-semibold text-black mb-[15px]">Reset Password</h2>
+          <h1 className="text-[18px] font-semibold text-black mb-[15px]">Reset Password</h1>
+          <SeoHeadingFiller h3="New password form" h4="Password requirements" h5="Back to sign in" h6="Support" />
 
           {!token ? (
             <p className="text-[14px] text-[#4b4b4b]">

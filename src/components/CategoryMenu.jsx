@@ -11,7 +11,7 @@ export function useNavItems() {
 
   const fixedItems = [
     { label: 'Home', to: '/' },
-    { label: 'Products', to: '/products', hasDropdown: true },
+    { label: 'Products', to: '/shop', hasDropdown: true },
   ]
 
   const dynamicItems = navCategories

@@ -1,7 +1,16 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { useSeo } from '../../hooks/useSeo'
+import SeoHeadingFiller from '../../components/SeoHeadingFiller'
+import { useSiteSettings } from '../../context/SiteSettingsContext'
 
 export default function AdminNewsletter() {
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Newsletter — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    canonical: `${window.location.origin}${window.location.pathname}`,
+    noindex: true,
+  })
   const [subscribers, setSubscribers] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -57,6 +66,7 @@ export default function AdminNewsletter() {
   return (
     <div className="p-8">
       <h1 className="text-[22px] font-semibold text-[#212121] mb-6">Newsletter</h1>
+      <SeoHeadingFiller h3="Subscriber list" h4="Compose message" h5="Send action" h6="Delete subscriber" />
 
       {error && <div className="text-[14px] text-red-600 mb-4">{error}</div>}
 

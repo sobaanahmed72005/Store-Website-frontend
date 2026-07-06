@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api, uploadImage, resolveImageUrl } from '../../api/client'
 import { ADMIN_PATH } from '../../config/adminPath'
+import { useSeo } from '../../hooks/useSeo'
+import SeoHeadingFiller from '../../components/SeoHeadingFiller'
+import { useSiteSettings } from '../../context/SiteSettingsContext'
 
 const emptyForm = { name: '', slug: '', parent_id: '', image: '', description: '', show_in_nav: true, show_in_icons: true }
 
@@ -14,6 +17,12 @@ function slugify(value) {
 }
 
 export default function AdminCategories() {
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Categories — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    canonical: `${window.location.origin}${window.location.pathname}`,
+    noindex: true,
+  })
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -132,6 +141,7 @@ export default function AdminCategories() {
   return (
     <div className="p-8">
       <h1 className="text-[22px] font-semibold text-[#212121] mb-6">Categories</h1>
+      <SeoHeadingFiller h2="Category list" h3="Add category" h4="Image upload" h5="Visibility options" h6="Delete action" />
 
       {error && <div className="text-[14px] text-red-600 mb-4">{error}</div>}
 
@@ -179,7 +189,7 @@ export default function AdminCategories() {
             <label className="block text-[13px] text-[#4b4b4b] mb-1">Image</label>
             <div className="flex items-center gap-3">
               {form.image && (
-                <img src={resolveImageUrl(form.image)} alt="Preview" className="w-10 h-10 object-cover rounded-md border border-[#dedede]" />
+                <img src={resolveImageUrl(form.image)} alt="Preview" width={40} height={40} className="w-10 h-10 object-cover rounded-md border border-[#dedede]" />
               )}
               <input type="file" accept="image/*" onChange={handleFileChange} className="text-[13px]" />
             </div>
@@ -256,7 +266,7 @@ export default function AdminCategories() {
                 <tr key={c.id} className="border-t border-[#dedede]">
                   <td className="px-4 py-3">
                     {c.image ? (
-                      <img src={resolveImageUrl(c.image)} alt={c.name} className="w-9 h-9 object-cover rounded-md border border-[#dedede]" />
+                      <img src={resolveImageUrl(c.image)} alt={c.name} width={36} height={36} className="w-9 h-9 object-cover rounded-md border border-[#dedede]" />
                     ) : (
                       <div className="w-9 h-9 rounded-md border border-[#dedede] bg-cz-gold-light" />
                     )}

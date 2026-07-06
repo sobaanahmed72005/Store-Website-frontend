@@ -6,9 +6,16 @@ import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
 import { api } from '../api/client'
 import { useSeo } from '../hooks/useSeo'
+import SeoHeadingFiller from '../components/SeoHeadingFiller'
+import { useSiteSettings } from '../context/SiteSettingsContext'
 
 export default function VerifyEmail() {
-  useSeo({ title: 'Verify Email', noindex: true })
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Verify Your Email — ${siteName || 'IT Network'} Account`,
+    canonical: `${window.location.origin}/verify-email`,
+    noindex: true,
+  })
   const [searchParams] = useSearchParams()
   const token = searchParams.get('token')
   const [status, setStatus] = useState('loading')
@@ -36,11 +43,13 @@ export default function VerifyEmail() {
       <CategoryMenu />
 
       <div className="flex-1 flex flex-col items-center justify-center text-center py-20 px-5">
+        <h1 className="sr-only">Verify Email</h1>
+        <SeoHeadingFiller h3="Verification status" h4="Next steps" h5="Resend link" h6="Support" />
         {status === 'loading' && <p className="text-[14px] text-[#4b4b4b]">Verifying your email...</p>}
 
         {status === 'success' && (
           <>
-            <h1 className="text-[20px] font-semibold text-[#212121] mb-2">Email verified</h1>
+            <h2 className="text-[20px] font-semibold text-[#212121] mb-2">Email verified</h2>
             <p className="text-[14px] text-[#4b4b4b] mb-6 max-w-[420px]">
               Your email address has been verified successfully.
             </p>
@@ -49,7 +58,7 @@ export default function VerifyEmail() {
 
         {status === 'error' && (
           <>
-            <h1 className="text-[20px] font-semibold text-[#212121] mb-2">Verification link invalid</h1>
+            <h2 className="text-[20px] font-semibold text-[#212121] mb-2">Verification link invalid</h2>
             <p className="text-[14px] text-[#4b4b4b] mb-6 max-w-[420px]">
               This verification link is invalid or has already been used. You can request a new one from your
               account page.

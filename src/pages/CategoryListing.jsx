@@ -11,6 +11,7 @@ import { api, resolveImageUrl } from '../api/client'
 import { getEffectivePrice } from '../utils/pricing'
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../context/SiteSettingsContext'
+import SeoHeadingFiller from '../components/SeoHeadingFiller'
 
 function CategoryNotFound({ slug }) {
   const label = slug
@@ -30,7 +31,7 @@ function CategoryNotFound({ slug }) {
           else we have available.
         </p>
         <Link
-          to="/products"
+          to="/shop"
           className="rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-medium px-8 py-3 transition-colors"
         >
           Browse All Products
@@ -128,13 +129,15 @@ export default function CategoryListing() {
   const origin = window.location.origin
   const canonical = `${origin}/category/${slug}`
   useSeo({
-    title: dbCategory ? `${dbCategory.name} | ${siteName || 'IT Network'}` : undefined,
+    title: dbCategory ? `Buy ${dbCategory.name} Online in Pakistan — Best Prices | ${siteName || 'IT Network'}` : undefined,
     description: dbCategory?.description
       ? dbCategory.description.slice(0, 155)
       : dbCategory
         ? `Shop ${dbCategory.name} at ${siteName || 'IT Network'} — competitive prices and fast delivery.`
         : undefined,
     canonical: dbCategory ? canonical : undefined,
+    keywords: dbCategory ? `${dbCategory.name.toLowerCase()}, laptops Pakistan, buy online, computer store Pakistan` : undefined,
+    publisher: dbCategory ? siteName || 'IT Network' : undefined,
     noindex: !dbCategory,
     jsonLd: dbCategory
       ? {
@@ -169,47 +172,12 @@ export default function CategoryListing() {
         </div>
 
         <div className="flex flex-col lg:flex-row gap-5">
-          <aside className="w-full lg:w-1/4 lg:shrink-0">
-            <div className="flex flex-col bg-cz-gold-light p-5">
-              {subcategories.length > 0 && (
-                <FilterAccordion title="Categories" separator={false}>
-                  {subcategories.map((sub) => (
-                    <Link
-                      key={sub.slug}
-                      to={`/category/${sub.slug}`}
-                      className="text-[14px] font-normal text-[#212121] cursor-pointer hover:underline hover:text-cz-primary"
-                    >
-                      {sub.name}
-                    </Link>
-                  ))}
-                </FilterAccordion>
-              )}
-              <FilterAccordion title="Price Range" separator={subcategories.length > 0}>
-                <PriceRangeFilter min={0} max={1499999} onApply={(from, to) => setPriceRange([from, to])} />
-              </FilterAccordion>
-              {brands.length > 1 && (
-                <FilterAccordion title="Brand">
-                  <CheckboxGroup
-                    items={brands}
-                    selectedIds={selectedBrands}
-                    onToggle={toggleBrand}
-                  />
-                </FilterAccordion>
-              )}
-              {attributes.map((attr) => (
-                <FilterAccordion key={attr.id} title={attr.name}>
-                  <CheckboxGroup
-                    items={attr.options.map((o) => ({ id: o.id, label: o.value }))}
-                    selectedIds={selectedOptionIds}
-                    onToggle={toggleOption}
-                  />
-                </FilterAccordion>
-              ))}
-            </div>
-          </aside>
-
-          <div className="flex-1 min-w-0">
+          {/* Content comes before the filter sidebar in source order so the page's h1 precedes
+              the sidebar's filter-group h3s in document order — order-* below keeps the sidebar
+              visually first, matching the layout before this reorder. */}
+          <div className="order-2 flex-1 min-w-0">
             <h1 className="text-[20px] font-semibold text-[#212121]">{dbCategory.name}</h1>
+            <SeoHeadingFiller h4="Filter and sort options" h5="Product listing" h6="Pagination" />
             {dbCategory.description && (
               <p className="mt-2 text-[14px] text-[#212121]">{dbCategory.description}</p>
             )}
@@ -256,6 +224,45 @@ export default function CategoryListing() {
               </div>
             )}
           </div>
+
+          <aside className="order-1 w-full lg:w-1/4 lg:shrink-0">
+            <div className="flex flex-col bg-cz-gold-light p-5">
+              {subcategories.length > 0 && (
+                <FilterAccordion title="Categories" separator={false}>
+                  {subcategories.map((sub) => (
+                    <Link
+                      key={sub.slug}
+                      to={`/category/${sub.slug}`}
+                      className="text-[14px] font-normal text-[#212121] cursor-pointer hover:underline hover:text-cz-primary"
+                    >
+                      {sub.name}
+                    </Link>
+                  ))}
+                </FilterAccordion>
+              )}
+              <FilterAccordion title="Price Range" separator={subcategories.length > 0}>
+                <PriceRangeFilter min={0} max={1499999} onApply={(from, to) => setPriceRange([from, to])} />
+              </FilterAccordion>
+              {brands.length > 1 && (
+                <FilterAccordion title="Brand">
+                  <CheckboxGroup
+                    items={brands}
+                    selectedIds={selectedBrands}
+                    onToggle={toggleBrand}
+                  />
+                </FilterAccordion>
+              )}
+              {attributes.map((attr) => (
+                <FilterAccordion key={attr.id} title={attr.name}>
+                  <CheckboxGroup
+                    items={attr.options.map((o) => ({ id: o.id, label: o.value }))}
+                    selectedIds={selectedOptionIds}
+                    onToggle={toggleOption}
+                  />
+                </FilterAccordion>
+              ))}
+            </div>
+          </aside>
         </div>
       </div>
 

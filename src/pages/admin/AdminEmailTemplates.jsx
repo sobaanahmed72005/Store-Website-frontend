@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { useSeo } from '../../hooks/useSeo'
+import SeoHeadingFiller from '../../components/SeoHeadingFiller'
+import { useSiteSettings } from '../../context/SiteSettingsContext'
 
 const TEMPLATE_DEFAULTS = {
   signup: { subject: 'Verify your email address', message: "Thanks for creating an account with us! To get started, please verify your email address by clicking the button below." },
@@ -121,6 +124,12 @@ const EMAIL_TYPES = [
 ]
 
 export default function AdminEmailTemplates() {
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Email Templates — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    canonical: `${window.location.origin}${window.location.pathname}`,
+    noindex: true,
+  })
   const [templates, setTemplates] = useState({})
   const [selected, setSelected] = useState('signup')
   const [loading, setLoading] = useState(true)
@@ -181,6 +190,7 @@ export default function AdminEmailTemplates() {
   return (
     <div className="p-8">
       <h1 className="text-[22px] font-semibold text-[#212121] mb-1">Email Templates</h1>
+      <SeoHeadingFiller h3="Template selector" h4="Subject line" h5="Message body" h6="Save action" />
       <p className="text-[13px] text-[#4b4b4b] mb-6">
         Customize the subject line and message body for each automatic email. Use placeholders like{' '}
         <code className="bg-cz-gold-light text-[#212121] px-1.5 py-0.5 rounded text-[12px] font-mono">{'{{name}}'}</code>{' '}

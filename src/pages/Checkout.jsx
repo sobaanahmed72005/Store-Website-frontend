@@ -7,6 +7,8 @@ import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
 import { api, uploadImage } from '../api/client'
 import { useSeo } from '../hooks/useSeo'
+import SeoHeadingFiller from '../components/SeoHeadingFiller'
+import { useSiteSettings } from '../context/SiteSettingsContext'
 
 function Input({ ...props }) {
   return (
@@ -90,7 +92,12 @@ function PaymentMethodDetails({ methodKey, method }) {
 }
 
 export default function Checkout() {
-  useSeo({ title: 'Checkout', noindex: true })
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Checkout — Complete Your Order | ${siteName || 'IT Network'}`,
+    canonical: `${window.location.origin}/checkout`,
+    noindex: true,
+  })
   const { format } = useCurrency()
   const { items, subTotal, clearCart } = useCart()
   const { user, initializing } = useAuth()
@@ -252,6 +259,8 @@ export default function Checkout() {
 
   return (
     <div className="min-h-screen bg-cz-page">
+      <h1 className="sr-only">Checkout</h1>
+      <SeoHeadingFiller h3="Order review" h4="Discount code" h5="Payment proof upload" h6="Terms notice" />
       <div className="bg-white border-b border-[#dedede]">
         <div className="max-w-[1280px] 2xl:max-w-[1800px] min-[2000px]:max-w-[2200px] mx-auto px-5">
           <div className="flex justify-between items-center py-5">
@@ -403,6 +412,8 @@ export default function Checkout() {
                     <img
                       src={item.image}
                       alt={item.title}
+                      width={90}
+                      height={90}
                       className="aspect-square object-cover border rounded-lg w-[90px] h-[90px] ml-3"
                     />
                     <div className="flex flex-col ps-4 flex-1">

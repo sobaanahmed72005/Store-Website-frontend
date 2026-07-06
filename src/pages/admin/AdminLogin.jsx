@@ -5,9 +5,16 @@ import Logo from '../../components/Logo'
 import TwoFactorCodeForm from '../../components/TwoFactorCodeForm'
 import { ADMIN_PATH } from '../../config/adminPath'
 import { useSeo } from '../../hooks/useSeo'
+import SeoHeadingFiller from '../../components/SeoHeadingFiller'
+import { useSiteSettings } from '../../context/SiteSettingsContext'
 
 export default function AdminLogin() {
-  useSeo({ title: 'Admin Sign In', noindex: true })
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Admin Sign In — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    canonical: `${window.location.origin}${window.location.pathname}`,
+    noindex: true,
+  })
   const { login, verifyTwoFactor, logout, user, loading, initializing } = useAuth()
   const navigate = useNavigate()
   const [form, setForm] = useState({ email: '', password: '' })
@@ -63,6 +70,7 @@ export default function AdminLogin() {
       <div className="min-h-screen flex flex-col items-center justify-center bg-cz-topbar px-5">
         <Logo variant="light" textClassName="text-2xl mb-6" />
         <div className="w-full max-w-[380px] bg-white rounded-[10px] border border-[#dedede] p-8">
+          <h1 className="sr-only">Admin Sign In</h1>
           <TwoFactorCodeForm onSubmit={handleTwoFactorSubmit} loading={loading} error={error} />
         </div>
       </div>
@@ -77,6 +85,7 @@ export default function AdminLogin() {
         className="w-full max-w-[380px] bg-white rounded-[10px] border border-[#dedede] p-8"
       >
         <h1 className="text-[20px] font-semibold text-[#212121] mb-1">Admin Sign In</h1>
+        <SeoHeadingFiller h2="Sign in form" h3="Credentials" h4="Two-factor authentication" h5="Submit action" h6="Support" />
         <p className="text-[13px] text-[#4b4b4b] mb-5">Sign in to manage products, categories and orders.</p>
 
         {error && <div className="mb-3 text-[13px] text-red-600">{error}</div>}

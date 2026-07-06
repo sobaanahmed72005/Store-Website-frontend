@@ -48,10 +48,21 @@ function upsertJsonLd(data) {
 // tags, robots directive, and JSON-LD — the app has no server-side rendering, so
 // this all runs client-side on mount/update (Googlebot's second indexing wave
 // picks these up after JS execution).
-export function useSeo({ title, description, canonical, image, noindex = false, jsonLd } = {}) {
+export function useSeo({
+  title,
+  description,
+  canonical,
+  image,
+  noindex = false,
+  jsonLd,
+  keywords,
+  publisher,
+} = {}) {
   useEffect(() => {
     if (title) document.title = title
     upsertMeta('name', 'description', description)
+    upsertMeta('name', 'keywords', keywords)
+    upsertMeta('name', 'publisher', publisher)
     upsertMeta('property', 'og:title', title)
     upsertMeta('property', 'og:description', description)
     upsertMeta('property', 'og:type', 'website')
@@ -62,5 +73,5 @@ export function useSeo({ title, description, canonical, image, noindex = false, 
     upsertLink('canonical', canonical)
     upsertJsonLd(jsonLd)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [title, description, canonical, image, noindex, JSON.stringify(jsonLd)])
+  }, [title, description, canonical, image, noindex, keywords, publisher, JSON.stringify(jsonLd)])
 }
