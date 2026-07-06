@@ -93,7 +93,7 @@ export default function Checkout() {
   useSeo({ title: 'Checkout', noindex: true })
   const { format } = useCurrency()
   const { items, subTotal, clearCart } = useCart()
-  const { user } = useAuth()
+  const { user, initializing } = useAuth()
   const navigate = useNavigate()
   const [sameAsBilling, setSameAsBilling] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -197,6 +197,8 @@ export default function Checkout() {
       setUploadingProof(false)
     }
   }
+
+  if (initializing) return null
 
   if (!user) {
     return <Navigate to="/signin" state={{ from: '/checkout' }} replace />

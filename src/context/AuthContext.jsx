@@ -3,29 +3,28 @@ import { api } from '../api/client'
 
 const AuthContext = createContext(null)
 
-function readStoredUser() {
-  try {
-    const raw = localStorage.getItem('cz_user')
-    return raw ? JSON.parse(raw) : null
-  } catch {
-    return null
-  }
-}
+// One-time cleanup: before the switch to httpOnly cookies, this app stored the actual JWT in
+// localStorage under this key. Nothing reads or writes it anymore, but localStorage has no
+// expiry — any browser that used the app before that switch may still be holding the stale
+// value, so this sweeps it away on load.
+localStorage.removeItem('cz_token')
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(readStoredUser)
+  // Signed-in state (including admin name/email/role) is never cached client-side — it's held
+  // only in memory here and re-derived from the httpOnly session cookie via /auth/me on every
+  // load. `initializing` covers the gap while that first check is in flight: route guards must
+  // wait for it instead of treating a not-yet-known session as "logged out", or a hard refresh
+  // would briefly bounce an already-signed-in user (including an admin) to the login page.
+  const [user, setUser] = useState(null)
+  const [initializing, setInitializing] = useState(true)
   const [loading, setLoading] = useState(false)
-
-  useEffect(() => {
-    if (user) localStorage.setItem('cz_user', JSON.stringify(user))
-    else localStorage.removeItem('cz_user')
-  }, [user])
 
   useEffect(() => {
     api
       .get('/auth/me')
       .then((data) => setUser(data.user))
       .catch(() => setUser(null))
+      .finally(() => setInitializing(false))
   }, [])
 
   const login = async (email, password) => {
@@ -71,7 +70,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, verifyTwoFactor, register, logout, updateSession, isAdmin: user?.role === 'admin' }}>
+    <AuthContext.Provider value={{ user, initializing, loading, login, verifyTwoFactor, register, logout, updateSession, isAdmin: user?.role === 'admin' }}>
       {children}
     </AuthContext.Provider>
   )
