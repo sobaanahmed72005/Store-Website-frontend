@@ -221,7 +221,7 @@ const STATUS_LABEL = {
 
 export default function Account() {
   useSeo({ title: 'My Account', noindex: true })
-  const { user, logout } = useAuth()
+  const { user, logout, initializing } = useAuth()
   const { format } = useCurrency()
   const location = useLocation()
   const [orders, setOrders] = useState([])
@@ -237,6 +237,8 @@ export default function Account() {
       .catch(() => setOrders([]))
       .finally(() => setLoading(false))
   }, [user])
+
+  if (initializing) return null
 
   if (!user) {
     return <Navigate to="/signin" replace />
