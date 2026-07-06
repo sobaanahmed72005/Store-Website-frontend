@@ -12,7 +12,7 @@ export function FilterAccordion({ title, defaultOpen = true, separator = true, c
         onClick={() => setOpen((v) => !v)}
         className="flex items-center justify-between py-[10px] cursor-pointer text-left"
       >
-        <span className="text-[15px] font-semibold text-[#212121]">{title}</span>
+        <h3 className="text-[15px] font-semibold text-[#212121] m-0">{title}</h3>
         <span className="text-[#212121]">
           {open ? <MinusIcon size={15} /> : <PlusIcon size={15} />}
         </span>

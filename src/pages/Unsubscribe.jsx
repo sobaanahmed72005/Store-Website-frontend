@@ -6,9 +6,16 @@ import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
 import { api } from '../api/client'
 import { useSeo } from '../hooks/useSeo'
+import SeoHeadingFiller from '../components/SeoHeadingFiller'
+import { useSiteSettings } from '../context/SiteSettingsContext'
 
 export default function Unsubscribe() {
-  useSeo({ title: 'Unsubscribe', noindex: true })
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Unsubscribe from ${siteName || 'IT Network'} Newsletter`,
+    canonical: `${window.location.origin}/unsubscribe`,
+    noindex: true,
+  })
   const [searchParams] = useSearchParams()
   const email = searchParams.get('email')
   const token = searchParams.get('token')
@@ -37,11 +44,13 @@ export default function Unsubscribe() {
       <CategoryMenu />
 
       <div className="flex-1 flex flex-col items-center justify-center text-center py-20 px-5">
+        <h1 className="sr-only">Unsubscribe</h1>
+        <SeoHeadingFiller h3="Unsubscribe status" h4="What happens next" h5="Resubscribe info" h6="Support" />
         {status === 'loading' && <p className="text-[14px] text-[#4b4b4b]">Processing your request...</p>}
 
         {status === 'success' && (
           <>
-            <h1 className="text-[20px] font-semibold text-[#212121] mb-2">You've been unsubscribed</h1>
+            <h2 className="text-[20px] font-semibold text-[#212121] mb-2">You've been unsubscribed</h2>
             <p className="text-[14px] text-[#4b4b4b] mb-6 max-w-[420px]">
               {email} will no longer receive newsletter or promotional emails from us. Changed your mind? You can
               resubscribe any time from the footer of our site.
@@ -51,7 +60,7 @@ export default function Unsubscribe() {
 
         {status === 'error' && (
           <>
-            <h1 className="text-[20px] font-semibold text-[#212121] mb-2">This link is invalid</h1>
+            <h2 className="text-[20px] font-semibold text-[#212121] mb-2">This link is invalid</h2>
             <p className="text-[14px] text-[#4b4b4b] mb-6 max-w-[420px]">
               This unsubscribe link is invalid or malformed. If you're still receiving emails you don't want,
               contact us and we'll remove you manually.

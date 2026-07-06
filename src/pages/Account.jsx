@@ -10,6 +10,8 @@ import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
 import { api } from '../api/client'
 import { useSeo } from '../hooks/useSeo'
+import SeoHeadingFiller from '../components/SeoHeadingFiller'
+import { useSiteSettings } from '../context/SiteSettingsContext'
 
 function ProfileSection() {
   const { user, updateSession } = useAuth()
@@ -178,9 +180,9 @@ function WishlistSection() {
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
       {items.map((item) => (
         <div key={item.id} className="rounded-[10px] border border-[#dedede] p-4 flex gap-3">
-          <img src={item.image} alt={item.title} className="w-[64px] h-[64px] object-contain shrink-0" />
+          <img src={item.image} alt={item.title} width={64} height={64} className="w-[64px] h-[64px] object-contain shrink-0" />
           <div className="flex-1 min-w-0">
-            <Link to={item.slug ? `/product/${item.slug}` : '/products'} className="text-[14px] font-medium text-[#212121] line-clamp-2 hover:text-cz-primary">
+            <Link to={item.slug ? `/product/${item.slug}` : '/shop'} className="text-[14px] font-medium text-[#212121] line-clamp-2 hover:text-cz-primary">
               {item.title}
             </Link>
             <div className="text-[14px] text-[#212121] mt-1">{format(item.price)}</div>
@@ -220,7 +222,12 @@ const STATUS_LABEL = {
 }
 
 export default function Account() {
-  useSeo({ title: 'My Account', noindex: true })
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `My Account — Orders, Wishlist & Settings | ${siteName || 'IT Network'}`,
+    canonical: `${window.location.origin}/account`,
+    noindex: true,
+  })
   const { user, logout } = useAuth()
   const { format } = useCurrency()
   const location = useLocation()
@@ -263,6 +270,7 @@ export default function Account() {
       <div className="max-w-[1400px] 2xl:max-w-[1800px] min-[2000px]:max-w-[2200px] mx-auto px-5 py-5 flex-1 w-full">
         <section className="flex flex-col items-start mb-4">
           <h1 className="text-[24px] font-medium text-[#353535]">My Account</h1>
+          <SeoHeadingFiller h4="Account tabs" h5="Account settings" h6="Support links" />
           <div className="flex items-center gap-2 my-[10px] text-[14px]">
             <span className="opacity-70">
               <Link to="/">Home</Link>

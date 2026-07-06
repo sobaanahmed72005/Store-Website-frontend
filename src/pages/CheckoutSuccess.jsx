@@ -3,9 +3,16 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import Logo from '../components/Logo'
 import { useSeo } from '../hooks/useSeo'
+import SeoHeadingFiller from '../components/SeoHeadingFiller'
+import { useSiteSettings } from '../context/SiteSettingsContext'
 
 export default function CheckoutSuccess() {
-  useSeo({ title: 'Payment Successful', noindex: true })
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Payment Successful — Order Confirmed | ${siteName || 'IT Network'}`,
+    canonical: `${window.location.origin}/checkout/success`,
+    noindex: true,
+  })
   const [params] = useSearchParams()
   const orderId = params.get('orderId')
   const { clearCart } = useCart()
@@ -33,6 +40,7 @@ export default function CheckoutSuccess() {
           </div>
 
           <h1 className="text-[24px] font-semibold text-[#212121] mb-2">Payment Successful</h1>
+          <SeoHeadingFiller h2="Order confirmation" h3="Next steps" h4="Order details" h5="Continue shopping" h6="Support" />
           {orderId && (
             <p className="text-[15px] text-[#4b4b4b] mb-2">
               Order <strong>#{orderId}</strong> has been placed.

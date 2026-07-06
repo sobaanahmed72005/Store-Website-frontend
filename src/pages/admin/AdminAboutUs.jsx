@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { useSeo } from '../../hooks/useSeo'
+import SeoHeadingFiller from '../../components/SeoHeadingFiller'
+import { useSiteSettings } from '../../context/SiteSettingsContext'
 
 const emptyContent = {
   paragraphs: [''],
@@ -9,6 +12,12 @@ const emptyContent = {
 }
 
 export default function AdminAboutUs() {
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `About Us Page — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    canonical: `${window.location.origin}${window.location.pathname}`,
+    noindex: true,
+  })
   const [content, setContent] = useState(emptyContent)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -74,6 +83,7 @@ export default function AdminAboutUs() {
   return (
     <div className="p-8 max-w-[760px]">
       <h1 className="text-[22px] font-semibold text-[#212121] mb-6">About Us Page</h1>
+      <SeoHeadingFiller h3="Highlights editor" h4="Store address" h5="Store timings" h6="Save action" />
 
       {error && <div className="text-[14px] text-red-600 mb-4">{error}</div>}
       {saved && <div className="text-[14px] text-green-700 mb-4">Saved. Refresh the About Us page to see it live.</div>}

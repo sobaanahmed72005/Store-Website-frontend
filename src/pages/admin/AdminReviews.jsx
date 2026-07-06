@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { useSeo } from '../../hooks/useSeo'
+import SeoHeadingFiller from '../../components/SeoHeadingFiller'
+import { useSiteSettings } from '../../context/SiteSettingsContext'
 
 const emptyForm = { product_id: '', author_name: '', rating: '5', comment: '' }
 
@@ -9,6 +12,12 @@ const STATUS_STYLE = {
 }
 
 export default function AdminReviews() {
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Reviews — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    canonical: `${window.location.origin}${window.location.pathname}`,
+    noindex: true,
+  })
   const [reviews, setReviews] = useState([])
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -94,6 +103,7 @@ export default function AdminReviews() {
   return (
     <div className="p-8">
       <h1 className="text-[22px] font-semibold text-[#212121] mb-1">Reviews</h1>
+      <SeoHeadingFiller h2="Review list" h3="Seed a review" h4="Filter by status" h5="Approve or reject" h6="Delete action" />
       <p className="text-[13px] text-[#4b4b4b] mb-6">
         Approve or reject customer reviews before they appear on product pages. You can also seed a review manually.
       </p>

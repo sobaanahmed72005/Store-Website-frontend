@@ -7,6 +7,7 @@ import Footer from '../components/Footer'
 import { api } from '../api/client'
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../context/SiteSettingsContext'
+import SeoHeadingFiller from '../components/SeoHeadingFiller'
 
 const DEFAULT_CONTENT = {
   paragraphs: [],
@@ -27,9 +28,11 @@ export default function AboutUs() {
   }, [])
 
   useSeo({
-    title: `About Us | ${siteName || 'IT Network'}`,
+    title: `About ${siteName || 'IT Network'} — Our Story and Store Information`,
     description: content.paragraphs?.[0]?.slice(0, 155) || `Learn more about ${siteName || 'IT Network'} — who we are and what we stand for.`,
     canonical: `${window.location.origin}/about-us`,
+    keywords: `about ${siteName || 'IT Network'}, computer store Pakistan, laptop store Pakistan`,
+    publisher: siteName || 'IT Network',
   })
 
   return (
@@ -41,6 +44,7 @@ export default function AboutUs() {
       <div className="w-full max-w-[1400px] 2xl:max-w-[1800px] min-[2000px]:max-w-[2200px] mx-auto px-5 py-5">
         <section className="flex flex-col items-start mb-4">
           <h1 className="text-[24px] font-medium text-[#353535]">About Us</h1>
+          <SeoHeadingFiller h4="Why choose us" h5="Store details" h6="Get in touch" />
           <div className="flex items-center gap-2 my-[10px] text-[14px]">
             <span className="opacity-70">
               <Link to="/">Home</Link>

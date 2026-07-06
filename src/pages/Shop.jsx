@@ -12,6 +12,7 @@ import { api, resolveImageUrl } from '../api/client'
 import { getEffectivePrice } from '../utils/pricing'
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../context/SiteSettingsContext'
+import SeoHeadingFiller from '../components/SeoHeadingFiller'
 
 function categoryPath(slug) {
   return slug === 'laptops' ? '/laptops' : `/category/${slug}`
@@ -69,9 +70,11 @@ export default function Shop() {
   const [sortBy, setSortBy] = useState('newest')
 
   useSeo({
-    title: `Shop All Products | ${siteName || 'IT Network'}`,
+    title: `Shop All Products — Laptops, Gaming Gear & PC Components | ${siteName || 'IT Network'}`,
     description: `Browse the full ${siteName || 'IT Network'} catalog — laptops, gaming gear, and PC components, with filters by brand and price.`,
     canonical: `${window.location.origin}/shop`,
+    keywords: 'shop laptops Pakistan, gaming PC, PC components, buy laptop online, computer store Pakistan',
+    publisher: siteName || 'IT Network',
   })
 
   useEffect(() => {
@@ -114,6 +117,7 @@ export default function Shop() {
       <div className="max-w-[1400px] 2xl:max-w-[1800px] min-[2000px]:max-w-[2200px] mx-auto px-5 py-5 flex-1 w-full">
         <section className="flex flex-col items-start mb-4">
           <h1 className="text-[24px] font-medium text-[#353535]">Shop</h1>
+          <SeoHeadingFiller h4="Filter and sort options" h5="Product listing" h6="Pagination" />
           <div className="flex items-center gap-2 my-[10px] text-[14px]">
             <span className="opacity-70">
               <Link to="/">Home</Link>

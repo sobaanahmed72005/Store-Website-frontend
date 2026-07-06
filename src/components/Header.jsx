@@ -119,7 +119,7 @@ function CartDrawer({ open, onClose, items, onUpdateQty, onRemove }) {
                     <span className="absolute -left-[5px] -top-[5px] z-[1] flex items-center justify-center w-[18px] h-[18px] rounded-full bg-cz-primary text-white text-[11px]">
                       {item.qty}
                     </span>
-                    <img src={item.image} alt={item.title} className="h-full w-auto" />
+                    <img src={item.image} alt={item.title} width={60} height={60} className="h-full w-auto" />
                   </div>
                   <div className="flex-1">
                     <div className="font-semibold text-[14px] text-[#212121] line-clamp-2">{item.title}</div>
@@ -232,11 +232,11 @@ function WishlistDrawer({ open, onClose, items, onRemove, onMoveToCart }) {
               {items.map((item) => (
                 <div key={item.id} className="relative flex items-center justify-between gap-3">
                   <div className="relative flex items-center justify-center w-[60px] h-[60px] rounded-md overflow-hidden shrink-0">
-                    <img src={item.image} alt={item.title} className="h-full w-auto" />
+                    <img src={item.image} alt={item.title} width={60} height={60} className="h-full w-auto" />
                   </div>
                   <div className="flex-1">
                     <Link
-                      to={item.slug ? `/product/${item.slug}` : '/products'}
+                      to={item.slug ? `/product/${item.slug}` : '/shop'}
                       onClick={onClose}
                       className="font-semibold text-[14px] text-[#212121] line-clamp-2 hover:text-cz-primary"
                     >
@@ -345,6 +345,7 @@ export default function Header() {
               className="flex items-center text-white cursor-pointer"
             >
               <AccountIcon size={28} />
+              <span className="sr-only">Account</span>
             </Link>
 
             <button
@@ -397,6 +398,7 @@ export default function Header() {
 
             <Link to={user ? '/account' : '/signin'} aria-label="Account" className="flex items-center text-white">
               <AccountIcon size={28} />
+              <span className="sr-only">Account</span>
             </Link>
 
             <button

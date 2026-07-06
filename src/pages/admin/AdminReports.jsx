@@ -7,6 +7,9 @@ import {
 import { api } from '../../api/client'
 import { useCurrency } from '../../context/CurrencyContext'
 import { ADMIN_PATH } from '../../config/adminPath'
+import { useSeo } from '../../hooks/useSeo'
+import SeoHeadingFiller from '../../components/SeoHeadingFiller'
+import { useSiteSettings } from '../../context/SiteSettingsContext'
 
 // Dataviz skill's validated default palette, used as-is.
 const SEQ_LIGHT = '#9ec5f4'
@@ -96,6 +99,12 @@ function SummaryTile({ label, data, format }) {
 const currencyTooltipFormatter = (format) => (value, name) => [format(value), name]
 
 export default function AdminReports() {
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Reports — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    canonical: `${window.location.origin}${window.location.pathname}`,
+    noindex: true,
+  })
   const { format } = useCurrency()
   const [error, setError] = useState('')
 
@@ -145,6 +154,7 @@ export default function AdminReports() {
         </Link>
       </div>
       <h1 className="text-[22px] font-semibold text-[#212121] mb-6">Reports</h1>
+      <SeoHeadingFiller h3="Revenue trend" h4="Top products" h5="Sales by city" h6="Order breakdown" />
 
       {error && <div className="text-[14px] text-red-600 mb-4">{error}</div>}
 
