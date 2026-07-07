@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Header from '../components/Header'
@@ -18,14 +18,6 @@ import {
 import { api } from '../api/client'
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../context/SiteSettingsContext'
-
-const DEFAULT_BRAND = {
-  address: '',
-  phone: '',
-  email: '',
-  hours: '',
-  social: { facebook: '', twitter: '', instagram: '', youtube: '', whatsapp: '', tiktok: '' },
-}
 
 const SOCIAL_ICONS = [
   { key: 'facebook', label: 'Facebook', Icon: FacebookIcon },
@@ -49,8 +41,7 @@ function Input({ label, ...props }) {
 }
 
 export default function Contact() {
-  const { siteName } = useSiteSettings()
-  const [brand, setBrand] = useState(DEFAULT_BRAND)
+  const { siteName, brand } = useSiteSettings()
 
   useSeo({
     title: `Contact Us | ${siteName || 'IT Network'}`,
@@ -61,13 +52,6 @@ export default function Contact() {
   const [submitting, setSubmitting] = useState(false)
   const [status, setStatus] = useState('idle')
   const [error, setError] = useState('')
-
-  useEffect(() => {
-    api
-      .get('/content/footer-brand')
-      .then((data) => setBrand({ ...DEFAULT_BRAND, ...data, social: { ...DEFAULT_BRAND.social, ...data.social } }))
-      .catch(() => {})
-  }, [])
 
   const firstPhone = brand.phone ? brand.phone.split('|')[0].trim() : ''
 

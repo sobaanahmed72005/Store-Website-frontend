@@ -5,6 +5,7 @@ import Logo from '../components/Logo'
 import { useCurrency } from '../context/CurrencyContext'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
+import { useSiteSettings } from '../context/SiteSettingsContext'
 import { api, uploadImage } from '../api/client'
 import { useSeo } from '../hooks/useSeo'
 
@@ -94,6 +95,7 @@ export default function Checkout() {
   const { format } = useCurrency()
   const { items, subTotal, clearCart } = useCart()
   const { user } = useAuth()
+  const { brand } = useSiteSettings()
   const navigate = useNavigate()
   const [sameAsBilling, setSameAsBilling] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -130,8 +132,8 @@ export default function Checkout() {
   const [paymentProofImage, setPaymentProofImage] = useState('')
   const [uploadingProof, setUploadingProof] = useState(false)
   const [proofError, setProofError] = useState('')
-  const [helplinePhone, setHelplinePhone] = useState('')
-  const [helplineEmail, setHelplineEmail] = useState('')
+  const helplinePhone = brand.phone.split('|')[0].trim()
+  const helplineEmail = brand.email
 
   useEffect(() => {
     api.get('/content/shipping-settings').then((data) => setShippingFee(Number(data.fee) || 1800)).catch(() => {})
@@ -142,13 +144,6 @@ export default function Checkout() {
         setPaymentMethods(methods)
         const firstEnabled = Object.keys(methods).find((key) => methods[key].enabled)
         if (firstEnabled) setSelectedPaymentMethod(firstEnabled)
-      })
-      .catch(() => {})
-    api
-      .get('/content/footer-brand')
-      .then((data) => {
-        setHelplinePhone((data.phone || '').split('|')[0].trim())
-        setHelplineEmail(data.email || '')
       })
       .catch(() => {})
   }, [])

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useSiteSettings } from '../context/SiteSettingsContext'
-import { api } from '../api/client'
 
 const NAV_LINKS = [
   { label: 'About us',      href: '/about-us' },
@@ -17,18 +16,9 @@ const DEFAULT_MESSAGES = [
 ]
 
 export default function Navbar() {
-  const { siteName } = useSiteSettings()
-  const [messages, setMessages] = useState(DEFAULT_MESSAGES)
+  const { siteName, brand } = useSiteSettings()
+  const messages = brand.marqueeMessages?.length > 0 ? brand.marqueeMessages : DEFAULT_MESSAGES
   const [active, setActive] = useState(0)
-
-  useEffect(() => {
-    api
-      .get('/content/footer-brand')
-      .then((data) => {
-        if (data.marqueeMessages?.length > 0) setMessages(data.marqueeMessages)
-      })
-      .catch(() => {})
-  }, [])
 
   useEffect(() => {
     if (messages.length <= 1) return
