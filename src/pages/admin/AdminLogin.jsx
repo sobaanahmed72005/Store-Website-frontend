@@ -38,7 +38,7 @@ export default function AdminLogin() {
     e.preventDefault()
     setError('')
     try {
-      const data = await login(form.email, form.password)
+      const data = await login(form.email, form.password, { admin: true })
       if (data.requires2fa) {
         setChallengeId(data.challengeId)
         return

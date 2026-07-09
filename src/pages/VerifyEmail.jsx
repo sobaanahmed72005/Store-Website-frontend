@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Header from '../components/Header'
@@ -19,6 +19,7 @@ export default function VerifyEmail() {
   const [searchParams] = useSearchParams()
   const token = searchParams.get('token')
   const [status, setStatus] = useState('loading')
+  const hasVerified = useRef(false)
 
   useEffect(() => {
     async function verify() {
@@ -26,6 +27,8 @@ export default function VerifyEmail() {
         setStatus('error')
         return
       }
+      if (hasVerified.current) return
+      hasVerified.current = true
       try {
         await api.get(`/auth/verify-email?token=${encodeURIComponent(token)}`)
         setStatus('success')

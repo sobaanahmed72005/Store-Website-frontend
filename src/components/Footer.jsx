@@ -20,16 +20,6 @@ import { useAuth } from '../context/AuthContext'
 
 const SUBSCRIBED_STORAGE_KEY = 'cz_newsletter_subscribed_email'
 
-const DEFAULT_BRAND = {
-  description: '',
-  address: '',
-  phone: '',
-  email: '',
-  social: { facebook: '', twitter: '', instagram: '', youtube: '', whatsapp: '', tiktok: '' },
-  columns: [],
-  marqueeMessages: [],
-}
-
 const SOCIAL_ICONS = [
   { key: 'facebook', label: 'Facebook', Icon: FacebookIcon },
   { key: 'twitter', label: 'Twitter', Icon: TwitterIcon },
@@ -178,19 +168,11 @@ function FooterColumn({ col }) {
 }
 
 export default function Footer() {
-  const { siteName } = useSiteSettings()
-  const [brand, setBrand] = useState(DEFAULT_BRAND)
-
-  useEffect(() => {
-    api
-      .get('/content/footer-brand')
-      .then((data) => setBrand({ ...DEFAULT_BRAND, ...data, social: { ...DEFAULT_BRAND.social, ...data.social } }))
-      .catch(() => {})
-  }, [])
+  const { siteName, brand } = useSiteSettings()
 
   const firstPhone = brand.phone.split('|')[0].trim()
-  const marqueeMessages = brand.marqueeMessages?.length ? brand.marqueeMessages : DEFAULT_BRAND.marqueeMessages
-  const columns = brand.columns?.length ? brand.columns : DEFAULT_BRAND.columns
+  const marqueeMessages = brand.marqueeMessages
+  const columns = brand.columns
 
   return (
     <footer>
