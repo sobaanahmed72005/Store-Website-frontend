@@ -28,7 +28,7 @@ export default function Navbar() {
 
   return (
     <div className="bg-cz-topbar text-white text-[13px] py-2.5">
-      <div className="max-w-[1400px] 2xl:max-w-[1800px] min-[2000px]:max-w-[2200px] mx-auto px-5 grid grid-cols-1 lg:grid-cols-3 items-center gap-2">
+      <div className="mx-auto px-5 flex flex-col gap-1.5 lg:grid lg:grid-cols-3 lg:items-center lg:gap-2">
 
         {/* Rotating messages — edit from Admin → Footer / Store Info → Marquee Messages */}
         <div className="lg:col-span-1 text-center lg:text-left overflow-hidden relative h-[18px]">
@@ -43,8 +43,8 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Top-right nav links */}
-        <div className="hidden lg:flex col-span-2 justify-end items-center gap-[10px]">
+        {/* Top nav links — wraps and stays right-aligned on narrow screens instead of disappearing */}
+        <div className="flex flex-wrap justify-end lg:col-span-2 items-center gap-x-[10px] gap-y-1">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.label}

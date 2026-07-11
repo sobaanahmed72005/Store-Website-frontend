@@ -44,7 +44,7 @@ export default function SearchResults() {
       <Header />
       <CategoryMenu />
 
-      <div className="max-w-[1400px] 2xl:max-w-[1800px] min-[2000px]:max-w-[2200px] mx-auto px-5 py-5 flex-1 w-full">
+      <div className="mx-auto px-5 py-5 flex-1 w-full">
         <section className="flex flex-col items-start mb-4">
           <h1 className="text-[24px] font-medium text-[#353535]">Search Results</h1>
           <div className="flex items-center gap-2 my-[10px] text-[14px]">

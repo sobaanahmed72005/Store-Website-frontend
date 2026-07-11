@@ -5,7 +5,7 @@ import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
 import ProductCard, { StarRating } from '../components/ProductCard'
-import { PlusCircleIcon, MinusCircleIcon, ChevronLeftIcon, ChevronRightIcon, HeartIcon } from '../components/icons'
+import { PlusCircleIcon, MinusCircleIcon, ChevronLeftIcon, ChevronRightIcon, HeartIcon, PlayIcon } from '../components/icons'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
@@ -38,14 +38,14 @@ function ProductNotFound() {
   )
 }
 
-function Gallery({ images, title }) {
+function Gallery({ items, title }) {
   const [activeIndex, setActiveIndex] = useState(0)
 
   useEffect(() => {
     setActiveIndex(0)
-  }, [images])
+  }, [items])
 
-  if (images.length === 0) {
+  if (items.length === 0) {
     return (
       <div className="w-full aspect-square rounded-[10px] bg-cz-gold-light flex items-center justify-center">
         <span className="text-[13px] text-[#9ca3af]">No image</span>
@@ -53,18 +53,23 @@ function Gallery({ images, title }) {
     )
   }
 
-  const showPrev = () => setActiveIndex((i) => (i - 1 + images.length) % images.length)
-  const showNext = () => setActiveIndex((i) => (i + 1) % images.length)
+  const showPrev = () => setActiveIndex((i) => (i - 1 + items.length) % items.length)
+  const showNext = () => setActiveIndex((i) => (i + 1) % items.length)
+  const active = items[activeIndex]
 
   return (
     <div className="flex flex-col gap-3">
       <div className="relative w-full aspect-square rounded-[10px] bg-white border border-[#dedede] overflow-hidden">
-        <img src={images[activeIndex]} alt={title} fetchPriority="high" className="w-full h-full object-contain" />
-        {images.length > 1 && (
+        {active.type === 'video' ? (
+          <video src={active.src} controls className="w-full h-full object-contain bg-black" />
+        ) : (
+          <img src={active.src} alt={title} fetchPriority="high" className="w-full h-full object-contain" />
+        )}
+        {items.length > 1 && (
           <>
             <button
               type="button"
-              aria-label="Previous image"
+              aria-label="Previous"
               onClick={showPrev}
               className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-white/90 shadow-sm text-[#212121] hover:text-cz-primary"
             >
@@ -72,7 +77,7 @@ function Gallery({ images, title }) {
             </button>
             <button
               type="button"
-              aria-label="Next image"
+              aria-label="Next"
               onClick={showNext}
               className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-white/90 shadow-sm text-[#212121] hover:text-cz-primary"
             >
@@ -81,18 +86,27 @@ function Gallery({ images, title }) {
           </>
         )}
       </div>
-      {images.length > 1 && (
+      {items.length > 1 && (
         <div className="flex items-center gap-2 overflow-x-auto">
-          {images.map((src, i) => (
+          {items.map((item, i) => (
             <button
-              key={src + i}
+              key={item.src + i}
               type="button"
               onClick={() => setActiveIndex(i)}
-              className={`shrink-0 w-16 h-16 rounded-md border overflow-hidden ${
+              className={`relative shrink-0 w-16 h-16 rounded-md border overflow-hidden ${
                 i === activeIndex ? 'border-cz-primary' : 'border-[#dedede]'
               }`}
             >
-              <img src={src} alt={`${title} ${i + 1}`} loading="lazy" decoding="async" className="w-full h-full object-contain" />
+              {item.type === 'video' ? (
+                <>
+                  <video src={item.src} className="w-full h-full object-cover bg-black" />
+                  <span className="absolute inset-0 flex items-center justify-center bg-black/30 text-white">
+                    <PlayIcon size={18} />
+                  </span>
+                </>
+              ) : (
+                <img src={item.src} alt={`${title} ${i + 1}`} loading="lazy" decoding="async" className="w-full h-full object-contain" />
+              )}
             </button>
           ))}
         </div>
@@ -185,6 +199,14 @@ export default function Product() {
     const list = [product.image, ...(product.images || [])].filter(Boolean).map(resolveImageUrl)
     return [...new Set(list)]
   }, [product])
+
+  // Separate from galleryImages (used for SEO/jsonLd, which only wants real image URLs) — this
+  // is what the on-page Gallery actually renders, with the product video tacked on at the end.
+  const galleryItems = useMemo(() => {
+    const items = galleryImages.map((src) => ({ type: 'image', src }))
+    if (product?.video) items.push({ type: 'video', src: resolveImageUrl(product.video) })
+    return items
+  }, [galleryImages, product])
 
   const origin = window.location.origin
   const canonical = `${origin}/product/${slug}`
@@ -286,7 +308,7 @@ export default function Product() {
       <Header />
       <CategoryMenu />
 
-      <div className="max-w-[1400px] 2xl:max-w-[1800px] min-[2000px]:max-w-[2200px] mx-auto px-5 py-5 w-full">
+      <div className="mx-auto px-5 py-5 w-full">
         <div className="flex items-center gap-2 mb-4 text-[13px] flex-wrap">
           <span className="opacity-70 hover:underline after:content-['/'] after:ml-2 after:opacity-70">
             <Link to="/">Home</Link>
@@ -300,7 +322,7 @@ export default function Product() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <Gallery images={galleryImages} title={product.name} />
+          <Gallery items={galleryItems} title={product.name} />
 
           <div className="flex flex-col gap-4">
             <div>

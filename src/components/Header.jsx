@@ -319,16 +319,15 @@ function CurrencySwitcher({ size = 20, showLabel = true }) {
 }
 
 export default function Header() {
-  const { items: wishlistItems, count: wishlistCount, removeFromWishlist } = useWishlist()
+  const { items: wishlistItems, count: wishlistCount, removeFromWishlist, wishlistOpen, openWishlist, closeWishlist } = useWishlist()
   const { items: cartItems, count: cartCount, updateQty, removeFromCart, addToCart, cartOpen, openCart, closeCart } = useCart()
   const { user } = useAuth()
-  const [wishlistOpen, setWishlistOpen] = useState(false)
   const [navOpen, setNavOpen] = useState(false)
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
 
   return (
     <div className="bg-cz-header py-2.5">
-      <div className="max-w-[1400px] 2xl:max-w-[1800px] min-[2000px]:max-w-[2200px] mx-auto px-5">
+      <div className="mx-auto px-5">
         <div className="hidden md:grid grid-cols-4 items-center gap-4">
           <Link to="/" className="flex items-center justify-start col-span-1">
             <Logo variant="light" textClassName="text-[26px]" iconClassName="h-11" />
@@ -350,7 +349,7 @@ export default function Header() {
             <button
               type="button"
               aria-label="Wishlist"
-              onClick={() => setWishlistOpen(true)}
+              onClick={openWishlist}
               className="relative flex items-center text-white cursor-pointer"
             >
               <HeartIcon size={28} />
@@ -375,17 +374,17 @@ export default function Header() {
           </div>
         </div>
 
-        <div className="flex md:hidden items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button type="button" aria-label="Menu" onClick={() => setNavOpen(true)} className="text-white">
+        <div className="flex md:hidden items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <button type="button" aria-label="Menu" onClick={() => setNavOpen(true)} className="text-white shrink-0">
               <HamburgerIcon size={28} />
             </button>
-            <Link to="/" className="flex items-center">
-              <Logo variant="light" textClassName="text-[22px]" iconClassName="h-9" />
+            <Link to="/" className="flex items-center min-w-0">
+              <Logo variant="light" textClassName="text-[22px]" iconClassName="h-9" truncate />
             </Link>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 shrink-0">
             <button
               type="button"
               aria-label="Search"
@@ -402,7 +401,7 @@ export default function Header() {
             <button
               type="button"
               aria-label="Wishlist"
-              onClick={() => setWishlistOpen(true)}
+              onClick={openWishlist}
               className="relative flex items-center text-white"
             >
               <HeartIcon size={28} />
@@ -446,7 +445,7 @@ export default function Header() {
 
       <WishlistDrawer
         open={wishlistOpen}
-        onClose={() => setWishlistOpen(false)}
+        onClose={closeWishlist}
         items={wishlistItems}
         onRemove={removeFromWishlist}
         onMoveToCart={(item) => {

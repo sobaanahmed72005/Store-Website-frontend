@@ -33,7 +33,7 @@ export default function CategoryIcons() {
   if (categories.length === 0) return null
 
   return (
-    <section className="max-w-[1400px] 2xl:max-w-[1800px] min-[2000px]:max-w-[2200px] mx-auto px-5 py-5">
+    <section className="mx-auto px-5 py-5">
       <div
         ref={trackRef}
         className="flex gap-[15px] overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"

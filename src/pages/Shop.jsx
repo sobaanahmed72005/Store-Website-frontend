@@ -6,7 +6,7 @@ import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
 import ProductCard from '../components/ProductCard'
 import { GridIcon, ListIcon } from '../components/icons'
-import { FilterAccordion, CheckboxGroup, PriceRangeFilter } from '../components/filters/FilterPrimitives'
+import { FilterAccordion, CheckboxGroup } from '../components/filters/FilterPrimitives'
 import { useCategories } from '../context/CategoryContext'
 import { api, resolveImageUrl } from '../api/client'
 import { getEffectivePrice } from '../utils/pricing'
@@ -17,7 +17,7 @@ function categoryPath(slug) {
   return slug === 'laptops' ? '/laptops' : `/category/${slug}`
 }
 
-function ShopSidebar({ brands, selectedBrands, onToggleBrand, onApplyPriceRange }) {
+function ShopSidebar({ brands, selectedBrands, onToggleBrand }) {
   const { navCategories } = useCategories()
   return (
     <aside className="w-full lg:w-1/4 lg:shrink-0">
@@ -34,10 +34,6 @@ function ShopSidebar({ brands, selectedBrands, onToggleBrand, onApplyPriceRange 
                 {cat.name}
               </Link>
             ))}
-        </FilterAccordion>
-
-        <FilterAccordion title="Price Range">
-          <PriceRangeFilter min={0} max={1499999} onApply={onApplyPriceRange} />
         </FilterAccordion>
 
         {brands.length > 0 && (
@@ -65,12 +61,11 @@ export default function Shop() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [selectedBrands, setSelectedBrands] = useState(() => new Set())
-  const [priceRange, setPriceRange] = useState(null)
   const [sortBy, setSortBy] = useState('newest')
 
   useSeo({
     title: `Shop All Products | ${siteName || 'IT Network'}`,
-    description: `Browse the full ${siteName || 'IT Network'} catalog — laptops, gaming gear, and PC components, with filters by brand and price.`,
+    description: `Browse the full ${siteName || 'IT Network'} catalog — laptops, gaming gear, and PC components, with filters by brand.`,
     canonical: `${window.location.origin}/shop`,
   })
 
@@ -96,14 +91,10 @@ export default function Shop() {
   const filteredProducts = useMemo(() => {
     const filtered = products.filter((p) => {
       if (selectedBrands.size > 0 && !selectedBrands.has(p.brand)) return false
-      if (priceRange) {
-        const { price } = getEffectivePrice(p)
-        if (price < priceRange[0] || price > priceRange[1]) return false
-      }
       return true
     })
     return [...filtered].sort(SORT_OPTIONS[sortBy].compare)
-  }, [products, selectedBrands, priceRange, sortBy])
+  }, [products, selectedBrands, sortBy])
 
   return (
     <div className="min-h-screen bg-cz-page flex flex-col">
@@ -111,7 +102,7 @@ export default function Shop() {
       <Header />
       <CategoryMenu />
 
-      <div className="max-w-[1400px] 2xl:max-w-[1800px] min-[2000px]:max-w-[2200px] mx-auto px-5 py-5 flex-1 w-full">
+      <div className="mx-auto px-5 py-5 flex-1 w-full">
         <section className="flex flex-col items-start mb-4">
           <h1 className="text-[24px] font-medium text-[#353535]">Shop</h1>
           <div className="flex items-center gap-2 my-[10px] text-[14px]">
@@ -131,7 +122,6 @@ export default function Shop() {
             brands={brands}
             selectedBrands={selectedBrands}
             onToggleBrand={toggleBrand}
-            onApplyPriceRange={(from, to) => setPriceRange([from, to])}
           />
 
           <div className="flex-1 min-w-0">

@@ -3,29 +3,21 @@ import { api } from '../api/client'
 
 const AuthContext = createContext(null)
 
-function readStoredUser() {
-  try {
-    const raw = localStorage.getItem('cz_user')
-    return raw ? JSON.parse(raw) : null
-  } catch {
-    return null
-  }
-}
-
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(readStoredUser)
+  const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(false)
-
-  useEffect(() => {
-    if (user) localStorage.setItem('cz_user', JSON.stringify(user))
-    else localStorage.removeItem('cz_user')
-  }, [user])
+  // True until the initial /auth/me check resolves. Session identity now lives only in the
+  // httpOnly cookie + this in-memory state — nothing is cached in localStorage, so pages that
+  // gate on `user` (AdminRoute, Checkout, Account) must wait for this instead of treating a
+  // not-yet-checked user as "logged out" and redirecting away.
+  const [initializing, setInitializing] = useState(true)
 
   useEffect(() => {
     api
       .get('/auth/me')
       .then((data) => setUser(data.user))
       .catch(() => setUser(null))
+      .finally(() => setInitializing(false))
   }, [])
 
   const login = async (email, password, { admin = false } = {}) => {
@@ -71,7 +63,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, verifyTwoFactor, register, logout, updateSession, isAdmin: user?.role === 'admin' }}>
+    <AuthContext.Provider value={{ user, loading, initializing, login, verifyTwoFactor, register, logout, updateSession, isAdmin: user?.role === 'admin' }}>
       {children}
     </AuthContext.Provider>
   )

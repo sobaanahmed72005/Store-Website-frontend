@@ -175,11 +175,11 @@ export default function Footer() {
   const columns = brand.columns
 
   return (
-    <footer>
+    <footer className="mt-auto">
       <MarqueeBar messages={marqueeMessages} />
       <Newsletter />
 
-      <div className="bg-cz-gold-light max-w-[1400px] 2xl:max-w-[1800px] min-[2000px]:max-w-[2200px] mx-auto px-5 py-[35px] lg:py-10">
+      <div className="bg-cz-gold-light mx-auto px-5 py-[35px] lg:py-10">
         <div className="flex flex-col lg:flex-row gap-[40px]">
           <div className="w-full lg:w-[40%] flex flex-col items-center lg:items-start text-center lg:text-left">
             <Logo textClassName="text-[16px] mb-5" />
@@ -246,7 +246,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="bg-cz-topbar text-white text-[12px] max-w-[1400px] 2xl:max-w-[1800px] min-[2000px]:max-w-[2200px] mx-auto px-5 py-[15px]">
+      <div className="bg-cz-topbar text-white text-[12px] mx-auto px-5 py-[15px]">
         <p className="text-center">© {new Date().getFullYear()} {siteName}. All Rights Reserved</p>
         <p className="text-center text-white/50 mt-1">Powered by IT Solutions</p>
       </div>

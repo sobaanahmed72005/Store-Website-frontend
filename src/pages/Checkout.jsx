@@ -94,7 +94,7 @@ export default function Checkout() {
   useSeo({ title: 'Checkout', noindex: true })
   const { format } = useCurrency()
   const { items, subTotal, clearCart } = useCart()
-  const { user } = useAuth()
+  const { user, initializing } = useAuth()
   const { brand } = useSiteSettings()
   const navigate = useNavigate()
   const [sameAsBilling, setSameAsBilling] = useState(true)
@@ -154,6 +154,17 @@ export default function Checkout() {
   const discountAmount = appliedDiscount?.discount_amount || 0
   const total = Math.max(0, subTotal + shipping - discountAmount)
 
+  // Mirrors the checks in handleSubmit so the button's disabled/greyed-out look always matches
+  // whether submitting would actually succeed, instead of looking clickable and then bouncing
+  // the user back with "fill out this field".
+  const isFormComplete =
+    form.email.trim() &&
+    form.phone.trim() &&
+    form.fullName.trim() &&
+    form.address1.trim() &&
+    Boolean(selectedPaymentMethod) &&
+    (selectedPaymentMethod === 'cod' || (paymentReference.trim() && Boolean(paymentProofImage)))
+
   const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
 
   const handleApplyDiscount = async () => {
@@ -193,6 +204,7 @@ export default function Checkout() {
     }
   }
 
+  if (initializing) return null
   if (!user) {
     return <Navigate to="/signin" state={{ from: '/checkout' }} replace />
   }
@@ -246,7 +258,7 @@ export default function Checkout() {
   return (
     <div className="min-h-screen bg-cz-page">
       <div className="bg-white border-b border-[#dedede]">
-        <div className="max-w-[1280px] 2xl:max-w-[1800px] min-[2000px]:max-w-[2200px] mx-auto px-5">
+        <div className="mx-auto px-5">
           <div className="flex justify-between items-center py-5">
             <Link to="/">
               <Logo textClassName="text-[22px]" />
@@ -258,8 +270,8 @@ export default function Checkout() {
         </div>
       </div>
 
-      <div className="relative" style={{ background: 'linear-gradient(90deg, transparent 50%, var(--color-cz-gold-light) 0)' }}>
-        <div className="max-w-[1280px] 2xl:max-w-[1800px] min-[2000px]:max-w-[2200px] mx-auto px-5 max-sm:!px-0">
+      <div className="relative bg-cz-gold-light lg:bg-[linear-gradient(90deg,transparent_50%,var(--color-cz-gold-light)_0)]">
+        <div className="mx-auto px-5 max-sm:!px-0">
           <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-0">
             <div className="lg:pr-16 px-5 lg:px-0 pt-5 pb-10 lg:py-10">
               <div className="grid grid-cols-1 gap-4">
@@ -465,8 +477,8 @@ export default function Checkout() {
 
                 <button
                   type="submit"
-                  disabled={submitting || uploadingProof || enabledPaymentMethods.length === 0}
-                  className="w-full rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[15px] font-medium py-4 mt-6 transition-colors disabled:opacity-60"
+                  disabled={submitting || uploadingProof || enabledPaymentMethods.length === 0 || !isFormComplete}
+                  className="w-full rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[15px] font-medium py-4 mt-6 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {submitting ? 'Placing Order...' : 'Complete Order'}
                 </button>

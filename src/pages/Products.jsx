@@ -6,7 +6,7 @@ import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
 import ProductCard from '../components/ProductCard'
 import { GridIcon, ListIcon } from '../components/icons'
-import { FilterAccordion, CheckboxGroup, PriceRangeFilter } from '../components/filters/FilterPrimitives'
+import { FilterAccordion, CheckboxGroup } from '../components/filters/FilterPrimitives'
 import { useCategories } from '../context/CategoryContext'
 import { api, resolveImageUrl } from '../api/client'
 import { getEffectivePrice } from '../utils/pricing'
@@ -17,7 +17,7 @@ function categoryPath(slug) {
   return slug === 'laptops' ? '/laptops' : `/category/${slug}`
 }
 
-function ProductsSidebar({ brands, selectedBrands, onToggleBrand, onApplyPriceRange }) {
+function ProductsSidebar({ brands, selectedBrands, onToggleBrand }) {
   const { navCategories } = useCategories()
   return (
     <aside className="w-full lg:w-1/4 lg:shrink-0">
@@ -34,10 +34,6 @@ function ProductsSidebar({ brands, selectedBrands, onToggleBrand, onApplyPriceRa
                 {cat.name}
               </Link>
             ))}
-        </FilterAccordion>
-
-        <FilterAccordion title="Price Range">
-          <PriceRangeFilter min={0} max={1499999} onApply={onApplyPriceRange} />
         </FilterAccordion>
 
         {brands.length > 0 && (
@@ -83,14 +79,12 @@ export default function Products() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedBrands, setSelectedBrands] = useState(() => new Set())
-  const [priceRange, setPriceRange] = useState(null)
   const [sortBy, setSortBy] = useState('newest')
 
   useEffect(() => {
     const query = activeFilter ? `?${FILTER_CONFIG[activeFilter].param}` : ''
     setLoading(true)
     setSelectedBrands(new Set())
-    setPriceRange(null)
     api
       .get(`/products${query}`)
       .then(setProducts)
@@ -112,14 +106,10 @@ export default function Products() {
   const filteredProducts = useMemo(() => {
     const filtered = products.filter((p) => {
       if (selectedBrands.size > 0 && !selectedBrands.has(p.brand)) return false
-      if (priceRange) {
-        const { price } = getEffectivePrice(p)
-        if (price < priceRange[0] || price > priceRange[1]) return false
-      }
       return true
     })
     return [...filtered].sort(SORT_OPTIONS[sortBy].compare)
-  }, [products, selectedBrands, priceRange, sortBy])
+  }, [products, selectedBrands, sortBy])
 
   return (
     <div className="min-h-screen bg-cz-page flex flex-col">
@@ -127,7 +117,7 @@ export default function Products() {
       <Header />
       <CategoryMenu />
 
-      <div className="w-full max-w-[1400px] 2xl:max-w-[1800px] min-[2000px]:max-w-[2200px] mx-auto px-5 py-5">
+      <div className="w-full mx-auto px-5 py-5">
         <div className="flex items-center gap-2 mb-4 text-[13px]">
           <span className="opacity-70 hover:underline after:content-['/'] after:ml-2 after:opacity-70">
             <Link to="/">Home</Link>
@@ -140,7 +130,6 @@ export default function Products() {
             brands={brands}
             selectedBrands={selectedBrands}
             onToggleBrand={toggleBrand}
-            onApplyPriceRange={(from, to) => setPriceRange([from, to])}
           />
 
           <div className="flex-1 min-w-0">

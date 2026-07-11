@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { markSubscribersSeen } from '../../utils/subscriberNotifications'
 
 export default function AdminNewsletter() {
   const [subscribers, setSubscribers] = useState([])
@@ -14,7 +15,10 @@ export default function AdminNewsletter() {
     setLoading(true)
     api
       .get('/admin/newsletter', { auth: true })
-      .then(setSubscribers)
+      .then((data) => {
+        setSubscribers(data)
+        if (data.length) markSubscribersSeen(Math.max(...data.map((s) => s.id)))
+      })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
   }

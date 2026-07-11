@@ -18,6 +18,7 @@ function mapItem(p) {
 export function WishlistProvider({ children }) {
   const { user } = useAuth()
   const [items, setItems] = useState([])
+  const [wishlistOpen, setWishlistOpen] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -46,6 +47,7 @@ export function WishlistProvider({ children }) {
     } else {
       setItems((prev) => [mapItem(product), ...prev])
       api.post('/wishlist', { product_id: product.id }, { auth: true }).catch(() => {})
+      setWishlistOpen(true)
     }
     return true
   }
@@ -57,7 +59,16 @@ export function WishlistProvider({ children }) {
 
   return (
     <WishlistContext.Provider
-      value={{ items, count: items.length, isWishlisted, toggleWishlist, removeFromWishlist }}
+      value={{
+        items,
+        count: items.length,
+        isWishlisted,
+        toggleWishlist,
+        removeFromWishlist,
+        wishlistOpen,
+        openWishlist: () => setWishlistOpen(true),
+        closeWishlist: () => setWishlistOpen(false),
+      }}
     >
       {children}
     </WishlistContext.Provider>

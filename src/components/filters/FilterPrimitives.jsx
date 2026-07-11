@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { MinusIcon, PlusIcon, CheckIcon, ChevronRightIcon } from '../icons'
+import { MinusIcon, PlusIcon, CheckIcon } from '../icons'
 
 export function FilterAccordion({ title, defaultOpen = true, separator = true, children }) {
   const [open, setOpen] = useState(defaultOpen)
@@ -49,85 +49,6 @@ export function FilterCheckbox({ id, label, count, checked = false, onChange }) 
       {count != null && (
         <small className="pl-[10px] text-[14px] text-[#212121] opacity-75">({count})</small>
       )}
-    </div>
-  )
-}
-
-export function PriceRangeFilter({ min = 0, max = 1499999, onApply }) {
-  const [from, setFrom] = useState(min)
-  const [to, setTo] = useState(max)
-
-  const fromPct = ((from - min) / (max - min)) * 100
-  const toPct = ((to - min) / (max - min)) * 100
-
-  const handleFromSlider = (value) => {
-    const next = Math.min(Number(value), to)
-    setFrom(next)
-  }
-  const handleToSlider = (value) => {
-    const next = Math.max(Number(value), from)
-    setTo(next)
-  }
-
-  return (
-    <div className="flex flex-col w-full">
-      <div className="my-4 px-1">
-        <div className="relative flex items-center h-[3px] w-full rounded-lg bg-[#e5e7eb]">
-          <span
-            className="absolute top-0 h-full rounded-lg bg-cz-primary"
-            style={{ left: `${fromPct}%`, width: `${toPct - fromPct}%` }}
-          />
-          <input
-            type="range"
-            min={min}
-            max={max}
-            value={from}
-            onChange={(e) => handleFromSlider(e.target.value)}
-            className="range-thumb absolute w-full h-[3px] bg-transparent appearance-none pointer-events-none"
-          />
-          <input
-            type="range"
-            min={min}
-            max={max}
-            value={to}
-            onChange={(e) => handleToSlider(e.target.value)}
-            className="range-thumb absolute w-full h-[3px] bg-transparent appearance-none pointer-events-none"
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-12 gap-2 items-center">
-        <div className="col-span-5 text-[14px] font-normal text-[#212121] pl-[10px]">From</div>
-        <div className="col-span-5 text-[14px] font-normal text-[#212121] pl-[10px]">To</div>
-        <div className="col-span-2" />
-
-        <div className="col-span-5">
-          <input
-            type="number"
-            value={from}
-            onChange={(e) => setFrom(Number(e.target.value))}
-            className="w-full rounded-full border border-[#a9a9a9] bg-white text-[14px] text-[#212121] px-4 py-2 outline-none focus:border-[#212121]"
-          />
-        </div>
-        <div className="col-span-5">
-          <input
-            type="number"
-            value={to}
-            onChange={(e) => setTo(Number(e.target.value))}
-            className="w-full rounded-full border border-[#a9a9a9] bg-white text-[14px] text-[#212121] px-4 py-2 outline-none focus:border-[#212121]"
-          />
-        </div>
-        <div className="col-span-2 flex items-center justify-center">
-          <button
-            type="button"
-            aria-label="Apply price range"
-            onClick={() => onApply?.(from, to)}
-            className="flex items-center justify-center text-[#212121] hover:text-cz-primary"
-          >
-            <ChevronRightIcon size={24} />
-          </button>
-        </div>
-      </div>
     </div>
   )
 }

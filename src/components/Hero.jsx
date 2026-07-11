@@ -29,7 +29,7 @@ export default function Hero() {
   if (!slides?.length && !sideBanners.length) return null
 
   return (
-    <section className="max-w-[1400px] 2xl:max-w-[1800px] min-[2000px]:max-w-[2200px] mx-auto px-5 py-5">
+    <section className="mx-auto px-5 py-5">
       <div className="flex flex-col md:flex-row gap-5">
 
         {/* Main slider */}

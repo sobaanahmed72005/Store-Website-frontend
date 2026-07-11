@@ -35,34 +35,6 @@ body {
   background-color: #fbf6ec;
 }
 
-.range-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-}
-.range-thumb::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  pointer-events: auto;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #fff;
-  border: 2px solid var(--color-cz-primary);
-  cursor: grab;
-}
-.range-thumb::-moz-range-thumb {
-  pointer-events: auto;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #fff;
-  border: 2px solid var(--color-cz-primary);
-  cursor: grab;
-  box-sizing: border-box;
-}
-.range-thumb::-moz-range-track {
-  background: transparent;
-}
-
 @keyframes marquee-scroll {
   from {
     transform: translateX(0);

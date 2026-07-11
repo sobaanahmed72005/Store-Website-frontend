@@ -60,6 +60,23 @@ export async function uploadImage(file, endpoint = '/admin/upload') {
   return data
 }
 
+export async function uploadVideo(file, endpoint = '/admin/upload-video') {
+  const formData = new FormData()
+  formData.append('video', file)
+
+  const headers = { 'X-Store-Slug': getStoreSlug() }
+
+  const res = await fetch(`${BASE_URL}${endpoint}`, {
+    method: 'POST',
+    headers,
+    credentials: 'include',
+    body: formData,
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data?.error || 'Upload failed')
+  return data
+}
+
 export function resolveImageUrl(image) {
   if (!image) return null
   if (/^https?:\/\//.test(image)) return image

@@ -5,6 +5,7 @@ import Logo from '../Logo'
 import { HamburgerIcon, CloseIcon } from '../icons'
 import { ADMIN_PATH } from '../../config/adminPath'
 import OrderNotificationBell from './OrderNotificationBell'
+import SubscriberNotificationBell from './SubscriberNotificationBell'
 import { useSeo } from '../../hooks/useSeo'
 
 const navItems = [
@@ -107,7 +108,8 @@ export default function AdminLayout() {
           <Logo variant="light" textClassName="text-lg" />
         </div>
 
-        <div className="flex items-center justify-end bg-white border-b border-[#dedede] px-4 py-2">
+        <div className="flex items-center justify-end gap-1 bg-white border-b border-[#dedede] px-4 py-2">
+          <SubscriberNotificationBell />
           <OrderNotificationBell />
         </div>
 

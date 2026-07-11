@@ -35,7 +35,7 @@ function SectionHeading({ heading, seeAllHref }) {
 function ProductSection({ heading, seeAllHref, products }) {
   if (products.length === 0) return null
   return (
-    <section className="max-w-[1400px] 2xl:max-w-[1800px] min-[2000px]:max-w-[2200px] mx-auto px-5 pt-[30px] pb-0 md:pb-[30px]">
+    <section className="mx-auto px-5 pt-[30px] pb-0 md:pb-[30px]">
       <SectionHeading heading={heading} seeAllHref={seeAllHref} />
       <div className="grid grid-cols-2 md:grid-cols-5 gap-[10px]">
         {products.map((p) => (

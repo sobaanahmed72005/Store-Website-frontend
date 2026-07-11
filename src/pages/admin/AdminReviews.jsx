@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { api } from '../../api/client'
 
 const emptyForm = { product_id: '', author_name: '', rating: '5', comment: '' }
@@ -6,6 +6,13 @@ const emptyForm = { product_id: '', author_name: '', rating: '5', comment: '' }
 const STATUS_STYLE = {
   pending:  'bg-amber-100 text-amber-700',
   approved: 'bg-green-100 text-green-700',
+  rejected: 'bg-red-100 text-red-700',
+}
+
+const STATUS_LABEL = {
+  pending:  'Pending',
+  approved: 'Approved',
+  rejected: 'Rejected',
 }
 
 export default function AdminReviews() {
@@ -13,10 +20,11 @@ export default function AdminReviews() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [filter, setFilter] = useState('pending') // 'all' | 'pending' | 'approved'
+  const [filter, setFilter] = useState('pending') // 'all' | 'pending' | 'approved' | 'rejected'
   const [form, setForm] = useState(emptyForm)
   const [submitting, setSubmitting] = useState(false)
   const [actingId, setActingId] = useState(null)
+  const [expandedId, setExpandedId] = useState(null)
 
   const loadReviews = (f = filter) => {
     setLoading(true)
@@ -164,6 +172,7 @@ export default function AdminReviews() {
         {[
           { key: 'pending',  label: `Pending${pendingCount > 0 ? ` (${pendingCount})` : ''}` },
           { key: 'approved', label: 'Approved' },
+          { key: 'rejected', label: 'Rejected' },
           { key: 'all',      label: 'All' },
         ].map(({ key, label }) => (
           <button
@@ -208,42 +217,76 @@ export default function AdminReviews() {
               </tr>
             ) : (
               reviews.map((r) => (
-                <tr key={r.id} className={`border-t border-[#dedede] ${r.status === 'pending' ? 'bg-amber-50' : ''}`}>
-                  <td className="px-4 py-3 text-[#212121]">{r.product_name}</td>
-                  <td className="px-4 py-3 text-[#212121]">{r.author_name}</td>
-                  <td className="px-4 py-3 text-[#212121]">{r.rating} ★</td>
-                  <td className="px-4 py-3 text-[#4b4b4b] max-w-[200px] truncate">{r.comment || '—'}</td>
-                  <td className="px-4 py-3">
-                    <span className={`rounded-full text-[11px] font-semibold px-2.5 py-1 ${STATUS_STYLE[r.status] || ''}`}>
-                      {r.status === 'pending' ? 'Pending' : 'Approved'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-[#4b4b4b] whitespace-nowrap">
-                    {new Date(r.created_at).toLocaleDateString()}
-                  </td>
-                  <td className="px-4 py-3 text-right whitespace-nowrap">
-                    <div className="flex items-center justify-end gap-2">
-                      {r.status === 'pending' && (
+                <Fragment key={r.id}>
+                  <tr className={`border-t border-[#dedede] ${r.status === 'pending' ? 'bg-amber-50' : ''}`}>
+                    <td className="px-4 py-3 text-[#212121]">{r.product_name}</td>
+                    <td className="px-4 py-3 text-[#212121]">{r.author_name}</td>
+                    <td className="px-4 py-3 text-[#212121]">{r.rating} ★</td>
+                    <td className="px-4 py-3 text-[#4b4b4b] max-w-[200px]">
+                      {r.comment ? (
+                        <button
+                          type="button"
+                          onClick={() => setExpandedId(expandedId === r.id ? null : r.id)}
+                          className="block w-full max-w-[200px] truncate text-left hover:text-cz-primary hover:underline"
+                        >
+                          {r.comment}
+                        </button>
+                      ) : (
+                        '—'
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={`rounded-full text-[11px] font-semibold px-2.5 py-1 ${STATUS_STYLE[r.status] || ''}`}>
+                        {STATUS_LABEL[r.status] || r.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-[#4b4b4b] whitespace-nowrap">
+                      {new Date(r.created_at).toLocaleDateString()}
+                    </td>
+                    <td className="px-4 py-3 text-right whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-3">
+                        {r.status !== 'approved' && (
+                          <button
+                            type="button"
+                            disabled={actingId === r.id}
+                            onClick={() => handleAction(r.id, 'approve')}
+                            className="rounded-md bg-green-600 hover:bg-green-700 text-white text-[12px] font-medium px-3 py-1 transition-colors disabled:opacity-60"
+                          >
+                            Approve
+                          </button>
+                        )}
+                        {r.status !== 'rejected' && (
+                          <button
+                            type="button"
+                            disabled={actingId === r.id}
+                            onClick={() => handleAction(r.id, 'reject')}
+                            className="rounded-md border border-red-300 text-red-600 hover:bg-red-50 text-[12px] font-medium px-3 py-1 transition-colors disabled:opacity-60"
+                          >
+                            Reject
+                          </button>
+                        )}
                         <button
                           type="button"
                           disabled={actingId === r.id}
-                          onClick={() => handleAction(r.id, 'approve')}
-                          className="rounded-md bg-green-600 hover:bg-green-700 text-white text-[12px] font-medium px-3 py-1 transition-colors disabled:opacity-60"
+                          onClick={() => handleDelete(r.id)}
+                          className="text-red-600 hover:underline text-[12px] font-medium disabled:opacity-60"
                         >
-                          Approve
+                          Delete
                         </button>
-                      )}
-                      <button
-                        type="button"
-                        disabled={actingId === r.id}
-                        onClick={() => r.status === 'pending' ? handleAction(r.id, 'reject') : handleDelete(r.id)}
-                        className="rounded-md border border-red-300 text-red-600 hover:bg-red-50 text-[12px] font-medium px-3 py-1 transition-colors disabled:opacity-60"
-                      >
-                        {r.status === 'pending' ? 'Reject' : 'Delete'}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                      </div>
+                    </td>
+                  </tr>
+                  {expandedId === r.id && (
+                    <tr className="border-t border-[#dedede] bg-cz-gold-light">
+                      <td colSpan={7} className="px-4 py-4">
+                        <div className="text-[13px] font-medium text-[#212121] mb-1">
+                          {r.author_name} on {r.product_name}
+                        </div>
+                        <p className="text-[13px] text-[#4b4b4b] whitespace-pre-wrap">{r.comment}</p>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
               ))
             )}
           </tbody>

@@ -6,7 +6,7 @@ import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
 import ProductCard from '../components/ProductCard'
 import { GridIcon, ListIcon } from '../components/icons'
-import { FilterAccordion, CheckboxGroup, PriceRangeFilter } from '../components/filters/FilterPrimitives'
+import { FilterAccordion, CheckboxGroup, FilterCheckbox } from '../components/filters/FilterPrimitives'
 import { api, resolveImageUrl } from '../api/client'
 import { getEffectivePrice } from '../utils/pricing'
 import { useSeo } from '../hooks/useSeo'
@@ -49,12 +49,10 @@ export default function CategoryListing() {
   const [products, setProducts] = useState([])
   const [loadingProducts, setLoadingProducts] = useState(true)
   const [selectedBrands, setSelectedBrands] = useState(() => new Set())
-  const [priceRange, setPriceRange] = useState(null)
   const [selectedOptionIds, setSelectedOptionIds] = useState(() => new Set())
 
   useEffect(() => {
     setSelectedBrands(new Set())
-    setPriceRange(null)
     setSelectedOptionIds(new Set())
   }, [slug])
 
@@ -93,25 +91,26 @@ export default function CategoryListing() {
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
       if (selectedBrands.size > 0 && !selectedBrands.has(p.brand)) return false
-      if (priceRange) {
-        const { price } = getEffectivePrice(p)
-        if (price < priceRange[0] || price > priceRange[1]) return false
-      }
       for (const attr of attributes) {
-        const selectedForAttr = attr.options.filter((o) => selectedOptionIds.has(o.id)).map((o) => o.id)
-        if (selectedForAttr.length === 0) continue
+        // A merged option can represent several underlying option rows (e.g. the same "16GB"
+        // value defined on two different subcategories) — match the product against any of them.
+        const selectedIds = attr.options.filter((o) => o.ids.some((id) => selectedOptionIds.has(id))).flatMap((o) => o.ids)
+        if (selectedIds.length === 0) continue
         const productOptionIds = p.attribute_option_ids || []
-        if (!selectedForAttr.some((id) => productOptionIds.includes(id))) return false
+        if (!selectedIds.some((id) => productOptionIds.includes(id))) return false
       }
       return true
     })
-  }, [products, selectedBrands, priceRange, selectedOptionIds, attributes])
+  }, [products, selectedBrands, selectedOptionIds, attributes])
 
-  const toggleOption = (id) => {
+  const toggleOption = (optionIds) => {
     setSelectedOptionIds((prev) => {
       const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
+      const anySelected = optionIds.some((id) => next.has(id))
+      for (const id of optionIds) {
+        if (anySelected) next.delete(id)
+        else next.add(id)
+      }
       return next
     })
   }
@@ -160,7 +159,7 @@ export default function CategoryListing() {
       <Header />
       <CategoryMenu />
 
-      <div className="w-full max-w-[1400px] 2xl:max-w-[1800px] min-[2000px]:max-w-[2200px] mx-auto px-5 py-5">
+      <div className="w-full mx-auto px-5 py-5">
         <div className="flex items-center gap-2 mb-4 text-[13px]">
           <span className="opacity-70 hover:underline after:content-['/'] after:ml-2 after:opacity-70">
             <Link to="/">Home</Link>
@@ -184,11 +183,8 @@ export default function CategoryListing() {
                   ))}
                 </FilterAccordion>
               )}
-              <FilterAccordion title="Price Range" separator={subcategories.length > 0}>
-                <PriceRangeFilter min={0} max={1499999} onApply={(from, to) => setPriceRange([from, to])} />
-              </FilterAccordion>
               {brands.length > 1 && (
-                <FilterAccordion title="Brand">
+                <FilterAccordion title="Brand" separator={subcategories.length > 0}>
                   <CheckboxGroup
                     items={brands}
                     selectedIds={selectedBrands}
@@ -198,11 +194,15 @@ export default function CategoryListing() {
               )}
               {attributes.map((attr) => (
                 <FilterAccordion key={attr.id} title={attr.name}>
-                  <CheckboxGroup
-                    items={attr.options.map((o) => ({ id: o.id, label: o.value }))}
-                    selectedIds={selectedOptionIds}
-                    onToggle={toggleOption}
-                  />
+                  {attr.options.map((opt) => (
+                    <FilterCheckbox
+                      key={opt.ids[0]}
+                      id={`attr-opt-${opt.ids[0]}`}
+                      label={opt.value}
+                      checked={opt.ids.some((id) => selectedOptionIds.has(id))}
+                      onChange={() => toggleOption(opt.ids)}
+                    />
+                  ))}
                 </FilterAccordion>
               ))}
             </div>

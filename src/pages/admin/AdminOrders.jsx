@@ -10,7 +10,7 @@ const STATUS_TRANSITIONS = {
   packed:            ['shipped', 'cancelled'],
   shipped:           ['out_for_delivery'],
   out_for_delivery:  ['delivered'],
-  delivered:         ['returned'],
+  delivered:         [],
   returned:          [],
   cancelled:         [],
   pending_payment:   [],
@@ -235,7 +235,7 @@ export default function AdminOrders() {
                         )
                         // No transitions possible — show badge only
                         if (transitions.length === 0) return badge
-                        // Pending — show badge + quick Confirm button
+                        // Pending — show badge + quick Confirm/Cancel buttons
                         if (order.status === 'pending') return (
                           <div className="flex items-center gap-2">
                             {badge}
@@ -246,6 +246,14 @@ export default function AdminOrders() {
                               className="rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[12px] font-medium px-3 py-1 transition-colors disabled:opacity-60"
                             >
                               {updatingId === order.id ? 'Confirming...' : 'Confirm Order'}
+                            </button>
+                            <button
+                              type="button"
+                              disabled={updatingId === order.id}
+                              onClick={() => handleStatusChange(order.id, 'cancelled')}
+                              className="rounded-full border border-red-300 text-red-600 hover:bg-red-50 text-[12px] font-medium px-3 py-1 transition-colors disabled:opacity-60"
+                            >
+                              Cancel
                             </button>
                           </div>
                         )

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
-import { api, uploadImage, resolveImageUrl } from '../../api/client'
+import { api, uploadImage, uploadVideo, resolveImageUrl } from '../../api/client'
 import { ADMIN_PATH } from '../../config/adminPath'
 
 const emptyForm = {
@@ -13,6 +13,7 @@ const emptyForm = {
   discount_price: '',
   stock: '0',
   image: '',
+  video: '',
   is_featured: false,
   is_new_arrival: false,
   is_on_sale: false,
@@ -33,6 +34,7 @@ export default function AdminProductForm() {
   const [form, setForm] = useState(emptyForm)
   const [categories, setCategories] = useState([])
   const [uploading, setUploading] = useState(false)
+  const [videoUploading, setVideoUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [slugTouched, setSlugTouched] = useState(false)
@@ -61,6 +63,7 @@ export default function AdminProductForm() {
           discount_price: p.discount_price ?? '',
           stock: p.stock,
           image: p.image ?? '',
+          video: p.video ?? '',
           is_featured: Boolean(p.is_featured),
           is_new_arrival: Boolean(p.is_new_arrival),
           is_on_sale: Boolean(p.is_on_sale),
@@ -128,6 +131,21 @@ export default function AdminProductForm() {
     }
   }
 
+  const handleVideoFileChange = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setVideoUploading(true)
+    setError('')
+    try {
+      const { url } = await uploadVideo(file)
+      setForm((prev) => ({ ...prev, video: url }))
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setVideoUploading(false)
+    }
+  }
+
   const handleGalleryFilesChange = async (e) => {
     const files = Array.from(e.target.files || [])
     if (files.length === 0) return
@@ -149,6 +167,10 @@ export default function AdminProductForm() {
     setGalleryImages((prev) => prev.filter((img) => img !== url))
   }
 
+  const removeVideo = () => {
+    setForm((prev) => ({ ...prev, video: '' }))
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setSaving(true)
@@ -164,6 +186,7 @@ export default function AdminProductForm() {
         discount_price: form.discount_price ? Number(form.discount_price) : null,
         stock: Number(form.stock) || 0,
         image: form.image,
+        video: form.video || null,
         is_featured: form.is_featured,
         is_new_arrival: form.is_new_arrival,
         is_on_sale: form.is_on_sale,
@@ -383,10 +406,31 @@ export default function AdminProductForm() {
           {galleryUploading && <div className="text-[13px] text-[#4b4b4b] mt-1">Uploading...</div>}
         </div>
 
+        <div>
+          <label className="block text-[13px] text-[#4b4b4b] mb-1">Product Video (optional)</label>
+          <div className="flex items-center gap-4">
+            {form.video && (
+              <div className="relative">
+                <video src={resolveImageUrl(form.video)} className="w-24 h-16 object-cover rounded-md border border-[#dedede] bg-black" />
+                <button
+                  type="button"
+                  aria-label="Remove video"
+                  onClick={removeVideo}
+                  className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-white border border-[#dedede] text-[12px] text-red-600 flex items-center justify-center"
+                >
+                  ×
+                </button>
+              </div>
+            )}
+            <input type="file" accept="video/mp4,video/webm" onChange={handleVideoFileChange} className="text-[13px]" />
+          </div>
+          {videoUploading && <div className="text-[13px] text-[#4b4b4b] mt-1">Uploading...</div>}
+        </div>
+
         <div className="flex gap-3 mt-2">
           <button
             type="submit"
-            disabled={saving || uploading}
+            disabled={saving || uploading || videoUploading}
             className="rounded-md bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-medium px-6 py-2.5 transition-colors disabled:opacity-60"
           >
             {saving ? 'Saving...' : isEdit ? 'Save Changes' : 'Create Product'}

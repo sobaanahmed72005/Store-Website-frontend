@@ -67,7 +67,7 @@ export default function CategoryMenu() {
 
   return (
     <nav className="hidden lg:block bg-cz-nav sticky top-0 z-30">
-      <div className="max-w-[1400px] 2xl:max-w-[1800px] min-[2000px]:max-w-[2200px] mx-auto px-5 py-2.5">
+      <div className="mx-auto px-5 py-2.5">
         <ul className="flex flex-row flex-wrap items-center gap-x-5">
           {navItems.map((item) => {
             const content = (

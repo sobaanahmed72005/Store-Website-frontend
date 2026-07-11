@@ -36,7 +36,7 @@ export default function Policies() {
       <Header />
       <CategoryMenu />
 
-      <div className="w-full max-w-[1400px] 2xl:max-w-[1800px] min-[2000px]:max-w-[2200px] mx-auto px-5 py-5">
+      <div className="w-full mx-auto px-5 py-5">
         <section className="flex flex-col items-start mb-4">
           <h1 className="text-[24px] font-medium text-[#353535]">{content.pageTitle}</h1>
           <div className="flex items-center gap-2 my-[10px] text-[14px]">
