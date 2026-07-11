@@ -47,6 +47,7 @@ export default function ProductCard({
   isNew = false,
   stock,
   inStock = true,
+  hasVariants = false,
 }) {
   const [hovered, setHovered] = useState(false)
   const gallery = [...new Set([image, ...(images || [])].filter(Boolean))]
@@ -148,18 +149,29 @@ export default function ProductCard({
             )}
           </div>
 
-          <button
-            type="button"
-            disabled={!actuallyInStock}
-            onClick={() => addToCart({ id: wishlistId, title, image, price: pkrPrice, slug })}
-            className={`w-full rounded-full text-[14px] font-semibold py-[10px] transition-colors ${
-              actuallyInStock
-                ? 'bg-cz-primary text-white hover:bg-cz-primary-hover cursor-pointer'
-                : 'bg-cz-primary text-white cursor-not-allowed opacity-60'
-            }`}
-          >
-            {actuallyInStock ? 'Add To Cart' : 'Out Of Stock'}
-          </button>
+          {hasVariants ? (
+            // A grid tile has no room for a variant picker — send shoppers to the product page
+            // to choose a combination instead of a quick-add that can't know which one to price.
+            <Link
+              to={productHref}
+              className="w-full flex items-center justify-center rounded-full text-[14px] font-semibold py-[10px] border border-cz-primary text-cz-primary hover:bg-cz-gold-light transition-colors cursor-pointer"
+            >
+              View Options
+            </Link>
+          ) : (
+            <button
+              type="button"
+              disabled={!actuallyInStock}
+              onClick={() => addToCart({ id: wishlistId, title, image, price: pkrPrice, slug })}
+              className={`w-full rounded-full text-[14px] font-semibold py-[10px] transition-colors ${
+                actuallyInStock
+                  ? 'bg-cz-primary text-white hover:bg-cz-primary-hover cursor-pointer'
+                  : 'bg-cz-primary text-white cursor-not-allowed opacity-60'
+              }`}
+            >
+              {actuallyInStock ? 'Add To Cart' : 'Out Of Stock'}
+            </button>
+          )}
         </div>
       </div>
     </div>

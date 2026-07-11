@@ -182,6 +182,7 @@ export default function Products() {
                     image={resolveImageUrl(p.image)}
                     images={p.images?.map(resolveImageUrl)}
                     stock={p.stock}
+                    hasVariants={p.has_variants}
                     rating={p.rating}
                     {...getEffectivePrice(p)}
                   />

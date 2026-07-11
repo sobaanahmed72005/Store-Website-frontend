@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { api } from '../api/client'
 import { useAuth } from './AuthContext'
-import { getEffectivePrice } from '../utils/pricing'
+import { getEffectivePrice, getVariantEffectivePrice } from '../utils/pricing'
 
 const CartContext = createContext(null)
 const STORAGE_KEY = 'cz_cart'
@@ -13,6 +13,12 @@ function readStoredCart() {
   } catch {
     return []
   }
+}
+
+// Two different variants of the same product must be separate cart lines — matching on id alone
+// would collapse them into one.
+function sameLine(item, id, variantId) {
+  return String(item.id) === String(id) && String(item.variantId ?? '') === String(variantId ?? '')
 }
 
 export function CartProvider({ children }) {
@@ -35,6 +41,8 @@ export function CartProvider({ children }) {
           setItems(
             serverItems.map((row) => ({
               id: String(row.product_ref),
+              variantId: row.variant_id ?? null,
+              variantLabel: row.variant_label ?? null,
               slug: row.product_slug,
               title: row.product_name,
               image: row.product_image,
@@ -57,27 +65,27 @@ export function CartProvider({ children }) {
 
   const addToCart = (product, qty = 1) => {
     setItems((prev) => {
-      const existing = prev.find((item) => String(item.id) === String(product.id))
+      const existing = prev.find((item) => sameLine(item, product.id, product.variantId))
       if (existing) {
-        return prev.map((item) => (String(item.id) === String(product.id) ? { ...item, qty: item.qty + qty } : item))
+        return prev.map((item) => (sameLine(item, product.id, product.variantId) ? { ...item, qty: item.qty + qty } : item))
       }
       return [...prev, { ...product, qty }]
     })
     setCartOpen(true)
   }
 
-  const updateQty = (id, delta) => {
+  const updateQty = (id, variantId, delta) => {
     setItems((prev) =>
-      prev.map((item) => (String(item.id) === String(id) ? { ...item, qty: Math.max(1, item.qty + delta) } : item))
+      prev.map((item) => (sameLine(item, id, variantId) ? { ...item, qty: Math.max(1, item.qty + delta) } : item))
     )
   }
 
-  const setQty = (id, qty) => {
-    setItems((prev) => prev.map((item) => (String(item.id) === String(id) ? { ...item, qty: Math.max(1, qty) } : item)))
+  const setQty = (id, variantId, qty) => {
+    setItems((prev) => prev.map((item) => (sameLine(item, id, variantId) ? { ...item, qty: Math.max(1, qty) } : item)))
   }
 
-  const removeFromCart = (id) => {
-    setItems((prev) => prev.filter((item) => String(item.id) !== String(id)))
+  const removeFromCart = (id, variantId) => {
+    setItems((prev) => prev.filter((item) => !sameLine(item, id, variantId)))
   }
 
   const clearCart = () => setItems([])
@@ -104,7 +112,26 @@ export function CartProvider({ children }) {
     const nextItems = []
 
     for (const { item, product } of results) {
-      if (!product || product.stock <= 0) {
+      if (!product) {
+        removed.push(item.title)
+        continue
+      }
+      if (item.variantId != null) {
+        const variant = product.variants?.find((v) => v.id === item.variantId)
+        if (!variant || variant.stock <= 0) {
+          removed.push(item.title)
+          continue
+        }
+        const { price } = getVariantEffectivePrice(variant)
+        if (price !== item.price) {
+          changed.push({ title: item.title, from: item.price, to: price })
+          nextItems.push({ ...item, price })
+        } else {
+          nextItems.push(item)
+        }
+        continue
+      }
+      if (product.stock <= 0) {
         removed.push(item.title)
         continue
       }

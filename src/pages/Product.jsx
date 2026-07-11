@@ -11,7 +11,7 @@ import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
 import { useCurrency, parsePkr } from '../context/CurrencyContext'
 import { api, resolveImageUrl } from '../api/client'
-import { getEffectivePrice } from '../utils/pricing'
+import { getEffectivePrice, getVariantEffectivePrice } from '../utils/pricing'
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../context/SiteSettingsContext'
 
@@ -145,6 +145,7 @@ export default function Product() {
   const [product, setProduct] = useState(null)
   const [checked, setChecked] = useState(false)
   const [qty, setQty] = useState(1)
+  const [selections, setSelections] = useState({})
   const [relatedProducts, setRelatedProducts] = useState([])
   const [reviews, setReviews] = useState([])
   const [reviewStats, setReviewStats] = useState({ average: 0, count: 0 })
@@ -157,6 +158,7 @@ export default function Product() {
   useEffect(() => {
     setChecked(false)
     setQty(1)
+    setSelections({})
     setReviewForm({ rating: 0, comment: '' })
     setReviewError('')
     setReviewSubmitted(false)
@@ -208,6 +210,39 @@ export default function Product() {
     return items
   }, [galleryImages, product])
 
+  // Variant picker: derived straight from product.variants (already fully labeled by the
+  // backend's attachVariants) — matched by (attribute name, value) pairs rather than raw option
+  // ids, since a product only ever has one category so this is unambiguous and needs no second
+  // fetch of the category's attribute definitions.
+  const dimensionNames = useMemo(() => {
+    const names = new Set()
+    for (const v of product?.variants || []) for (const o of v.options) names.add(o.attribute)
+    return [...names]
+  }, [product])
+
+  const optionsByDimension = useMemo(() => {
+    const map = new Map()
+    for (const name of dimensionNames) {
+      const values = new Set()
+      for (const v of product?.variants || []) for (const o of v.options) if (o.attribute === name) values.add(o.value)
+      map.set(name, [...values])
+    }
+    return map
+  }, [dimensionNames, product])
+
+  const hasVariants = (product?.variants?.length ?? 0) > 0
+
+  const matchedVariant = useMemo(() => {
+    if (!hasVariants || dimensionNames.length === 0) return null
+    if (!dimensionNames.every((name) => selections[name])) return null
+    return (
+      product.variants.find((v) => dimensionNames.every((name) => v.options.some((o) => o.attribute === name && o.value === selections[name]))) ??
+      null
+    )
+  }, [product, selections, dimensionNames, hasVariants])
+
+  const fullySelected = !hasVariants || matchedVariant != null
+
   const origin = window.location.origin
   const canonical = `${origin}/product/${slug}`
   useSeo({
@@ -255,10 +290,12 @@ export default function Product() {
   if (!checked) return null
   if (!product) return <ProductNotFound />
 
-  const { price, oldPrice, discountPercent } = getEffectivePrice(product)
+  const { price, oldPrice, discountPercent } = matchedVariant ? getVariantEffectivePrice(matchedVariant) : getEffectivePrice(product)
   const pkrPrice = parsePkr(price)
-  const inStock = product.stock > 0
+  const displayStock = matchedVariant ? matchedVariant.stock : product.stock
+  const inStock = fullySelected && displayStock > 0
   const wishlisted = isWishlisted(product.id)
+  const variantLabel = matchedVariant ? dimensionNames.map((name) => selections[name]).join(' / ') : null
 
   const cartPayload = {
     id: product.id,
@@ -266,6 +303,8 @@ export default function Product() {
     title: product.name,
     image: resolveImageUrl(product.image),
     price: pkrPrice,
+    variantId: matchedVariant?.id ?? null,
+    variantLabel,
   }
 
   const handleWishlistClick = async () => {
@@ -346,11 +385,44 @@ export default function Product() {
               )}
             </div>
 
-            <span className={`text-[14px] font-medium ${inStock ? 'text-green-600' : 'text-red-600'}`}>
-              {inStock ? `In Stock (${product.stock} available)` : 'Out of Stock'}
-            </span>
+            {fullySelected && (
+              <span className={`text-[14px] font-medium ${inStock ? 'text-green-600' : 'text-red-600'}`}>
+                {inStock ? `In Stock (${displayStock} available)` : 'Out of Stock'}
+              </span>
+            )}
 
             {product.description && <p className="text-[14px] text-[#4b4b4b] leading-relaxed">{product.description}</p>}
+
+            {dimensionNames.length > 0 && (
+              <div className="flex flex-col gap-3">
+                {dimensionNames.map((name) => (
+                  <div key={name}>
+                    <span className="block text-[13px] text-[#4b4b4b] mb-1.5">{name}</span>
+                    <div className="flex flex-wrap gap-2">
+                      {optionsByDimension.get(name).map((value) => (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => setSelections((prev) => ({ ...prev, [name]: value }))}
+                          className={`rounded-full border text-[13px] font-medium px-4 py-2 transition-colors ${
+                            selections[name] === value
+                              ? 'border-cz-primary bg-cz-primary text-white'
+                              : 'border-[#dedede] text-[#212121] hover:border-cz-primary'
+                          }`}
+                        >
+                          {value}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+                {!matchedVariant && (
+                  <span className="text-[13px] text-amber-700">
+                    Please select {dimensionNames.join(' and ')} to see price and availability.
+                  </span>
+                )}
+              </div>
+            )}
 
             {inStock && (
               <div className="flex items-center gap-3">
@@ -363,7 +435,7 @@ export default function Product() {
                   <button
                     type="button"
                     aria-label="Increase quantity"
-                    onClick={() => setQty((q) => Math.min(product.stock, q + 1))}
+                    onClick={() => setQty((q) => Math.min(displayStock, q + 1))}
                     className="text-[#212121]"
                   >
                     <PlusCircleIcon size={22} />
@@ -494,6 +566,7 @@ export default function Product() {
                   title={p.name}
                   image={resolveImageUrl(p.image)}
                   stock={p.stock}
+                  hasVariants={p.has_variants}
                   rating={p.rating}
                   {...getEffectivePrice(p)}
                 />

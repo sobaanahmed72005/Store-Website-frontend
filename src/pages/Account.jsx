@@ -356,7 +356,8 @@ export default function Account() {
                   {order.items.map((item) => (
                     <div key={item.id} className="flex items-center justify-between text-[13px] text-[#4b4b4b]">
                       <span className="line-clamp-1 pr-3">
-                        {item.product_name} × {item.quantity}
+                        {item.product_name}
+                        {item.variant_label && ` — ${item.variant_label}`} × {item.quantity}
                       </span>
                       <span className="shrink-0">{format(item.price * item.quantity)}</span>
                     </div>

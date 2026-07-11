@@ -236,7 +236,7 @@ export default function Checkout() {
           phone: form.phone,
           email: form.email,
           notes: form.notes,
-          items: items.map((item) => ({ id: item.id, title: item.title, image: item.image, price: item.price, quantity: item.qty })),
+          items: items.map((item) => ({ id: item.id, variantId: item.variantId ?? null, title: item.title, image: item.image, price: item.price, quantity: item.qty })),
           discount_code: appliedDiscount?.code,
           payment_method: selectedPaymentMethod,
           payment_reference: paymentReference,
@@ -401,7 +401,7 @@ export default function Checkout() {
             <div className="px-5 lg:px-16 pb-10 pt-[30px] bg-cz-gold-light lg:bg-transparent">
               <div className="grid gap-y-4 mt-2">
                 {items.map((item, index) => (
-                  <div key={item.id} className="flex items-center bg-white rounded-md p-3">
+                  <div key={`${item.id}-${item.variantId ?? ''}`} className="flex items-center bg-white rounded-md p-3">
                     <span className="flex items-center justify-center w-5 h-5 rounded-full bg-cz-primary text-white text-[11px] shrink-0">
                       {index + 1}
                     </span>
@@ -413,7 +413,8 @@ export default function Checkout() {
                     <div className="flex flex-col ps-4 flex-1">
                       <div className="flex items-center justify-between gap-3">
                         <span className="font-medium text-[14px] text-[#212121] line-clamp-2">
-                          {item.title} × {item.qty}
+                          {item.title}
+                          {item.variantLabel && <span className="text-[#6b7280]"> ({item.variantLabel})</span>} × {item.qty}
                         </span>
                         <span className="text-[14px] text-[#212121] shrink-0">{format(item.price * item.qty)}</span>
                       </div>

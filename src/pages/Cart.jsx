@@ -107,7 +107,7 @@ export default function Cart() {
                 </div>
 
                 {items.map((item) => (
-                  <div key={item.id}>
+                  <div key={`${item.id}-${item.variantId ?? ''}`}>
                     {/* desktop row */}
                     <div className="pb-3 border-b border-[#dedede] lg:flex flex-col hidden">
                       <div className="grid grid-cols-12 w-full">
@@ -119,13 +119,14 @@ export default function Cart() {
                             <Link to={item.slug ? `/product/${item.slug}` : '/products'} className="text-[14px] text-[#212121] hover:text-cz-primary">
                               {item.title.length > 50 ? `${item.title.slice(0, 50)}...` : item.title}
                             </Link>
+                            {item.variantLabel && <span className="text-[12px] text-[#6b7280] mt-0.5">{item.variantLabel}</span>}
                           </div>
                         </div>
                         <div className="lg:col-span-2 col-span-5 flex items-center justify-center">
                           <QuantityStepper
                             qty={item.qty}
-                            onDecrease={() => updateQty(item.id, -1)}
-                            onIncrease={() => updateQty(item.id, 1)}
+                            onDecrease={() => updateQty(item.id, item.variantId, -1)}
+                            onIncrease={() => updateQty(item.id, item.variantId, 1)}
                           />
                         </div>
                         <div className="lg:col-span-2 col-span-6 flex items-center justify-end">
@@ -135,7 +136,7 @@ export default function Cart() {
                           <button
                             type="button"
                             aria-label="Remove item"
-                            onClick={() => removeFromCart(item.id)}
+                            onClick={() => removeFromCart(item.id, item.variantId)}
                             className="px-3 text-gray-500 hover:text-red-500"
                           >
                             <TrashIcon size={20} />
@@ -155,18 +156,19 @@ export default function Cart() {
                             <Link to={item.slug ? `/product/${item.slug}` : '/products'} className="font-semibold text-[14px] text-[#212121] line-clamp-2">
                               {item.title}
                             </Link>
+                            {item.variantLabel && <span className="text-[12px] text-[#6b7280]">{item.variantLabel}</span>}
                             <span className="text-[14px] text-[#212121]">{format(item.price)}</span>
                           </div>
                           <div className="flex justify-between items-center gap-3 mt-3">
                             <QuantityStepper
                               qty={item.qty}
-                              onDecrease={() => updateQty(item.id, -1)}
-                              onIncrease={() => updateQty(item.id, 1)}
+                              onDecrease={() => updateQty(item.id, item.variantId, -1)}
+                              onIncrease={() => updateQty(item.id, item.variantId, 1)}
                             />
                             <button
                               type="button"
                               aria-label="Remove item"
-                              onClick={() => removeFromCart(item.id)}
+                              onClick={() => removeFromCart(item.id, item.variantId)}
                               className="px-3 text-gray-500 hover:text-red-500"
                             >
                               <TrashIcon size={20} />

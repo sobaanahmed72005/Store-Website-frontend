@@ -114,7 +114,7 @@ function CartDrawer({ open, onClose, items, onUpdateQty, onRemove }) {
           ) : (
             <div className="cart-products flex flex-col gap-4 pb-[113px]">
               {items.map((item) => (
-                <div key={item.id} className="relative flex items-center justify-between gap-3">
+                <div key={`${item.id}-${item.variantId ?? ''}`} className="relative flex items-center justify-between gap-3">
                   <div className="relative flex items-center justify-center w-[60px] h-[60px] rounded-md overflow-hidden shrink-0">
                     <span className="absolute -left-[5px] -top-[5px] z-[1] flex items-center justify-center w-[18px] h-[18px] rounded-full bg-cz-primary text-white text-[11px]">
                       {item.qty}
@@ -123,12 +123,13 @@ function CartDrawer({ open, onClose, items, onUpdateQty, onRemove }) {
                   </div>
                   <div className="flex-1">
                     <div className="font-semibold text-[14px] text-[#212121] line-clamp-2">{item.title}</div>
+                    {item.variantLabel && <div className="text-[12px] text-[#6b7280] mt-0.5">{item.variantLabel}</div>}
                     <div className="flex items-center mt-2">
                       <div className="flex items-center border border-[#dedede] rounded-full">
                         <button
                           type="button"
                           aria-label="Decrease quantity"
-                          onClick={() => onUpdateQty(item.id, -1)}
+                          onClick={() => onUpdateQty(item.id, item.variantId, -1)}
                           className="px-2 py-1 text-[#212121]"
                         >
                           <MinusIcon size={14} />
@@ -137,7 +138,7 @@ function CartDrawer({ open, onClose, items, onUpdateQty, onRemove }) {
                         <button
                           type="button"
                           aria-label="Increase quantity"
-                          onClick={() => onUpdateQty(item.id, 1)}
+                          onClick={() => onUpdateQty(item.id, item.variantId, 1)}
                           className="px-2 py-1 text-[#212121]"
                         >
                           <PlusIcon size={14} />
@@ -149,7 +150,7 @@ function CartDrawer({ open, onClose, items, onUpdateQty, onRemove }) {
                   <button
                     type="button"
                     aria-label="Remove item"
-                    onClick={() => onRemove(item.id)}
+                    onClick={() => onRemove(item.id, item.variantId)}
                     className="text-gray-400 hover:text-red-500 shrink-0"
                   >
                     <TrashIcon size={18} />

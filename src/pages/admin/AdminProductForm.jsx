@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { api, uploadImage, uploadVideo, resolveImageUrl } from '../../api/client'
 import { ADMIN_PATH } from '../../config/adminPath'
+import MultiSelectDropdown from '../../components/admin/MultiSelectDropdown'
 
 const emptyForm = {
   name: '',
@@ -27,6 +28,20 @@ function slugify(value) {
     .replace(/^-+|-+$/g, '')
 }
 
+// Stable key for a variant combination — one option (its full merged `ids` array) per dimension
+// attribute — so re-selecting the same combination after toggling something else still finds its
+// already-typed price/stock instead of losing it.
+function comboKey(optionIdGroups) {
+  return optionIdGroups
+    .map((ids) => [...ids].sort((a, b) => a - b).join(','))
+    .sort()
+    .join('|')
+}
+
+function cartesianProduct(arrays) {
+  return arrays.reduce((acc, curr) => acc.flatMap((combo) => curr.map((item) => [...combo, item])), [[]])
+}
+
 export default function AdminProductForm() {
   const { id } = useParams()
   const isEdit = Boolean(id)
@@ -43,6 +58,11 @@ export default function AdminProductForm() {
   const [pendingOptionIds, setPendingOptionIds] = useState(null)
   const [galleryImages, setGalleryImages] = useState([])
   const [galleryUploading, setGalleryUploading] = useState(false)
+  // comboKey -> { price, stock, discount_price }. Populated from the loaded product's variants
+  // once attributes are loaded (see the reconciliation effect below).
+  const [variantRows, setVariantRows] = useState(() => new Map())
+  const [pendingVariants, setPendingVariants] = useState(null)
+  const [variantsOnSale, setVariantsOnSale] = useState(false)
 
   useEffect(() => {
     api.get('/admin/categories', { auth: true }).then(setCategories).catch(() => {})
@@ -70,6 +90,7 @@ export default function AdminProductForm() {
         })
         setPendingOptionIds(p.attribute_option_ids || [])
         setGalleryImages(p.images || [])
+        setPendingVariants(p.variants || [])
       })
       .catch((err) => setError(err.message))
   }, [id, isEdit])
@@ -94,6 +115,37 @@ export default function AdminProductForm() {
       .catch(() => setAttributes([]))
   }, [form.category_id])
 
+  // Reconstructs variantRows from the loaded product's variants once attributes have settled —
+  // mirrors the pendingOptionIds reconciliation above. Waits on selectedOptionIds too since that's
+  // what determines which attributes count as variant "dimensions" below.
+  useEffect(() => {
+    if (!pendingVariants || attributes.length === 0) return
+    const brandAttrLocal = attributes.find((a) => a.name.trim().toLowerCase() === 'brand')
+    const nonBrandLocal = attributes.filter((a) => a !== brandAttrLocal)
+    const dims = nonBrandLocal.filter(
+      (attr) => attr.options.filter((opt) => opt.ids.some((id) => selectedOptionIds.has(id))).length >= 2
+    )
+    const nextRows = new Map()
+    let anyOnSale = false
+    for (const v of pendingVariants) {
+      const perAttr = dims.map((attr) => {
+        const match = v.options.find((vo) => vo.attribute === attr.name)
+        return match ? attr.options.find((opt) => opt.value === match.value) : null
+      })
+      if (perAttr.length > 0 && perAttr.every(Boolean)) {
+        if (v.discount_price != null) anyOnSale = true
+        nextRows.set(comboKey(perAttr.map((o) => o.ids)), {
+          price: v.price,
+          stock: v.stock,
+          discount_price: v.discount_price ?? '',
+        })
+      }
+    }
+    setVariantRows(nextRows)
+    setVariantsOnSale(anyOnSale)
+    setPendingVariants(null)
+  }, [attributes, selectedOptionIds, pendingVariants])
+
   const toggleOption = (optionIds) => {
     setSelectedOptionIds((prev) => {
       const next = new Set(prev)
@@ -104,6 +156,43 @@ export default function AdminProductForm() {
       }
       return next
     })
+  }
+
+  const brandAttr = attributes.find((a) => a.name.trim().toLowerCase() === 'brand')
+  const nonBrandAttributes = attributes.filter((a) => a !== brandAttr)
+  const dimensionAttrs = nonBrandAttributes.filter(
+    (attr) => attr.options.filter((opt) => opt.ids.some((id) => selectedOptionIds.has(id))).length >= 2
+  )
+  const activeCombos =
+    dimensionAttrs.length === 0
+      ? []
+      : cartesianProduct(
+          dimensionAttrs.map((attr) => attr.options.filter((opt) => opt.ids.some((id) => selectedOptionIds.has(id))))
+        ).map((comboOptions) => ({
+          key: comboKey(comboOptions.map((o) => o.ids)),
+          optionIds: comboOptions.flatMap((o) => o.ids),
+          label: comboOptions.map((o) => o.value).join(' / '),
+        }))
+
+  const updateVariantRow = (key, field, value) => {
+    setVariantRows((prev) => {
+      const next = new Map(prev)
+      next.set(key, { ...next.get(key), [field]: value })
+      return next
+    })
+  }
+
+  const toggleVariantsOnSale = (checked) => {
+    setVariantsOnSale(checked)
+    // Turning it off means "no variant is on sale" — clear any sale prices already typed in,
+    // rather than leaving them stored-but-hidden and still silently in effect.
+    if (!checked) {
+      setVariantRows((prev) => {
+        const next = new Map(prev)
+        for (const [key, row] of next) next.set(key, { ...row, discount_price: '' })
+        return next
+      })
+    }
   }
 
   const handleChange = (e) => {
@@ -173,9 +262,36 @@ export default function AdminProductForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setSaving(true)
     setError('')
+
+    if (activeCombos.length > 0) {
+      const incomplete = activeCombos.some((combo) => {
+        const row = variantRows.get(combo.key)
+        if (!row || row.price === '' || row.price == null) return true
+        if (variantsOnSale && (row.discount_price === '' || row.discount_price == null)) return true
+        return false
+      })
+      if (incomplete) {
+        setError(
+          variantsOnSale
+            ? 'Please enter a price and sale price for every variant combination below.'
+            : 'Please enter a price for every variant combination below.'
+        )
+        return
+      }
+    }
+
+    setSaving(true)
     try {
+      const variants = activeCombos.map((combo) => {
+        const row = variantRows.get(combo.key) || {}
+        return {
+          option_ids: combo.optionIds,
+          price: Number(row.price),
+          stock: Number(row.stock) || 0,
+          discount_price: row.discount_price !== '' && row.discount_price != null ? Number(row.discount_price) : null,
+        }
+      })
       const payload = {
         name: form.name,
         slug: form.slug,
@@ -192,6 +308,7 @@ export default function AdminProductForm() {
         is_on_sale: form.is_on_sale,
         attribute_option_ids: [...selectedOptionIds],
         images: galleryImages,
+        variants,
       }
       if (isEdit) {
         await api.put(`/admin/products/${id}`, payload, { auth: true })
@@ -261,19 +378,39 @@ export default function AdminProductForm() {
           </div>
           <div>
             <label className="block text-[13px] text-[#4b4b4b] mb-1">Brand</label>
-            <input
-              name="brand"
-              value={form.brand}
-              onChange={handleChange}
-              className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2.5 outline-none focus:border-cz-primary"
-            />
+            {brandAttr && brandAttr.options.length > 0 ? (
+              <select
+                name="brand"
+                value={form.brand}
+                onChange={handleChange}
+                className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2.5 outline-none focus:border-cz-primary bg-white"
+              >
+                <option value="">Select a brand</option>
+                {form.brand && !brandAttr.options.some((opt) => opt.value === form.brand) && (
+                  <option value={form.brand}>{form.brand}</option>
+                )}
+                {brandAttr.options.map((opt) => (
+                  <option key={opt.ids[0]} value={opt.value}>
+                    {opt.value}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                name="brand"
+                value={form.brand}
+                onChange={handleChange}
+                placeholder={form.category_id ? 'Add a "Brand" filter to this category to make this a dropdown' : ''}
+                className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2.5 outline-none focus:border-cz-primary"
+              />
+            )}
           </div>
         </div>
 
-        {attributes.length > 0 && (
+        {nonBrandAttributes.length > 0 && (
           <div className="rounded-md border border-[#dedede] p-4 flex flex-col gap-3">
             <span className="block text-[13px] text-[#4b4b4b]">Filters (shown on this category's storefront page)</span>
-            {attributes.map((attr) => (
+            {nonBrandAttributes.map((attr) => (
               <div key={attr.id}>
                 <span className="block text-[13px] font-medium text-[#212121] mb-1.5">
                   {attr.name}
@@ -281,24 +418,80 @@ export default function AdminProductForm() {
                     <span className="ml-1.5 text-[11px] font-normal text-[#9ca3af]">(inherited from parent category)</span>
                   )}
                 </span>
-                <div className="flex flex-wrap gap-3">
-                  {attr.options.length === 0 ? (
-                    <span className="text-[13px] text-[#4b4b4b]">No options defined for this filter yet.</span>
-                  ) : (
-                    attr.options.map((opt) => (
-                      <label key={opt.ids[0]} className="flex items-center gap-2 text-[14px] text-[#212121]">
-                        <input
-                          type="checkbox"
-                          checked={opt.ids.some((id) => selectedOptionIds.has(id))}
-                          onChange={() => toggleOption(opt.ids)}
-                        />
-                        {opt.value}
-                      </label>
-                    ))
-                  )}
-                </div>
+                <MultiSelectDropdown
+                  options={attr.options.map((opt) => ({ id: opt.ids[0], label: opt.value }))}
+                  selectedIds={
+                    new Set(
+                      attr.options.filter((opt) => opt.ids.some((id) => selectedOptionIds.has(id))).map((opt) => opt.ids[0])
+                    )
+                  }
+                  onToggle={(repId) => {
+                    const opt = attr.options.find((o) => o.ids[0] === repId)
+                    if (opt) toggleOption(opt.ids)
+                  }}
+                />
               </div>
             ))}
+          </div>
+        )}
+
+        {activeCombos.length > 0 && (
+          <div className="rounded-md border border-[#dedede] p-4 flex flex-col gap-3">
+            <span className="block text-[13px] text-[#4b4b4b]">
+              Variants — this product is offered in {activeCombos.length} combinations below; each needs its own price.
+              Selecting more than one option for a filter above turns it into a variant.
+            </span>
+
+            <label className="flex items-center gap-2 text-[14px] text-[#212121]">
+              <input
+                type="checkbox"
+                checked={variantsOnSale}
+                onChange={(e) => toggleVariantsOnSale(e.target.checked)}
+              />
+              Put all variants on sale
+            </label>
+
+            <div className="flex flex-col gap-2">
+              {activeCombos.map((combo) => {
+                const row = variantRows.get(combo.key) || {}
+                return (
+                  <div
+                    key={combo.key}
+                    className={`grid ${variantsOnSale ? 'grid-cols-[1fr_auto_auto_auto]' : 'grid-cols-[1fr_auto_auto]'} gap-2 items-center`}
+                  >
+                    <span className="text-[14px] text-[#212121]">{combo.label}</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="Price (PKR)"
+                      value={row.price ?? ''}
+                      onChange={(e) => updateVariantRow(combo.key, 'price', e.target.value)}
+                      className="w-[130px] rounded-md border border-[#d1d5db] text-[14px] px-3 py-2 outline-none focus:border-cz-primary"
+                    />
+                    <input
+                      type="number"
+                      min="0"
+                      placeholder="Stock"
+                      value={row.stock ?? ''}
+                      onChange={(e) => updateVariantRow(combo.key, 'stock', e.target.value)}
+                      className="w-[100px] rounded-md border border-[#d1d5db] text-[14px] px-3 py-2 outline-none focus:border-cz-primary"
+                    />
+                    {variantsOnSale && (
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="Sale Price (PKR)"
+                        value={row.discount_price ?? ''}
+                        onChange={(e) => updateVariantRow(combo.key, 'discount_price', e.target.value)}
+                        className="w-[140px] rounded-md border border-[#d1d5db] text-[14px] px-3 py-2 outline-none focus:border-cz-primary"
+                      />
+                    )}
+                  </div>
+                )
+              })}
+            </div>
           </div>
         )}
 
@@ -313,32 +506,34 @@ export default function AdminProductForm() {
           />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-[13px] text-[#4b4b4b] mb-1">Price (PKR)</label>
-            <input
-              name="price"
-              type="number"
-              min="0"
-              step="0.01"
-              value={form.price}
-              onChange={handleChange}
-              required
-              className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2.5 outline-none focus:border-cz-primary"
-            />
+        {activeCombos.length === 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[13px] text-[#4b4b4b] mb-1">Price (PKR)</label>
+              <input
+                name="price"
+                type="number"
+                min="0"
+                step="0.01"
+                value={form.price}
+                onChange={handleChange}
+                required
+                className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2.5 outline-none focus:border-cz-primary"
+              />
+            </div>
+            <div>
+              <label className="block text-[13px] text-[#4b4b4b] mb-1">Stock</label>
+              <input
+                name="stock"
+                type="number"
+                min="0"
+                value={form.stock}
+                onChange={handleChange}
+                className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2.5 outline-none focus:border-cz-primary"
+              />
+            </div>
           </div>
-          <div>
-            <label className="block text-[13px] text-[#4b4b4b] mb-1">Stock</label>
-            <input
-              name="stock"
-              type="number"
-              min="0"
-              value={form.stock}
-              onChange={handleChange}
-              className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2.5 outline-none focus:border-cz-primary"
-            />
-          </div>
-        </div>
+        )}
 
         <div className="rounded-md border border-[#dedede] p-4 flex flex-col gap-3">
           <label className="flex items-center gap-2 text-[14px] text-[#212121]">

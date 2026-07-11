@@ -316,7 +316,8 @@ export default function AdminOrders() {
                             {order.items.map((item) => (
                               <div key={item.id} className="flex items-center justify-between text-[13px] text-[#212121]">
                                 <span>
-                                  {item.product_name} × {item.quantity}
+                                  {item.product_name}
+                                  {item.variant_label && ` — ${item.variant_label}`} × {item.quantity}
                                 </span>
                                 <span>{format(item.price * item.quantity)}</span>
                               </div>
