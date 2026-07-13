@@ -26,7 +26,7 @@ function ProfileSection() {
     setSaved(false)
     try {
       const data = await api.put('/auth/me', { name, email }, { auth: true })
-      updateSession(data.user)
+      updateSession(data.user, data.accessTokenExpiresAt)
       setSaved(true)
     } catch (err) {
       setError(err.message)

@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { api, setAuthFailureHandler } from '../api/client'
+import { api, setAuthFailureHandler, scheduleTokenRefresh, cancelTokenRefresh } from '../api/client'
 
 const AuthContext = createContext(null)
 
@@ -19,23 +19,33 @@ export function AuthProvider({ children }) {
   const [initializing, setInitializing] = useState(true)
   const [loading, setLoading] = useState(false)
 
+  // Keeps the proactive access-token refresh timer (client.js) in lockstep with whether a
+  // session is actually active, instead of every call site remembering to manage it separately.
+  // expiresAt is the accessTokenExpiresAt the backend returns alongside the user on every
+  // endpoint that issues a session.
+  const applyUser = (nextUser, expiresAt) => {
+    setUser(nextUser)
+    if (nextUser) scheduleTokenRefresh(expiresAt)
+    else cancelTokenRefresh()
+  }
+
   useEffect(() => {
     api
       .get('/auth/me')
-      .then((data) => setUser(data.user))
-      .catch(() => setUser(null))
+      .then((data) => applyUser(data.user, data.accessTokenExpiresAt))
+      .catch(() => applyUser(null))
       .finally(() => setInitializing(false))
   }, [])
 
   useEffect(() => {
-    setAuthFailureHandler(() => setUser(null))
+    setAuthFailureHandler(() => applyUser(null))
   }, [])
 
   const login = async (email, password) => {
     setLoading(true)
     try {
       const data = await api.post('/auth/login', { email, password })
-      if (!data.requires2fa) setUser(data.user)
+      if (!data.requires2fa) applyUser(data.user, data.accessTokenExpiresAt)
       return data
     } finally {
       setLoading(false)
@@ -46,7 +56,7 @@ export function AuthProvider({ children }) {
     setLoading(true)
     try {
       const data = await api.post('/auth/2fa/verify', { challengeId, token })
-      setUser(data.user)
+      applyUser(data.user, data.accessTokenExpiresAt)
       return data.user
     } finally {
       setLoading(false)
@@ -57,19 +67,19 @@ export function AuthProvider({ children }) {
     setLoading(true)
     try {
       const data = await api.post('/auth/register', { name, email, password, phone })
-      setUser(data.user)
+      applyUser(data.user, data.accessTokenExpiresAt)
     } finally {
       setLoading(false)
     }
   }
 
   const logout = () => {
-    setUser(null)
+    applyUser(null)
     api.post('/auth/logout', {}).catch(() => {})
   }
 
-  const updateSession = (nextUser) => {
-    setUser(nextUser)
+  const updateSession = (nextUser, expiresAt) => {
+    applyUser(nextUser, expiresAt)
   }
 
   return (
