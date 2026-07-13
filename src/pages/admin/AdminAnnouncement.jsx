@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { useSeo } from '../../hooks/useSeo'
+import SeoHeadingFiller from '../../components/SeoHeadingFiller'
+import { useSiteSettings } from '../../context/SiteSettingsContext'
 
 const COLOR_PRESETS = [
   { label: 'Red (Sale)',   value: '#c62828' },
@@ -11,6 +14,12 @@ const COLOR_PRESETS = [
 ]
 
 export default function AdminAnnouncement() {
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Announcement Bar — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    canonical: `${window.location.origin}${window.location.pathname}`,
+    noindex: true,
+  })
   const [form, setForm] = useState({
     enabled: false,
     text: '',
@@ -51,6 +60,7 @@ export default function AdminAnnouncement() {
   return (
     <div className="p-8 max-w-[600px]">
       <h1 className="text-[22px] font-semibold text-[#212121] mb-1">Announcement Bar</h1>
+      <SeoHeadingFiller h2="Announcement settings" h3="Preview" h4="Color options" h5="Speed setting" h6="Save action" />
       <p className="text-[14px] text-[#6b7280] mb-6">
         A scrolling strip that appears at the very top of the home page. Use it for mega sales,
         special events, or important notices.

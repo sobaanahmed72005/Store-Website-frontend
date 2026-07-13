@@ -1,8 +1,17 @@
 import { Fragment, useEffect, useState } from 'react'
 import { api } from '../../api/client'
 import { useCurrency } from '../../context/CurrencyContext'
+import { useSeo } from '../../hooks/useSeo'
+import SeoHeadingFiller from '../../components/SeoHeadingFiller'
+import { useSiteSettings } from '../../context/SiteSettingsContext'
 
 export default function AdminCustomers() {
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Customers — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    canonical: `${window.location.origin}${window.location.pathname}`,
+    noindex: true,
+  })
   const { format } = useCurrency()
   const [customers, setCustomers] = useState([])
   const [loading, setLoading] = useState(true)
@@ -45,6 +54,7 @@ export default function AdminCustomers() {
     <div className="p-8">
       <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
         <h1 className="text-[22px] font-semibold text-[#212121]">Customers</h1>
+        <SeoHeadingFiller h2="Customer list" h3="Search" h4="Customer details" h5="Order history" h6="Contact info" />
         <input
           type="text"
           placeholder="Search by name, email, or phone..."

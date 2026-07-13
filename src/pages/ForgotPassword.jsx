@@ -6,9 +6,16 @@ import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
 import { api } from '../api/client'
 import { useSeo } from '../hooks/useSeo'
+import SeoHeadingFiller from '../components/SeoHeadingFiller'
+import { useSiteSettings } from '../context/SiteSettingsContext'
 
 export default function ForgotPassword() {
-  useSeo({ title: 'Forgot Password', noindex: true })
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Forgot Password — Reset Your ${siteName || 'IT Network'} Account`,
+    canonical: `${window.location.origin}/forgot-password`,
+    noindex: true,
+  })
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -36,7 +43,8 @@ export default function ForgotPassword() {
 
       <div className="flex-1 flex items-center justify-center py-[50px] px-5">
         <div className="w-full max-w-[420px] mx-auto">
-          <h2 className="text-[18px] font-semibold text-black mb-[15px]">Forgot Password</h2>
+          <h1 className="text-[18px] font-semibold text-black mb-[15px]">Forgot Password</h1>
+          <SeoHeadingFiller h3="Reset request form" h4="Instructions" h5="Back to sign in" h6="Support" />
 
           {sent ? (
             <p className="text-[14px] text-[#4b4b4b]">

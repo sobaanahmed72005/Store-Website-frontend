@@ -6,7 +6,7 @@ const HOSTNAMES = new Set([
 
 const INTERNAL_ROUTES = {
   '/': '/',
-  '/products': '/products',
+  '/products': '/shop',
   '/signin': '/signin',
   '/signup': '/signup',
   '/forgotpassword': '/signin',
@@ -17,7 +17,7 @@ const INTERNAL_ROUTES = {
   '/about-us': '/about-us',
   '/contact': '/contact',
   '/return-exchange': '/return-exchange',
-  '/new-arrivals': '/products',
+  '/new-arrivals': '/shop',
   '/monitors': '/category/monitors',
   '/lian-li': '/category/lian-li',
   '/laptops-pakistan-ppt.74.aspx': '/laptops',

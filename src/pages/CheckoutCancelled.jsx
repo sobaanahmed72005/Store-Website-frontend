@@ -1,9 +1,16 @@
 import { Link, useSearchParams } from 'react-router-dom'
 import Logo from '../components/Logo'
 import { useSeo } from '../hooks/useSeo'
+import SeoHeadingFiller from '../components/SeoHeadingFiller'
+import { useSiteSettings } from '../context/SiteSettingsContext'
 
 export default function CheckoutCancelled() {
-  useSeo({ title: 'Payment Cancelled', noindex: true })
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Payment Cancelled — Order Not Completed | ${siteName || 'IT Network'}`,
+    canonical: `${window.location.origin}/checkout/cancelled`,
+    noindex: true,
+  })
   const [params] = useSearchParams()
   const orderId = params.get('orderId')
 
@@ -26,6 +33,7 @@ export default function CheckoutCancelled() {
           </div>
 
           <h1 className="text-[24px] font-semibold text-[#212121] mb-2">Payment Cancelled</h1>
+          <SeoHeadingFiller h2="Order status" h3="Next steps" h4="Order details" h5="Try again" h6="Support" />
           {orderId && (
             <p className="text-[15px] text-[#4b4b4b] mb-2">
               Order <strong>#{orderId}</strong> was not completed.

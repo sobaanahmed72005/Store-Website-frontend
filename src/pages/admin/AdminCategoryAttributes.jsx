@@ -2,8 +2,17 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../../api/client'
 import { ADMIN_PATH } from '../../config/adminPath'
+import { useSeo } from '../../hooks/useSeo'
+import SeoHeadingFiller from '../../components/SeoHeadingFiller'
+import { useSiteSettings } from '../../context/SiteSettingsContext'
 
 export default function AdminCategoryAttributes() {
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Filters — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    canonical: `${window.location.origin}${window.location.pathname}`,
+    noindex: true,
+  })
   const { id } = useParams()
   const [category, setCategory] = useState(null)
   const [attributes, setAttributes] = useState([])
@@ -100,6 +109,7 @@ export default function AdminCategoryAttributes() {
       <h1 className="text-[22px] font-semibold text-[#212121] mb-1">
         Filters{category ? ` — ${category.name}` : ''}
       </h1>
+      <SeoHeadingFiller h4="Inherited filters" h5="Add option" h6="Delete action" />
       <p className="text-[13px] text-[#4b4b4b] mb-6">
         Define product specification filters customers can use on this category's storefront page, e.g. Processor or RAM for Laptops.
       </p>

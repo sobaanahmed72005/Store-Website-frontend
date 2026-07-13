@@ -1,7 +1,16 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { useSeo } from '../../hooks/useSeo'
+import SeoHeadingFiller from '../../components/SeoHeadingFiller'
+import { useSiteSettings } from '../../context/SiteSettingsContext'
 
 export default function AdminShipping() {
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Shipping — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    canonical: `${window.location.origin}${window.location.pathname}`,
+    noindex: true,
+  })
   const [fee, setFee] = useState('1800')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -36,6 +45,7 @@ export default function AdminShipping() {
   return (
     <div className="p-8 max-w-[480px]">
       <h1 className="text-[22px] font-semibold text-[#212121] mb-6">Shipping</h1>
+      <SeoHeadingFiller h2="Shipping settings" h3="Fee configuration" h4="Save action" h5="Validation" h6="Status" />
 
       {error && <div className="text-[14px] text-red-600 mb-4">{error}</div>}
       {saved && <div className="text-[14px] text-green-700 mb-4">Saved.</div>}

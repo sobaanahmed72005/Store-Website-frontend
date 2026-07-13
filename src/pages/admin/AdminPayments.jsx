@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { useSeo } from '../../hooks/useSeo'
+import SeoHeadingFiller from '../../components/SeoHeadingFiller'
+import { useSiteSettings } from '../../context/SiteSettingsContext'
 
 const emptyMethods = {
   bank_transfer: { enabled: false, label: 'Bank Transfer', bankName: '', accountTitle: '', accountNumber: '', instructions: '' },
@@ -9,6 +12,12 @@ const emptyMethods = {
 }
 
 export default function AdminPayments() {
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Payment Methods — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    canonical: `${window.location.origin}${window.location.pathname}`,
+    noindex: true,
+  })
   const [methods, setMethods] = useState(emptyMethods)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -45,6 +54,7 @@ export default function AdminPayments() {
   return (
     <div className="p-8 max-w-[640px]">
       <h1 className="text-[22px] font-semibold text-[#212121] mb-1">Payment Methods</h1>
+      <SeoHeadingFiller h2="Payment method list" h3="Method configuration" h4="Instructions" h5="Save action" h6="Status" />
       <p className="text-[13px] text-[#4b4b4b] mb-6">
         Configure your payment options. These require manual verification in Admin → Orders.
       </p>

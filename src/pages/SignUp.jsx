@@ -6,6 +6,8 @@ import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
 import { useAuth } from '../context/AuthContext'
 import { useSeo } from '../hooks/useSeo'
+import SeoHeadingFiller from '../components/SeoHeadingFiller'
+import { useSiteSettings } from '../context/SiteSettingsContext'
 
 function AuthInput({ type = 'text', name, placeholder, value, onChange, required = true }) {
   return (
@@ -26,7 +28,12 @@ function AuthInput({ type = 'text', name, placeholder, value, onChange, required
 }
 
 export default function SignUp() {
-  useSeo({ title: 'Create an Account', noindex: true })
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Create an Account — Join ${siteName || 'IT Network'} Today`,
+    canonical: `${window.location.origin}/signup`,
+    noindex: true,
+  })
   const { register, loading } = useAuth()
   const navigate = useNavigate()
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '' })
@@ -57,7 +64,8 @@ export default function SignUp() {
 
       <div className="flex-1 flex items-center justify-center py-[50px] px-5">
         <form onSubmit={handleSubmit} className="w-full max-w-[420px] mx-auto">
-          <h2 className="text-[18px] font-semibold text-black mb-[15px]">Create an Account</h2>
+          <h1 className="text-[18px] font-semibold text-black mb-[15px]">Create an Account</h1>
+          <SeoHeadingFiller h3="Sign up form" h4="Account details" h5="Existing account sign-in" h6="Support" />
 
           {error && <div className="mb-3 text-[13px] text-red-600">{error}</div>}
 
