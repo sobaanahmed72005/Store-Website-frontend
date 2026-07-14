@@ -63,6 +63,10 @@ export default function AdminProductForm() {
   const [variantRows, setVariantRows] = useState(() => new Map())
   const [pendingVariants, setPendingVariants] = useState(null)
   const [variantsOnSale, setVariantsOnSale] = useState(false)
+  // { [attributeName]: value } — lets the admin explicitly choose what a variant-defining
+  // attribute (2+ selected options) should display as in Specifications, since there's no single
+  // correct auto-derived value once that attribute has multiple options on the same product.
+  const [specOverrides, setSpecOverrides] = useState({})
 
   useEffect(() => {
     api.get('/admin/categories', { auth: true }).then(setCategories).catch((err) => setError(err.message))
@@ -91,6 +95,7 @@ export default function AdminProductForm() {
         setPendingOptionIds(p.attribute_option_ids || [])
         setGalleryImages(p.images || [])
         setPendingVariants(p.variants || [])
+        setSpecOverrides(Object.fromEntries((p.spec_overrides || []).map((o) => [o.attribute_name, o.value])))
       })
       .catch((err) => setError(err.message))
   }, [id, isEdit])
@@ -309,6 +314,11 @@ export default function AdminProductForm() {
         attribute_option_ids: [...selectedOptionIds],
         images: galleryImages,
         variants,
+        spec_overrides: Object.fromEntries(
+          dimensionAttrs
+            .map((attr) => [attr.name, (specOverrides[attr.name] || '').trim()])
+            .filter(([, value]) => value !== '')
+        ),
       }
       if (isEdit) {
         await api.put(`/admin/products/${id}`, payload, { auth: true })
@@ -410,28 +420,43 @@ export default function AdminProductForm() {
         {nonBrandAttributes.length > 0 && (
           <div className="rounded-md border border-[#dedede] p-4 flex flex-col gap-3">
             <span className="block text-[13px] text-[#4b4b4b]">Filters (shown on this category's storefront page)</span>
-            {nonBrandAttributes.map((attr) => (
-              <div key={attr.id}>
-                <span className="block text-[13px] font-medium text-[#212121] mb-1.5">
-                  {attr.name}
-                  {attr.inherited && (
-                    <span className="ml-1.5 text-[11px] font-normal text-[#9ca3af]">(inherited from parent category)</span>
+            {nonBrandAttributes.map((attr) => {
+              const selectedForAttr = attr.options.filter((opt) => opt.ids.some((id) => selectedOptionIds.has(id)))
+              const isDimension = selectedForAttr.length >= 2
+              return (
+                <div key={attr.id}>
+                  <span className="block text-[13px] font-medium text-[#212121] mb-1.5">
+                    {attr.name}
+                    {attr.inherited && (
+                      <span className="ml-1.5 text-[11px] font-normal text-[#9ca3af]">(inherited from parent category)</span>
+                    )}
+                  </span>
+                  <MultiSelectDropdown
+                    options={attr.options.map((opt) => ({ id: opt.ids[0], label: opt.value }))}
+                    selectedIds={new Set(selectedForAttr.map((opt) => opt.ids[0]))}
+                    onToggle={(repId) => {
+                      const opt = attr.options.find((o) => o.ids[0] === repId)
+                      if (opt) toggleOption(opt.ids)
+                    }}
+                  />
+                  {isDimension && (
+                    <div className="mt-2">
+                      <label className="block text-[12px] text-[#4b4b4b] mb-1">
+                        This is now a variant ({selectedForAttr.map((o) => o.value).join(', ')}) — what should it show as
+                        under Specifications?
+                      </label>
+                      <input
+                        type="text"
+                        value={specOverrides[attr.name] ?? ''}
+                        onChange={(e) => setSpecOverrides((prev) => ({ ...prev, [attr.name]: e.target.value }))}
+                        placeholder={`e.g. ${selectedForAttr.map((o) => o.value).join(' / ')}`}
+                        className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2 outline-none focus:border-cz-primary"
+                      />
+                    </div>
                   )}
-                </span>
-                <MultiSelectDropdown
-                  options={attr.options.map((opt) => ({ id: opt.ids[0], label: opt.value }))}
-                  selectedIds={
-                    new Set(
-                      attr.options.filter((opt) => opt.ids.some((id) => selectedOptionIds.has(id))).map((opt) => opt.ids[0])
-                    )
-                  }
-                  onToggle={(repId) => {
-                    const opt = attr.options.find((o) => o.ids[0] === repId)
-                    if (opt) toggleOption(opt.ids)
-                  }}
-                />
-              </div>
-            ))}
+                </div>
+              )
+            })}
           </div>
         )}
 
