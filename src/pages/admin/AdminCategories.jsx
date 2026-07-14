@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api, uploadImage, resolveImageUrl } from '../../api/client'
 import { ADMIN_PATH } from '../../config/adminPath'
+import { useAdminForm } from '../../hooks/useAdminForm'
 
 const emptyForm = { name: '', slug: '', parent_id: '', image: '', description: '', show_in_nav: true, show_in_icons: true }
 
@@ -15,28 +16,13 @@ function slugify(value) {
 
 export default function AdminCategories() {
   const [categories, setCategories] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
   const [form, setForm] = useState(emptyForm)
   const [editingId, setEditingId] = useState(null)
   const [slugTouched, setSlugTouched] = useState(false)
   const [uploading, setUploading] = useState(false)
 
-  const fetchCategories = () =>
-    api
-      .get('/admin/categories', { auth: true })
-      .then(setCategories)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false))
-
-  const load = () => {
-    setLoading(true)
-    fetchCategories()
-  }
-
-  useEffect(() => {
-    fetchCategories()
-  }, [])
+  const load = useCallback(() => api.get('/admin/categories', { auth: true }).then(setCategories), [])
+  const { loading, error, setError, reload } = useAdminForm(load)
 
   const topLevelCategories = categories.filter((c) => !c.parent_id)
   const rows = topLevelCategories
@@ -99,7 +85,7 @@ export default function AdminCategories() {
         await api.post('/admin/categories', payload, { auth: true })
       }
       resetForm()
-      load()
+      reload()
     } catch (err) {
       setError(err.message)
     }
@@ -123,7 +109,7 @@ export default function AdminCategories() {
     if (!window.confirm('Delete this category? Its subcategories will also be deleted and products in it will be unassigned.')) return
     try {
       await api.del(`/admin/categories/${id}`, { auth: true })
-      load()
+      reload()
     } catch (err) {
       setError(err.message)
     }

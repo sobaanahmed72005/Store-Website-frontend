@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { useAdminForm } from '../../hooks/useAdminForm'
 
 const COLOR_PRESETS = [
   { label: 'Red (Sale)',   value: '#c62828' },
@@ -18,33 +19,16 @@ export default function AdminAnnouncement() {
     textColor: '#ffffff',
     speed: 25,
   })
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [saved, setSaved] = useState(false)
-  const [error, setError] = useState('')
+  const load = useCallback(() => api.get('/content/announcement-bar').then((data) => setForm((f) => ({ ...f, ...data }))), [])
+  const { loading, saving, saved, setSaved, error, save } = useAdminForm(load)
 
   useEffect(() => {
-    api
-      .get('/content/announcement-bar')
-      .then((data) => setForm((f) => ({ ...f, ...data })))
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false))
-  }, [])
+    if (!saved) return
+    const timer = setTimeout(() => setSaved(false), 3000)
+    return () => clearTimeout(timer)
+  }, [saved, setSaved])
 
-  async function handleSave() {
-    setSaving(true)
-    setError('')
-    setSaved(false)
-    try {
-      await api.put('/admin/content/announcement-bar', form, { auth: true })
-      setSaved(true)
-      setTimeout(() => setSaved(false), 3000)
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setSaving(false)
-    }
-  }
+  const handleSave = () => save(() => api.put('/admin/content/announcement-bar', form, { auth: true }))
 
   if (loading) return <div className="p-8 text-[14px] text-[#4b4b4b]">Loading...</div>
 

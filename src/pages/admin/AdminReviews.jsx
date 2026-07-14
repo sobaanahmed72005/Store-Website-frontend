@@ -1,5 +1,6 @@
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useCallback, useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { useAdminForm } from '../../hooks/useAdminForm'
 
 const emptyForm = { product_id: '', author_name: '', rating: '5', comment: '' }
 
@@ -18,32 +19,25 @@ const STATUS_LABEL = {
 export default function AdminReviews() {
   const [reviews, setReviews] = useState([])
   const [products, setProducts] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
   const [filter, setFilter] = useState('pending') // 'all' | 'pending' | 'approved' | 'rejected'
   const [form, setForm] = useState(emptyForm)
   const [submitting, setSubmitting] = useState(false)
   const [actingId, setActingId] = useState(null)
   const [expandedId, setExpandedId] = useState(null)
 
-  const loadReviews = (f = filter) => {
-    setLoading(true)
-    const qs = f === 'all' ? '' : `?status=${f}`
-    api.get(`/admin/reviews${qs}`, { auth: true })
-      .then(setReviews)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false))
-  }
+  // Re-fetches whenever `filter` changes — it's a dependency of `load`, so a filter change gives
+  // `load` (and therefore the hook's reload effect) a new identity and it runs again on its own.
+  const load = useCallback(() => {
+    const qs = filter === 'all' ? '' : `?status=${filter}`
+    return api.get(`/admin/reviews${qs}`, { auth: true }).then(setReviews)
+  }, [filter])
+  const { loading, error, setError, reload: loadReviews } = useAdminForm(load)
 
   useEffect(() => {
-    api.get('/admin/products', { auth: true }).then(setProducts).catch(() => {})
-    loadReviews()
-  }, [])
+    api.get('/admin/products', { auth: true }).then(setProducts).catch((err) => setError(err.message))
+  }, [setError])
 
-  const handleFilterChange = (f) => {
-    setFilter(f)
-    loadReviews(f)
-  }
+  const handleFilterChange = (f) => setFilter(f)
 
   const handleChange = (e) => {
     const { name, value } = e.target

@@ -136,7 +136,10 @@ export default function Checkout() {
   const helplineEmail = brand.email
 
   useEffect(() => {
-    api.get('/content/shipping-settings').then((data) => setShippingFee(Number(data.fee) || 1800)).catch(() => {})
+    api
+      .get('/content/shipping-settings')
+      .then((data) => setShippingFee(Number(data.fee) || 1800))
+      .catch((err) => console.error('Failed to load shipping settings:', err))
     api
       .get('/content/payment-settings')
       .then((data) => {
@@ -145,7 +148,10 @@ export default function Checkout() {
         const firstEnabled = Object.keys(methods).find((key) => methods[key].enabled)
         if (firstEnabled) setSelectedPaymentMethod(firstEnabled)
       })
-      .catch(() => {})
+      // Empty paymentMethods already renders the "No payment methods configured" notice below,
+      // so checkout doesn't silently look broken — this just makes a fetch failure (vs. an admin
+      // genuinely not having set any up yet) distinguishable in the console.
+      .catch((err) => console.error('Failed to load payment settings:', err))
   }, [])
 
   const enabledPaymentMethods = Object.entries(paymentMethods).filter(([, method]) => method.enabled)

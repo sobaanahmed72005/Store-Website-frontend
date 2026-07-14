@@ -21,7 +21,7 @@ export default function PrivacyPolicy() {
     api
       .get('/content/privacy-policy')
       .then(setContent)
-      .catch(() => {})
+      .catch((err) => console.error('Failed to load /content/privacy-policy content:', err))
   }, [])
 
   useSeo({

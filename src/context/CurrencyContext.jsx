@@ -48,7 +48,7 @@ export function CurrencyProvider({ children }) {
         setCurrencies(next)
         if (!next[currency]) setCurrencyState('PKR')
       })
-      .catch(() => {})
+      .catch((err) => console.error('Failed to load currency settings/rates:', err))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

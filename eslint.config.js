@@ -26,7 +26,14 @@ export default defineConfig([
     },
   },
   {
-    files: ['backend/**/*.js', '*.config.js'],
+    files: ['*.config.js'],
+    extends: [js.configs.recommended],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
+  {
+    files: ['e2e/**/*.js'],
     extends: [js.configs.recommended],
     languageOptions: {
       globals: globals.node,

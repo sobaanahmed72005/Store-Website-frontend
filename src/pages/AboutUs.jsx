@@ -23,7 +23,7 @@ export default function AboutUs() {
     api
       .get('/content/about-us')
       .then(setContent)
-      .catch(() => {})
+      .catch((err) => console.error('Failed to load /content/about-us content:', err))
   }, [])
 
   useSeo({

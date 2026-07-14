@@ -36,7 +36,7 @@ export function SiteSettingsProvider({ children }) {
     api
       .get('/content/footer-brand')
       .then((data) => setBrand({ ...DEFAULT_BRAND, ...data, social: { ...DEFAULT_BRAND.social, ...data.social } }))
-      .catch(() => {})
+      .catch((err) => console.error('Failed to load footer brand content:', err))
   }, [])
 
   useEffect(() => {

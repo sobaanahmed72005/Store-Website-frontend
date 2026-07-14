@@ -1,34 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { api } from '../../api/client'
+import { useAdminForm } from '../../hooks/useAdminForm'
 
 export default function AdminShipping() {
   const [fee, setFee] = useState('1800')
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState('')
-  const [saved, setSaved] = useState(false)
 
-  useEffect(() => {
-    api
-      .get('/content/shipping-settings')
-      .then((data) => setFee(String(data.fee ?? 1800)))
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false))
-  }, [])
+  const load = useCallback(() => api.get('/content/shipping-settings').then((data) => setFee(String(data.fee ?? 1800))), [])
+  const { loading, saving, saved, error, save } = useAdminForm(load)
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault()
-    setSaving(true)
-    setError('')
-    setSaved(false)
-    try {
-      await api.put('/admin/content/shipping-settings', { fee: Number(fee) || 0 }, { auth: true })
-      setSaved(true)
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setSaving(false)
-    }
+    save(() => api.put('/admin/content/shipping-settings', { fee: Number(fee) || 0 }, { auth: true }))
   }
 
   if (loading) return <div className="p-8 text-[14px] text-[#4b4b4b]">Loading...</div>

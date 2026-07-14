@@ -177,7 +177,7 @@ export default function Product() {
         setReviews(data.reviews)
         setReviewStats({ average: data.average, count: data.count })
       })
-      .catch(() => {})
+      .catch((err) => console.error('Failed to load product reviews:', err))
 
     if (product.category_slug) {
       api

@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { api } from '../../api/client'
+import { useAdminForm } from '../../hooks/useAdminForm'
 
 const emptyForm = {
   provider: 'Leopards Courier',
@@ -17,50 +18,35 @@ export default function AdminCourier() {
   const [form, setForm] = useState(emptyForm)
   const [apiKeyInput, setApiKeyInput] = useState('')
   const [apiPasswordInput, setApiPasswordInput] = useState('')
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
   const [testing, setTesting] = useState(false)
-  const [error, setError] = useState('')
-  const [saved, setSaved] = useState(false)
   const [testResult, setTestResult] = useState(null)
 
-  const loadSettings = () =>
-    api
-      .get('/admin/courier-settings', { auth: true })
-      .then((data) => setForm({ ...emptyForm, ...data }))
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false))
-
-  useEffect(() => {
-    loadSettings()
-  }, [])
+  const load = useCallback(
+    () => api.get('/admin/courier-settings', { auth: true }).then((data) => setForm({ ...emptyForm, ...data })),
+    []
+  )
+  const { loading, saving, saved, error, setError, save } = useAdminForm(load)
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
     setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault()
-    setSaving(true)
-    setError('')
-    setSaved(false)
     setTestResult(null)
-    try {
+    save(async () => {
       await api.put(
         '/admin/courier-settings',
         { ...form, api_key: apiKeyInput || undefined, api_password: apiPasswordInput || undefined },
         { auth: true }
       )
-      setSaved(true)
       setApiKeyInput('')
       setApiPasswordInput('')
-      await loadSettings()
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setSaving(false)
-    }
+      // Re-fetches the has_api_key/has_api_password flags without flipping the page-level
+      // `loading` flag back on — the form is already visible, this just refreshes it in place.
+      await load()
+    })
   }
 
   const handleTestConnection = async () => {

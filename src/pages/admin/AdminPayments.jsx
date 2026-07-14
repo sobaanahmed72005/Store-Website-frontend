@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { api } from '../../api/client'
+import { useAdminForm } from '../../hooks/useAdminForm'
 
 const emptyMethods = {
   bank_transfer: { enabled: false, label: 'Bank Transfer', bankName: '', accountTitle: '', accountNumber: '', instructions: '' },
@@ -10,34 +11,19 @@ const emptyMethods = {
 
 export default function AdminPayments() {
   const [methods, setMethods] = useState(emptyMethods)
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState('')
-  const [saved, setSaved] = useState(false)
 
-  useEffect(() => {
-    api.get('/content/payment-settings')
-      .then((data) => setMethods({ ...emptyMethods, ...data.methods }))
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false))
-  }, [])
+  const load = useCallback(
+    () => api.get('/content/payment-settings').then((data) => setMethods({ ...emptyMethods, ...data.methods })),
+    []
+  )
+  const { loading, saving, saved, error, save } = useAdminForm(load)
 
   const updateMethod = (key, field, value) =>
     setMethods((prev) => ({ ...prev, [key]: { ...prev[key], [field]: value } }))
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault()
-    setSaving(true)
-    setError('')
-    setSaved(false)
-    try {
-      await api.put('/admin/content/payment-settings', { methods }, { auth: true })
-      setSaved(true)
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setSaving(false)
-    }
+    save(() => api.put('/admin/content/payment-settings', { methods }, { auth: true }))
   }
 
   if (loading) return <div className="p-8 text-[14px] text-[#4b4b4b]">Loading...</div>

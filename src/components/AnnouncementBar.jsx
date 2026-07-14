@@ -5,7 +5,7 @@ export default function AnnouncementBar() {
   const [bar, setBar] = useState(null)
 
   useEffect(() => {
-    api.get('/content/announcement-bar').then(setBar).catch(() => {})
+    api.get('/content/announcement-bar').then(setBar).catch((err) => console.error('Failed to load announcement bar:', err))
   }, [])
 
   if (!bar?.enabled || !bar?.text?.trim()) return null

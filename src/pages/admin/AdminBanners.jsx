@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { useAdminForm } from '../../hooks/useAdminForm'
 
 const EMPTY_SLIDE = { image: '', tagline: '', title: '', description: '', cta: '', href: '', active: true }
 const EMPTY_SIDE = { image: '', tagline: '', title: '', description: '', cta: '', href: '', active: true }
@@ -45,21 +46,21 @@ export default function AdminBanners() {
   const [sideBanners, setSideBanners] = useState([{ ...EMPTY_SIDE }, { ...EMPTY_SIDE }])
   const [editIdx, setEditIdx] = useState(null)
   const [form, setForm] = useState({ ...EMPTY_SLIDE })
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState('')
-  const [saved, setSaved] = useState(false)
-
-  useEffect(() => {
-    api
-      .get('/content/hero-banners')
-      .then((data) => {
+  const load = useCallback(
+    () =>
+      api.get('/content/hero-banners').then((data) => {
         setSlides(data.slides || [])
         if (data.sideBanners?.length >= 2) setSideBanners(data.sideBanners)
-      })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false))
-  }, [])
+      }),
+    []
+  )
+  const { loading, saving, saved, setSaved, error, setError, save } = useAdminForm(load)
+
+  useEffect(() => {
+    if (!saved) return
+    const timer = setTimeout(() => setSaved(false), 3000)
+    return () => clearTimeout(timer)
+  }, [saved, setSaved])
 
   function openEdit(idx) {
     setEditIdx(idx)
@@ -111,19 +112,8 @@ export default function AdminBanners() {
     })
   }
 
-  async function handleSave() {
-    setSaving(true)
-    setError('')
-    setSaved(false)
-    try {
-      await api.put('/admin/content/hero-banners', { slides, sideBanners }, { auth: true })
-      setSaved(true)
-      setTimeout(() => setSaved(false), 3000)
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setSaving(false)
-    }
+  function handleSave() {
+    save(() => api.put('/admin/content/hero-banners', { slides, sideBanners }, { auth: true }))
   }
 
   if (loading) return <div className="p-8 text-[14px] text-[#4b4b4b]">Loading...</div>

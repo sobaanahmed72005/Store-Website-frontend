@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { api } from '../../api/client'
+import { useAdminForm } from '../../hooks/useAdminForm'
 
 const emptyContent = {
   paragraphs: [''],
@@ -10,25 +11,20 @@ const emptyContent = {
 
 export default function AdminAboutUs() {
   const [content, setContent] = useState(emptyContent)
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState('')
-  const [saved, setSaved] = useState(false)
 
-  useEffect(() => {
-    api
-      .get('/content/about-us')
-      .then((data) =>
+  const load = useCallback(
+    () =>
+      api.get('/content/about-us').then((data) =>
         setContent({
           paragraphs: data.paragraphs?.length ? data.paragraphs : [''],
           highlights: data.highlights?.length ? data.highlights : [{ title: '', description: '' }],
           storeAddress: data.storeAddress ?? '',
           storeTimings: data.storeTimings ?? '',
         })
-      )
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false))
-  }, [])
+      ),
+    []
+  )
+  const { loading, saving, saved, error, save } = useAdminForm(load)
 
   const updateParagraph = (i, value) => {
     setContent((prev) => ({ ...prev, paragraphs: prev.paragraphs.map((p, idx) => (idx === i ? value : p)) }))
@@ -48,25 +44,20 @@ export default function AdminAboutUs() {
   const removeHighlight = (i) =>
     setContent((prev) => ({ ...prev, highlights: prev.highlights.filter((_, idx) => idx !== i) }))
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault()
-    setSaving(true)
-    setError('')
-    setSaved(false)
-    try {
-      const payload = {
-        paragraphs: content.paragraphs.filter((p) => p.trim() !== ''),
-        highlights: content.highlights.filter((h) => h.title.trim() !== ''),
-        storeAddress: content.storeAddress,
-        storeTimings: content.storeTimings,
-      }
-      await api.put('/admin/content/about-us', payload, { auth: true })
-      setSaved(true)
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setSaving(false)
-    }
+    save(() =>
+      api.put(
+        '/admin/content/about-us',
+        {
+          paragraphs: content.paragraphs.filter((p) => p.trim() !== ''),
+          highlights: content.highlights.filter((h) => h.title.trim() !== ''),
+          storeAddress: content.storeAddress,
+          storeTimings: content.storeTimings,
+        },
+        { auth: true }
+      )
+    )
   }
 
   if (loading) return <div className="p-8 text-[14px] text-[#4b4b4b]">Loading...</div>

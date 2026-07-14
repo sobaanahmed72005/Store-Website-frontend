@@ -15,8 +15,8 @@ export default function AdminBulkSale() {
   const [result, setResult] = useState('')
 
   useEffect(() => {
-    api.get('/admin/products', { auth: true }).then(setProducts).catch(() => {})
-    api.get('/admin/categories', { auth: true }).then(setCategories).catch(() => {})
+    api.get('/admin/products', { auth: true }).then(setProducts).catch((err) => setError(err.message))
+    api.get('/admin/categories', { auth: true }).then(setCategories).catch((err) => setError(err.message))
   }, [])
 
   const topLevelCategories = categories.filter((c) => !c.parent_id)

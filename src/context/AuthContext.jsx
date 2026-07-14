@@ -55,7 +55,7 @@ export function AuthProvider({ children }) {
 
   const logout = () => {
     setUser(null)
-    api.post('/auth/logout', {}).catch(() => {})
+    api.post('/auth/logout', {}).catch((err) => console.error('Failed to revoke session on logout:', err))
   }
 
   const updateSession = (nextUser) => {

@@ -53,14 +53,15 @@ export function CartProvider({ children }) {
         }
         syncedForUser.current = user.id
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error('Failed to sync cart from server:', err)
         syncedForUser.current = user.id
       })
   }, [user])
 
   useEffect(() => {
     if (!user || syncedForUser.current !== user.id) return
-    api.put(`/cart/${user.id}`, { items }, { auth: true }).catch(() => {})
+    api.put(`/cart/${user.id}`, { items }, { auth: true }).catch((err) => console.error('Failed to sync cart to server:', err))
   }, [items, user])
 
   const addToCart = (product, qty = 1) => {

@@ -1,31 +1,24 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { api } from '../../api/client'
 import { markSubscribersSeen } from '../../utils/subscriberNotifications'
+import { useAdminForm } from '../../hooks/useAdminForm'
 
 export default function AdminNewsletter() {
   const [subscribers, setSubscribers] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
   const [subject, setSubject] = useState('')
   const [message, setMessage] = useState('')
   const [sending, setSending] = useState(false)
   const [sentMessage, setSentMessage] = useState('')
 
-  const load = () => {
-    setLoading(true)
-    api
-      .get('/admin/newsletter', { auth: true })
-      .then((data) => {
+  const fetchSubscribers = useCallback(
+    () =>
+      api.get('/admin/newsletter', { auth: true }).then((data) => {
         setSubscribers(data)
         if (data.length) markSubscribersSeen(Math.max(...data.map((s) => s.id)))
-      })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false))
-  }
-
-  useEffect(() => {
-    load()
-  }, [])
+      }),
+    []
+  )
+  const { loading, error, setError, reload: load } = useAdminForm(fetchSubscribers)
 
   const handleDelete = async (id) => {
     if (!window.confirm('Remove this subscriber?')) return

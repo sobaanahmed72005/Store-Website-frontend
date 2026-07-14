@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { api } from '../../api/client'
+import { useAdminForm } from '../../hooks/useAdminForm'
 
 const ACTION_LABELS = {
   'product.create': 'Created product',
@@ -44,20 +45,18 @@ export default function AdminAuditLog() {
   const [entries, setEntries] = useState([])
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
 
-  useEffect(() => {
-    setLoading(true)
-    api
-      .get(`/admin/audit-log?page=${page}`)
-      .then((data) => {
+  // Re-fetches whenever `page` changes — see AdminReviews/AdminCategoryAttributes for the same
+  // dependency-driven reload pattern.
+  const load = useCallback(
+    () =>
+      api.get(`/admin/audit-log?page=${page}`).then((data) => {
         setEntries(data.entries)
         setTotalPages(data.totalPages)
-      })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false))
-  }, [page])
+      }),
+    [page]
+  )
+  const { loading, error } = useAdminForm(load)
 
   return (
     <div className="p-8">

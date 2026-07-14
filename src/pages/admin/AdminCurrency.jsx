@@ -1,43 +1,28 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { api } from '../../api/client'
 import { CURRENCY_CATALOG } from '../../context/CurrencyContext'
+import { useAdminForm } from '../../hooks/useAdminForm'
 
 export default function AdminCurrency() {
   const [enabled, setEnabled] = useState(['PKR'])
   const [rateInfo, setRateInfo] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState('')
-  const [saved, setSaved] = useState(false)
 
-  useEffect(() => {
-    Promise.all([api.get('/content/currency-settings'), api.get('/currency/rates')])
-      .then(([settings, rates]) => {
+  const load = useCallback(
+    () =>
+      Promise.all([api.get('/content/currency-settings'), api.get('/currency/rates')]).then(([settings, rates]) => {
         setEnabled(settings.enabled?.length ? settings.enabled : ['PKR'])
         setRateInfo(rates)
-      })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false))
-  }, [])
+      }),
+    []
+  )
+  const { loading, saving, saved, error, save } = useAdminForm(load)
 
   const toggleCurrency = (code) => {
     if (code === 'PKR') return
     setEnabled((prev) => (prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]))
   }
 
-  const handleSave = async () => {
-    setSaving(true)
-    setError('')
-    setSaved(false)
-    try {
-      await api.put('/admin/content/currency-settings', { enabled }, { auth: true })
-      setSaved(true)
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setSaving(false)
-    }
-  }
+  const handleSave = () => save(() => api.put('/admin/content/currency-settings', { enabled }, { auth: true }))
 
   return (
     <div className="p-8 max-w-[560px]">

@@ -65,7 +65,7 @@ export default function AdminProductForm() {
   const [variantsOnSale, setVariantsOnSale] = useState(false)
 
   useEffect(() => {
-    api.get('/admin/categories', { auth: true }).then(setCategories).catch(() => {})
+    api.get('/admin/categories', { auth: true }).then(setCategories).catch((err) => setError(err.message))
   }, [])
 
   useEffect(() => {

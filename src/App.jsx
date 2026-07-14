@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useSiteSettings } from './context/SiteSettingsContext'
 import { ADMIN_PATH } from './config/adminPath'
@@ -26,33 +27,38 @@ import Unsubscribe from './pages/Unsubscribe'
 import Shop from './pages/Shop'
 import AdminRoute from './components/admin/AdminRoute'
 import AdminLayout from './components/admin/AdminLayout'
-import AdminLogin from './pages/admin/AdminLogin'
-import AdminDashboard from './pages/admin/AdminDashboard'
-import AdminReports from './pages/admin/AdminReports'
-import AdminProducts from './pages/admin/AdminProducts'
-import AdminProductForm from './pages/admin/AdminProductForm'
-import AdminCategories from './pages/admin/AdminCategories'
-import AdminCategoryAttributes from './pages/admin/AdminCategoryAttributes'
-import AdminOrders from './pages/admin/AdminOrders'
-import AdminCustomers from './pages/admin/AdminCustomers'
-import AdminReviews from './pages/admin/AdminReviews'
-import AdminAboutUs from './pages/admin/AdminAboutUs'
-import AdminFooter from './pages/admin/AdminFooter'
-import AdminProfile from './pages/admin/AdminProfile'
-import AdminCurrency from './pages/admin/AdminCurrency'
-import AdminShipping from './pages/admin/AdminShipping'
-import AdminCourier from './pages/admin/AdminCourier'
-import AdminPayments from './pages/admin/AdminPayments'
-import AdminDiscountCodes from './pages/admin/AdminDiscountCodes'
-import AdminPolicies from './pages/admin/AdminPolicies'
-import AdminPrivacyPolicy from './pages/admin/AdminPrivacyPolicy'
-import AdminNewsletter from './pages/admin/AdminNewsletter'
-import AdminBulkSale from './pages/admin/AdminBulkSale'
-import AdminBanners from './pages/admin/AdminBanners'
-import AdminAnnouncement from './pages/admin/AdminAnnouncement'
-import AdminEmailTemplates from './pages/admin/AdminEmailTemplates'
-import AdminPromotionalEmails from './pages/admin/AdminPromotionalEmails'
-import AdminAuditLog from './pages/admin/AdminAuditLog'
+
+// The entire admin panel (including recharts, which only AdminReports uses) is lazy-loaded —
+// a storefront visitor never touches any of this, so none of it belongs in the bundle they pay
+// for on first load. Only imports actually used elsewhere (e.g. AdminRoute/AdminLayout, the
+// route shell) stay eager.
+const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'))
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
+const AdminReports = lazy(() => import('./pages/admin/AdminReports'))
+const AdminProducts = lazy(() => import('./pages/admin/AdminProducts'))
+const AdminProductForm = lazy(() => import('./pages/admin/AdminProductForm'))
+const AdminCategories = lazy(() => import('./pages/admin/AdminCategories'))
+const AdminCategoryAttributes = lazy(() => import('./pages/admin/AdminCategoryAttributes'))
+const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'))
+const AdminCustomers = lazy(() => import('./pages/admin/AdminCustomers'))
+const AdminReviews = lazy(() => import('./pages/admin/AdminReviews'))
+const AdminAboutUs = lazy(() => import('./pages/admin/AdminAboutUs'))
+const AdminFooter = lazy(() => import('./pages/admin/AdminFooter'))
+const AdminProfile = lazy(() => import('./pages/admin/AdminProfile'))
+const AdminCurrency = lazy(() => import('./pages/admin/AdminCurrency'))
+const AdminShipping = lazy(() => import('./pages/admin/AdminShipping'))
+const AdminCourier = lazy(() => import('./pages/admin/AdminCourier'))
+const AdminPayments = lazy(() => import('./pages/admin/AdminPayments'))
+const AdminDiscountCodes = lazy(() => import('./pages/admin/AdminDiscountCodes'))
+const AdminPolicies = lazy(() => import('./pages/admin/AdminPolicies'))
+const AdminPrivacyPolicy = lazy(() => import('./pages/admin/AdminPrivacyPolicy'))
+const AdminNewsletter = lazy(() => import('./pages/admin/AdminNewsletter'))
+const AdminBulkSale = lazy(() => import('./pages/admin/AdminBulkSale'))
+const AdminBanners = lazy(() => import('./pages/admin/AdminBanners'))
+const AdminAnnouncement = lazy(() => import('./pages/admin/AdminAnnouncement'))
+const AdminEmailTemplates = lazy(() => import('./pages/admin/AdminEmailTemplates'))
+const AdminPromotionalEmails = lazy(() => import('./pages/admin/AdminPromotionalEmails'))
+const AdminAuditLog = lazy(() => import('./pages/admin/AdminAuditLog'))
 
 function StoreNotFound() {
   return (
@@ -74,6 +80,14 @@ function AdminNotFound() {
   )
 }
 
+function PageLoading() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-cz-page">
+      <span className="text-[14px] text-[#4b4b4b]">Loading…</span>
+    </div>
+  )
+}
+
 function App() {
   const { storeStatus } = useSiteSettings()
 
@@ -84,6 +98,7 @@ function App() {
   return (
     <>
       <ScrollToTop />
+      <Suspense fallback={<PageLoading />}>
       <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/product/:slug" element={<Product />} />
@@ -148,6 +163,7 @@ function App() {
       </Route>
       <Route path="*" element={<NotFound />} />
       </Routes>
+      </Suspense>
     </>
   )
 }

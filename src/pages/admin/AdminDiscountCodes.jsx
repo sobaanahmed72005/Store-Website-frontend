@@ -1,29 +1,18 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { api } from '../../api/client'
 import { useCurrency } from '../../context/CurrencyContext'
+import { useAdminForm } from '../../hooks/useAdminForm'
 
 const emptyForm = { code: '', discount_type: 'percent', discount_value: '', expires_at: '', reusable: false }
 
 export default function AdminDiscountCodes() {
   const { format } = useCurrency()
   const [codes, setCodes] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
   const [form, setForm] = useState(emptyForm)
   const [creating, setCreating] = useState(false)
 
-  const load = () => {
-    setLoading(true)
-    api
-      .get('/admin/discount-codes', { auth: true })
-      .then(setCodes)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false))
-  }
-
-  useEffect(() => {
-    load()
-  }, [])
+  const fetchCodes = useCallback(() => api.get('/admin/discount-codes', { auth: true }).then(setCodes), [])
+  const { loading, error, setError, reload: load } = useAdminForm(fetchCodes)
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target

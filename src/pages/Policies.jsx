@@ -21,7 +21,7 @@ export default function Policies() {
     api
       .get('/content/policies')
       .then(setContent)
-      .catch(() => {})
+      .catch((err) => console.error('Failed to load /content/policies content:', err))
   }, [])
 
   useSeo({

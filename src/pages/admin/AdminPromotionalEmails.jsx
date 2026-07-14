@@ -25,7 +25,7 @@ export default function AdminPromotionalEmails() {
     setLoading(true)
     api.get('/admin/promo-emails', { auth: true })
       .then(setEmails)
-      .catch(() => {})
+      .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
   }
 

@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { api } from '../../api/client'
+import { useAdminForm } from '../../hooks/useAdminForm'
 
 const emptyContent = {
   description: '',
@@ -53,15 +54,10 @@ const SOCIAL_FIELDS = [
 
 export default function AdminFooter() {
   const [content, setContent] = useState(emptyContent)
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState('')
-  const [saved, setSaved] = useState(false)
 
-  useEffect(() => {
-    api
-      .get('/content/footer-brand')
-      .then((data) =>
+  const load = useCallback(
+    () =>
+      api.get('/content/footer-brand').then((data) =>
         setContent({
           description: data.description ?? '',
           address: data.address ?? '',
@@ -72,10 +68,10 @@ export default function AdminFooter() {
           columns: data.columns?.length ? data.columns : emptyContent.columns,
           marqueeMessages: data.marqueeMessages?.length ? data.marqueeMessages : emptyContent.marqueeMessages,
         })
-      )
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false))
-  }, [])
+      ),
+    []
+  )
+  const { loading, saving, saved, error, save } = useAdminForm(load)
 
   const updateField = (field, value) => setContent((prev) => ({ ...prev, [field]: value }))
   const updateSocial = (key, value) =>
@@ -119,19 +115,9 @@ export default function AdminFooter() {
   const removeMessage = (index) =>
     setContent((prev) => ({ ...prev, marqueeMessages: prev.marqueeMessages.filter((_, i) => i !== index) }))
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault()
-    setSaving(true)
-    setError('')
-    setSaved(false)
-    try {
-      await api.put('/admin/content/footer-brand', content, { auth: true })
-      setSaved(true)
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setSaving(false)
-    }
+    save(() => api.put('/admin/content/footer-brand', content, { auth: true }))
   }
 
   if (loading) return <div className="p-8 text-[14px] text-[#4b4b4b]">Loading...</div>

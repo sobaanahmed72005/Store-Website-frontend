@@ -1,36 +1,33 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../../api/client'
 import { ADMIN_PATH } from '../../config/adminPath'
+import { useAdminForm } from '../../hooks/useAdminForm'
 
 export default function AdminCategoryAttributes() {
   const { id } = useParams()
   const [category, setCategory] = useState(null)
   const [attributes, setAttributes] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
   const [newAttrName, setNewAttrName] = useState('')
   const [optionDrafts, setOptionDrafts] = useState({})
   const ownAttributes = attributes.filter((attr) => !attr.inherited)
   const inheritedAttributes = attributes.filter((attr) => attr.inherited)
 
-  const load = () => {
-    setLoading(true)
-    Promise.all([
-      api.get('/admin/categories', { auth: true }).then((cats) => cats.find((c) => String(c.id) === id)),
-      api.get(`/admin/categories/${id}/attributes?effective=1`, { auth: true }),
-    ])
-      .then(([cat, attrs]) => {
+  // Re-fetches whenever `id` (the route param) changes — same mechanism as the filter-driven
+  // reload in AdminReviews: `id` is a dependency of `load`, so navigating to a different
+  // category's attributes page gives `load` a new identity and the hook's effect reruns.
+  const fetchData = useCallback(
+    () =>
+      Promise.all([
+        api.get('/admin/categories', { auth: true }).then((cats) => cats.find((c) => String(c.id) === id)),
+        api.get(`/admin/categories/${id}/attributes?effective=1`, { auth: true }),
+      ]).then(([cat, attrs]) => {
         setCategory(cat)
         setAttributes(attrs)
-      })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false))
-  }
-
-  useEffect(() => {
-    load()
-  }, [id])
+      }),
+    [id]
+  )
+  const { loading, error, setError, reload: load } = useAdminForm(fetchData)
 
   const handleAddAttribute = async (e) => {
     e.preventDefault()

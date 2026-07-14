@@ -72,7 +72,7 @@ function Newsletter() {
       .then((data) => {
         if (data.subscribed) setAlreadySubscribed(true)
       })
-      .catch(() => {})
+      .catch((err) => console.error('Failed to check newsletter subscription status:', err))
   }, [user])
 
   const handleSubmit = async (e) => {

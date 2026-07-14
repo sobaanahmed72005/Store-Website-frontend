@@ -38,23 +38,37 @@ export function WishlistProvider({ children }) {
 
   const isWishlisted = (productId) => items.some((item) => item.id === productId)
 
+  // These update local state optimistically before the request resolves, so a failure has to be
+  // rolled back explicitly — otherwise the UI keeps showing an add/remove that never actually
+  // happened server-side (silently reverting itself on the next real fetch, with no indication
+  // to the customer of why).
   const toggleWishlist = async (product) => {
     if (!user) return false
 
     if (isWishlisted(product.id)) {
       setItems((prev) => prev.filter((item) => item.id !== product.id))
-      api.del(`/wishlist/${product.id}`, { auth: true }).catch(() => {})
+      api.del(`/wishlist/${product.id}`, { auth: true }).catch((err) => {
+        console.error('Failed to remove from wishlist:', err)
+        setItems((prev) => (prev.some((item) => item.id === product.id) ? prev : [mapItem(product), ...prev]))
+      })
     } else {
       setItems((prev) => [mapItem(product), ...prev])
-      api.post('/wishlist', { product_id: product.id }, { auth: true }).catch(() => {})
+      api.post('/wishlist', { product_id: product.id }, { auth: true }).catch((err) => {
+        console.error('Failed to add to wishlist:', err)
+        setItems((prev) => prev.filter((item) => item.id !== product.id))
+      })
       setWishlistOpen(true)
     }
     return true
   }
 
   const removeFromWishlist = (productId) => {
+    const removed = items.find((item) => item.id === productId)
     setItems((prev) => prev.filter((item) => item.id !== productId))
-    api.del(`/wishlist/${productId}`, { auth: true }).catch(() => {})
+    api.del(`/wishlist/${productId}`, { auth: true }).catch((err) => {
+      console.error('Failed to remove from wishlist:', err)
+      if (removed) setItems((prev) => (prev.some((item) => item.id === productId) ? prev : [removed, ...prev]))
+    })
   }
 
   return (

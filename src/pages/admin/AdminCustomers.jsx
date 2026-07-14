@@ -1,23 +1,17 @@
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useCallback, useState } from 'react'
 import { api } from '../../api/client'
 import { useCurrency } from '../../context/CurrencyContext'
+import { useAdminForm } from '../../hooks/useAdminForm'
 
 export default function AdminCustomers() {
   const { format } = useCurrency()
   const [customers, setCustomers] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
   const [expandedId, setExpandedId] = useState(null)
   const [details, setDetails] = useState({})
   const [search, setSearch] = useState('')
 
-  useEffect(() => {
-    api
-      .get('/admin/customers', { auth: true })
-      .then(setCustomers)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false))
-  }, [])
+  const load = useCallback(() => api.get('/admin/customers', { auth: true }).then(setCustomers), [])
+  const { loading, error, setError } = useAdminForm(load)
 
   const toggleExpand = async (customer) => {
     if (expandedId === customer.id) {

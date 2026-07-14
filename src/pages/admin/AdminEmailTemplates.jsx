@@ -143,7 +143,7 @@ export default function AdminEmailTemplates() {
         })
         setTemplates(merged)
       })
-      .catch(() => {})
+      .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
   }, [])
 
