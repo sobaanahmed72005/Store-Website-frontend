@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
+import Pagination from '../components/Pagination'
 import { useAuth } from '../store/authStore'
 import { useCurrency } from '../store/currencyStore'
 import { useCart } from '../store/cartStore'
@@ -225,18 +226,36 @@ export default function Account() {
   const { format } = useCurrency()
   const location = useLocation()
   const [orders, setOrders] = useState([])
+  const [ordersPage, setOrdersPage] = useState(1)
+  const [ordersTotalPages, setOrdersTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)
   const [resending, setResending] = useState(false)
   const [resent, setResent] = useState(false)
+  const prevUserId = useRef(user?.id)
 
   useEffect(() => {
     if (!user) return
+
+    // A stale page number surviving a different user logging in without this page remounting
+    // (e.g. logout then a second account signs in in the same tab) would otherwise request a
+    // page that's out of range for the new user's order history.
+    const isNewUser = prevUserId.current !== user.id
+    prevUserId.current = user.id
+    if (isNewUser && ordersPage !== 1) {
+      setOrdersPage(1)
+      return // this effect reruns once `ordersPage` settles to 1, below
+    }
+
+    setLoading(true)
     api
-      .get(`/orders/user/${user.id}`, { auth: true })
-      .then(setOrders)
+      .get(`/orders/user/${user.id}?page=${ordersPage}`, { auth: true })
+      .then((data) => {
+        setOrders(data.orders)
+        setOrdersTotalPages(data.totalPages)
+      })
       .catch(() => setOrders([]))
       .finally(() => setLoading(false))
-  }, [user])
+  }, [user, ordersPage])
 
   if (initializing) return null
   if (!user) {
@@ -386,6 +405,7 @@ export default function Account() {
                 )}
               </div>
             ))}
+            <Pagination page={ordersPage} totalPages={ordersTotalPages} onChange={setOrdersPage} />
           </div>
         )}
       </div>
