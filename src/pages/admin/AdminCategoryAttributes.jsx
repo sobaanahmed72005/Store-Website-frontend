@@ -112,6 +112,9 @@ export default function AdminCategoryAttributes() {
             placeholder="e.g. Processor"
             className="rounded-md border border-[#d1d5db] text-[14px] px-3 py-2.5 outline-none focus:border-cz-primary"
           />
+          <p className="text-[12px] text-[#9ca3af] mt-1">
+            "Brand" is already shown automatically on every category page — no need to add it here.
+          </p>
         </div>
         <button
           type="submit"

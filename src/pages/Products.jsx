@@ -13,6 +13,7 @@ import { getEffectivePrice } from '../utils/pricing'
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../store/siteSettingsStore'
 import { useProductList } from '../hooks/useProductList'
+import { buildBrandOptions, matchesSelectedBrands } from '../utils/brands'
 
 function categoryPath(slug) {
   return slug === 'laptops' ? '/laptops' : `/category/${slug}`
@@ -98,13 +99,10 @@ export default function Products() {
     })
   }
 
-  const brands = [...new Set(products.map((p) => p.brand).filter(Boolean))].map((b) => ({ id: b, label: b }))
+  const brands = buildBrandOptions(products)
 
   const filteredProducts = useMemo(() => {
-    const filtered = products.filter((p) => {
-      if (selectedBrands.size > 0 && !selectedBrands.has(p.brand)) return false
-      return true
-    })
+    const filtered = products.filter((p) => matchesSelectedBrands(p, selectedBrands))
     return [...filtered].sort(SORT_OPTIONS[sortBy].compare)
   }, [products, selectedBrands, sortBy])
 

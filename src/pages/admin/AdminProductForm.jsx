@@ -67,9 +67,18 @@ export default function AdminProductForm() {
   // attribute (2+ selected options) should display as in Specifications, since there's no single
   // correct auto-derived value once that attribute has multiple options on the same product.
   const [specOverrides, setSpecOverrides] = useState({})
+  const [existingBrands, setExistingBrands] = useState([])
 
   useEffect(() => {
     api.get('/admin/categories', { auth: true }).then(setCategories).catch((err) => setError(err.message))
+  }, [])
+
+  // Powers the Brand field's autocomplete below — Brand isn't a category-attribute (that's
+  // blocked, see categoryAttributesController.js), so this is just "what's already been typed
+  // into other products", letting an admin pick the exact existing spelling/casing instead of
+  // retyping it and risking a near-duplicate like "Dell" vs "dell".
+  useEffect(() => {
+    api.get('/admin/products/brands', { auth: true }).then(setExistingBrands).catch(() => setExistingBrands([]))
   }, [])
 
   useEffect(() => {
@@ -388,32 +397,22 @@ export default function AdminProductForm() {
           </div>
           <div>
             <label className="block text-[13px] text-[#4b4b4b] mb-1">Brand</label>
-            {brandAttr && brandAttr.options.length > 0 ? (
-              <select
-                name="brand"
-                value={form.brand}
-                onChange={handleChange}
-                className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2.5 outline-none focus:border-cz-primary bg-white"
-              >
-                <option value="">Select a brand</option>
-                {form.brand && !brandAttr.options.some((opt) => opt.value === form.brand) && (
-                  <option value={form.brand}>{form.brand}</option>
-                )}
-                {brandAttr.options.map((opt) => (
-                  <option key={opt.ids[0]} value={opt.value}>
-                    {opt.value}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <input
-                name="brand"
-                value={form.brand}
-                onChange={handleChange}
-                placeholder={form.category_id ? 'Add a "Brand" filter to this category to make this a dropdown' : ''}
-                className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2.5 outline-none focus:border-cz-primary"
-              />
-            )}
+            <input
+              name="brand"
+              list="existing-brands"
+              value={form.brand}
+              onChange={handleChange}
+              placeholder="e.g. Dell"
+              className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2.5 outline-none focus:border-cz-primary"
+            />
+            {/* Native browser autocomplete against every brand already used elsewhere in the
+                store, so typing "de" suggests the existing "Dell" instead of risking a
+                near-duplicate like "dell" that the storefront filter would then show twice. */}
+            <datalist id="existing-brands">
+              {existingBrands.map((b) => (
+                <option key={b} value={b} />
+              ))}
+            </datalist>
           </div>
         </div>
 

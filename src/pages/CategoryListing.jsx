@@ -12,6 +12,7 @@ import { api } from '../api/client'
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../store/siteSettingsStore'
 import { useProductList } from '../hooks/useProductList'
+import { buildBrandOptions, matchesSelectedBrands } from '../utils/brands'
 
 function CategoryNotFound({ slug }) {
   const label = slug
@@ -78,7 +79,7 @@ export default function CategoryListing() {
 
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
-      if (selectedBrands.size > 0 && !selectedBrands.has(p.brand)) return false
+      if (!matchesSelectedBrands(p, selectedBrands)) return false
       for (const attr of attributes) {
         const selectedIds = attr.options.filter((o) => selectedOptionIds.has(o.id)).map((o) => o.id)
         if (selectedIds.length === 0) continue
@@ -134,7 +135,7 @@ export default function CategoryListing() {
   if (!dbCategory) return <CategoryNotFound slug={slug} />
 
   const subcategories = dbCategory.subcategories || []
-  const brands = [...new Set(products.map((p) => p.brand).filter(Boolean))].map((b) => ({ id: b, label: b }))
+  const brands = buildBrandOptions(products)
 
   return (
     <div className="min-h-screen bg-cz-page flex flex-col">
