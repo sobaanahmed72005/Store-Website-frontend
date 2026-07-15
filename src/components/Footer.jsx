@@ -15,8 +15,8 @@ import {
 import SiteLink from './SiteLink'
 import Logo from './Logo'
 import { api } from '../api/client'
-import { useSiteSettings } from '../context/SiteSettingsContext'
-import { useAuth } from '../context/AuthContext'
+import { useSiteSettings } from '../store/siteSettingsStore'
+import { useAuth } from '../store/authStore'
 
 const SUBSCRIBED_STORAGE_KEY = 'cz_newsletter_subscribed_email'
 

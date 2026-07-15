@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useCategories } from '../context/CategoryContext'
+import { useCategories } from '../store/categoryStore'
 import { resolveImageUrl } from '../api/client'
 
 const SLIDE_WIDTH = 140 + 15

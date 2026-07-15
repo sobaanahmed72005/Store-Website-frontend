@@ -4,7 +4,7 @@ import Navbar from '../components/Navbar'
 import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../store/authStore'
 import { useSeo } from '../hooks/useSeo'
 
 function AuthInput({ type = 'text', name, placeholder, value, onChange, required = true }) {

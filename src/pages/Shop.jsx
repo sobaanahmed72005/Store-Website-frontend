@@ -8,10 +8,10 @@ import ProductGrid from '../components/ProductGrid'
 import Pagination from '../components/Pagination'
 import { GridIcon, ListIcon } from '../components/icons'
 import { FilterAccordion, CheckboxGroup } from '../components/filters/FilterPrimitives'
-import { useCategories } from '../context/CategoryContext'
+import { useCategories } from '../store/categoryStore'
 import { getEffectivePrice } from '../utils/pricing'
 import { useSeo } from '../hooks/useSeo'
-import { useSiteSettings } from '../context/SiteSettingsContext'
+import { useSiteSettings } from '../store/siteSettingsStore'
 import { useProductList } from '../hooks/useProductList'
 
 function categoryPath(slug) {

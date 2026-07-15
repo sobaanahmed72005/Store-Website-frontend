@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 import { api } from '../../api/client'
-import { CURRENCY_CATALOG } from '../../context/CurrencyContext'
+import { CURRENCY_CATALOG } from '../../store/currencyStore'
 import { useAdminForm } from '../../hooks/useAdminForm'
 
 export default function AdminCurrency() {

@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { useSiteSettings } from './context/SiteSettingsContext'
+import { useSiteSettingsStore } from './store/siteSettingsStore'
+import { useBootstrapStores } from './store/bootstrap'
 import { ADMIN_PATH } from './config/adminPath'
 import ScrollToTop from './components/ScrollToTop'
 import Home from './pages/Home'
@@ -89,7 +90,8 @@ function PageLoading() {
 }
 
 function App() {
-  const { storeStatus } = useSiteSettings()
+  useBootstrapStores()
+  const storeStatus = useSiteSettingsStore((s) => s.storeStatus)
 
   if (storeStatus === 'not-found') {
     return <StoreNotFound />

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { api } from '../../../api/client'
-import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../store/authStore'
 import { useAdminSave } from '../../../hooks/useAdminForm'
 
 export default function AccountSection() {

@@ -5,7 +5,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts'
 import { api } from '../../api/client'
-import { useCurrency } from '../../context/CurrencyContext'
+import { useCurrency } from '../../store/currencyStore'
 import { ADMIN_PATH } from '../../config/adminPath'
 
 // Dataviz skill's validated default palette, used as-is.

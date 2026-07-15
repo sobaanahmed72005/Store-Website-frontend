@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../../api/client'
-import { useCurrency } from '../../context/CurrencyContext'
+import { useCurrency } from '../../store/currencyStore'
 import { getLastSeenOrderId, markOrdersSeen, SEEN_EVENT } from '../../utils/orderNotifications'
 import { ADMIN_PATH } from '../../config/adminPath'
 import { BellIcon } from '../icons'

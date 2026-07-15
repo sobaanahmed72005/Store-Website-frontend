@@ -10,7 +10,7 @@ import ProductGrid from '../components/ProductGrid'
 import Footer from '../components/Footer'
 import { api } from '../api/client'
 import { useSeo } from '../hooks/useSeo'
-import { useSiteSettings } from '../context/SiteSettingsContext'
+import { useSiteSettings } from '../store/siteSettingsStore'
 import { SITE_TAGLINE } from '../config/seoDefaults'
 
 function SectionHeading({ heading, seeAllHref }) {

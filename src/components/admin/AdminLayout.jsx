@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { NavLink, Outlet, Link } from 'react-router-dom'
-import { useAuth } from '../../context/AuthContext'
+import { useAuth } from '../../store/authStore'
 import Logo from '../Logo'
 import { HamburgerIcon, CloseIcon } from '../icons'
 import { ADMIN_PATH } from '../../config/adminPath'

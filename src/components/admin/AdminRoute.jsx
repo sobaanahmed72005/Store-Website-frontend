@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom'
-import { useAuth } from '../../context/AuthContext'
+import { useAuth } from '../../store/authStore'
 import { ADMIN_PATH } from '../../config/adminPath'
 
 export default function AdminRoute({ children }) {

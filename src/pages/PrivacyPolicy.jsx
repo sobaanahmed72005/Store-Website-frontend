@@ -6,7 +6,7 @@ import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
 import { api } from '../api/client'
 import { useSeo } from '../hooks/useSeo'
-import { useSiteSettings } from '../context/SiteSettingsContext'
+import { useSiteSettings } from '../store/siteSettingsStore'
 
 const DEFAULT_CONTENT = {
   pageTitle: '',

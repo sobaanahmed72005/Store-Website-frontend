@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 import { api } from '../../api/client'
-import { useCurrency } from '../../context/CurrencyContext'
+import { useCurrency } from '../../store/currencyStore'
 import { useAdminForm } from '../../hooks/useAdminForm'
 import Pagination from '../../components/Pagination'
 

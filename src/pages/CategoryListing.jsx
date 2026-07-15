@@ -10,7 +10,7 @@ import { GridIcon, ListIcon } from '../components/icons'
 import { FilterAccordion, CheckboxGroup, FilterCheckbox } from '../components/filters/FilterPrimitives'
 import { api } from '../api/client'
 import { useSeo } from '../hooks/useSeo'
-import { useSiteSettings } from '../context/SiteSettingsContext'
+import { useSiteSettings } from '../store/siteSettingsStore'
 import { useProductList } from '../hooks/useProductList'
 
 function CategoryNotFound({ slug }) {

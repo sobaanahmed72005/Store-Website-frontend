@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useWishlist } from '../context/WishlistContext'
-import { useCart } from '../context/CartContext'
-import { useAuth } from '../context/AuthContext'
-import { useCurrency, parsePkr } from '../context/CurrencyContext'
+import { useWishlistStore } from '../store/wishlistStore'
+import { useCartStore } from '../store/cartStore'
+import { useAuthStore } from '../store/authStore'
+import { useCurrencyStore, parsePkr } from '../store/currencyStore'
 import { HeartIcon } from './icons'
 
 const STAR_PATH =
@@ -52,13 +52,17 @@ export default function ProductCard({
   const [hovered, setHovered] = useState(false)
   const gallery = [...new Set([image, ...(images || [])].filter(Boolean))]
   const activeIndex = hovered && gallery.length > 1 ? 1 : 0
-  const { user } = useAuth()
-  const { isWishlisted, toggleWishlist } = useWishlist()
-  const { addToCart } = useCart()
-  const { format } = useCurrency()
-  const navigate = useNavigate()
+  // Selectors, not whole-store subscriptions — this card is rendered many times per page (grids
+  // of 12-24), so it should only re-render when something it actually displays changes: whether
+  // THIS product is wishlisted (not the whole wishlist), never on unrelated cart/wishlist
+  // mutations elsewhere on the page (e.g. someone changing quantity in the header's mini-cart).
   const wishlistId = id ?? href ?? title
-  const wishlisted = isWishlisted(wishlistId)
+  const user = useAuthStore((s) => s.user)
+  const wishlisted = useWishlistStore((s) => s.items.some((item) => item.id === wishlistId))
+  const toggleWishlist = useWishlistStore((s) => s.toggleWishlist)
+  const addToCart = useCartStore((s) => s.addToCart)
+  const { format } = useCurrencyStore()
+  const navigate = useNavigate()
   const pkrPrice = parsePkr(price)
   const actuallyInStock = stock != null ? stock > 0 : inStock
   const productHref = slug ? `/product/${slug}` : href || '/products'

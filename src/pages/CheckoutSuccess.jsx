@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { useCart } from '../context/CartContext'
+import { useCart } from '../store/cartStore'
 import Logo from '../components/Logo'
 import { useSeo } from '../hooks/useSeo'
 

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { ChevronDownIcon } from './icons'
-import { useCategories } from '../context/CategoryContext'
+import { useCategories } from '../store/categoryStore'
 
 function categorySlugToPath(slug) {
   return slug === 'laptops' ? '/laptops' : `/category/${slug}`

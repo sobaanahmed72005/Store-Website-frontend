@@ -5,7 +5,7 @@ import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
 import TwoFactorCodeForm from '../components/TwoFactorCodeForm'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../store/authStore'
 import { ADMIN_PATH } from '../config/adminPath'
 import { useSeo } from '../hooks/useSeo'
 

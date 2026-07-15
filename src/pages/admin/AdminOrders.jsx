@@ -1,6 +1,6 @@
 import { Fragment, useCallback, useState } from 'react'
 import { api, BASE_URL, resolveImageUrl } from '../../api/client'
-import { useCurrency } from '../../context/CurrencyContext'
+import { useCurrency } from '../../store/currencyStore'
 import { markOrdersSeen } from '../../utils/orderNotifications'
 import { useAdminForm } from '../../hooks/useAdminForm'
 import Pagination from '../../components/Pagination'

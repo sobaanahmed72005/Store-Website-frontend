@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api, resolveImageUrl } from '../../api/client'
-import { useCurrency } from '../../context/CurrencyContext'
+import { useCurrency } from '../../store/currencyStore'
 import { getEffectivePrice } from '../../utils/pricing'
 import { ADMIN_PATH } from '../../config/adminPath'
 import { useAdminForm } from '../../hooks/useAdminForm'

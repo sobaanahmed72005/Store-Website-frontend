@@ -1,7 +1,6 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { create } from 'zustand'
 import { api } from '../api/client'
 
-const CurrencyContext = createContext(null)
 const STORAGE_KEY = 'cz_currency'
 
 // Display metadata only — actual conversion rates come live from the backend.
@@ -31,11 +30,11 @@ export function parsePkr(value) {
   return parseFloat(stripped) || 0
 }
 
-export function CurrencyProvider({ children }) {
-  const [currency, setCurrencyState] = useState(loadCurrency)
-  const [currencies, setCurrencies] = useState(DEFAULT_CURRENCIES)
+export const useCurrencyStore = create((set, get) => ({
+  currency: loadCurrency(),
+  currencies: DEFAULT_CURRENCIES,
 
-  useEffect(() => {
+  init: () => {
     Promise.all([api.get('/content/currency-settings'), api.get('/currency/rates')])
       .then(([settings, rateData]) => {
         const enabled = settings.enabled?.length ? settings.enabled : ['PKR']
@@ -44,55 +43,38 @@ export function CurrencyProvider({ children }) {
           if (!CURRENCY_CATALOG[code]) continue
           const rate = code === 'PKR' ? 1 : rateData.rates?.[code]
           // A currency with no live rate can't be displayed correctly — defaulting it to rate 1
-          // would silently show a PKR-scale number under a foreign symbol (e.g. "$65000"
-          // instead of the real ~$230). Leave it out of the selectable set entirely rather than
-          // guess.
+          // would silently show a PKR-scale number under a foreign symbol (e.g. "$65000" instead
+          // of the real ~$230). Leave it out of the selectable set entirely rather than guess.
           if (rate == null) continue
           next[code] = { ...CURRENCY_CATALOG[code], rate }
         }
         if (!next.PKR) next.PKR = { ...CURRENCY_CATALOG.PKR, rate: 1 }
-        setCurrencies(next)
-        if (!next[currency]) setCurrencyState('PKR')
+        set((state) => ({ currencies: next, currency: next[state.currency] ? state.currency : 'PKR' }))
       })
       .catch((err) => console.error('Failed to load currency settings/rates:', err))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  },
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, currency)
-  }, [currency])
+  setCurrency: (code) => {
+    if (get().currencies[code]) {
+      localStorage.setItem(STORAGE_KEY, code)
+      set({ currency: code })
+    }
+  },
 
-  const setCurrency = useCallback(
-    (code) => {
-      if (currencies[code]) setCurrencyState(code)
-    },
-    [currencies]
-  )
+  format: (pkrValue) => {
+    const { currency, currencies } = get()
+    const entry = currencies[currency] || currencies.PKR
+    const amount = parsePkr(pkrValue) * (entry.rate ?? 1)
+    return `${entry.symbol}${amount.toLocaleString(undefined, {
+      minimumFractionDigits: entry.decimals,
+      maximumFractionDigits: entry.decimals,
+    })}`
+  },
+}))
 
-  const format = useCallback(
-    (pkrValue) => {
-      const entry = currencies[currency] || currencies.PKR
-      const amount = parsePkr(pkrValue) * (entry.rate ?? 1)
-      return `${entry.symbol}${amount.toLocaleString(undefined, {
-        minimumFractionDigits: entry.decimals,
-        maximumFractionDigits: entry.decimals,
-      })}`
-    },
-    [currencies, currency]
-  )
-
-  // Memoized so consumers relying on reference equality don't re-render on every unrelated
-  // change elsewhere in the app — this provider wraps the whole tree.
-  const value = useMemo(
-    () => ({ currency, setCurrency, format, currencies }),
-    [currency, setCurrency, format, currencies]
-  )
-
-  return <CurrencyContext.Provider value={value}>{children}</CurrencyContext.Provider>
-}
-
+// Whole-object compatibility hook. `format`/`setCurrency` are stable function references (they
+// read from get() at call time, not from closed-over state), so this is safe for components that
+// only use `format` even though it technically subscribes to the whole store.
 export function useCurrency() {
-  const ctx = useContext(CurrencyContext)
-  if (!ctx) throw new Error('useCurrency must be used within a CurrencyProvider')
-  return ctx
+  return useCurrencyStore()
 }

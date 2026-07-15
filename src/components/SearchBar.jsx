@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { api, resolveImageUrl } from '../api/client'
 import { getEffectivePrice } from '../utils/pricing'
-import { useCurrency } from '../context/CurrencyContext'
+import { useCurrency } from '../store/currencyStore'
 import { SearchIcon } from './icons'
 
 const DEBOUNCE_MS = 250

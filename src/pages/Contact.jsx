@@ -17,7 +17,7 @@ import {
 } from '../components/icons'
 import { api } from '../api/client'
 import { useSeo } from '../hooks/useSeo'
-import { useSiteSettings } from '../context/SiteSettingsContext'
+import { useSiteSettings } from '../store/siteSettingsStore'
 
 const SOCIAL_ICONS = [
   { key: 'facebook', label: 'Facebook', Icon: FacebookIcon },

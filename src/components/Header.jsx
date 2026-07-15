@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom'
 import Logo from './Logo'
 import SearchBar from './SearchBar'
 import { useNavItems } from './CategoryMenu'
-import { useWishlist } from '../context/WishlistContext'
-import { useCart } from '../context/CartContext'
-import { useAuth } from '../context/AuthContext'
-import { useCurrency } from '../context/CurrencyContext'
+import { useWishlist } from '../store/wishlistStore'
+import { useCart } from '../store/cartStore'
+import { useAuthStore } from '../store/authStore'
+import { useCurrency } from '../store/currencyStore'
 import {
   AccountIcon,
   HeartIcon,
@@ -73,7 +73,7 @@ function NavDrawer({ open, onClose }) {
 
 function CartDrawer({ open, onClose, items, onUpdateQty, onRemove }) {
   const { format } = useCurrency()
-  const { user } = useAuth()
+  const user = useAuthStore((s) => s.user)
   const subTotal = items.reduce((sum, item) => sum + item.price * item.qty, 0)
 
   return (
@@ -322,7 +322,7 @@ function CurrencySwitcher({ size = 20, showLabel = true }) {
 export default function Header() {
   const { items: wishlistItems, count: wishlistCount, removeFromWishlist, wishlistOpen, openWishlist, closeWishlist } = useWishlist()
   const { items: cartItems, count: cartCount, updateQty, removeFromCart, addToCart, cartOpen, openCart, closeCart } = useCart()
-  const { user } = useAuth()
+  const user = useAuthStore((s) => s.user)
   const [navOpen, setNavOpen] = useState(false)
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
 

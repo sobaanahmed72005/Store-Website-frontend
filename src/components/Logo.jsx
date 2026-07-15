@@ -1,4 +1,4 @@
-import { useSiteSettings } from '../context/SiteSettingsContext'
+import { useSiteSettings } from '../store/siteSettingsStore'
 
 // Only splits into two colors at a real word/case boundary (e.g. "IT Network", "TechStore").
 // A leading acronym like "IT" in "ITNetwork" is a run of capitals, so the boundary is where

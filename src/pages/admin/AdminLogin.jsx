@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
-import { useAuth } from '../../context/AuthContext'
+import { useAuth } from '../../store/authStore'
 import Logo from '../../components/Logo'
 import TwoFactorCodeForm from '../../components/TwoFactorCodeForm'
 import { ADMIN_PATH } from '../../config/adminPath'

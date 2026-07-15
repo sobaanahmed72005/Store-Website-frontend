@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { api, uploadImage, resolveImageUrl } from '../../../api/client'
-import { useSiteSettings } from '../../../context/SiteSettingsContext'
+import { useSiteSettings } from '../../../store/siteSettingsStore'
 import { useAdminSave } from '../../../hooks/useAdminForm'
 
 export default function BrandingSection() {

@@ -5,9 +5,9 @@ import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
 import { MinusIcon, PlusIcon, TrashIcon, CartIcon } from '../components/icons'
-import { useCurrency } from '../context/CurrencyContext'
-import { useCart } from '../context/CartContext'
-import { useAuth } from '../context/AuthContext'
+import { useCurrency } from '../store/currencyStore'
+import { useCart } from '../store/cartStore'
+import { useAuth } from '../store/authStore'
 import { useSeo } from '../hooks/useSeo'
 
 function QuantityStepper({ qty, onDecrease, onIncrease }) {
