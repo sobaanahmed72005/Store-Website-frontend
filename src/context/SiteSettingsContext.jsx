@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { api, resolveImageUrl } from '../api/client'
 
 const DEFAULT_BRAND = {
@@ -46,11 +46,14 @@ export function SiteSettingsProvider({ children }) {
 
   const logoUrl = logo ? resolveImageUrl(logo) : null
 
-  return (
-    <SiteSettingsContext.Provider value={{ siteName, setSiteName, logo, setLogo, logoUrl, storeStatus, brand }}>
-      {children}
-    </SiteSettingsContext.Provider>
+  // Memoized so consumers relying on reference equality don't re-render on every unrelated
+  // change elsewhere in the app — this provider wraps the whole tree.
+  const value = useMemo(
+    () => ({ siteName, setSiteName, logo, setLogo, logoUrl, storeStatus, brand }),
+    [siteName, logo, logoUrl, storeStatus, brand]
   )
+
+  return <SiteSettingsContext.Provider value={value}>{children}</SiteSettingsContext.Provider>
 }
 
 export function useSiteSettings() {

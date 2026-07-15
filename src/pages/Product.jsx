@@ -4,7 +4,8 @@ import Navbar from '../components/Navbar'
 import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
-import ProductCard, { StarRating } from '../components/ProductCard'
+import { StarRating } from '../components/ProductCard'
+import ProductGrid from '../components/ProductGrid'
 import { PlusCircleIcon, MinusCircleIcon, ChevronLeftIcon, ChevronRightIcon, HeartIcon, PlayIcon } from '../components/icons'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
@@ -148,6 +149,9 @@ export default function Product() {
   const [selections, setSelections] = useState({})
   const [relatedProducts, setRelatedProducts] = useState([])
   const [reviews, setReviews] = useState([])
+  const [reviewPage, setReviewPage] = useState(1)
+  const [reviewTotalPages, setReviewTotalPages] = useState(1)
+  const [loadingMoreReviews, setLoadingMoreReviews] = useState(false)
   const [reviewStats, setReviewStats] = useState({ average: 0, count: 0 })
   const [reviewForm, setReviewForm] = useState({ rating: 0, comment: '' })
   const [reviewError, setReviewError] = useState('')
@@ -171,18 +175,20 @@ export default function Product() {
 
   useEffect(() => {
     if (!product) return
+    setReviewPage(1)
     api
       .get(`/reviews?product_id=${product.id}`)
       .then((data) => {
         setReviews(data.reviews)
-        setReviewStats({ average: data.average, count: data.count })
+        setReviewTotalPages(data.totalPages)
+        setReviewStats({ average: data.average, count: data.total })
       })
       .catch((err) => console.error('Failed to load product reviews:', err))
 
     if (product.category_slug) {
       api
         .get(`/products?category=${product.category_slug}`)
-        .then((data) => setRelatedProducts(data.filter((p) => p.id !== product.id).slice(0, 4)))
+        .then((data) => setRelatedProducts(data.products.filter((p) => p.id !== product.id).slice(0, 4)))
         .catch(() => setRelatedProducts([]))
     }
 
@@ -195,6 +201,20 @@ export default function Product() {
       setReviewEligibility(null)
     }
   }, [product, user])
+
+  const handleLoadMoreReviews = async () => {
+    setLoadingMoreReviews(true)
+    try {
+      const nextPage = reviewPage + 1
+      const data = await api.get(`/reviews?product_id=${product.id}&page=${nextPage}`)
+      setReviews((prev) => [...prev, ...data.reviews])
+      setReviewPage(nextPage)
+    } catch (err) {
+      console.error('Failed to load more product reviews:', err)
+    } finally {
+      setLoadingMoreReviews(false)
+    }
+  }
 
   const galleryImages = useMemo(() => {
     if (!product) return []
@@ -513,6 +533,17 @@ export default function Product() {
             </div>
           )}
 
+          {reviewPage < reviewTotalPages && (
+            <button
+              type="button"
+              onClick={handleLoadMoreReviews}
+              disabled={loadingMoreReviews}
+              className="mb-6 text-[13px] font-medium text-cz-primary hover:underline disabled:opacity-60"
+            >
+              {loadingMoreReviews ? 'Loading...' : 'Load More Reviews'}
+            </button>
+          )}
+
           {user ? (
             reviewSubmitted ? (
               <div className="rounded-[8px] bg-green-50 border border-green-200 px-4 py-3">
@@ -557,21 +588,7 @@ export default function Product() {
         {relatedProducts.length > 0 && (
           <div className="mt-12">
             <h2 className="text-[18px] font-semibold text-[#212121] mb-4">Related Products</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-              {relatedProducts.map((p) => (
-                <ProductCard
-                  key={p.id}
-                  id={p.id}
-                  slug={p.slug}
-                  title={p.name}
-                  image={resolveImageUrl(p.image)}
-                  stock={p.stock}
-                  hasVariants={p.has_variants}
-                  rating={p.rating}
-                  {...getEffectivePrice(p)}
-                />
-              ))}
-            </div>
+            <ProductGrid products={relatedProducts} />
           </div>
         )}
       </div>

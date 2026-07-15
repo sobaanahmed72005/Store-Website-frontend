@@ -18,26 +18,32 @@ function formatDetails(entry) {
   const d = entry.details
   if (!d) return null
 
-  switch (entry.action) {
-    case 'product.create':
-      return `${d.name} — price Rs. ${d.price}, stock ${d.stock}`
-    case 'product.update':
-      return `${d.name} — price ${d.price.from} → ${d.price.to}, stock ${d.stock.from} → ${d.stock.to}`
-    case 'product.delete':
-      return d.name
-    case 'discount_code.create':
-      return `${d.code} — ${d.discount_type === 'percent' ? `${d.discount_value}%` : `Rs. ${d.discount_value}`}`
-    case 'discount_code.update':
-      return `${d.code} — active: ${d.is_active.from} → ${d.is_active.to}`
-    case 'discount_code.delete':
-      return d.code
-    case 'order.status_change':
-      return `#${entry.entity_id} — ${d.status.from} → ${d.status.to}`
-    case 'payment_settings.update':
-    case 'courier_settings.update':
-      return JSON.stringify(d)
-    default:
-      return JSON.stringify(d)
+  // A malformed/legacy row (e.g. from a since-changed details shape) throwing here would
+  // otherwise crash the whole table via one bad row instead of just that row's cell.
+  try {
+    switch (entry.action) {
+      case 'product.create':
+        return `${d.name} — price Rs. ${d.price}, stock ${d.stock}`
+      case 'product.update':
+        return `${d.name} — price ${d.price.from} → ${d.price.to}, stock ${d.stock.from} → ${d.stock.to}`
+      case 'product.delete':
+        return d.name
+      case 'discount_code.create':
+        return `${d.code} — ${d.discount_type === 'percent' ? `${d.discount_value}%` : `Rs. ${d.discount_value}`}`
+      case 'discount_code.update':
+        return `${d.code} — active: ${d.is_active.from} → ${d.is_active.to}`
+      case 'discount_code.delete':
+        return d.code
+      case 'order.status_change':
+        return `#${entry.entity_id} — ${d.status.from} → ${d.status.to}`
+      case 'payment_settings.update':
+      case 'courier_settings.update':
+        return JSON.stringify(d)
+      default:
+        return JSON.stringify(d)
+    }
+  } catch {
+    return JSON.stringify(d)
   }
 }
 

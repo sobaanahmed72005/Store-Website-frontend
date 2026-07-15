@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { api } from '../api/client'
 import { useAuth } from './AuthContext'
 import { getEffectivePrice, getVariantEffectivePrice } from '../utils/pricing'
@@ -59,12 +59,19 @@ export function CartProvider({ children }) {
       })
   }, [user])
 
+  // Debounced — without this, rapidly clicking a quantity +/- stepper fires one full-cart PUT
+  // per click, all racing each other with no ordering guarantee (a slow earlier request can land
+  // after a later one and revert the quantity server-side). Collapsing rapid changes into a
+  // single request after things settle avoids that almost entirely.
   useEffect(() => {
     if (!user || syncedForUser.current !== user.id) return
-    api.put(`/cart/${user.id}`, { items }, { auth: true }).catch((err) => console.error('Failed to sync cart to server:', err))
+    const timer = setTimeout(() => {
+      api.put(`/cart/${user.id}`, { items }, { auth: true }).catch((err) => console.error('Failed to sync cart to server:', err))
+    }, 600)
+    return () => clearTimeout(timer)
   }, [items, user])
 
-  const addToCart = (product, qty = 1) => {
+  const addToCart = useCallback((product, qty = 1) => {
     setItems((prev) => {
       const existing = prev.find((item) => sameLine(item, product.id, product.variantId))
       if (existing) {
@@ -73,28 +80,28 @@ export function CartProvider({ children }) {
       return [...prev, { ...product, qty }]
     })
     setCartOpen(true)
-  }
+  }, [])
 
-  const updateQty = (id, variantId, delta) => {
+  const updateQty = useCallback((id, variantId, delta) => {
     setItems((prev) =>
       prev.map((item) => (sameLine(item, id, variantId) ? { ...item, qty: Math.max(1, item.qty + delta) } : item))
     )
-  }
+  }, [])
 
-  const setQty = (id, variantId, qty) => {
+  const setQty = useCallback((id, variantId, qty) => {
     setItems((prev) => prev.map((item) => (sameLine(item, id, variantId) ? { ...item, qty: Math.max(1, qty) } : item)))
-  }
+  }, [])
 
-  const removeFromCart = (id, variantId) => {
+  const removeFromCart = useCallback((id, variantId) => {
     setItems((prev) => prev.filter((item) => !sameLine(item, id, variantId)))
-  }
+  }, [])
 
-  const clearCart = () => setItems([])
+  const clearCart = useCallback(() => setItems([]), [])
 
   // The server always charges the current price at checkout regardless of what the cart
   // displays, so this is a display-accuracy fix, not a security one — but a stale price
   // shown right up to checkout is a bad surprise. Call this when the cart page loads.
-  const refreshPrices = async () => {
+  const refreshPrices = useCallback(async () => {
     if (items.length === 0) return { changed: [], removed: [] }
 
     const results = await Promise.all(
@@ -149,31 +156,37 @@ export function CartProvider({ children }) {
       setItems(nextItems)
     }
     return { changed, removed }
-  }
+  }, [items])
+
+  const openCart = useCallback(() => setCartOpen(true), [])
+  const closeCart = useCallback(() => setCartOpen(false), [])
 
   const count = items.reduce((sum, item) => sum + item.qty, 0)
   const subTotal = items.reduce((sum, item) => sum + item.price * item.qty, 0)
 
-  return (
-    <CartContext.Provider
-      value={{
-        items,
-        count,
-        subTotal,
-        addToCart,
-        updateQty,
-        setQty,
-        removeFromCart,
-        clearCart,
-        refreshPrices,
-        cartOpen,
-        openCart: () => setCartOpen(true),
-        closeCart: () => setCartOpen(false),
-      }}
-    >
-      {children}
-    </CartContext.Provider>
+  // Memoized so consumers relying on reference equality (React.memo, other useMemo/useCallback
+  // deps) don't re-render on every keystroke/state change elsewhere in the app — this provider
+  // wraps the whole tree, so an unmemoized value here means everything under it re-renders
+  // whenever anything in CartContext changes, not just when cart-relevant state actually does.
+  const value = useMemo(
+    () => ({
+      items,
+      count,
+      subTotal,
+      addToCart,
+      updateQty,
+      setQty,
+      removeFromCart,
+      clearCart,
+      refreshPrices,
+      cartOpen,
+      openCart,
+      closeCart,
+    }),
+    [items, count, subTotal, addToCart, updateQty, setQty, removeFromCart, clearCart, refreshPrices, cartOpen, openCart, closeCart]
   )
+
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>
 }
 
 export function useCart() {

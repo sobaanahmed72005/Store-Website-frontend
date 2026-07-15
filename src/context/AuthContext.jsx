@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { api } from '../api/client'
 
 const AuthContext = createContext(null)
@@ -20,7 +20,7 @@ export function AuthProvider({ children }) {
       .finally(() => setInitializing(false))
   }, [])
 
-  const login = async (email, password, { admin = false } = {}) => {
+  const login = useCallback(async (email, password, { admin = false } = {}) => {
     setLoading(true)
     try {
       const data = await api.post(admin ? '/auth/admin-login' : '/auth/login', { email, password })
@@ -29,9 +29,9 @@ export function AuthProvider({ children }) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  const verifyTwoFactor = async (challengeId, token) => {
+  const verifyTwoFactor = useCallback(async (challengeId, token) => {
     setLoading(true)
     try {
       const data = await api.post('/auth/2fa/verify', { challengeId, token })
@@ -40,9 +40,9 @@ export function AuthProvider({ children }) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  const register = async (name, email, password, phone) => {
+  const register = useCallback(async (name, email, password, phone) => {
     setLoading(true)
     try {
       const data = await api.post('/auth/register', { name, email, password, phone })
@@ -51,22 +51,35 @@ export function AuthProvider({ children }) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setUser(null)
     api.post('/auth/logout', {}).catch((err) => console.error('Failed to revoke session on logout:', err))
-  }
+  }, [])
 
-  const updateSession = (nextUser) => {
+  const updateSession = useCallback((nextUser) => {
     setUser(nextUser)
-  }
+  }, [])
 
-  return (
-    <AuthContext.Provider value={{ user, loading, initializing, login, verifyTwoFactor, register, logout, updateSession, isAdmin: user?.role === 'admin' }}>
-      {children}
-    </AuthContext.Provider>
+  // Memoized so consumers relying on reference equality don't re-render on every unrelated
+  // change elsewhere in the app — this provider wraps the whole tree.
+  const value = useMemo(
+    () => ({
+      user,
+      loading,
+      initializing,
+      login,
+      verifyTwoFactor,
+      register,
+      logout,
+      updateSession,
+      isAdmin: user?.role === 'admin',
+    }),
+    [user, loading, initializing, login, verifyTwoFactor, register, logout, updateSession]
   )
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {

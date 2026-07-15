@@ -15,7 +15,11 @@ export default function AdminBulkSale() {
   const [result, setResult] = useState('')
 
   useEffect(() => {
-    api.get('/admin/products', { auth: true }).then(setProducts).catch((err) => setError(err.message))
+    // /admin/products is now paginated (24/page by default); this manual product picker needs a
+    // browsable, searchable list rather than a paged one, so request the max page size the
+    // backend allows (100). A catalog beyond 100 products would need a proper searchable/paged
+    // picker here instead — this at least bounds the fetch instead of pulling the whole table.
+    api.get('/admin/products?limit=100', { auth: true }).then((data) => setProducts(data.products)).catch((err) => setError(err.message))
     api.get('/admin/categories', { auth: true }).then(setCategories).catch((err) => setError(err.message))
   }, [])
 

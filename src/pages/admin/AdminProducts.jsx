@@ -1,32 +1,41 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api, resolveImageUrl } from '../../api/client'
 import { useCurrency } from '../../context/CurrencyContext'
 import { getEffectivePrice } from '../../utils/pricing'
 import { ADMIN_PATH } from '../../config/adminPath'
+import { useAdminForm } from '../../hooks/useAdminForm'
+import Pagination from '../../components/Pagination'
 
 export default function AdminProducts() {
   const { format } = useCurrency()
   const [products, setProducts] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
 
-  const fetchProducts = () =>
-    api
-      .get('/admin/products', { auth: true })
-      .then(setProducts)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false))
+  const load = useCallback(
+    () =>
+      api.get('/admin/products', { auth: true }).then((data) => {
+        setProducts(data.products)
+        setPage(data.page)
+        setTotalPages(data.totalPages)
+      }),
+    []
+  )
+  const { loading, error, setError, reload } = useAdminForm(load)
 
-  useEffect(() => {
-    fetchProducts()
-  }, [])
+  const goToPage = async (nextPage) => {
+    const data = await api.get(`/admin/products?page=${nextPage}`, { auth: true })
+    setProducts(data.products)
+    setPage(data.page)
+    setTotalPages(data.totalPages)
+  }
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this product? This cannot be undone.')) return
     try {
       await api.del(`/admin/products/${id}`, { auth: true })
-      setProducts((prev) => prev.filter((p) => p.id !== id))
+      reload()
     } catch (err) {
       setError(err.message)
     }
@@ -123,6 +132,7 @@ export default function AdminProducts() {
           </tbody>
         </table>
       </div>
+      <Pagination page={page} totalPages={totalPages} onChange={goToPage} />
     </div>
   )
 }

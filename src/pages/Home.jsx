@@ -6,10 +6,9 @@ import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
 import CategoryIcons from '../components/CategoryIcons'
 import Hero from '../components/Hero'
-import ProductCard from '../components/ProductCard'
+import ProductGrid from '../components/ProductGrid'
 import Footer from '../components/Footer'
-import { api, resolveImageUrl } from '../api/client'
-import { getEffectivePrice } from '../utils/pricing'
+import { api } from '../api/client'
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../context/SiteSettingsContext'
 import { SITE_TAGLINE } from '../config/seoDefaults'
@@ -37,22 +36,7 @@ function ProductSection({ heading, seeAllHref, products }) {
   return (
     <section className="mx-auto px-5 pt-[30px] pb-0 md:pb-[30px]">
       <SectionHeading heading={heading} seeAllHref={seeAllHref} />
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-[10px]">
-        {products.map((p) => (
-          <ProductCard
-            key={p.id}
-            id={p.id}
-            slug={p.slug}
-            title={p.name}
-            image={resolveImageUrl(p.image)}
-            images={p.images?.map(resolveImageUrl)}
-            stock={p.stock}
-            hasVariants={p.has_variants}
-            rating={p.rating}
-            {...getEffectivePrice(p)}
-          />
-        ))}
-      </div>
+      <ProductGrid products={products} className="grid grid-cols-2 md:grid-cols-5 gap-[10px]" />
     </section>
   )
 }
@@ -64,9 +48,11 @@ export default function Home() {
   const { siteName, logoUrl } = useSiteSettings()
 
   useEffect(() => {
-    api.get('/products?featured=1').then(setFeatured).catch(() => setFeatured([]))
-    api.get('/products?new_arrival=1').then(setNewArrivals).catch(() => setNewArrivals([]))
-    api.get('/products?on_sale=1').then(setOnSale).catch(() => setOnSale([]))
+    // GET /products now returns { products, page, limit, total, totalPages } instead of a bare
+    // array — these homepage teaser sections only ever show the first page's worth anyway.
+    api.get('/products?featured=1').then((data) => setFeatured(data.products)).catch(() => setFeatured([]))
+    api.get('/products?new_arrival=1').then((data) => setNewArrivals(data.products)).catch(() => setNewArrivals([]))
+    api.get('/products?on_sale=1').then((data) => setOnSale(data.products)).catch(() => setOnSale([]))
   }, [])
 
   const origin = window.location.origin

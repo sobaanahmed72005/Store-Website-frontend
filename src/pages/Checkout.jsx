@@ -30,23 +30,37 @@ function Select({ value }) {
   )
 }
 
-function RadioCard({ active, name, price, onClick, children }) {
-  return (
+// A real <input type="radio"> under the hood when `onClick`/`groupName` are given — gives
+// keyboard selection (Tab + Space, arrow keys between options in the group) and screen-reader
+// semantics for free, instead of a div with just a click handler. Renders as a plain read-only
+// card (no input) when there's nothing to select, e.g. the single fixed shipping method below.
+function RadioCard({ active, name, price, onClick, children, groupName, value }) {
+  const card = (
     <div
-      onClick={onClick}
-      className={`rounded-md border p-4 transition-colors ${onClick ? 'cursor-pointer' : ''} ${
+      className={`rounded-md border p-4 transition-colors ${
         active ? 'border-cz-primary ring-1 ring-cz-primary' : 'border-[#d1d5db]'
       }`}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <span
-            className={`flex items-center justify-center w-4 h-4 rounded-full border-2 shrink-0 ${
-              active ? 'border-cz-primary' : 'border-[#9ca3af]'
-            }`}
-          >
-            {active && <span className="w-2 h-2 rounded-full bg-cz-primary" />}
-          </span>
+          {onClick ? (
+            <input
+              type="radio"
+              name={groupName}
+              value={value}
+              checked={active}
+              onChange={onClick}
+              className="w-4 h-4 shrink-0 accent-cz-primary"
+            />
+          ) : (
+            <span
+              className={`flex items-center justify-center w-4 h-4 rounded-full border-2 shrink-0 ${
+                active ? 'border-cz-primary' : 'border-[#9ca3af]'
+              }`}
+            >
+              {active && <span className="w-2 h-2 rounded-full bg-cz-primary" />}
+            </span>
+          )}
           <span className="font-medium text-[14px] text-[#212121]">{name}</span>
         </div>
         {price && <span className="text-[14px] text-[#212121]">{price}</span>}
@@ -54,6 +68,9 @@ function RadioCard({ active, name, price, onClick, children }) {
       {children && <div className="mt-3 text-[13px] text-[#4b4b4b] leading-relaxed">{children}</div>}
     </div>
   )
+
+  if (!onClick) return card
+  return <label className="block cursor-pointer">{card}</label>
 }
 
 function PaymentMethodDetails({ methodKey, method }) {
@@ -341,6 +358,8 @@ export default function Checkout() {
                         key={key}
                         active={selectedPaymentMethod === key}
                         name={method.label}
+                        groupName="payment-method"
+                        value={key}
                         onClick={() => setSelectedPaymentMethod(key)}
                       >
                         {selectedPaymentMethod === key && (

@@ -2,23 +2,31 @@ import { useCallback, useState } from 'react'
 import { api } from '../../api/client'
 import { markSubscribersSeen } from '../../utils/subscriberNotifications'
 import { useAdminForm } from '../../hooks/useAdminForm'
+import Pagination from '../../components/Pagination'
 
 export default function AdminNewsletter() {
   const [subscribers, setSubscribers] = useState([])
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [activeTotal, setActiveTotal] = useState(0)
   const [subject, setSubject] = useState('')
   const [message, setMessage] = useState('')
   const [sending, setSending] = useState(false)
   const [sentMessage, setSentMessage] = useState('')
 
-  const fetchSubscribers = useCallback(
-    () =>
-      api.get('/admin/newsletter', { auth: true }).then((data) => {
-        setSubscribers(data)
-        if (data.length) markSubscribersSeen(Math.max(...data.map((s) => s.id)))
-      }),
-    []
-  )
+  const applySubscribersPage = (data) => {
+    setSubscribers(data.subscribers)
+    setPage(data.page)
+    setTotalPages(data.totalPages)
+    // The real count adminSend below actually emails — independent of which page is displayed.
+    setActiveTotal(data.activeTotal)
+    if (data.subscribers.length) markSubscribersSeen(Math.max(...data.subscribers.map((s) => s.id)))
+  }
+
+  const fetchSubscribers = useCallback(() => api.get('/admin/newsletter', { auth: true }).then(applySubscribersPage), [])
   const { loading, error, setError, reload: load } = useAdminForm(fetchSubscribers)
+
+  const goToPage = (nextPage) => api.get(`/admin/newsletter?page=${nextPage}`, { auth: true }).then(applySubscribersPage)
 
   const handleDelete = async (id) => {
     if (!window.confirm('Remove this subscriber?')) return
@@ -30,12 +38,10 @@ export default function AdminNewsletter() {
     }
   }
 
-  const activeSubscribers = subscribers.filter((s) => !s.unsubscribed_at)
-
   const handleSend = async (e) => {
     e.preventDefault()
     if (!subject.trim() || !message.trim()) return
-    if (!window.confirm(`Send this email to all ${activeSubscribers.length} subscriber(s)?`)) return
+    if (!window.confirm(`Send this email to all ${activeTotal} subscriber(s)?`)) return
     setSending(true)
     setError('')
     setSentMessage('')
@@ -77,10 +83,10 @@ export default function AdminNewsletter() {
         />
         <button
           type="submit"
-          disabled={sending || activeSubscribers.length === 0}
+          disabled={sending || activeTotal === 0}
           className="self-start rounded-md bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-medium px-5 py-2.5 transition-colors disabled:opacity-60"
         >
-          {sending ? 'Sending...' : `Send to ${activeSubscribers.length} Subscriber${activeSubscribers.length === 1 ? '' : 's'}`}
+          {sending ? 'Sending...' : `Send to ${activeTotal} Subscriber${activeTotal === 1 ? '' : 's'}`}
         </button>
       </form>
 
@@ -130,6 +136,7 @@ export default function AdminNewsletter() {
           </tbody>
         </table>
       </div>
+      <Pagination page={page} totalPages={totalPages} onChange={goToPage} />
     </div>
   )
 }

@@ -4,14 +4,15 @@ import Navbar from '../components/Navbar'
 import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
-import ProductCard from '../components/ProductCard'
+import ProductGrid from '../components/ProductGrid'
+import Pagination from '../components/Pagination'
 import { GridIcon, ListIcon } from '../components/icons'
 import { FilterAccordion, CheckboxGroup } from '../components/filters/FilterPrimitives'
 import { useCategories } from '../context/CategoryContext'
-import { api, resolveImageUrl } from '../api/client'
 import { getEffectivePrice } from '../utils/pricing'
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../context/SiteSettingsContext'
+import { useProductList } from '../hooks/useProductList'
 
 function categoryPath(slug) {
   return slug === 'laptops' ? '/laptops' : `/category/${slug}`
@@ -76,20 +77,16 @@ export default function Products() {
     canonical: `${window.location.origin}/shop`,
   })
 
-  const [products, setProducts] = useState([])
-  const [loading, setLoading] = useState(true)
   const [selectedBrands, setSelectedBrands] = useState(() => new Set())
   const [sortBy, setSortBy] = useState('newest')
 
+  const queryPath = activeFilter ? `/products?${FILTER_CONFIG[activeFilter].param}` : '/products'
+  // Server-paginated (24/page) so the catalog can't grow into an unbounded fetch. Brand
+  // filter/sort below only apply within the current page — see Shop.jsx for the same tradeoff.
+  const { products, loading, page, setPage, totalPages, total } = useProductList(queryPath)
+
   useEffect(() => {
-    const query = activeFilter ? `?${FILTER_CONFIG[activeFilter].param}` : ''
-    setLoading(true)
     setSelectedBrands(new Set())
-    api
-      .get(`/products${query}`)
-      .then(setProducts)
-      .catch(() => setProducts([]))
-      .finally(() => setLoading(false))
   }, [activeFilter])
 
   const toggleBrand = (brand) => {
@@ -136,7 +133,12 @@ export default function Products() {
             <h1 className="text-[20px] font-semibold text-[#212121]">{pageTitle}</h1>
 
             <div className="flex items-center justify-between bg-cz-gold-light rounded-[8px] px-4 py-3 mt-5 mb-4">
-              <span className="text-[14px] text-[#212121]">{filteredProducts.length} Products</span>
+              {/* total is the true server-side count for this filter; falls back to the
+                  page-scoped filteredProducts count once a client-side brand filter narrows
+                  further, since that narrowing only applies within the current page. */}
+              <span className="text-[14px] text-[#212121]">
+                {selectedBrands.size > 0 ? filteredProducts.length : total} Products
+              </span>
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-3">
                   <button type="button" aria-label="Change View" className="text-[#212121]">
@@ -172,22 +174,10 @@ export default function Products() {
                 <span className="text-[14px] text-[#4b4b4b]">Try clearing some filters to see more results.</span>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-                {filteredProducts.map((p) => (
-                  <ProductCard
-                    key={p.id}
-                    id={p.id}
-                    slug={p.slug}
-                    title={p.name}
-                    image={resolveImageUrl(p.image)}
-                    images={p.images?.map(resolveImageUrl)}
-                    stock={p.stock}
-                    hasVariants={p.has_variants}
-                    rating={p.rating}
-                    {...getEffectivePrice(p)}
-                  />
-                ))}
-              </div>
+              <>
+                <ProductGrid products={filteredProducts} />
+                <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+              </>
             )}
           </div>
         </div>

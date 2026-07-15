@@ -353,7 +353,7 @@ export default function Account() {
                   </span>
                 </div>
                 <div className="flex flex-col gap-2 mb-3">
-                  {order.items.map((item) => (
+                  {(order.items || []).map((item) => (
                     <div key={item.id} className="flex items-center justify-between text-[13px] text-[#4b4b4b]">
                       <span className="line-clamp-1 pr-3">
                         {item.product_name}

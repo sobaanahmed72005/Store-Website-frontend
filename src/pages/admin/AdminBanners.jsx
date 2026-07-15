@@ -5,6 +5,18 @@ import { useAdminForm } from '../../hooks/useAdminForm'
 const EMPTY_SLIDE = { image: '', tagline: '', title: '', description: '', cta: '', href: '', active: true }
 const EMPTY_SIDE = { image: '', tagline: '', title: '', description: '', cta: '', href: '', active: true }
 
+// Slides/side banners are stored as a plain array with no server-assigned id, but the list here
+// supports add/delete/reorder — keying rows by array index would make React reattach each row's
+// DOM (and any future per-row state) to the wrong item after a reorder or delete. `_key` is a
+// client-only identity tag, stripped before saving so it never reaches the stored JSON.
+function withKeys(items) {
+  return (items || []).map((item) => ({ ...item, _key: item._key || crypto.randomUUID() }))
+}
+
+function stripKeys(items) {
+  return items.map(({ _key, ...rest }) => rest)
+}
+
 function Field({ label, hint, children }) {
   return (
     <div>
@@ -43,14 +55,14 @@ function ImagePreview({ src }) {
 
 export default function AdminBanners() {
   const [slides, setSlides] = useState([])
-  const [sideBanners, setSideBanners] = useState([{ ...EMPTY_SIDE }, { ...EMPTY_SIDE }])
+  const [sideBanners, setSideBanners] = useState(withKeys([{ ...EMPTY_SIDE }, { ...EMPTY_SIDE }]))
   const [editIdx, setEditIdx] = useState(null)
   const [form, setForm] = useState({ ...EMPTY_SLIDE })
   const load = useCallback(
     () =>
       api.get('/content/hero-banners').then((data) => {
-        setSlides(data.slides || [])
-        if (data.sideBanners?.length >= 2) setSideBanners(data.sideBanners)
+        setSlides(withKeys(data.slides))
+        if (data.sideBanners?.length >= 2) setSideBanners(withKeys(data.sideBanners))
       }),
     []
   )
@@ -81,7 +93,7 @@ export default function AdminBanners() {
     }
     const updated = [...slides]
     if (editIdx === 'new') {
-      updated.push({ ...form })
+      updated.push({ ...form, _key: crypto.randomUUID() })
     } else {
       updated[editIdx] = { ...form }
     }
@@ -113,7 +125,7 @@ export default function AdminBanners() {
   }
 
   function handleSave() {
-    save(() => api.put('/admin/content/hero-banners', { slides, sideBanners }, { auth: true }))
+    save(() => api.put('/admin/content/hero-banners', { slides: stripKeys(slides), sideBanners: stripKeys(sideBanners) }, { auth: true }))
   }
 
   if (loading) return <div className="p-8 text-[14px] text-[#4b4b4b]">Loading...</div>
@@ -153,7 +165,7 @@ export default function AdminBanners() {
 
         <div className="flex flex-col gap-2 mb-4">
           {slides.map((slide, i) => (
-            <div key={i} className="flex items-center gap-3 border border-[#e5e7eb] rounded-lg p-3 bg-[#fafafa]">
+            <div key={slide._key} className="flex items-center gap-3 border border-[#e5e7eb] rounded-lg p-3 bg-[#fafafa]">
               {slide.image ? (
                 <img
                   src={slide.image}
@@ -262,7 +274,7 @@ export default function AdminBanners() {
 
         <div className="flex flex-col gap-6">
           {sideBanners.map((banner, i) => (
-            <div key={i} className="border border-[#e5e7eb] rounded-lg p-4">
+            <div key={banner._key} className="border border-[#e5e7eb] rounded-lg p-4">
               <p className="text-[13px] font-semibold text-[#4b4b4b] mb-3">Banner {i + 1}</p>
               <div className="flex flex-col gap-3">
                 <Field label="Image URL" hint="Recommended size: 600×360 px.">

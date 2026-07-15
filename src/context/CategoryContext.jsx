@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { api } from '../api/client'
 
 const CategoryContext = createContext(null)
@@ -15,14 +15,17 @@ export function CategoryProvider({ children }) {
       .finally(() => setLoading(false))
   }, [])
 
-  const navCategories = tree.filter((c) => c.show_in_nav)
-  const iconCategories = tree.filter((c) => c.show_in_icons)
+  const navCategories = useMemo(() => tree.filter((c) => c.show_in_nav), [tree])
+  const iconCategories = useMemo(() => tree.filter((c) => c.show_in_icons), [tree])
 
-  return (
-    <CategoryContext.Provider value={{ tree, navCategories, iconCategories, loading }}>
-      {children}
-    </CategoryContext.Provider>
+  // Memoized so consumers relying on reference equality don't re-render on every unrelated
+  // change elsewhere in the app — this provider wraps the whole tree.
+  const value = useMemo(
+    () => ({ tree, navCategories, iconCategories, loading }),
+    [tree, navCategories, iconCategories, loading]
   )
+
+  return <CategoryContext.Provider value={value}>{children}</CategoryContext.Provider>
 }
 
 export function useCategories() {

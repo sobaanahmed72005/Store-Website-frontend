@@ -2,17 +2,28 @@ import { useCallback, useState } from 'react'
 import { api } from '../../api/client'
 import { useCurrency } from '../../context/CurrencyContext'
 import { useAdminForm } from '../../hooks/useAdminForm'
+import Pagination from '../../components/Pagination'
 
 const emptyForm = { code: '', discount_type: 'percent', discount_value: '', expires_at: '', reusable: false }
 
 export default function AdminDiscountCodes() {
   const { format } = useCurrency()
   const [codes, setCodes] = useState([])
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
   const [form, setForm] = useState(emptyForm)
   const [creating, setCreating] = useState(false)
 
-  const fetchCodes = useCallback(() => api.get('/admin/discount-codes', { auth: true }).then(setCodes), [])
+  const applyCodesPage = (data) => {
+    setCodes(data.discountCodes)
+    setPage(data.page)
+    setTotalPages(data.totalPages)
+  }
+
+  const fetchCodes = useCallback(() => api.get('/admin/discount-codes', { auth: true }).then(applyCodesPage), [])
   const { loading, error, setError, reload: load } = useAdminForm(fetchCodes)
+
+  const goToPage = (nextPage) => api.get(`/admin/discount-codes?page=${nextPage}`, { auth: true }).then(applyCodesPage)
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -187,6 +198,7 @@ export default function AdminDiscountCodes() {
           </tbody>
         </table>
       </div>
+      <Pagination page={page} totalPages={totalPages} onChange={goToPage} />
     </div>
   )
 }

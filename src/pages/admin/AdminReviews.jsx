@@ -1,6 +1,7 @@
 import { Fragment, useCallback, useEffect, useState } from 'react'
 import { api } from '../../api/client'
 import { useAdminForm } from '../../hooks/useAdminForm'
+import Pagination from '../../components/Pagination'
 
 const emptyForm = { product_id: '', author_name: '', rating: '5', comment: '' }
 
@@ -18,6 +19,8 @@ const STATUS_LABEL = {
 
 export default function AdminReviews() {
   const [reviews, setReviews] = useState([])
+  const [reviewPage, setReviewPage] = useState(1)
+  const [reviewTotalPages, setReviewTotalPages] = useState(1)
   const [products, setProducts] = useState([])
   const [filter, setFilter] = useState('pending') // 'all' | 'pending' | 'approved' | 'rejected'
   const [form, setForm] = useState(emptyForm)
@@ -27,14 +30,31 @@ export default function AdminReviews() {
 
   // Re-fetches whenever `filter` changes — it's a dependency of `load`, so a filter change gives
   // `load` (and therefore the hook's reload effect) a new identity and it runs again on its own.
+  // `page` isn't a dependency here (unlike AdminAuditLog) since useAdminForm's reload always
+  // resets to page 1 — instead the Pagination control below fetches subsequent pages directly.
   const load = useCallback(() => {
     const qs = filter === 'all' ? '' : `?status=${filter}`
-    return api.get(`/admin/reviews${qs}`, { auth: true }).then(setReviews)
+    return api.get(`/admin/reviews${qs}`, { auth: true }).then((data) => {
+      setReviews(data.reviews)
+      setReviewPage(data.page)
+      setReviewTotalPages(data.totalPages)
+    })
   }, [filter])
   const { loading, error, setError, reload: loadReviews } = useAdminForm(load)
 
+  const goToReviewPage = async (nextPage) => {
+    const qs = filter === 'all' ? '' : `&status=${filter}`
+    const data = await api.get(`/admin/reviews?page=${nextPage}${qs}`, { auth: true })
+    setReviews(data.reviews)
+    setReviewPage(data.page)
+    setReviewTotalPages(data.totalPages)
+  }
+
   useEffect(() => {
-    api.get('/admin/products', { auth: true }).then(setProducts).catch((err) => setError(err.message))
+    // /admin/products is now paginated (24/page by default); this "attach a review to a product"
+    // picker needs a browsable list rather than a paged one, so request the max page size the
+    // backend allows (100) — a catalog beyond that would need a proper searchable picker here.
+    api.get('/admin/products?limit=100', { auth: true }).then((data) => setProducts(data.products)).catch((err) => setError(err.message))
   }, [setError])
 
   const handleFilterChange = (f) => setFilter(f)
@@ -286,6 +306,7 @@ export default function AdminReviews() {
           </tbody>
         </table>
       </div>
+      <Pagination page={reviewPage} totalPages={reviewTotalPages} onChange={goToReviewPage} />
     </div>
   )
 }

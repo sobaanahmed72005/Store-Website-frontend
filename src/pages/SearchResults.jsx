@@ -1,13 +1,12 @@
-import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
-import ProductCard from '../components/ProductCard'
-import { api, resolveImageUrl } from '../api/client'
-import { getEffectivePrice } from '../utils/pricing'
+import ProductGrid from '../components/ProductGrid'
+import Pagination from '../components/Pagination'
 import { useSeo } from '../hooks/useSeo'
+import { useProductList } from '../hooks/useProductList'
 
 export default function SearchResults() {
   const [searchParams] = useSearchParams()
@@ -15,28 +14,10 @@ export default function SearchResults() {
   // Search result pages are dynamic/user-driven and low-value for organic search —
   // noindex rather than robots.txt disallow, so the tag itself can still be crawled and honored.
   useSeo({ title: query ? `Search results for "${query}"` : 'Search', noindex: true })
-  const [results, setResults] = useState([])
-  const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    async function load() {
-      if (!query) {
-        setResults([])
-        setLoading(false)
-        return
-      }
-      setLoading(true)
-      try {
-        const data = await api.get(`/products?search=${encodeURIComponent(query)}`)
-        setResults(data)
-      } catch {
-        setResults([])
-      } finally {
-        setLoading(false)
-      }
-    }
-    load()
-  }, [query])
+  const { products: results, loading, page, setPage, totalPages, total } = useProductList(
+    query ? `/products?search=${encodeURIComponent(query)}` : null
+  )
 
   return (
     <div className="min-h-screen bg-cz-page flex flex-col">
@@ -56,8 +37,8 @@ export default function SearchResults() {
           </div>
           {!loading && (
             <p className="text-[14px] text-[#4b4b4b]">
-              {results.length > 0
-                ? `${results.length} result${results.length === 1 ? '' : 's'} for "${query}"`
+              {total > 0
+                ? `${total} result${total === 1 ? '' : 's'} for "${query}"`
                 : `No results for "${query}"`}
             </p>
           )}
@@ -79,22 +60,10 @@ export default function SearchResults() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 pb-10">
-            {results.map((p) => (
-              <ProductCard
-                key={p.id}
-                id={p.id}
-                slug={p.slug}
-                title={p.name}
-                image={resolveImageUrl(p.image)}
-                images={p.images?.map(resolveImageUrl)}
-                stock={p.stock}
-                hasVariants={p.has_variants}
-                rating={p.rating}
-                {...getEffectivePrice(p)}
-              />
-            ))}
-          </div>
+          <>
+            <ProductGrid products={results} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 pb-10" />
+            <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+          </>
         )}
       </div>
 

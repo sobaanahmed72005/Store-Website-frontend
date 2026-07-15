@@ -1,7 +1,9 @@
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useCallback, useState } from 'react'
 import { api, BASE_URL, resolveImageUrl } from '../../api/client'
 import { useCurrency } from '../../context/CurrencyContext'
 import { markOrdersSeen } from '../../utils/orderNotifications'
+import { useAdminForm } from '../../hooks/useAdminForm'
+import Pagination from '../../components/Pagination'
 
 // What statuses can be selected from each current status
 const STATUS_TRANSITIONS = {
@@ -50,8 +52,8 @@ const PAYMENT_METHOD_LABEL = {
 export default function AdminOrders() {
   const { format } = useCurrency()
   const [orders, setOrders] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
   const [expandedId, setExpandedId] = useState(null)
   const [updatingId, setUpdatingId] = useState(null)
   const [trackingDrafts, setTrackingDrafts] = useState({})
@@ -60,19 +62,17 @@ export default function AdminOrders() {
   const [bookingCourierId, setBookingCourierId] = useState(null)
   const [notice, setNotice] = useState('')
 
-  const fetchOrders = () =>
-    api
-      .get('/admin/orders', { auth: true })
-      .then((data) => {
-        setOrders(data)
-        if (data.length) markOrdersSeen(Math.max(...data.map((o) => o.id)))
-      })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false))
+  const applyOrdersPage = (data) => {
+    setOrders(data.orders)
+    setPage(data.page)
+    setTotalPages(data.totalPages)
+    if (data.orders.length) markOrdersSeen(Math.max(...data.orders.map((o) => o.id)))
+  }
 
-  useEffect(() => {
-    fetchOrders()
-  }, [])
+  const load = useCallback(() => api.get('/admin/orders', { auth: true }).then(applyOrdersPage), [])
+  const { loading, error, setError } = useAdminForm(load)
+
+  const goToPage = (nextPage) => api.get(`/admin/orders?page=${nextPage}`, { auth: true }).then(applyOrdersPage)
 
   const handleStatusChange = async (id, status) => {
     setUpdatingId(id)
@@ -384,6 +384,7 @@ export default function AdminOrders() {
           </tbody>
         </table>
       </div>
+      <Pagination page={page} totalPages={totalPages} onChange={goToPage} />
     </div>
   )
 }

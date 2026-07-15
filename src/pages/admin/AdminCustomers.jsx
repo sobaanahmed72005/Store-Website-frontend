@@ -2,16 +2,30 @@ import { Fragment, useCallback, useState } from 'react'
 import { api } from '../../api/client'
 import { useCurrency } from '../../context/CurrencyContext'
 import { useAdminForm } from '../../hooks/useAdminForm'
+import Pagination from '../../components/Pagination'
 
 export default function AdminCustomers() {
   const { format } = useCurrency()
   const [customers, setCustomers] = useState([])
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
   const [expandedId, setExpandedId] = useState(null)
   const [details, setDetails] = useState({})
   const [search, setSearch] = useState('')
 
-  const load = useCallback(() => api.get('/admin/customers', { auth: true }).then(setCustomers), [])
+  const applyCustomersPage = (data) => {
+    setCustomers(data.customers)
+    setPage(data.page)
+    setTotalPages(data.totalPages)
+  }
+
+  // Server-paginated (50/page) so the customer table can't grow into an unbounded fetch. The
+  // search box below only filters within the current page — a search spanning the whole customer
+  // base would need server-side search support this endpoint doesn't have yet.
+  const load = useCallback(() => api.get('/admin/customers', { auth: true }).then(applyCustomersPage), [])
   const { loading, error, setError } = useAdminForm(load)
+
+  const goToPage = (nextPage) => api.get(`/admin/customers?page=${nextPage}`, { auth: true }).then(applyCustomersPage)
 
   const toggleExpand = async (customer) => {
     if (expandedId === customer.id) {
@@ -128,6 +142,7 @@ export default function AdminCustomers() {
           </tbody>
         </table>
       </div>
+      <Pagination page={page} totalPages={totalPages} onChange={goToPage} />
     </div>
   )
 }

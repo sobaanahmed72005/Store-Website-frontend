@@ -4,13 +4,14 @@ import Navbar from '../components/Navbar'
 import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
-import ProductCard from '../components/ProductCard'
+import ProductGrid from '../components/ProductGrid'
+import Pagination from '../components/Pagination'
 import { GridIcon, ListIcon } from '../components/icons'
 import { FilterAccordion, CheckboxGroup, FilterCheckbox } from '../components/filters/FilterPrimitives'
-import { api, resolveImageUrl } from '../api/client'
-import { getEffectivePrice } from '../utils/pricing'
+import { api } from '../api/client'
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../context/SiteSettingsContext'
+import { useProductList } from '../hooks/useProductList'
 
 function CategoryNotFound({ slug }) {
   const label = slug
@@ -46,10 +47,12 @@ export default function CategoryListing() {
   const { siteName } = useSiteSettings()
   const [dbCategory, setDbCategory] = useState(null)
   const [dbChecked, setDbChecked] = useState(false)
-  const [products, setProducts] = useState([])
-  const [loadingProducts, setLoadingProducts] = useState(true)
   const [selectedBrands, setSelectedBrands] = useState(() => new Set())
   const [selectedOptionIds, setSelectedOptionIds] = useState(() => new Set())
+
+  // Server-paginated (24/page) so the catalog can't grow into an unbounded fetch. Brand/attribute
+  // filters below only apply within the current page — see Shop.jsx for the same tradeoff.
+  const { products, loading: loadingProducts, page, setPage, totalPages, total } = useProductList(`/products?category=${slug}`)
 
   useEffect(() => {
     setSelectedBrands(new Set())
@@ -66,21 +69,6 @@ export default function CategoryListing() {
         setDbCategory(null)
       } finally {
         setDbChecked(true)
-      }
-    }
-    load()
-  }, [slug])
-
-  useEffect(() => {
-    async function load() {
-      setLoadingProducts(true)
-      try {
-        const data = await api.get(`/products?category=${slug}`)
-        setProducts(data)
-      } catch {
-        setProducts([])
-      } finally {
-        setLoadingProducts(false)
       }
     }
     load()
@@ -215,7 +203,12 @@ export default function CategoryListing() {
             )}
 
             <div className="flex items-center justify-between bg-cz-gold-light rounded-[8px] px-4 py-3 mt-5 mb-4">
-              <span className="text-[14px] text-[#212121]">{filteredProducts.length} Products</span>
+              {/* total is the true server-side count for this category; falls back to the
+                  page-scoped filteredProducts count once a client-side brand/attribute filter
+                  narrows further, since that narrowing only applies within the current page. */}
+              <span className="text-[14px] text-[#212121]">
+                {selectedBrands.size > 0 || selectedOptionIds.size > 0 ? filteredProducts.length : total} Products
+              </span>
               <div className="flex items-center gap-3">
                 <button type="button" aria-label="Change View" className="text-[#212121]">
                   <GridIcon size={16} />
@@ -239,22 +232,10 @@ export default function CategoryListing() {
                 <span className="text-[14px] text-[#4b4b4b]">Try clearing some filters to see more results.</span>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-                {filteredProducts.map((p) => (
-                  <ProductCard
-                    key={p.id}
-                    id={p.id}
-                    slug={p.slug}
-                    title={p.name}
-                    image={resolveImageUrl(p.image)}
-                    images={p.images?.map(resolveImageUrl)}
-                    stock={p.stock}
-                    hasVariants={p.has_variants}
-                    rating={p.rating}
-                    {...getEffectivePrice(p)}
-                  />
-                ))}
-              </div>
+              <>
+                <ProductGrid products={filteredProducts} />
+                <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+              </>
             )}
           </div>
         </div>
