@@ -80,9 +80,7 @@ export default function CategoryListing() {
     return products.filter((p) => {
       if (selectedBrands.size > 0 && !selectedBrands.has(p.brand)) return false
       for (const attr of attributes) {
-        // A merged option can represent several underlying option rows (e.g. the same "16GB"
-        // value defined on two different subcategories) — match the product against any of them.
-        const selectedIds = attr.options.filter((o) => o.ids.some((id) => selectedOptionIds.has(id))).flatMap((o) => o.ids)
+        const selectedIds = attr.options.filter((o) => selectedOptionIds.has(o.id)).map((o) => o.id)
         if (selectedIds.length === 0) continue
         const productOptionIds = p.attribute_option_ids || []
         if (!selectedIds.some((id) => productOptionIds.includes(id))) return false
@@ -91,14 +89,11 @@ export default function CategoryListing() {
     })
   }, [products, selectedBrands, selectedOptionIds, attributes])
 
-  const toggleOption = (optionIds) => {
+  const toggleOption = (optionId) => {
     setSelectedOptionIds((prev) => {
       const next = new Set(prev)
-      const anySelected = optionIds.some((id) => next.has(id))
-      for (const id of optionIds) {
-        if (anySelected) next.delete(id)
-        else next.add(id)
-      }
+      if (next.has(optionId)) next.delete(optionId)
+      else next.add(optionId)
       return next
     })
   }
@@ -184,11 +179,11 @@ export default function CategoryListing() {
                 <FilterAccordion key={attr.id} title={attr.name}>
                   {attr.options.map((opt) => (
                     <FilterCheckbox
-                      key={opt.ids[0]}
-                      id={`attr-opt-${opt.ids[0]}`}
+                      key={opt.id}
+                      id={`attr-opt-${opt.id}`}
                       label={opt.value}
-                      checked={opt.ids.some((id) => selectedOptionIds.has(id))}
-                      onChange={() => toggleOption(opt.ids)}
+                      checked={selectedOptionIds.has(opt.id)}
+                      onChange={() => toggleOption(opt.id)}
                     />
                   ))}
                 </FilterAccordion>
