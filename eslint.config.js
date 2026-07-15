@@ -23,6 +23,11 @@ export default defineConfig([
       // concern doesn't apply to a one-shot mount fetch, so it's downgraded rather than rewriting
       // every data-fetching component to work around a lint preference.
       'react-hooks/set-state-in-effect': 'off',
+      // Several places destructure a field out of an object specifically to exclude it from a
+      // `...rest` spread (e.g. SiteLink.jsx pulling `onClick` out before spreading onto a plain
+      // `<span>`, or AdminBanners.jsx stripping a client-only `_key` before saving) — the
+      // destructured name is deliberately unused, that's the whole point, not a bug.
+      'no-unused-vars': ['error', { ignoreRestSiblings: true }],
     },
   },
   {

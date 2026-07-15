@@ -12,7 +12,7 @@ const DEFAULT_BRAND = {
   marqueeMessages: [],
 }
 
-export const useSiteSettingsStore = create((set, get) => ({
+export const useSiteSettingsStore = create((set) => ({
   siteName: '',
   logo: null,
   storeStatus: 'checking',

@@ -1,5 +1,12 @@
 # Full Codebase Audit — Store-Website (frontend + backend)
 
+> **Status: RESOLVED.** Every HIGH, MEDIUM, and LOW finding below was fixed and live-verified
+> (real HTTP requests, concurrency tests, browser automation) as of 2026-07-15. Frontend fixes
+> are on the `security-audit-fixes` branch, backend fixes are on the `security-fixes` branch.
+> This document is kept as a historical record — what was checked, what was found, and why the
+> resulting fixes exist — not as a list of open work. The "what's already solid" sections below
+> are still worth keeping in mind for future audits (no need to re-check those).
+
 Date: 2026-07-14
 Scope: entire repo state (not a diff), both `Store-Website-frontend` and `Store-Website-backend`, covering scalability/growth risk, general code quality, and a full security pass (auth, injection, secrets/infra, business-logic/financial integrity).
 

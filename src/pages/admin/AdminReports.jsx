@@ -11,7 +11,6 @@ import { ADMIN_PATH } from '../../config/adminPath'
 // Dataviz skill's validated default palette, used as-is.
 const SEQ_LIGHT = '#9ec5f4'
 const SEQ_MAIN = '#3987e5'
-const SEQ_DARK = '#0d366b'
 const CATEGORICAL = ['#2a78d6', '#1baf7a', '#eda100', '#008300', '#4a3aa7', '#e34948', '#e87ba4', '#eb6834']
 const STATUS_COLOR = { good: '#0ca30c', warning: '#fab219', critical: '#d03b3b' }
 const STATUS_BUCKET = {

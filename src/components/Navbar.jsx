@@ -16,7 +16,7 @@ const DEFAULT_MESSAGES = [
 ]
 
 export default function Navbar() {
-  const { siteName, brand } = useSiteSettings()
+  const { brand } = useSiteSettings()
   const messages = brand.marqueeMessages?.length > 0 ? brand.marqueeMessages : DEFAULT_MESSAGES
   const [active, setActive] = useState(0)
 
