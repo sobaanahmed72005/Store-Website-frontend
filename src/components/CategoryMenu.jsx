@@ -1,31 +1,8 @@
 import { Link } from 'react-router-dom'
 import { ChevronDownIcon } from './icons'
 import { useCategories } from '../store/categoryStore'
-
-function categorySlugToPath(slug) {
-  return slug === 'laptops' ? '/laptops' : `/category/${slug}`
-}
-
-export function useNavItems() {
-  const { navCategories } = useCategories()
-
-  const fixedItems = [
-    { label: 'Home', to: '/' },
-    { label: 'Products', to: '/products', hasDropdown: true },
-  ]
-
-  const dynamicItems = navCategories
-    .slice()
-    .sort((a, b) => a.sort_order - b.sort_order || a.name.localeCompare(b.name))
-    .map((cat) => ({
-      label: cat.name,
-      to: categorySlugToPath(cat.slug),
-      hasDropdown: cat.subcategories && cat.subcategories.length > 0,
-      subcategories: cat.subcategories,
-    }))
-
-  return [...fixedItems, ...dynamicItems]
-}
+import { useNavItems } from '../hooks/useNavItems'
+import { categorySlugToPath } from '../utils/categoryPath'
 
 function MegaMenuPanel({ item }) {
   const { navCategories } = useCategories()

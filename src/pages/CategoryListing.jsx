@@ -6,13 +6,12 @@ import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
 import ProductGrid from '../components/ProductGrid'
 import Pagination from '../components/Pagination'
-import { GridIcon, ListIcon } from '../components/icons'
+import ViewToggle from '../components/ViewToggle'
 import { FilterAccordion, CheckboxGroup, FilterCheckbox } from '../components/filters/FilterPrimitives'
 import { api } from '../api/client'
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../store/siteSettingsStore'
 import { useProductList } from '../hooks/useProductList'
-import { buildBrandOptions, matchesSelectedBrands } from '../utils/brands'
 
 function CategoryNotFound({ slug }) {
   const label = slug
@@ -50,10 +49,7 @@ export default function CategoryListing() {
   const [dbChecked, setDbChecked] = useState(false)
   const [selectedBrands, setSelectedBrands] = useState(() => new Set())
   const [selectedOptionIds, setSelectedOptionIds] = useState(() => new Set())
-
-  // Server-paginated (24/page) so the catalog can't grow into an unbounded fetch. Brand/attribute
-  // filters below only apply within the current page — see Shop.jsx for the same tradeoff.
-  const { products, loading: loadingProducts, page, setPage, totalPages, total } = useProductList(`/products?category=${slug}`)
+  const [view, setView] = useState('grid')
 
   useEffect(() => {
     setSelectedBrands(new Set())
@@ -75,20 +71,24 @@ export default function CategoryListing() {
     load()
   }, [slug])
 
-  const attributes = dbCategory?.attributes || []
+  // Brand/attribute filters are applied server-side (both here and in the count/pagination
+  // below) rather than client-side against whatever's already on the current page — a
+  // client-side-only filter would silently only ever consider the 24 products on the current
+  // page, showing a wrong count and, worse, leaving no way to reach a match that exists on a
+  // different page once the current page's filtered results hit zero.
+  const filterQuery = useMemo(() => {
+    const params = new URLSearchParams()
+    if (selectedBrands.size > 0) params.set('brand', [...selectedBrands].join(','))
+    if (selectedOptionIds.size > 0) params.set('options', [...selectedOptionIds].join(','))
+    const qs = params.toString()
+    return qs ? `&${qs}` : ''
+  }, [selectedBrands, selectedOptionIds])
 
-  const filteredProducts = useMemo(() => {
-    return products.filter((p) => {
-      if (!matchesSelectedBrands(p, selectedBrands)) return false
-      for (const attr of attributes) {
-        const selectedIds = attr.options.filter((o) => selectedOptionIds.has(o.id)).map((o) => o.id)
-        if (selectedIds.length === 0) continue
-        const productOptionIds = p.attribute_option_ids || []
-        if (!selectedIds.some((id) => productOptionIds.includes(id))) return false
-      }
-      return true
-    })
-  }, [products, selectedBrands, selectedOptionIds, attributes])
+  const { products, loading: loadingProducts, page, setPage, totalPages, total } = useProductList(
+    `/products?category=${slug}${filterQuery}`
+  )
+
+  const attributes = dbCategory?.attributes || []
 
   const toggleOption = (optionId) => {
     setSelectedOptionIds((prev) => {
@@ -135,7 +135,8 @@ export default function CategoryListing() {
   if (!dbCategory) return <CategoryNotFound slug={slug} />
 
   const subcategories = dbCategory.subcategories || []
-  const brands = buildBrandOptions(products)
+  const brands = (dbCategory.availableBrands || []).map((b) => ({ id: b, label: b }))
+  const hasActiveFilters = selectedBrands.size > 0 || selectedOptionIds.size > 0
 
   return (
     <div className="min-h-screen bg-cz-page flex flex-col">
@@ -199,37 +200,32 @@ export default function CategoryListing() {
             )}
 
             <div className="flex items-center justify-between bg-cz-gold-light rounded-[8px] px-4 py-3 mt-5 mb-4">
-              {/* total is the true server-side count for this category; falls back to the
-                  page-scoped filteredProducts count once a client-side brand/attribute filter
-                  narrows further, since that narrowing only applies within the current page. */}
-              <span className="text-[14px] text-[#212121]">
-                {selectedBrands.size > 0 || selectedOptionIds.size > 0 ? filteredProducts.length : total} Products
-              </span>
-              <div className="flex items-center gap-3">
-                <button type="button" aria-label="Change View" className="text-[#212121]">
-                  <GridIcon size={16} />
-                </button>
-                <button type="button" aria-label="Change View" className="text-[#212121] opacity-70">
-                  <ListIcon size={16} />
-                </button>
-              </div>
+              <span className="text-[14px] text-[#212121]">{total} Products</span>
+              <ViewToggle view={view} onChange={setView} />
             </div>
 
             {loadingProducts ? (
               <div className="text-[14px] text-[#4b4b4b] py-20 text-center">Loading products...</div>
             ) : products.length === 0 ? (
               <div className="flex flex-col items-center justify-center text-center py-20 border border-[#dedede] rounded-[10px]">
-                <span className="text-[16px] text-[#212121] mb-2">No products here yet.</span>
-                <span className="text-[14px] text-[#4b4b4b]">Check back soon — new arrivals are added regularly.</span>
-              </div>
-            ) : filteredProducts.length === 0 ? (
-              <div className="flex flex-col items-center justify-center text-center py-20 border border-[#dedede] rounded-[10px]">
-                <span className="text-[16px] text-[#212121] mb-2">No products match these filters.</span>
-                <span className="text-[14px] text-[#4b4b4b]">Try clearing some filters to see more results.</span>
+                {hasActiveFilters ? (
+                  <>
+                    <span className="text-[16px] text-[#212121] mb-2">No products match these filters.</span>
+                    <span className="text-[14px] text-[#4b4b4b]">Try clearing some filters to see more results.</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-[16px] text-[#212121] mb-2">No products here yet.</span>
+                    <span className="text-[14px] text-[#4b4b4b]">Check back soon — new arrivals are added regularly.</span>
+                  </>
+                )}
               </div>
             ) : (
               <>
-                <ProductGrid products={filteredProducts} />
+                <ProductGrid
+                  products={products}
+                  className={view === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2' : 'grid grid-cols-1 gap-3'}
+                />
                 <Pagination page={page} totalPages={totalPages} onChange={setPage} />
               </>
             )}

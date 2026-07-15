@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Header from '../components/Header'
@@ -6,18 +6,14 @@ import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
 import ProductGrid from '../components/ProductGrid'
 import Pagination from '../components/Pagination'
-import { GridIcon, ListIcon } from '../components/icons'
+import ViewToggle from '../components/ViewToggle'
 import { FilterAccordion, CheckboxGroup } from '../components/filters/FilterPrimitives'
 import { useCategories } from '../store/categoryStore'
-import { getEffectivePrice } from '../utils/pricing'
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../store/siteSettingsStore'
 import { useProductList } from '../hooks/useProductList'
-import { buildBrandOptions, matchesSelectedBrands } from '../utils/brands'
-
-function categoryPath(slug) {
-  return slug === 'laptops' ? '/laptops' : `/category/${slug}`
-}
+import { api } from '../api/client'
+import { categorySlugToPath } from '../utils/categoryPath'
 
 function ShopSidebar({ brands, selectedBrands, onToggleBrand }) {
   const { navCategories } = useCategories()
@@ -30,7 +26,7 @@ function ShopSidebar({ brands, selectedBrands, onToggleBrand }) {
             .map((cat) => (
               <Link
                 key={cat.slug}
-                to={categoryPath(cat.slug)}
+                to={categorySlugToPath(cat.slug)}
                 className="text-[14px] font-normal text-[#212121] cursor-pointer hover:underline"
               >
                 {cat.name}
@@ -49,18 +45,23 @@ function ShopSidebar({ brands, selectedBrands, onToggleBrand }) {
 }
 
 const SORT_OPTIONS = {
-  newest:     { label: 'Recently Added', compare: (a, b) => new Date(b.created_at) - new Date(a.created_at) },
-  price_asc:  { label: 'Price Low - High', compare: (a, b) => getEffectivePrice(a).price - getEffectivePrice(b).price },
-  price_desc: { label: 'Price High - Low', compare: (a, b) => getEffectivePrice(b).price - getEffectivePrice(a).price },
-  rating:     { label: 'Highest Rated', compare: (a, b) => (b.rating || 0) - (a.rating || 0) },
-  name_asc:   { label: 'A - Z', compare: (a, b) => a.name.localeCompare(b.name) },
-  name_desc:  { label: 'Z - A', compare: (a, b) => b.name.localeCompare(a.name) },
+  newest:     { label: 'Recently Added' },
+  price_asc:  { label: 'Price Low - High' },
+  price_desc: { label: 'Price High - Low' },
+  rating:     { label: 'Highest Rated' },
+  name_asc:   { label: 'A - Z' },
+  name_desc:  { label: 'Z - A' },
 }
+
+const LIST_VIEW_CLASS = 'grid grid-cols-1 gap-3 pb-10'
+const GRID_VIEW_CLASS = 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 pb-10'
 
 export default function Shop() {
   const { siteName } = useSiteSettings()
   const [selectedBrands, setSelectedBrands] = useState(() => new Set())
   const [sortBy, setSortBy] = useState('newest')
+  const [availableBrands, setAvailableBrands] = useState([])
+  const [view, setView] = useState('grid')
 
   useSeo({
     title: `Shop All Products | ${siteName || 'IT Network'}`,
@@ -68,10 +69,20 @@ export default function Shop() {
     canonical: `${window.location.origin}/shop`,
   })
 
-  // Server-paginated (24/page) so the catalog can't grow into an unbounded fetch. Brand
-  // filter/sort below only apply within the current page — moving them server-side too would be
-  // a larger, separate change (needs backend query-param support this endpoint doesn't have yet).
-  const { products, loading, error, page, setPage, totalPages, total } = useProductList('/products')
+  // Independent of whatever brand filter/page is currently active, so the sidebar's checkbox
+  // list stays stable instead of shrinking to just whatever's on the current filtered page.
+  useEffect(() => {
+    api.get('/products/brands').then(setAvailableBrands).catch(() => setAvailableBrands([]))
+  }, [])
+
+  // Server-paginated (24/page), server-filtered by brand, and now server-sorted too — sorting
+  // client-side used to only reorder the current page's 24 products instead of the whole
+  // catalog, so "Price Low - High" could easily miss the true cheapest product sitting on a
+  // different page.
+  const params = new URLSearchParams()
+  if (selectedBrands.size > 0) params.set('brand', [...selectedBrands].join(','))
+  params.set('sort', sortBy)
+  const { products, loading, error, page, setPage, totalPages, total } = useProductList(`/products?${params.toString()}`)
 
   const toggleBrand = (brand) => {
     setSelectedBrands((prev) => {
@@ -82,12 +93,7 @@ export default function Shop() {
     })
   }
 
-  const brands = buildBrandOptions(products)
-
-  const filteredProducts = useMemo(() => {
-    const filtered = products.filter((p) => matchesSelectedBrands(p, selectedBrands))
-    return [...filtered].sort(SORT_OPTIONS[sortBy].compare)
-  }, [products, selectedBrands, sortBy])
+  const brands = availableBrands.map((b) => ({ id: b, label: b }))
 
   return (
     <div className="min-h-screen bg-cz-page flex flex-col">
@@ -119,21 +125,9 @@ export default function Shop() {
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between bg-cz-gold-light rounded-[8px] px-4 py-3 mb-4">
-              {/* total is the true server-side count; falls back to the page-scoped
-                  filteredProducts count once a client-side brand filter narrows further, since
-                  that narrowing only applies within the current page. */}
-              <span className="text-[14px] text-[#212121]">
-                {selectedBrands.size > 0 ? filteredProducts.length : total} Products
-              </span>
+              <span className="text-[14px] text-[#212121]">{total} Products</span>
               <div className="flex items-center gap-4">
-                <div className="flex items-center gap-3">
-                  <button type="button" aria-label="Change View" className="text-[#212121]">
-                    <GridIcon size={16} />
-                  </button>
-                  <button type="button" aria-label="Change View" className="text-[#212121] opacity-70">
-                    <ListIcon size={16} />
-                  </button>
-                </div>
+                <ViewToggle view={view} onChange={setView} />
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
@@ -151,17 +145,21 @@ export default function Shop() {
               <div className="text-[14px] text-[#4b4b4b] py-20 text-center">Loading products...</div>
             ) : products.length === 0 ? (
               <div className="flex flex-col items-center justify-center text-center py-20 border border-[#dedede] rounded-[10px] mb-10">
-                <span className="text-[16px] text-[#212121] mb-2">No products here yet.</span>
-                <span className="text-[14px] text-[#4b4b4b]">Check back soon — new arrivals are added regularly.</span>
-              </div>
-            ) : filteredProducts.length === 0 ? (
-              <div className="flex flex-col items-center justify-center text-center py-20 border border-[#dedede] rounded-[10px] mb-10">
-                <span className="text-[16px] text-[#212121] mb-2">No products match these filters.</span>
-                <span className="text-[14px] text-[#4b4b4b]">Try clearing some filters to see more results.</span>
+                {selectedBrands.size > 0 ? (
+                  <>
+                    <span className="text-[16px] text-[#212121] mb-2">No products match these filters.</span>
+                    <span className="text-[14px] text-[#4b4b4b]">Try clearing some filters to see more results.</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-[16px] text-[#212121] mb-2">No products here yet.</span>
+                    <span className="text-[14px] text-[#4b4b4b]">Check back soon — new arrivals are added regularly.</span>
+                  </>
+                )}
               </div>
             ) : (
               <>
-                <ProductGrid products={filteredProducts} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 pb-10" />
+                <ProductGrid products={products} className={view === 'grid' ? GRID_VIEW_CLASS : LIST_VIEW_CLASS} />
                 <Pagination page={page} totalPages={totalPages} onChange={setPage} />
               </>
             )}
