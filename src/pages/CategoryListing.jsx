@@ -73,6 +73,24 @@ export default function CategoryListing() {
     load()
   }, [slug])
 
+  const attributes = useMemo(() => dbCategory?.attributes || [], [dbCategory])
+
+  // An option's displayed value can be backed by more than one underlying
+  // category_attribute_options row — the merged-attributes endpoint groups same-value options
+  // across this category and its descendants into one checkbox with all of their ids, so
+  // selecting it must filter on every id in that group, not just one. Keyed by attribute id +
+  // value (not a single id, which no longer exists on the option) so the same value under two
+  // different attributes doesn't collide.
+  const optionIdsByKey = useMemo(() => {
+    const map = new Map()
+    for (const attr of attributes) {
+      for (const opt of attr.options) {
+        map.set(`${attr.id}:${opt.value}`, opt.ids)
+      }
+    }
+    return map
+  }, [attributes])
+
   // Brand/attribute filters are applied server-side (both here and in the count/pagination
   // below) rather than client-side against whatever's already on the current page — a
   // client-side-only filter would silently only ever consider the 24 products on the current
@@ -81,22 +99,23 @@ export default function CategoryListing() {
   const filterQuery = useMemo(() => {
     const params = new URLSearchParams()
     if (selectedBrands.size > 0) params.set('brand', [...selectedBrands].join(','))
-    if (selectedOptionIds.size > 0) params.set('options', [...selectedOptionIds].join(','))
+    if (selectedOptionIds.size > 0) {
+      const ids = [...selectedOptionIds].flatMap((key) => optionIdsByKey.get(key) || [])
+      if (ids.length > 0) params.set('options', ids.join(','))
+    }
     const qs = params.toString()
     return qs ? `&${qs}` : ''
-  }, [selectedBrands, selectedOptionIds])
+  }, [selectedBrands, selectedOptionIds, optionIdsByKey])
 
   const { products, loading: loadingProducts, page, setPage, totalPages, total } = useProductList(
     ENDPOINTS.PRODUCTS.LIST(`?category=${slug}${filterQuery}`)
   )
 
-  const attributes = dbCategory?.attributes || []
-
-  const toggleOption = (optionId) => {
+  const toggleOption = (key) => {
     setSelectedOptionIds((prev) => {
       const next = new Set(prev)
-      if (next.has(optionId)) next.delete(optionId)
-      else next.add(optionId)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
       return next
     })
   }
@@ -225,15 +244,18 @@ export default function CategoryListing() {
               )}
               {attributes.map((attr) => (
                 <FilterAccordion key={attr.id} title={attr.name}>
-                  {attr.options.map((opt) => (
-                    <FilterCheckbox
-                      key={opt.id}
-                      id={`attr-opt-${opt.id}`}
-                      label={opt.value}
-                      checked={selectedOptionIds.has(opt.id)}
-                      onChange={() => toggleOption(opt.id)}
-                    />
-                  ))}
+                  {attr.options.map((opt) => {
+                    const key = `${attr.id}:${opt.value}`
+                    return (
+                      <FilterCheckbox
+                        key={key}
+                        id={`attr-opt-${key}`}
+                        label={opt.value}
+                        checked={selectedOptionIds.has(key)}
+                        onChange={() => toggleOption(key)}
+                      />
+                    )
+                  })}
                 </FilterAccordion>
               ))}
             </div>
