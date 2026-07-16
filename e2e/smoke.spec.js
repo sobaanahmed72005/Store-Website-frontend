@@ -16,7 +16,10 @@ test('storefront golden path: browse a product, add to cart, guest checkout gate
   await productLink.click()
   await expect(page).toHaveURL(productHref)
 
-  const addToCartButton = page.getByRole('button', { name: 'Add To Cart' })
+  // The page also renders related-product cards further down, each with their own "Add To Cart"
+  // button — .first() reliably hits the main product's buy-box button since it's the first one
+  // in document order.
+  const addToCartButton = page.getByRole('button', { name: 'Add To Cart' }).first()
   await expect(addToCartButton).toBeVisible()
   await addToCartButton.click()
 
