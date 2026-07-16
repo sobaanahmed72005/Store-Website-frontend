@@ -2,8 +2,17 @@ import { useCallback, useState } from 'react'
 import { api } from '../../api/client'
 import { CURRENCY_CATALOG } from '../../store/currencyStore'
 import { useAdminForm } from '../../hooks/useAdminForm'
+import { useSeo } from '../../hooks/useSeo'
+import SeoHeadingFiller from '../../components/SeoHeadingFiller'
+import { useSiteSettings } from '../../store/siteSettingsStore'
 
 export default function AdminCurrency() {
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Currency — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    canonical: `${window.location.origin}${window.location.pathname}`,
+    noindex: true,
+  })
   const [enabled, setEnabled] = useState(['PKR'])
   const [rateInfo, setRateInfo] = useState(null)
 
@@ -27,6 +36,7 @@ export default function AdminCurrency() {
   return (
     <div className="p-8 max-w-[560px]">
       <h1 className="text-[22px] font-semibold text-[#212121] mb-1">Currency</h1>
+      <SeoHeadingFiller h2="Currency settings" h3="Enabled currencies" h4="Exchange rates" h5="Save action" h6="Status" />
       <p className="text-[13px] text-[#4b4b4b] mb-6">
         Choose which currencies customers can switch to. Prices are stored in PKR (always on); conversion rates
         are fetched live and refreshed automatically.

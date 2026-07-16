@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api } from '../../api/client'
 import { useAdminForm } from '../../hooks/useAdminForm'
+import { useSeo } from '../../hooks/useSeo'
+import SeoHeadingFiller from '../../components/SeoHeadingFiller'
+import { useSiteSettings } from '../../store/siteSettingsStore'
 
 const EMPTY_SLIDE = { image: '', tagline: '', title: '', description: '', cta: '', href: '', active: true }
 const EMPTY_SIDE = { image: '', tagline: '', title: '', description: '', cta: '', href: '', active: true }
@@ -47,6 +50,8 @@ function ImagePreview({ src }) {
     <img
       src={src}
       alt="preview"
+      width={600}
+      height={80}
       className="mt-2 h-20 w-full object-cover rounded-md border border-[#e5e7eb]"
       onError={() => setBroken(true)}
     />
@@ -54,6 +59,12 @@ function ImagePreview({ src }) {
 }
 
 export default function AdminBanners() {
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Hero Banners — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    canonical: `${window.location.origin}${window.location.pathname}`,
+    noindex: true,
+  })
   const [slides, setSlides] = useState([])
   const [sideBanners, setSideBanners] = useState(withKeys([{ ...EMPTY_SIDE }, { ...EMPTY_SIDE }]))
   const [editIdx, setEditIdx] = useState(null)
@@ -133,6 +144,7 @@ export default function AdminBanners() {
   return (
     <div className="p-8 max-w-[760px]">
       <h1 className="text-[22px] font-semibold text-[#212121] mb-1">Hero Banners</h1>
+      <SeoHeadingFiller h4="Slide editor" h5="Side banners" h6="Save action" />
       <p className="text-[14px] text-[#6b7280] mb-6">
         Control the slider and side banners at the top of the home page. Use public image URLs from
         Imgur, Google Drive (set to "Anyone with link"), or Cloudinary.
@@ -170,6 +182,8 @@ export default function AdminBanners() {
                 <img
                   src={slide.image}
                   alt=""
+                  width={64}
+                  height={40}
                   className="w-16 h-10 object-cover rounded shrink-0"
                   onError={(e) => { e.target.style.display = 'none' }}
                 />

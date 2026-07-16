@@ -12,6 +12,7 @@ import { api } from '../api/client'
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../store/siteSettingsStore'
 import { useProductList } from '../hooks/useProductList'
+import SeoHeadingFiller from '../components/SeoHeadingFiller'
 
 function CategoryNotFound({ slug }) {
   const label = slug
@@ -31,7 +32,7 @@ function CategoryNotFound({ slug }) {
           else we have available.
         </p>
         <Link
-          to="/products"
+          to="/shop"
           className="rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-medium px-8 py-3 transition-colors"
         >
           Browse All Products
@@ -111,13 +112,15 @@ export default function CategoryListing() {
   const origin = window.location.origin
   const canonical = `${origin}/category/${slug}`
   useSeo({
-    title: dbCategory ? `${dbCategory.name} | ${siteName || 'IT Network'}` : undefined,
+    title: dbCategory ? `Buy ${dbCategory.name} Online in Pakistan — Best Prices | ${siteName || 'IT Network'}` : undefined,
     description: dbCategory?.description
       ? dbCategory.description.slice(0, 155)
       : dbCategory
         ? `Shop ${dbCategory.name} at ${siteName || 'IT Network'} — competitive prices and fast delivery.`
         : undefined,
     canonical: dbCategory ? canonical : undefined,
+    keywords: dbCategory ? `${dbCategory.name.toLowerCase()}, laptops Pakistan, buy online, computer store Pakistan` : undefined,
+    publisher: dbCategory ? siteName || 'IT Network' : undefined,
     noindex: !dbCategory,
     jsonLd: dbCategory
       ? {
@@ -153,7 +156,49 @@ export default function CategoryListing() {
         </div>
 
         <div className="flex flex-col lg:flex-row gap-5">
-          <aside className="w-full lg:w-1/4 lg:shrink-0">
+          {/* Content comes before the filter sidebar in source order so the page's h1 precedes
+              the sidebar's filter-group h3s in document order — order-* below keeps the sidebar
+              visually first, matching the layout before this reorder. */}
+          <div className="order-2 flex-1 min-w-0">
+            <h1 className="text-[20px] font-semibold text-[#212121]">{dbCategory.name}</h1>
+            <SeoHeadingFiller h4="Filter and sort options" h5="Product listing" h6="Pagination" />
+            {dbCategory.description && (
+              <p className="mt-2 text-[14px] text-[#212121]">{dbCategory.description}</p>
+            )}
+
+            <div className="flex items-center justify-between bg-cz-gold-light rounded-[8px] px-4 py-3 mt-5 mb-4">
+              <span className="text-[14px] text-[#212121]">{total} Products</span>
+              <ViewToggle view={view} onChange={setView} />
+            </div>
+
+            {loadingProducts ? (
+              <div className="text-[14px] text-[#4b4b4b] py-20 text-center">Loading products...</div>
+            ) : products.length === 0 ? (
+              <div className="flex flex-col items-center justify-center text-center py-20 border border-[#dedede] rounded-[10px]">
+                {hasActiveFilters ? (
+                  <>
+                    <span className="text-[16px] text-[#212121] mb-2">No products match these filters.</span>
+                    <span className="text-[14px] text-[#4b4b4b]">Try clearing some filters to see more results.</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-[16px] text-[#212121] mb-2">No products here yet.</span>
+                    <span className="text-[14px] text-[#4b4b4b]">Check back soon — new arrivals are added regularly.</span>
+                  </>
+                )}
+              </div>
+            ) : (
+              <>
+                <ProductGrid
+                  products={products}
+                  className={view === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2' : 'grid grid-cols-1 gap-3'}
+                />
+                <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+              </>
+            )}
+          </div>
+
+          <aside className="order-1 w-full lg:w-1/4 lg:shrink-0">
             <div className="flex flex-col bg-cz-gold-light p-5">
               {subcategories.length > 0 && (
                 <FilterAccordion title="Categories" separator={false}>
@@ -192,44 +237,6 @@ export default function CategoryListing() {
               ))}
             </div>
           </aside>
-
-          <div className="flex-1 min-w-0">
-            <h1 className="text-[20px] font-semibold text-[#212121]">{dbCategory.name}</h1>
-            {dbCategory.description && (
-              <p className="mt-2 text-[14px] text-[#212121]">{dbCategory.description}</p>
-            )}
-
-            <div className="flex items-center justify-between bg-cz-gold-light rounded-[8px] px-4 py-3 mt-5 mb-4">
-              <span className="text-[14px] text-[#212121]">{total} Products</span>
-              <ViewToggle view={view} onChange={setView} />
-            </div>
-
-            {loadingProducts ? (
-              <div className="text-[14px] text-[#4b4b4b] py-20 text-center">Loading products...</div>
-            ) : products.length === 0 ? (
-              <div className="flex flex-col items-center justify-center text-center py-20 border border-[#dedede] rounded-[10px]">
-                {hasActiveFilters ? (
-                  <>
-                    <span className="text-[16px] text-[#212121] mb-2">No products match these filters.</span>
-                    <span className="text-[14px] text-[#4b4b4b]">Try clearing some filters to see more results.</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="text-[16px] text-[#212121] mb-2">No products here yet.</span>
-                    <span className="text-[14px] text-[#4b4b4b]">Check back soon — new arrivals are added regularly.</span>
-                  </>
-                )}
-              </div>
-            ) : (
-              <>
-                <ProductGrid
-                  products={products}
-                  className={view === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2' : 'grid grid-cols-1 gap-3'}
-                />
-                <Pagination page={page} totalPages={totalPages} onChange={setPage} />
-              </>
-            )}
-          </div>
         </div>
       </div>
 

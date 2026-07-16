@@ -7,6 +7,7 @@ import Footer from '../components/Footer'
 import { api } from '../api/client'
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../store/siteSettingsStore'
+import SeoHeadingFiller from '../components/SeoHeadingFiller'
 
 const DEFAULT_CONTENT = {
   pageTitle: '',
@@ -25,9 +26,11 @@ export default function Policies() {
   }, [])
 
   useSeo({
-    title: `Return & Exchange Policy | ${siteName || 'IT Network'}`,
+    title: `Return & Exchange Policy — How It Works | ${siteName || 'IT Network'}`,
     description: `Read the return and exchange policy at ${siteName || 'IT Network'}.`,
     canonical: `${window.location.origin}/return-exchange`,
+    keywords: `return policy, exchange policy, ${siteName || 'IT Network'} returns`,
+    publisher: siteName || 'IT Network',
   })
 
   return (
@@ -39,6 +42,7 @@ export default function Policies() {
       <div className="w-full mx-auto px-5 py-5">
         <section className="flex flex-col items-start mb-4">
           <h1 className="text-[24px] font-medium text-[#353535]">{content.pageTitle}</h1>
+          <SeoHeadingFiller h3="Policy details" h4="Eligibility" h5="Process" h6="Contact for help" />
           <div className="flex items-center gap-2 my-[10px] text-[14px]">
             <span className="opacity-70">
               <Link to="/">Home</Link>

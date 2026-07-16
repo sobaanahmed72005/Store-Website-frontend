@@ -47,6 +47,8 @@ export default function Hero() {
                   <img
                     src={slide.image}
                     alt={slide.title || `Slide ${i + 1}`}
+                    width={938}
+                    height={516}
                     className="absolute inset-0 w-full h-full object-cover"
                   />
                   {(slide.tagline || slide.title || slide.description || slide.cta) && (
@@ -108,6 +110,8 @@ export default function Hero() {
                     <img
                       src={banner.image}
                       alt={banner.title || `Banner ${i + 1}`}
+                      width={400}
+                      height={300}
                       className="absolute inset-0 w-full h-full object-cover"
                     />
                   )}

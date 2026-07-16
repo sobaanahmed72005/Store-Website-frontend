@@ -3,6 +3,9 @@ import { useNavigate, useParams, Link } from 'react-router-dom'
 import { api, uploadImage, uploadVideo, resolveImageUrl } from '../../api/client'
 import { ADMIN_PATH } from '../../config/adminPath'
 import MultiSelectDropdown from '../../components/admin/MultiSelectDropdown'
+import { useSeo } from '../../hooks/useSeo'
+import SeoHeadingFiller from '../../components/SeoHeadingFiller'
+import { useSiteSettings } from '../../store/siteSettingsStore'
 
 const emptyForm = {
   name: '',
@@ -45,6 +48,12 @@ function cartesianProduct(arrays) {
 export default function AdminProductForm() {
   const { id } = useParams()
   const isEdit = Boolean(id)
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `${isEdit ? 'Edit Product' : 'Add Product'} — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    canonical: `${window.location.origin}${window.location.pathname}`,
+    noindex: true,
+  })
   const navigate = useNavigate()
   const [form, setForm] = useState(emptyForm)
   const [categories, setCategories] = useState([])
@@ -352,6 +361,7 @@ export default function AdminProductForm() {
         <span>{isEdit ? 'Edit' : 'New'}</span>
       </div>
       <h1 className="text-[22px] font-semibold text-[#212121] mb-6">{isEdit ? 'Edit Product' : 'Add Product'}</h1>
+      <SeoHeadingFiller h2="Product form" h3="Attributes" h4="Image upload" h5="Gallery" h6="Save action" />
 
       {error && <div className="text-[14px] text-red-600 mb-4">{error}</div>}
 
@@ -597,7 +607,7 @@ export default function AdminProductForm() {
           <label className="block text-[13px] text-[#4b4b4b] mb-1">Cover Image</label>
           <div className="flex items-center gap-4">
             {form.image && (
-              <img src={resolveImageUrl(form.image)} alt="Preview" className="w-16 h-16 object-cover rounded-md border border-[#dedede]" />
+              <img src={resolveImageUrl(form.image)} alt="Preview" width={64} height={64} className="w-16 h-16 object-cover rounded-md border border-[#dedede]" />
             )}
             <input type="file" accept="image/*" onChange={handleFileChange} className="text-[13px]" />
           </div>
@@ -609,7 +619,7 @@ export default function AdminProductForm() {
           <div className="flex flex-wrap items-center gap-3 mb-2">
             {galleryImages.map((img) => (
               <div key={img} className="relative">
-                <img src={resolveImageUrl(img)} alt="Gallery" className="w-16 h-16 object-cover rounded-md border border-[#dedede]" />
+                <img src={resolveImageUrl(img)} alt="Gallery" width={64} height={64} className="w-16 h-16 object-cover rounded-md border border-[#dedede]" />
                 <button
                   type="button"
                   aria-label="Remove image"

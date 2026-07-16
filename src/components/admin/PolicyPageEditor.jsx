@@ -1,6 +1,9 @@
 import { useCallback, useState } from 'react'
 import { api } from '../../api/client'
 import { useAdminForm } from '../../hooks/useAdminForm'
+import { useSeo } from '../../hooks/useSeo'
+import SeoHeadingFiller from '../SeoHeadingFiller'
+import { useSiteSettings } from '../../store/siteSettingsStore'
 
 const emptyContent = {
   pageTitle: '',
@@ -11,6 +14,12 @@ const emptyContent = {
 // title/sections content form, differing only in which endpoints they read from and save to and
 // a couple of display strings.
 export default function PolicyPageEditor({ title, getEndpoint, saveEndpoint, savedMessage, addSectionLabel }) {
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `${title} — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    canonical: `${window.location.origin}${window.location.pathname}`,
+    noindex: true,
+  })
   const [content, setContent] = useState(emptyContent)
 
   const load = useCallback(
@@ -61,6 +70,7 @@ export default function PolicyPageEditor({ title, getEndpoint, saveEndpoint, sav
   return (
     <div className="p-8 max-w-[760px]">
       <h1 className="text-[22px] font-semibold text-[#212121] mb-6">{title}</h1>
+      <SeoHeadingFiller h3="Section editor" h4="Section fields" h5="Section actions" h6="Save action" />
 
       {error && <div className="text-[14px] text-red-600 mb-4">{error}</div>}
       {saved && <div className="text-[14px] text-green-700 mb-4">{savedMessage}</div>}

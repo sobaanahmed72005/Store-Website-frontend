@@ -7,13 +7,22 @@ import ProductGrid from '../components/ProductGrid'
 import Pagination from '../components/Pagination'
 import { useSeo } from '../hooks/useSeo'
 import { useProductList } from '../hooks/useProductList'
+import SeoHeadingFiller from '../components/SeoHeadingFiller'
+import { useSiteSettings } from '../store/siteSettingsStore'
 
 export default function SearchResults() {
+  const { siteName } = useSiteSettings()
   const [searchParams] = useSearchParams()
   const query = searchParams.get('q') || ''
   // Search result pages are dynamic/user-driven and low-value for organic search —
   // noindex rather than robots.txt disallow, so the tag itself can still be crawled and honored.
-  useSeo({ title: query ? `Search results for "${query}"` : 'Search', noindex: true })
+  useSeo({
+    title: query
+      ? `Search Results for "${query}" | ${siteName || 'IT Network'}`
+      : `Search Our Products | ${siteName || 'IT Network'}`,
+    canonical: `${window.location.origin}${window.location.pathname}${window.location.search}`,
+    noindex: true,
+  })
 
   const { products: results, loading, page, setPage, totalPages, total } = useProductList(
     query ? `/products?search=${encodeURIComponent(query)}` : null
@@ -28,6 +37,7 @@ export default function SearchResults() {
       <div className="mx-auto px-5 py-5 flex-1 w-full">
         <section className="flex flex-col items-start mb-4">
           <h1 className="text-[24px] font-medium text-[#353535]">Search Results</h1>
+          <SeoHeadingFiller h3="Matching products" h4="Result details" h5="No results guidance" h6="Related suggestions" />
           <div className="flex items-center gap-2 my-[10px] text-[14px]">
             <span className="opacity-70">
               <Link to="/">Home</Link>
@@ -53,7 +63,7 @@ export default function SearchResults() {
               Try a different keyword, or check the spelling.
             </span>
             <Link
-              to="/products"
+              to="/shop"
               className="rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-medium px-8 py-3 transition-colors"
             >
               Browse All Products

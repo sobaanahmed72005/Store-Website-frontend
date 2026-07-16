@@ -228,6 +228,7 @@ export default function Footer() {
                     className="text-black hover:text-cz-primary"
                   >
                     <Icon size={24} />
+                    <span className="sr-only">{label}</span>
                   </a>
                 ) : (
                   <span key={key} aria-label={label} className="text-black cursor-default">

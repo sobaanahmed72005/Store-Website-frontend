@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, Navigate, useSearchParams } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
@@ -14,11 +14,12 @@ import { useSiteSettings } from '../store/siteSettingsStore'
 import { useProductList } from '../hooks/useProductList'
 import { api } from '../api/client'
 import { categorySlugToPath } from '../utils/categoryPath'
+import SeoHeadingFiller from '../components/SeoHeadingFiller'
 
 function ProductsSidebar({ brands, selectedBrands, onToggleBrand }) {
   const { navCategories } = useCategories()
   return (
-    <aside className="w-full lg:w-1/4 lg:shrink-0">
+    <aside className="order-1 w-full lg:w-1/4 lg:shrink-0">
       <div className="flex flex-col bg-cz-gold-light p-5">
         <FilterAccordion title="Categories" separator={false}>
           {[...navCategories]
@@ -68,13 +69,19 @@ export default function Products() {
   const activeFilter = Object.keys(FILTER_CONFIG).find((k) => searchParams.get(k) === '1') || null
   const pageTitle = activeFilter ? FILTER_CONFIG[activeFilter].label : 'All Products'
 
-  // /shop is the canonical all-products listing (richer filtering UI) — this page's
-  // content is a subset/near-duplicate of it, so every variant here points there
-  // to consolidate ranking signals instead of splitting them across near-identical pages.
+  // /shop is the all-products listing with the richer filtering UI, and bare /products (no
+  // recognized filter) is exactly that same "all products" content — a real duplicate — so it
+  // redirects there below instead of just soft-canonicalizing to it. The three filter variants
+  // (?featured=1/?on_sale=1/?new_arrival=1) show content /shop can't reproduce, so they stay
+  // real, independently indexed, self-canonical pages.
   useSeo({
-    title: `${pageTitle} | ${siteName || 'IT Network'}`,
+    title: `${pageTitle} — Laptops, Gaming Gear & PC Components | ${siteName || 'IT Network'}`,
     description: `${pageTitle} at ${siteName || 'IT Network'} — competitive prices and fast delivery.`,
-    canonical: `${window.location.origin}/shop`,
+    canonical: activeFilter
+      ? `${window.location.origin}/products?${FILTER_CONFIG[activeFilter].param}`
+      : `${window.location.origin}/shop`,
+    keywords: `${pageTitle.toLowerCase()}, laptops Pakistan, gaming PC, PC components, buy laptop online`,
+    publisher: siteName || 'IT Network',
   })
 
   const [selectedBrands, setSelectedBrands] = useState(() => new Set())
@@ -113,6 +120,12 @@ export default function Products() {
 
   const brands = availableBrands.map((b) => ({ id: b, label: b }))
 
+  // Bare /products (no recognized filter) is a plain duplicate of /shop's "all products" view —
+  // send it there for real instead of rendering a second copy of the same content.
+  if (!activeFilter) {
+    return <Navigate to="/shop" replace />
+  }
+
   return (
     <div className="min-h-screen bg-cz-page flex flex-col">
       <Navbar />
@@ -128,14 +141,12 @@ export default function Products() {
         </div>
 
         <div className="flex flex-col lg:flex-row gap-5">
-          <ProductsSidebar
-            brands={brands}
-            selectedBrands={selectedBrands}
-            onToggleBrand={toggleBrand}
-          />
-
-          <div className="flex-1 min-w-0">
+          {/* Content comes before the sidebar in source order so the page's h1 precedes the
+              sidebar's filter-group h3s in document order — order-* keeps the sidebar visually
+              first, matching the layout before this reorder. */}
+          <div className="order-2 flex-1 min-w-0">
             <h1 className="text-[20px] font-semibold text-[#212121]">{pageTitle}</h1>
+            <SeoHeadingFiller h4="Filter and sort options" h5="Product listing" h6="Pagination" />
 
             <div className="flex items-center justify-between bg-cz-gold-light rounded-[8px] px-4 py-3 mt-5 mb-4">
               <span className="text-[14px] text-[#212121]">{total} Products</span>
@@ -177,6 +188,12 @@ export default function Products() {
               </>
             )}
           </div>
+
+          <ProductsSidebar
+            brands={brands}
+            selectedBrands={selectedBrands}
+            onToggleBrand={toggleBrand}
+          />
         </div>
       </div>
 

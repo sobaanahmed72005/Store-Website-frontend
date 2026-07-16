@@ -1,6 +1,9 @@
 import { useCallback, useState } from 'react'
 import { api } from '../../api/client'
 import { useAdminForm } from '../../hooks/useAdminForm'
+import { useSeo } from '../../hooks/useSeo'
+import SeoHeadingFiller from '../../components/SeoHeadingFiller'
+import { useSiteSettings } from '../../store/siteSettingsStore'
 
 const emptyContent = {
   description: '',
@@ -13,7 +16,7 @@ const emptyContent = {
     {
       heading: 'Shop',
       links: [
-        { label: 'All Products', href: '/products' },
+        { label: 'All Products', href: '/shop' },
         { label: 'Cart', href: '/cart' },
         { label: 'Track Order', href: '/account' },
       ],
@@ -53,6 +56,12 @@ const SOCIAL_FIELDS = [
 ]
 
 export default function AdminFooter() {
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Footer / Store Info — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    canonical: `${window.location.origin}${window.location.pathname}`,
+    noindex: true,
+  })
   const [content, setContent] = useState(emptyContent)
 
   const load = useCallback(
@@ -125,6 +134,7 @@ export default function AdminFooter() {
   return (
     <div className="p-8 max-w-[900px]">
       <h1 className="text-[22px] font-semibold text-[#212121] mb-6">Footer / Store Info</h1>
+      <SeoHeadingFiller h3="Contact details" h4="Social links" h5="Footer columns" h6="Save action" />
 
       {error && <div className="text-[14px] text-red-600 mb-4">{error}</div>}
       {saved && <div className="text-[14px] text-green-700 mb-4">Saved. Refresh any page to see the footer update.</div>}

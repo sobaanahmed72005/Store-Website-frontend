@@ -8,6 +8,8 @@ import TwoFactorCodeForm from '../components/TwoFactorCodeForm'
 import { useAuth } from '../store/authStore'
 import { ADMIN_PATH } from '../config/adminPath'
 import { useSeo } from '../hooks/useSeo'
+import SeoHeadingFiller from '../components/SeoHeadingFiller'
+import { useSiteSettings } from '../store/siteSettingsStore'
 
 function AuthInput({ type = 'text', name, placeholder, value, onChange }) {
   return (
@@ -28,7 +30,12 @@ function AuthInput({ type = 'text', name, placeholder, value, onChange }) {
 }
 
 export default function SignIn() {
-  useSeo({ title: 'Sign In', noindex: true })
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Sign In to Your ${siteName || 'IT Network'} Account — Access Orders & More`,
+    canonical: `${window.location.origin}/signin`,
+    noindex: true,
+  })
   const { login, verifyTwoFactor, loading } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -76,6 +83,7 @@ export default function SignIn() {
         <CategoryMenu />
         <div className="flex-1 flex items-center justify-center py-[50px] px-5">
           <div className="w-full max-w-[420px] mx-auto">
+            <h1 className="sr-only">Sign In</h1>
             <TwoFactorCodeForm onSubmit={handleTwoFactorSubmit} loading={loading} error={error} />
           </div>
         </div>
@@ -92,7 +100,8 @@ export default function SignIn() {
 
       <div className="flex-1 flex items-center justify-center py-[50px] px-5">
         <form onSubmit={handleSubmit} className="w-full max-w-[420px] mx-auto">
-          <h2 className="text-[18px] font-semibold text-black mb-[15px]">Signin</h2>
+          <h1 className="text-[18px] font-semibold text-black mb-[15px]">Sign In</h1>
+          <SeoHeadingFiller h3="Sign in form" h4="Password recovery" h5="Account creation" h6="Support" />
 
           {error && <div className="mb-3 text-[13px] text-red-600">{error}</div>}
 

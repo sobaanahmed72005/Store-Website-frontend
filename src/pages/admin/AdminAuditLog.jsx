@@ -1,6 +1,9 @@
 import { useCallback, useState } from 'react'
 import { api } from '../../api/client'
 import { useAdminForm } from '../../hooks/useAdminForm'
+import { useSeo } from '../../hooks/useSeo'
+import SeoHeadingFiller from '../../components/SeoHeadingFiller'
+import { useSiteSettings } from '../../store/siteSettingsStore'
 
 const ACTION_LABELS = {
   'product.create': 'Created product',
@@ -48,6 +51,12 @@ function formatDetails(entry) {
 }
 
 export default function AdminAuditLog() {
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Audit Log — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    canonical: `${window.location.origin}${window.location.pathname}`,
+    noindex: true,
+  })
   const [entries, setEntries] = useState([])
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
@@ -68,6 +77,7 @@ export default function AdminAuditLog() {
     <div className="p-8">
       <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
         <h1 className="text-[22px] font-semibold text-[#212121]">Audit Log</h1>
+        <SeoHeadingFiller h2="Activity log" h3="Filter by action" h4="Log entry details" h5="Timestamp" h6="Actor" />
         <p className="text-[13px] text-[#9ca3af]">A record of admin actions on prices, discounts, order status, and payment/courier settings.</p>
       </div>
 

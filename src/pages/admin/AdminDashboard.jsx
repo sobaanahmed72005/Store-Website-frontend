@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom'
 import { api } from '../../api/client'
 import { useCurrency } from '../../store/currencyStore'
 import { ADMIN_PATH } from '../../config/adminPath'
+import { useSeo } from '../../hooks/useSeo'
+import SeoHeadingFiller from '../../components/SeoHeadingFiller'
+import { useSiteSettings } from '../../store/siteSettingsStore'
 
 function StatCard({ label, value, to }) {
   const content = (
@@ -15,6 +18,12 @@ function StatCard({ label, value, to }) {
 }
 
 export default function AdminDashboard() {
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Dashboard — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    canonical: `${window.location.origin}${window.location.pathname}`,
+    noindex: true,
+  })
   const { format } = useCurrency()
   const [stats, setStats] = useState(null)
   const [error, setError] = useState('')
@@ -29,6 +38,7 @@ export default function AdminDashboard() {
   return (
     <div className="p-8">
       <h1 className="text-[22px] font-semibold text-[#212121] mb-6">Dashboard</h1>
+      <SeoHeadingFiller h2="Store overview" h3="Quick stats" h4="Recent activity" h5="Shortcuts" h6="Notifications" />
 
       {error && <div className="text-[14px] text-red-600 mb-4">{error}</div>}
 

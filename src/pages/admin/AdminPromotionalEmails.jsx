@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { api, uploadImage, resolveImageUrl } from '../../api/client'
+import { useSeo } from '../../hooks/useSeo'
+import SeoHeadingFiller from '../../components/SeoHeadingFiller'
+import { useSiteSettings } from '../../store/siteSettingsStore'
 
 const emptyForm = { title: '', subject: '', message: '', poster_image: null }
 
@@ -9,6 +12,12 @@ const STATUS_STYLE = {
 }
 
 export default function AdminPromotionalEmails() {
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Promotional Emails — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    canonical: `${window.location.origin}${window.location.pathname}`,
+    noindex: true,
+  })
   const [emails, setEmails] = useState([])
   const [loading, setLoading] = useState(true)
   const [form, setForm] = useState(emptyForm)
@@ -146,6 +155,7 @@ export default function AdminPromotionalEmails() {
       <div className="flex items-start justify-between mb-1">
         <div>
           <h1 className="text-[22px] font-semibold text-[#212121]">Promotional Emails</h1>
+          <SeoHeadingFiller h3="Email list" h4="Poster upload" h5="Send action" h6="Delete action" />
           <p className="text-[13px] text-[#4b4b4b] mt-0.5">
             Write promotional emails with a custom poster, subject and message. Send to all newsletter subscribers with one click.
           </p>
@@ -218,6 +228,8 @@ export default function AdminPromotionalEmails() {
                   <img
                     src={resolveImageUrl(form.poster_image)}
                     alt="Poster preview"
+                    width={600}
+                    height={200}
                     className="max-h-[200px] w-full object-cover rounded-[8px] border border-[#dedede]"
                   />
                   <div className="flex gap-3 mt-2">
@@ -347,6 +359,8 @@ export default function AdminPromotionalEmails() {
                       <img
                         src={resolveImageUrl(email.poster_image)}
                         alt=""
+                        width={60}
+                        height={36}
                         className="h-[36px] w-[60px] rounded object-cover border border-[#f0f0f0]"
                       />
                     ) : (

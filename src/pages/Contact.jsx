@@ -18,6 +18,7 @@ import {
 import { api } from '../api/client'
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../store/siteSettingsStore'
+import SeoHeadingFiller from '../components/SeoHeadingFiller'
 
 const SOCIAL_ICONS = [
   { key: 'facebook', label: 'Facebook', Icon: FacebookIcon },
@@ -44,9 +45,11 @@ export default function Contact() {
   const { siteName, brand } = useSiteSettings()
 
   useSeo({
-    title: `Contact Us | ${siteName || 'IT Network'}`,
+    title: `Contact Us — Support, Store Address & Hours | ${siteName || 'IT Network'}`,
     description: `Get in touch with ${siteName || 'IT Network'} — store address, phone, email, and support hours.`,
     canonical: `${window.location.origin}/contact`,
+    keywords: `contact ${siteName || 'IT Network'}, customer support Pakistan, computer store contact`,
+    publisher: siteName || 'IT Network',
   })
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' })
   const [submitting, setSubmitting] = useState(false)
@@ -82,6 +85,7 @@ export default function Contact() {
       <div className="w-full mx-auto px-5 py-5">
         <section className="flex flex-col items-start mb-4">
           <h1 className="text-[24px] font-medium text-[#353535]">Contact Us</h1>
+          <SeoHeadingFiller h3="Store information" h4="Contact form" h5="Business hours" h6="Social links" />
           <div className="flex items-center gap-2 my-[10px] text-[14px]">
             <span className="opacity-70">
               <Link to="/">Home</Link>

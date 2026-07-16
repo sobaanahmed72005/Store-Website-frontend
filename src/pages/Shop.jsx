@@ -14,6 +14,7 @@ import { useSiteSettings } from '../store/siteSettingsStore'
 import { useProductList } from '../hooks/useProductList'
 import { api } from '../api/client'
 import { categorySlugToPath } from '../utils/categoryPath'
+import SeoHeadingFiller from '../components/SeoHeadingFiller'
 
 function ShopSidebar({ brands, selectedBrands, onToggleBrand }) {
   const { navCategories } = useCategories()
@@ -64,9 +65,11 @@ export default function Shop() {
   const [view, setView] = useState('grid')
 
   useSeo({
-    title: `Shop All Products | ${siteName || 'IT Network'}`,
+    title: `Shop All Products — Laptops, Gaming Gear & PC Components | ${siteName || 'IT Network'}`,
     description: `Browse the full ${siteName || 'IT Network'} catalog — laptops, gaming gear, and PC components, with filters by brand.`,
     canonical: `${window.location.origin}/shop`,
+    keywords: 'shop laptops Pakistan, gaming PC, PC components, buy laptop online, computer store Pakistan',
+    publisher: siteName || 'IT Network',
   })
 
   // Independent of whatever brand filter/page is currently active, so the sidebar's checkbox
@@ -104,6 +107,7 @@ export default function Shop() {
       <div className="mx-auto px-5 py-5 flex-1 w-full">
         <section className="flex flex-col items-start mb-4">
           <h1 className="text-[24px] font-medium text-[#353535]">Shop</h1>
+          <SeoHeadingFiller h4="Filter and sort options" h5="Product listing" h6="Pagination" />
           <div className="flex items-center gap-2 my-[10px] text-[14px]">
             <span className="opacity-70">
               <Link to="/">Home</Link>

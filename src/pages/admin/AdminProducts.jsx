@@ -6,8 +6,17 @@ import { getEffectivePrice } from '../../utils/pricing'
 import { ADMIN_PATH } from '../../config/adminPath'
 import { useAdminForm } from '../../hooks/useAdminForm'
 import Pagination from '../../components/Pagination'
+import { useSeo } from '../../hooks/useSeo'
+import SeoHeadingFiller from '../../components/SeoHeadingFiller'
+import { useSiteSettings } from '../../store/siteSettingsStore'
 
 export default function AdminProducts() {
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Products — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    canonical: `${window.location.origin}${window.location.pathname}`,
+    noindex: true,
+  })
   const { format } = useCurrency()
   const [searchParams] = useSearchParams()
   const lowStockOnly = searchParams.get('low_stock') === '1'
@@ -50,6 +59,7 @@ export default function AdminProducts() {
     <div className="p-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-[22px] font-semibold text-[#212121]">Products</h1>
+        <SeoHeadingFiller h2="Product list" h3="Search and filter" h4="Stock status" h5="Edit action" h6="Delete action" />
         <Link
           to={`${ADMIN_PATH}/products/new`}
           className="rounded-md bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-medium px-5 py-2.5 transition-colors"
@@ -102,7 +112,7 @@ export default function AdminProducts() {
                   <tr key={p.id} className="border-t border-[#dedede]">
                     <td className="px-4 py-3">
                       {p.image ? (
-                        <img src={resolveImageUrl(p.image)} alt={p.name} className="w-12 h-12 object-cover rounded-md" />
+                        <img src={resolveImageUrl(p.image)} alt={p.name} width={48} height={48} className="w-12 h-12 object-cover rounded-md" />
                       ) : (
                         <div className="w-12 h-12 rounded-md bg-cz-gold-light" />
                       )}

@@ -9,6 +9,8 @@ import { useCurrency } from '../store/currencyStore'
 import { useCart } from '../store/cartStore'
 import { useAuth } from '../store/authStore'
 import { useSeo } from '../hooks/useSeo'
+import SeoHeadingFiller from '../components/SeoHeadingFiller'
+import { useSiteSettings } from '../store/siteSettingsStore'
 
 function QuantityStepper({ qty, onDecrease, onIncrease }) {
   return (
@@ -31,7 +33,12 @@ function QuantityStepper({ qty, onDecrease, onIncrease }) {
 }
 
 export default function Cart() {
-  useSeo({ title: 'Your Cart', noindex: true })
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Your Shopping Cart — Review Items | ${siteName || 'IT Network'}`,
+    canonical: `${window.location.origin}/cart`,
+    noindex: true,
+  })
   const { format } = useCurrency()
   const { items, updateQty, removeFromCart, subTotal, refreshPrices } = useCart()
   const { user } = useAuth()
@@ -56,6 +63,7 @@ export default function Cart() {
       <div className="w-full mx-auto px-5 py-5">
         <section className="flex flex-col items-start mb-4">
           <h1 className="text-[24px] font-medium text-[#353535]">Shopping Cart</h1>
+          <SeoHeadingFiller h3="Cart items" h4="Item details" h5="Quantity and pricing" h6="Order summary" />
           <div className="flex items-center gap-2 my-[10px] text-[14px]">
             <span className="opacity-70">
               <Link to="/">Home</Link>
@@ -113,10 +121,10 @@ export default function Cart() {
                       <div className="grid grid-cols-12 w-full">
                         <div className="lg:col-span-7 col-span-12 flex items-center">
                           <div className="w-[70px] h-[70px] aspect-square object-cover rounded-lg overflow-hidden shrink-0">
-                            <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                            <img src={item.image} alt={item.title} width={70} height={70} className="w-full h-full object-cover" />
                           </div>
                           <div className="flex flex-col ps-4 flex-1">
-                            <Link to={item.slug ? `/product/${item.slug}` : '/products'} className="text-[14px] text-[#212121] hover:text-cz-primary">
+                            <Link to={item.slug ? `/product/${item.slug}` : '/shop'} className="text-[14px] text-[#212121] hover:text-cz-primary">
                               {item.title.length > 50 ? `${item.title.slice(0, 50)}...` : item.title}
                             </Link>
                             {item.variantLabel && <span className="text-[12px] text-[#6b7280] mt-0.5">{item.variantLabel}</span>}
@@ -149,11 +157,11 @@ export default function Cart() {
                     <div className="pb-3 border-b border-[#dedede] lg:hidden flex flex-col">
                       <div className="w-full gap-3 items-start grid grid-cols-4">
                         <div className="overflow-hidden rounded-md bg-gray-200">
-                          <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                          <img src={item.image} alt={item.title} width={100} height={100} className="w-full h-full object-cover" />
                         </div>
                         <div className="col-span-3">
                           <div className="flex flex-col gap-1">
-                            <Link to={item.slug ? `/product/${item.slug}` : '/products'} className="font-semibold text-[14px] text-[#212121] line-clamp-2">
+                            <Link to={item.slug ? `/product/${item.slug}` : '/shop'} className="font-semibold text-[14px] text-[#212121] line-clamp-2">
                               {item.title}
                             </Link>
                             {item.variantLabel && <span className="text-[12px] text-[#6b7280]">{item.variantLabel}</span>}

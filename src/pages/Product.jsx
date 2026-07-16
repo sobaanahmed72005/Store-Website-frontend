@@ -15,6 +15,7 @@ import { api, resolveImageUrl } from '../api/client'
 import { getEffectivePrice, getVariantEffectivePrice } from '../utils/pricing'
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../store/siteSettingsStore'
+import SeoHeadingFiller from '../components/SeoHeadingFiller'
 
 function ProductNotFound() {
   return (
@@ -28,7 +29,7 @@ function ProductNotFound() {
           This product may have been removed or the link is incorrect.
         </p>
         <Link
-          to="/products"
+          to="/shop"
           className="rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-medium px-8 py-3 transition-colors"
         >
           Browse All Products
@@ -62,9 +63,9 @@ function Gallery({ items, title }) {
     <div className="flex flex-col gap-3">
       <div className="relative w-full aspect-square rounded-[10px] bg-white border border-[#dedede] overflow-hidden">
         {active.type === 'video' ? (
-          <video src={active.src} controls className="w-full h-full object-contain bg-black" />
+          <video src={active.src} controls width={400} height={400} className="w-full h-full object-contain bg-black" />
         ) : (
-          <img src={active.src} alt={title} fetchPriority="high" className="w-full h-full object-contain" />
+          <img src={active.src} alt={title} width={400} height={400} fetchPriority="high" className="w-full h-full object-contain" />
         )}
         {items.length > 1 && (
           <>
@@ -100,13 +101,13 @@ function Gallery({ items, title }) {
             >
               {item.type === 'video' ? (
                 <>
-                  <video src={item.src} className="w-full h-full object-cover bg-black" />
+                  <video src={item.src} width={64} height={64} className="w-full h-full object-cover bg-black" />
                   <span className="absolute inset-0 flex items-center justify-center bg-black/30 text-white">
                     <PlayIcon size={18} />
                   </span>
                 </>
               ) : (
-                <img src={item.src} alt={`${title} ${i + 1}`} loading="lazy" decoding="async" className="w-full h-full object-contain" />
+                <img src={item.src} alt={`${title} ${i + 1}`} width={64} height={64} loading="lazy" decoding="async" className="w-full h-full object-contain" />
               )}
             </button>
           ))}
@@ -266,10 +267,12 @@ export default function Product() {
   const origin = window.location.origin
   const canonical = `${origin}/product/${slug}`
   useSeo({
-    title: product ? `${product.name} | ${siteName || 'IT Network'}` : undefined,
+    title: product ? `${product.name} — Buy Online in Pakistan | ${siteName || 'IT Network'}` : undefined,
     description: product?.description ? product.description.slice(0, 155) : undefined,
     canonical: product ? canonical : undefined,
     image: galleryImages[0],
+    keywords: product ? `${product.name.toLowerCase()}, ${product.brand || ''}, buy online Pakistan`.replace(', ,', ',') : undefined,
+    publisher: product ? siteName || 'IT Network' : undefined,
     noindex: !product,
     jsonLd: product
       ? [
@@ -387,6 +390,7 @@ export default function Product() {
             <div>
               {product.brand && <div className="text-[13px] text-[#4b4b4b] mb-1">{product.brand}</div>}
               <h1 className="text-[24px] font-semibold text-[#212121]">{product.name}</h1>
+              <SeoHeadingFiller h3="Product details" h4="Delivery and returns" h5="Product gallery" h6="Wishlist and sharing" />
               <div className="flex items-center gap-2 mt-2">
                 <StarRating rating={Math.round(reviewStats.average)} />
                 <span className="text-[13px] text-[#4b4b4b]">

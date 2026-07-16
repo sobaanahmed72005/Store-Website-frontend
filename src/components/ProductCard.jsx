@@ -65,7 +65,7 @@ export default function ProductCard({
   const navigate = useNavigate()
   const pkrPrice = parsePkr(price)
   const actuallyInStock = stock != null ? stock > 0 : inStock
-  const productHref = slug ? `/product/${slug}` : href || '/products'
+  const productHref = slug ? `/product/${slug}` : href || '/shop'
 
   const handleWishlistClick = async () => {
     if (!user) {
@@ -119,6 +119,8 @@ export default function ProductCard({
                 key={src}
                 src={src}
                 alt={title}
+                width={400}
+                height={400}
                 loading="lazy"
                 decoding="async"
                 className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-700 ${
@@ -129,6 +131,7 @@ export default function ProductCard({
           ) : (
             <span className="absolute inset-0 flex items-center justify-center text-[12px] text-[#9ca3af]">No image</span>
           )}
+          <span className="sr-only">{title}</span>
         </Link>
       </div>
 

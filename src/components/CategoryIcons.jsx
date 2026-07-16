@@ -42,7 +42,7 @@ export default function CategoryIcons() {
           <Link key={cat.slug} to={categorySlugToPath(cat.slug)} className="flex flex-col shrink-0 w-[140px]">
             <div className="aspect-square w-full rounded-full overflow-hidden cursor-pointer bg-cz-gold-light">
               {cat.image && (
-                <img src={resolveImageUrl(cat.image)} alt={cat.name} className="w-full h-full object-cover" />
+                <img src={resolveImageUrl(cat.image)} alt={cat.name} width={400} height={400} className="w-full h-full object-cover" />
               )}
             </div>
             <div className="text-[15px] font-semibold text-black text-center mt-[10px] cursor-pointer">

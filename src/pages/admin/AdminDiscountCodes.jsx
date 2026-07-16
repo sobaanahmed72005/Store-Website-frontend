@@ -3,10 +3,19 @@ import { api } from '../../api/client'
 import { useCurrency } from '../../store/currencyStore'
 import { useAdminForm } from '../../hooks/useAdminForm'
 import Pagination from '../../components/Pagination'
+import { useSeo } from '../../hooks/useSeo'
+import SeoHeadingFiller from '../../components/SeoHeadingFiller'
+import { useSiteSettings } from '../../store/siteSettingsStore'
 
 const emptyForm = { code: '', discount_type: 'percent', discount_value: '', expires_at: '', reusable: false }
 
 export default function AdminDiscountCodes() {
+  const { siteName } = useSiteSettings()
+  useSeo({
+    title: `Discount Codes — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    canonical: `${window.location.origin}${window.location.pathname}`,
+    noindex: true,
+  })
   const { format } = useCurrency()
   const [codes, setCodes] = useState([])
   const [page, setPage] = useState(1)
@@ -77,6 +86,7 @@ export default function AdminDiscountCodes() {
   return (
     <div className="p-8">
       <h1 className="text-[22px] font-semibold text-[#212121] mb-6">Discount Codes</h1>
+      <SeoHeadingFiller h2="Discount code list" h3="Create code" h4="Code settings" h5="Expiry" h6="Delete action" />
 
       {error && <div className="text-[14px] text-red-600 mb-4">{error}</div>}
 
