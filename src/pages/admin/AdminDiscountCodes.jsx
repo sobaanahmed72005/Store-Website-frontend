@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { useCurrency } from '../../store/currencyStore'
 import { useAdminForm } from '../../hooks/useAdminForm'
 import Pagination from '../../components/Pagination'
@@ -29,10 +30,10 @@ export default function AdminDiscountCodes() {
     setTotalPages(data.totalPages)
   }
 
-  const fetchCodes = useCallback(() => api.get('/admin/discount-codes', { auth: true }).then(applyCodesPage), [])
+  const fetchCodes = useCallback(() => api.get(ENDPOINTS.ADMIN.DISCOUNT_CODES.BASE(), { auth: true }).then(applyCodesPage), [])
   const { loading, error, setError, reload: load } = useAdminForm(fetchCodes)
 
-  const goToPage = (nextPage) => api.get(`/admin/discount-codes?page=${nextPage}`, { auth: true }).then(applyCodesPage)
+  const goToPage = (nextPage) => api.get(ENDPOINTS.ADMIN.DISCOUNT_CODES.BASE(`?page=${nextPage}`), { auth: true }).then(applyCodesPage)
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -45,7 +46,7 @@ export default function AdminDiscountCodes() {
     setCreating(true)
     try {
       await api.post(
-        '/admin/discount-codes',
+        ENDPOINTS.ADMIN.DISCOUNT_CODES.BASE(),
         {
           code: form.code,
           discount_type: form.discount_type,
@@ -66,7 +67,7 @@ export default function AdminDiscountCodes() {
 
   const toggleActive = async (codeRow) => {
     try {
-      await api.patch(`/admin/discount-codes/${codeRow.id}`, { is_active: !codeRow.is_active }, { auth: true })
+      await api.patch(ENDPOINTS.ADMIN.DISCOUNT_CODES.BY_ID(codeRow.id), { is_active: !codeRow.is_active }, { auth: true })
       load()
     } catch (err) {
       setError(err.message)
@@ -76,7 +77,7 @@ export default function AdminDiscountCodes() {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this discount code? Customers will no longer be able to apply it.')) return
     try {
-      await api.del(`/admin/discount-codes/${id}`, { auth: true })
+      await api.del(ENDPOINTS.ADMIN.DISCOUNT_CODES.BY_ID(id), { auth: true })
       load()
     } catch (err) {
       setError(err.message)

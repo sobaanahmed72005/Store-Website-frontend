@@ -15,6 +15,7 @@ import {
 import SiteLink from './SiteLink'
 import Logo from './Logo'
 import { api } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 import { useSiteSettings } from '../store/siteSettingsStore'
 import { useAuth } from '../store/authStore'
 
@@ -68,7 +69,7 @@ function Newsletter() {
     const emailToCheck = user?.email || rememberedEmail
     if (!emailToCheck) return
     api
-      .get(`/newsletter/status?email=${encodeURIComponent(emailToCheck)}`)
+      .get(ENDPOINTS.NEWSLETTER.STATUS(emailToCheck))
       .then((data) => {
         if (data.subscribed) setAlreadySubscribed(true)
       })
@@ -80,7 +81,7 @@ function Newsletter() {
     setStatus('submitting')
     setError('')
     try {
-      const data = await api.post('/newsletter/subscribe', { email })
+      const data = await api.post(ENDPOINTS.NEWSLETTER.SUBSCRIBE, { email })
       localStorage.setItem(SUBSCRIBED_STORAGE_KEY, email)
       setStatus('success')
       setAlreadySubscribed(Boolean(data.alreadySubscribed))

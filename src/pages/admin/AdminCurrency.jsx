@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { CURRENCY_CATALOG } from '../../store/currencyStore'
 import { useAdminForm } from '../../hooks/useAdminForm'
 import { useSeo } from '../../hooks/useSeo'
@@ -18,7 +19,7 @@ export default function AdminCurrency() {
 
   const load = useCallback(
     () =>
-      Promise.all([api.get('/content/currency-settings'), api.get('/currency/rates')]).then(([settings, rates]) => {
+      Promise.all([api.get(ENDPOINTS.CONTENT.CURRENCY_SETTINGS), api.get(ENDPOINTS.CURRENCY.RATES)]).then(([settings, rates]) => {
         setEnabled(settings.enabled?.length ? settings.enabled : ['PKR'])
         setRateInfo(rates)
       }),
@@ -31,7 +32,7 @@ export default function AdminCurrency() {
     setEnabled((prev) => (prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]))
   }
 
-  const handleSave = () => save(() => api.put('/admin/content/currency-settings', { enabled }, { auth: true }))
+  const handleSave = () => save(() => api.put(ENDPOINTS.ADMIN.CONTENT.CURRENCY_SETTINGS, { enabled }, { auth: true }))
 
   return (
     <div className="p-8 max-w-[560px]">

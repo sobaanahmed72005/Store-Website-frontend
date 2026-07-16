@@ -9,6 +9,7 @@ import Pagination from '../components/Pagination'
 import ViewToggle from '../components/ViewToggle'
 import { FilterAccordion, CheckboxGroup, FilterCheckbox } from '../components/filters/FilterPrimitives'
 import { api } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../store/siteSettingsStore'
 import { useProductList } from '../hooks/useProductList'
@@ -61,7 +62,7 @@ export default function CategoryListing() {
     async function load() {
       setDbChecked(false)
       try {
-        const cat = await api.get(`/categories/${slug}`)
+        const cat = await api.get(ENDPOINTS.CATEGORIES.BY_SLUG(slug))
         setDbCategory(cat)
       } catch {
         setDbCategory(null)
@@ -86,7 +87,7 @@ export default function CategoryListing() {
   }, [selectedBrands, selectedOptionIds])
 
   const { products, loading: loadingProducts, page, setPage, totalPages, total } = useProductList(
-    `/products?category=${slug}${filterQuery}`
+    ENDPOINTS.PRODUCTS.LIST(`?category=${slug}${filterQuery}`)
   )
 
   const attributes = dbCategory?.attributes || []

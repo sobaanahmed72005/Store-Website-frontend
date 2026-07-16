@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { useAdminForm } from '../../hooks/useAdminForm'
 import { useSeo } from '../../hooks/useSeo'
 import SeoHeadingFiller from '../../components/SeoHeadingFiller'
@@ -65,7 +66,7 @@ export default function AdminAuditLog() {
   // dependency-driven reload pattern.
   const load = useCallback(
     () =>
-      api.get(`/admin/audit-log?page=${page}`).then((data) => {
+      api.get(ENDPOINTS.ADMIN.AUDIT_LOG(`?page=${page}`)).then((data) => {
         setEntries(data.entries)
         setTotalPages(data.totalPages)
       }),

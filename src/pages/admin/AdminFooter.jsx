@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { useAdminForm } from '../../hooks/useAdminForm'
 import { useSeo } from '../../hooks/useSeo'
 import SeoHeadingFiller from '../../components/SeoHeadingFiller'
@@ -66,7 +67,7 @@ export default function AdminFooter() {
 
   const load = useCallback(
     () =>
-      api.get('/content/footer-brand').then((data) =>
+      api.get(ENDPOINTS.CONTENT.FOOTER_BRAND).then((data) =>
         setContent({
           description: data.description ?? '',
           address: data.address ?? '',
@@ -126,7 +127,7 @@ export default function AdminFooter() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    save(() => api.put('/admin/content/footer-brand', content, { auth: true }))
+    save(() => api.put(ENDPOINTS.ADMIN.CONTENT.FOOTER_BRAND, content, { auth: true }))
   }
 
   if (loading) return <div className="p-8 text-[14px] text-[#4b4b4b]">Loading...</div>

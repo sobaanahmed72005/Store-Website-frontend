@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
 import { api, BASE_URL } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 import { useAuthStore } from './authStore'
 import { getEffectivePrice, getVariantEffectivePrice } from '../utils/pricing'
 
@@ -63,7 +64,7 @@ export const useCartStore = create(subscribeWithSelector((set, get) => ({
     const results = await Promise.all(
       items.map(async (item) => {
         try {
-          const product = await api.get(`/products/${item.slug}`)
+          const product = await api.get(ENDPOINTS.PRODUCTS.BY_SLUG(item.slug))
           return { item, product }
         } catch {
           return { item, product: null }
@@ -140,7 +141,7 @@ useAuthStore.subscribe(
     syncedForUserId = user.id
 
     api
-      .get(`/cart/${user.id}`, { auth: true })
+      .get(ENDPOINTS.CART.BY_USER(user.id), { auth: true })
       .then((serverItems) => {
         if (serverItems.length > 0) {
           useCartStore.setState({
@@ -177,7 +178,7 @@ useCartStore.subscribe(
     pendingSyncItems = items
     if (syncTimer) clearTimeout(syncTimer)
     syncTimer = setTimeout(() => {
-      api.put(`/cart/${user.id}`, { items }, { auth: true }).catch((err) => console.error('Failed to sync cart to server:', err))
+      api.put(ENDPOINTS.CART.BY_USER(user.id), { items }, { auth: true }).catch((err) => console.error('Failed to sync cart to server:', err))
       syncTimer = null
       pendingSyncItems = null
     }, 600)
@@ -198,7 +199,7 @@ function flushPendingCartSync() {
   if (!user) return
   clearTimeout(syncTimer)
   syncTimer = null
-  navigator.sendBeacon(`${BASE_URL}/cart/${user.id}`, new Blob([JSON.stringify({ items: pendingSyncItems })], { type: 'application/json' }))
+  navigator.sendBeacon(`${BASE_URL}${ENDPOINTS.CART.BY_USER(user.id)}`, new Blob([JSON.stringify({ items: pendingSyncItems })], { type: 'application/json' }))
   pendingSyncItems = null
 }
 

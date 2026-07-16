@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { api, uploadImage, resolveImageUrl } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { useSeo } from '../../hooks/useSeo'
 import SeoHeadingFiller from '../../components/SeoHeadingFiller'
 import { useSiteSettings } from '../../store/siteSettingsStore'
@@ -32,7 +33,7 @@ export default function AdminPromotionalEmails() {
 
   const loadEmails = () => {
     setLoading(true)
-    api.get('/admin/promo-emails', { auth: true })
+    api.get(ENDPOINTS.ADMIN.PROMO_EMAILS.BASE, { auth: true })
       .then(setEmails)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
@@ -100,9 +101,9 @@ export default function AdminPromotionalEmails() {
     try {
       let saved
       if (editingId) {
-        saved = await api.put(`/admin/promo-emails/${editingId}`, form, { auth: true })
+        saved = await api.put(ENDPOINTS.ADMIN.PROMO_EMAILS.BY_ID(editingId), form, { auth: true })
       } else {
-        saved = await api.post('/admin/promo-emails', form, { auth: true })
+        saved = await api.post(ENDPOINTS.ADMIN.PROMO_EMAILS.BASE, form, { auth: true })
         setEditingId(saved.id)
       }
       loadEmails()
@@ -126,7 +127,7 @@ export default function AdminPromotionalEmails() {
     setSending(true)
     setError('')
     try {
-      const result = await api.post(`/admin/promo-emails/${saved.id}/send`, {}, { auth: true })
+      const result = await api.post(ENDPOINTS.ADMIN.PROMO_EMAILS.SEND(saved.id), {}, { auth: true })
       setSuccessMsg(`Sent to ${result.recipients} subscriber${result.recipients === 1 ? '' : 's'}.`)
       loadEmails()
     } catch (err) {
@@ -140,7 +141,7 @@ export default function AdminPromotionalEmails() {
     e.stopPropagation()
     if (!window.confirm('Delete this promotional email?')) return
     try {
-      await api.del(`/admin/promo-emails/${id}`, { auth: true })
+      await api.del(ENDPOINTS.ADMIN.PROMO_EMAILS.BY_ID(id), { auth: true })
       if (editingId === id) handleCancel()
       loadEmails()
     } catch (err) {

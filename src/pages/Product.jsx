@@ -12,6 +12,7 @@ import { useCart } from '../store/cartStore'
 import { useWishlist } from '../store/wishlistStore'
 import { useCurrency, parsePkr } from '../store/currencyStore'
 import { api, resolveImageUrl } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 import { getEffectivePrice, getVariantEffectivePrice } from '../utils/pricing'
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../store/siteSettingsStore'
@@ -168,7 +169,7 @@ export default function Product() {
     setReviewError('')
     setReviewSubmitted(false)
     api
-      .get(`/products/${slug}`)
+      .get(ENDPOINTS.PRODUCTS.BY_SLUG(slug))
       .then(setProduct)
       .catch(() => setProduct(null))
       .finally(() => setChecked(true))
@@ -178,7 +179,7 @@ export default function Product() {
     if (!product) return
     setReviewPage(1)
     api
-      .get(`/reviews?product_id=${product.id}`)
+      .get(ENDPOINTS.REVIEWS.LIST(`?product_id=${product.id}`))
       .then((data) => {
         setReviews(data.reviews)
         setReviewTotalPages(data.totalPages)
@@ -188,14 +189,14 @@ export default function Product() {
 
     if (product.category_slug) {
       api
-        .get(`/products?category=${product.category_slug}`)
+        .get(ENDPOINTS.PRODUCTS.BY_CATEGORY(product.category_slug))
         .then((data) => setRelatedProducts(data.products.filter((p) => p.id !== product.id).slice(0, 4)))
         .catch(() => setRelatedProducts([]))
     }
 
     if (user) {
       api
-        .get(`/reviews/eligibility?product_id=${product.id}`, { auth: true })
+        .get(ENDPOINTS.REVIEWS.ELIGIBILITY(product.id), { auth: true })
         .then(setReviewEligibility)
         .catch(() => setReviewEligibility(null))
     } else {
@@ -207,7 +208,7 @@ export default function Product() {
     setLoadingMoreReviews(true)
     try {
       const nextPage = reviewPage + 1
-      const data = await api.get(`/reviews?product_id=${product.id}&page=${nextPage}`)
+      const data = await api.get(ENDPOINTS.REVIEWS.LIST(`?product_id=${product.id}&page=${nextPage}`))
       setReviews((prev) => [...prev, ...data.reviews])
       setReviewPage(nextPage)
     } catch (err) {
@@ -355,7 +356,7 @@ export default function Product() {
     setReviewSubmitting(true)
     setReviewError('')
     try {
-      await api.post('/reviews', { product_id: product.id, rating: reviewForm.rating, comment: reviewForm.comment }, { auth: true })
+      await api.post(ENDPOINTS.REVIEWS.BASE, { product_id: product.id, rating: reviewForm.rating, comment: reviewForm.comment }, { auth: true })
       setReviewSubmitted(true)
     } catch (err) {
       setReviewError(err.message)

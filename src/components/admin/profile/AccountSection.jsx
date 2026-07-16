@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { api } from '../../../api/client'
+import { ENDPOINTS } from '../../../api/endpoints'
 import { useAuth } from '../../../store/authStore'
 import { useAdminSave } from '../../../hooks/useAdminForm'
 
@@ -12,7 +13,7 @@ export default function AccountSection() {
   const handleSubmit = (e) => {
     e.preventDefault()
     save(async () => {
-      const data = await api.put('/auth/me', { name, email }, { auth: true })
+      const data = await api.put(ENDPOINTS.AUTH.ME, { name, email }, { auth: true })
       updateSession(data.user)
     })
   }

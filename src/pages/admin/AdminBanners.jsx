@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { useAdminForm } from '../../hooks/useAdminForm'
 import { useSeo } from '../../hooks/useSeo'
 import SeoHeadingFiller from '../../components/SeoHeadingFiller'
@@ -71,7 +72,7 @@ export default function AdminBanners() {
   const [form, setForm] = useState({ ...EMPTY_SLIDE })
   const load = useCallback(
     () =>
-      api.get('/content/hero-banners').then((data) => {
+      api.get(ENDPOINTS.CONTENT.HERO_BANNERS).then((data) => {
         setSlides(withKeys(data.slides))
         if (data.sideBanners?.length >= 2) setSideBanners(withKeys(data.sideBanners))
       }),
@@ -136,7 +137,7 @@ export default function AdminBanners() {
   }
 
   function handleSave() {
-    save(() => api.put('/admin/content/hero-banners', { slides: stripKeys(slides), sideBanners: stripKeys(sideBanners) }, { auth: true }))
+    save(() => api.put(ENDPOINTS.ADMIN.CONTENT.HERO_BANNERS, { slides: stripKeys(slides), sideBanners: stripKeys(sideBanners) }, { auth: true }))
   }
 
   if (loading) return <div className="p-8 text-[14px] text-[#4b4b4b]">Loading...</div>

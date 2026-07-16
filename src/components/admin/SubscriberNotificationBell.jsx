@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { getLastSeenSubscriberId, markSubscribersSeen, SEEN_EVENT } from '../../utils/subscriberNotifications'
 import { ADMIN_PATH } from '../../config/adminPath'
 import { BellIcon } from '../icons'
@@ -23,14 +24,14 @@ export default function SubscriberNotificationBell() {
         // First run ever: mark all existing subscribers as already-seen so the
         // admin isn't flooded with "new subscriber" alerts for old history.
         if (!localStorage.getItem(BOOTSTRAP_KEY)) {
-          const initial = await api.get('/admin/newsletter/new?since_id=999999999', { auth: true })
+          const initial = await api.get(ENDPOINTS.ADMIN.NEWSLETTER.NEW(999999999), { auth: true })
           markSubscribersSeen(initial.latestId)
           localStorage.setItem(BOOTSTRAP_KEY, '1')
           return
         }
 
         const sinceId = getLastSeenSubscriberId()
-        const data = await api.get(`/admin/newsletter/new?since_id=${sinceId}`, { auth: true })
+        const data = await api.get(ENDPOINTS.ADMIN.NEWSLETTER.NEW(sinceId), { auth: true })
         if (cancelled) return
         // Discard a stale response: if something else (e.g. visiting the Newsletter
         // page) advanced the seen-watermark while this request was in flight,

@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
 import { api } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 
 // Session identity lives only in the httpOnly cookie + this in-memory store — nothing is
 // cached in localStorage, so pages that gate on `user` (AdminRoute, Checkout, Account) must
@@ -12,7 +13,7 @@ export const useAuthStore = create(subscribeWithSelector((set) => ({
 
   init: () => {
     api
-      .get('/auth/me')
+      .get(ENDPOINTS.AUTH.ME)
       .then((data) => set({ user: data.user }))
       .catch(() => set({ user: null }))
       .finally(() => set({ initializing: false }))
@@ -21,7 +22,7 @@ export const useAuthStore = create(subscribeWithSelector((set) => ({
   login: async (email, password, { admin = false } = {}) => {
     set({ loading: true })
     try {
-      const data = await api.post(admin ? '/auth/admin-login' : '/auth/login', { email, password })
+      const data = await api.post(admin ? ENDPOINTS.AUTH.ADMIN_LOGIN : ENDPOINTS.AUTH.LOGIN, { email, password })
       if (!data.requires2fa) set({ user: data.user })
       return data
     } finally {
@@ -32,7 +33,7 @@ export const useAuthStore = create(subscribeWithSelector((set) => ({
   verifyTwoFactor: async (challengeId, token) => {
     set({ loading: true })
     try {
-      const data = await api.post('/auth/2fa/verify', { challengeId, token })
+      const data = await api.post(ENDPOINTS.AUTH.TWO_FA_VERIFY, { challengeId, token })
       set({ user: data.user })
       return data.user
     } finally {
@@ -43,7 +44,7 @@ export const useAuthStore = create(subscribeWithSelector((set) => ({
   register: async (name, email, password, phone) => {
     set({ loading: true })
     try {
-      const data = await api.post('/auth/register', { name, email, password, phone })
+      const data = await api.post(ENDPOINTS.AUTH.REGISTER, { name, email, password, phone })
       set({ user: data.user })
       return data.user
     } finally {
@@ -53,7 +54,7 @@ export const useAuthStore = create(subscribeWithSelector((set) => ({
 
   logout: () => {
     set({ user: null })
-    api.post('/auth/logout', {}).catch((err) => console.error('Failed to revoke session on logout:', err))
+    api.post(ENDPOINTS.AUTH.LOGOUT, {}).catch((err) => console.error('Failed to revoke session on logout:', err))
   },
 
   updateSession: (nextUser) => set({ user: nextUser }),

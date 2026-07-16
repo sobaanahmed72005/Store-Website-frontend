@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { api } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 
 const STORAGE_KEY = 'cz_currency'
 
@@ -35,7 +36,7 @@ export const useCurrencyStore = create((set, get) => ({
   currencies: DEFAULT_CURRENCIES,
 
   init: () => {
-    Promise.all([api.get('/content/currency-settings'), api.get('/currency/rates')])
+    Promise.all([api.get(ENDPOINTS.CONTENT.CURRENCY_SETTINGS), api.get(ENDPOINTS.CURRENCY.RATES)])
       .then(([settings, rateData]) => {
         const enabled = settings.enabled?.length ? settings.enabled : ['PKR']
         const next = {}

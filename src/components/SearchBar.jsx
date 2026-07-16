@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { api, resolveImageUrl } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 import { getEffectivePrice } from '../utils/pricing'
 import { useCurrency } from '../store/currencyStore'
 import { SearchIcon } from './icons'
@@ -30,7 +31,7 @@ export default function SearchBar({ placeholder = 'What are you looking for?' })
     const thisRequest = ++requestId.current
     debounceTimer.current = setTimeout(() => {
       api
-        .get(`/products/suggest?q=${encodeURIComponent(query)}`)
+        .get(ENDPOINTS.PRODUCTS.SUGGEST(query))
         .then((data) => {
           if (requestId.current !== thisRequest) return // stale response from an earlier keystroke
           setSuggestions(data)

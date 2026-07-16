@@ -10,6 +10,7 @@ import { useCurrency } from '../store/currencyStore'
 import { useCart } from '../store/cartStore'
 import { useWishlist } from '../store/wishlistStore'
 import { api } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 import { useSeo } from '../hooks/useSeo'
 import SeoHeadingFiller from '../components/SeoHeadingFiller'
 import { useSiteSettings } from '../store/siteSettingsStore'
@@ -28,7 +29,7 @@ function ProfileSection() {
     setError('')
     setSaved(false)
     try {
-      const data = await api.put('/auth/me', { name, email }, { auth: true })
+      const data = await api.put(ENDPOINTS.AUTH.ME, { name, email }, { auth: true })
       updateSession(data.user)
       setSaved(true)
     } catch (err) {
@@ -97,7 +98,7 @@ function PasswordSection() {
     setSaving(true)
     try {
       await api.put(
-        '/auth/change-password',
+        ENDPOINTS.AUTH.CHANGE_PASSWORD,
         { currentPassword: form.currentPassword, newPassword: form.newPassword },
         { auth: true }
       )
@@ -255,7 +256,7 @@ export default function Account() {
 
     setLoading(true)
     api
-      .get(`/orders/user/${user.id}?page=${ordersPage}`, { auth: true })
+      .get(ENDPOINTS.ORDERS.BY_USER(user.id, `?page=${ordersPage}`), { auth: true })
       .then((data) => {
         setOrders(data.orders)
         setOrdersTotalPages(data.totalPages)
@@ -272,7 +273,7 @@ export default function Account() {
   const handleResendVerification = async () => {
     setResending(true)
     try {
-      await api.post('/auth/resend-verification', {}, { auth: true })
+      await api.post(ENDPOINTS.AUTH.RESEND_VERIFICATION, {}, { auth: true })
       setResent(true)
     } catch {
       // ignore

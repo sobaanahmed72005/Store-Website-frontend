@@ -1,5 +1,6 @@
 import { Fragment, useCallback, useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { useAdminForm } from '../../hooks/useAdminForm'
 import Pagination from '../../components/Pagination'
 import { useSeo } from '../../hooks/useSeo'
@@ -43,7 +44,7 @@ export default function AdminReviews() {
   // resets to page 1 — instead the Pagination control below fetches subsequent pages directly.
   const load = useCallback(() => {
     const qs = filter === 'all' ? '' : `?status=${filter}`
-    return api.get(`/admin/reviews${qs}`, { auth: true }).then((data) => {
+    return api.get(ENDPOINTS.ADMIN.REVIEWS.LIST(qs), { auth: true }).then((data) => {
       setReviews(data.reviews)
       setReviewPage(data.page)
       setReviewTotalPages(data.totalPages)
@@ -53,7 +54,7 @@ export default function AdminReviews() {
 
   const goToReviewPage = async (nextPage) => {
     const qs = filter === 'all' ? '' : `&status=${filter}`
-    const data = await api.get(`/admin/reviews?page=${nextPage}${qs}`, { auth: true })
+    const data = await api.get(ENDPOINTS.ADMIN.REVIEWS.LIST(`?page=${nextPage}${qs}`), { auth: true })
     setReviews(data.reviews)
     setReviewPage(data.page)
     setReviewTotalPages(data.totalPages)
@@ -63,7 +64,7 @@ export default function AdminReviews() {
     // /admin/products is now paginated (24/page by default); this "attach a review to a product"
     // picker needs a browsable list rather than a paged one, so request the max page size the
     // backend allows (100) — a catalog beyond that would need a proper searchable picker here.
-    api.get('/admin/products?limit=100', { auth: true }).then((data) => setProducts(data.products)).catch((err) => setError(err.message))
+    api.get(ENDPOINTS.ADMIN.PRODUCTS.BASE('?limit=100'), { auth: true }).then((data) => setProducts(data.products)).catch((err) => setError(err.message))
   }, [setError])
 
   const handleFilterChange = (f) => setFilter(f)
@@ -80,7 +81,7 @@ export default function AdminReviews() {
     setError('')
     try {
       await api.post(
-        `/admin/products/${form.product_id}/reviews`,
+        ENDPOINTS.ADMIN.PRODUCTS.REVIEWS(form.product_id),
         { author_name: form.author_name.trim(), rating: Number(form.rating), comment: form.comment || null },
         { auth: true },
       )
@@ -97,7 +98,7 @@ export default function AdminReviews() {
     setActingId(id)
     setError('')
     try {
-      await api.patch(`/admin/reviews/${id}`, { action }, { auth: true })
+      await api.patch(ENDPOINTS.ADMIN.REVIEWS.BY_ID(id), { action }, { auth: true })
       loadReviews()
     } catch (err) {
       setError(err.message)
@@ -111,7 +112,7 @@ export default function AdminReviews() {
     setActingId(id)
     setError('')
     try {
-      await api.del(`/admin/reviews/${id}`, { auth: true })
+      await api.del(ENDPOINTS.ADMIN.REVIEWS.BY_ID(id), { auth: true })
       loadReviews()
     } catch (err) {
       setError(err.message)

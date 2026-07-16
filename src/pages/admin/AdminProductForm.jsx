@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { api, uploadImage, uploadVideo, resolveImageUrl } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { ADMIN_PATH } from '../../config/adminPath'
 import MultiSelectDropdown from '../../components/admin/MultiSelectDropdown'
 import { useSeo } from '../../hooks/useSeo'
@@ -79,7 +80,7 @@ export default function AdminProductForm() {
   const [existingBrands, setExistingBrands] = useState([])
 
   useEffect(() => {
-    api.get('/admin/categories', { auth: true }).then(setCategories).catch((err) => setError(err.message))
+    api.get(ENDPOINTS.ADMIN.CATEGORIES.BASE, { auth: true }).then(setCategories).catch((err) => setError(err.message))
   }, [])
 
   // Powers the Brand field's autocomplete below — Brand isn't a category-attribute (that's
@@ -87,13 +88,13 @@ export default function AdminProductForm() {
   // into other products", letting an admin pick the exact existing spelling/casing instead of
   // retyping it and risking a near-duplicate like "Dell" vs "dell".
   useEffect(() => {
-    api.get('/admin/products/brands', { auth: true }).then(setExistingBrands).catch(() => setExistingBrands([]))
+    api.get(ENDPOINTS.ADMIN.PRODUCTS.BRANDS, { auth: true }).then(setExistingBrands).catch(() => setExistingBrands([]))
   }, [])
 
   useEffect(() => {
     if (!isEdit) return
     api
-      .get(`/admin/products/${id}`, { auth: true })
+      .get(ENDPOINTS.ADMIN.PRODUCTS.BY_ID(id), { auth: true })
       .then((p) => {
         setForm({
           name: p.name,
@@ -124,7 +125,7 @@ export default function AdminProductForm() {
       return
     }
     api
-      .get(`/admin/categories/${form.category_id}/attributes?merged=1`, { auth: true })
+      .get(ENDPOINTS.ADMIN.CATEGORIES.ATTRIBUTES_MERGED(form.category_id), { auth: true })
       .then((attrs) => {
         setAttributes(attrs)
         const validOptionIds = new Set(attrs.flatMap((a) => a.options.flatMap((o) => o.ids)))
@@ -339,9 +340,9 @@ export default function AdminProductForm() {
         ),
       }
       if (isEdit) {
-        await api.put(`/admin/products/${id}`, payload, { auth: true })
+        await api.put(ENDPOINTS.ADMIN.PRODUCTS.BY_ID(id), payload, { auth: true })
       } else {
-        await api.post('/admin/products', payload, { auth: true })
+        await api.post(ENDPOINTS.ADMIN.PRODUCTS.BASE(), payload, { auth: true })
       }
       navigate(`${ADMIN_PATH}/products`)
     } catch (err) {

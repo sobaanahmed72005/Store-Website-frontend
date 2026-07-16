@@ -5,6 +5,7 @@ import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
 import { api } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../store/siteSettingsStore'
 import SeoHeadingFiller from '../components/SeoHeadingFiller'
@@ -20,7 +21,7 @@ export default function PrivacyPolicy() {
 
   useEffect(() => {
     api
-      .get('/content/privacy-policy')
+      .get(ENDPOINTS.CONTENT.PRIVACY_POLICY)
       .then(setContent)
       .catch((err) => console.error('Failed to load /content/privacy-policy content:', err))
   }, [])

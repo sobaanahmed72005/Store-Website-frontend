@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 
 export default function AnnouncementBar() {
   const [bar, setBar] = useState(null)
 
   useEffect(() => {
-    api.get('/content/announcement-bar').then(setBar).catch((err) => console.error('Failed to load announcement bar:', err))
+    api.get(ENDPOINTS.CONTENT.ANNOUNCEMENT_BAR).then(setBar).catch((err) => console.error('Failed to load announcement bar:', err))
   }, [])
 
   if (!bar?.enabled || !bar?.text?.trim()) return null

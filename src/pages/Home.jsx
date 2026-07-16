@@ -9,6 +9,7 @@ import Hero from '../components/Hero'
 import ProductGrid from '../components/ProductGrid'
 import Footer from '../components/Footer'
 import { api } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../store/siteSettingsStore'
 import { SITE_TAGLINE } from '../config/seoDefaults'
@@ -51,9 +52,9 @@ export default function Home() {
   useEffect(() => {
     // GET /products now returns { products, page, limit, total, totalPages } instead of a bare
     // array — these homepage teaser sections only ever show the first page's worth anyway.
-    api.get('/products?featured=1').then((data) => setFeatured(data.products)).catch(() => setFeatured([]))
-    api.get('/products?new_arrival=1').then((data) => setNewArrivals(data.products)).catch(() => setNewArrivals([]))
-    api.get('/products?on_sale=1').then((data) => setOnSale(data.products)).catch(() => setOnSale([]))
+    api.get(ENDPOINTS.PRODUCTS.LIST('?featured=1')).then((data) => setFeatured(data.products)).catch(() => setFeatured([]))
+    api.get(ENDPOINTS.PRODUCTS.LIST('?new_arrival=1')).then((data) => setNewArrivals(data.products)).catch(() => setNewArrivals([]))
+    api.get(ENDPOINTS.PRODUCTS.LIST('?on_sale=1')).then((data) => setOnSale(data.products)).catch(() => setOnSale([]))
   }, [])
 
   const origin = window.location.origin

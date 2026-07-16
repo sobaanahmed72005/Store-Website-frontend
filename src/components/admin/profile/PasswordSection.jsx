@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { api } from '../../../api/client'
+import { ENDPOINTS } from '../../../api/endpoints'
 import { useAdminSave } from '../../../hooks/useAdminForm'
 
 export default function PasswordSection() {
@@ -21,7 +22,7 @@ export default function PasswordSection() {
     }
     save(async () => {
       await api.put(
-        '/auth/change-password',
+        ENDPOINTS.AUTH.CHANGE_PASSWORD,
         { currentPassword: form.currentPassword, newPassword: form.newPassword },
         { auth: true }
       )

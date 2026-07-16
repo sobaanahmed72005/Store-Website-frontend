@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api, uploadImage, resolveImageUrl } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { ADMIN_PATH } from '../../config/adminPath'
 import { useAdminForm } from '../../hooks/useAdminForm'
 import { useSeo } from '../../hooks/useSeo'
@@ -30,7 +31,7 @@ export default function AdminCategories() {
   const [slugTouched, setSlugTouched] = useState(false)
   const [uploading, setUploading] = useState(false)
 
-  const load = useCallback(() => api.get('/admin/categories', { auth: true }).then(setCategories), [])
+  const load = useCallback(() => api.get(ENDPOINTS.ADMIN.CATEGORIES.BASE, { auth: true }).then(setCategories), [])
   const { loading, error, setError, reload } = useAdminForm(load)
 
   const topLevelCategories = categories.filter((c) => !c.parent_id)
@@ -89,9 +90,9 @@ export default function AdminCategories() {
     }
     try {
       if (editingId) {
-        await api.put(`/admin/categories/${editingId}`, payload, { auth: true })
+        await api.put(ENDPOINTS.ADMIN.CATEGORIES.BY_ID(editingId), payload, { auth: true })
       } else {
-        await api.post('/admin/categories', payload, { auth: true })
+        await api.post(ENDPOINTS.ADMIN.CATEGORIES.BASE, payload, { auth: true })
       }
       resetForm()
       reload()
@@ -117,7 +118,7 @@ export default function AdminCategories() {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this category? Its subcategories will also be deleted and products in it will be unassigned.')) return
     try {
-      await api.del(`/admin/categories/${id}`, { auth: true })
+      await api.del(ENDPOINTS.ADMIN.CATEGORIES.BY_ID(id), { auth: true })
       reload()
     } catch (err) {
       setError(err.message)

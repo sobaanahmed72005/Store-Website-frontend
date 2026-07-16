@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { useAdminForm } from '../../hooks/useAdminForm'
 import { useSeo } from '../../hooks/useSeo'
 import SeoHeadingFiller from '../../components/SeoHeadingFiller'
@@ -22,7 +23,7 @@ export default function AdminPayments() {
   const [methods, setMethods] = useState(emptyMethods)
 
   const load = useCallback(
-    () => api.get('/content/payment-settings').then((data) => setMethods({ ...emptyMethods, ...data.methods })),
+    () => api.get(ENDPOINTS.CONTENT.PAYMENT_SETTINGS).then((data) => setMethods({ ...emptyMethods, ...data.methods })),
     []
   )
   const { loading, saving, saved, error, save } = useAdminForm(load)
@@ -32,7 +33,7 @@ export default function AdminPayments() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    save(() => api.put('/admin/content/payment-settings', { methods }, { auth: true }))
+    save(() => api.put(ENDPOINTS.ADMIN.CONTENT.PAYMENT_SETTINGS, { methods }, { auth: true }))
   }
 
   if (loading) return <div className="p-8 text-[14px] text-[#4b4b4b]">Loading...</div>

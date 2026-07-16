@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { useAdminForm } from '../../hooks/useAdminForm'
 import { useSeo } from '../../hooks/useSeo'
 import SeoHeadingFiller from '../../components/SeoHeadingFiller'
@@ -28,7 +29,7 @@ export default function AdminAnnouncement() {
     textColor: '#ffffff',
     speed: 25,
   })
-  const load = useCallback(() => api.get('/content/announcement-bar').then((data) => setForm((f) => ({ ...f, ...data }))), [])
+  const load = useCallback(() => api.get(ENDPOINTS.CONTENT.ANNOUNCEMENT_BAR).then((data) => setForm((f) => ({ ...f, ...data }))), [])
   const { loading, saving, saved, setSaved, error, save } = useAdminForm(load)
 
   useEffect(() => {
@@ -37,7 +38,7 @@ export default function AdminAnnouncement() {
     return () => clearTimeout(timer)
   }, [saved, setSaved])
 
-  const handleSave = () => save(() => api.put('/admin/content/announcement-bar', form, { auth: true }))
+  const handleSave = () => save(() => api.put(ENDPOINTS.ADMIN.CONTENT.ANNOUNCEMENT_BAR, form, { auth: true }))
 
   if (loading) return <div className="p-8 text-[14px] text-[#4b4b4b]">Loading...</div>
 

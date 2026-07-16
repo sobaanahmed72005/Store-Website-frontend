@@ -5,6 +5,7 @@ import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
 import { api } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 import { useSeo } from '../hooks/useSeo'
 import SeoHeadingFiller from '../components/SeoHeadingFiller'
 import { useSiteSettings } from '../store/siteSettingsStore'
@@ -30,7 +31,7 @@ export default function VerifyEmail() {
       if (hasVerified.current) return
       hasVerified.current = true
       try {
-        await api.get(`/auth/verify-email?token=${encodeURIComponent(token)}`)
+        await api.get(ENDPOINTS.AUTH.VERIFY_EMAIL(token))
         setStatus('success')
       } catch {
         setStatus('error')

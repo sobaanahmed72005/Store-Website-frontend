@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { useAdminForm } from '../../hooks/useAdminForm'
 import { useSeo } from '../../hooks/useSeo'
 import SeoHeadingFiller from '../../components/SeoHeadingFiller'
@@ -14,12 +15,12 @@ export default function AdminShipping() {
   })
   const [fee, setFee] = useState('1800')
 
-  const load = useCallback(() => api.get('/content/shipping-settings').then((data) => setFee(String(data.fee ?? 1800))), [])
+  const load = useCallback(() => api.get(ENDPOINTS.CONTENT.SHIPPING_SETTINGS).then((data) => setFee(String(data.fee ?? 1800))), [])
   const { loading, saving, saved, error, save } = useAdminForm(load)
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    save(() => api.put('/admin/content/shipping-settings', { fee: Number(fee) || 0 }, { auth: true }))
+    save(() => api.put(ENDPOINTS.ADMIN.CONTENT.SHIPPING_SETTINGS, { fee: Number(fee) || 0 }, { auth: true }))
   }
 
   if (loading) return <div className="p-8 text-[14px] text-[#4b4b4b]">Loading...</div>

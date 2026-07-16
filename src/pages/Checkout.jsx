@@ -7,6 +7,7 @@ import { useCart } from '../store/cartStore'
 import { useAuth } from '../store/authStore'
 import { useSiteSettings } from '../store/siteSettingsStore'
 import { api, uploadImage } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 import { useSeo } from '../hooks/useSeo'
 import SeoHeadingFiller from '../components/SeoHeadingFiller'
 
@@ -162,11 +163,11 @@ export default function Checkout() {
 
   useEffect(() => {
     api
-      .get('/content/shipping-settings')
+      .get(ENDPOINTS.CONTENT.SHIPPING_SETTINGS)
       .then((data) => setShippingFee(Number(data.fee) || 1800))
       .catch((err) => console.error('Failed to load shipping settings:', err))
     api
-      .get('/content/payment-settings')
+      .get(ENDPOINTS.CONTENT.PAYMENT_SETTINGS)
       .then((data) => {
         const methods = data.methods || {}
         setPaymentMethods(methods)
@@ -203,7 +204,7 @@ export default function Checkout() {
     setApplyingDiscount(true)
     setDiscountError('')
     try {
-      const data = await api.post('/discount-codes/validate', { code: discountInput.trim(), subtotal: subTotal }, { auth: true })
+      const data = await api.post(ENDPOINTS.DISCOUNT_CODES.VALIDATE, { code: discountInput.trim(), subtotal: subTotal }, { auth: true })
       setAppliedDiscount(data)
     } catch (err) {
       setAppliedDiscount(null)
@@ -225,7 +226,7 @@ export default function Checkout() {
     setProofError('')
     setUploadingProof(true)
     try {
-      const data = await uploadImage(file, '/orders/payment-proof')
+      const data = await uploadImage(file, ENDPOINTS.ORDERS.PAYMENT_PROOF)
       setPaymentProofImage(data.url)
     } catch (err) {
       setProofError(err.message || 'Upload failed')
@@ -259,7 +260,7 @@ export default function Checkout() {
     try {
       const shippingAddress = [form.address1, form.address2].filter(Boolean).join(', ')
       await api.post(
-        '/orders',
+        ENDPOINTS.ORDERS.BASE,
         {
           shipping_name: form.fullName,
           shipping_address: shippingAddress,

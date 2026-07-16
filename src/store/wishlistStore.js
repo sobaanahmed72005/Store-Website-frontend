@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { api, resolveImageUrl } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 import { useAuthStore } from './authStore'
 
 function mapItem(p) {
@@ -29,13 +30,13 @@ export const useWishlistStore = create((set, get) => ({
 
     if (get().isWishlisted(product.id)) {
       set((state) => ({ items: state.items.filter((item) => item.id !== product.id) }))
-      api.del(`/wishlist/${product.id}`, { auth: true }).catch((err) => {
+      api.del(ENDPOINTS.WISHLIST.BY_PRODUCT_ID(product.id), { auth: true }).catch((err) => {
         console.error('Failed to remove from wishlist:', err)
         set((state) => (state.items.some((item) => item.id === product.id) ? state : { items: [mapItem(product), ...state.items] }))
       })
     } else {
       set((state) => ({ items: [mapItem(product), ...state.items], wishlistOpen: true }))
-      api.post('/wishlist', { product_id: product.id }, { auth: true }).catch((err) => {
+      api.post(ENDPOINTS.WISHLIST.BASE, { product_id: product.id }, { auth: true }).catch((err) => {
         console.error('Failed to add to wishlist:', err)
         set((state) => ({ items: state.items.filter((item) => item.id !== product.id) }))
       })
@@ -46,7 +47,7 @@ export const useWishlistStore = create((set, get) => ({
   removeFromWishlist: (productId) => {
     const removed = get().items.find((item) => item.id === productId)
     set((state) => ({ items: state.items.filter((item) => item.id !== productId) }))
-    api.del(`/wishlist/${productId}`, { auth: true }).catch((err) => {
+    api.del(ENDPOINTS.WISHLIST.BY_PRODUCT_ID(productId), { auth: true }).catch((err) => {
       console.error('Failed to remove from wishlist:', err)
       if (removed) set((state) => (state.items.some((item) => item.id === productId) ? state : { items: [removed, ...state.items] }))
     })
@@ -64,7 +65,7 @@ useAuthStore.subscribe(
       return
     }
     try {
-      const rows = await api.get('/wishlist', { auth: true })
+      const rows = await api.get(ENDPOINTS.WISHLIST.BASE, { auth: true })
       useWishlistStore.setState({ items: rows.map(mapItem) })
     } catch {
       useWishlistStore.setState({ items: [] })

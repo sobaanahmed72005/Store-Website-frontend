@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { markSubscribersSeen } from '../../utils/subscriberNotifications'
 import { useAdminForm } from '../../hooks/useAdminForm'
 import Pagination from '../../components/Pagination'
@@ -32,15 +33,15 @@ export default function AdminNewsletter() {
     if (data.subscribers.length) markSubscribersSeen(Math.max(...data.subscribers.map((s) => s.id)))
   }
 
-  const fetchSubscribers = useCallback(() => api.get('/admin/newsletter', { auth: true }).then(applySubscribersPage), [])
+  const fetchSubscribers = useCallback(() => api.get(ENDPOINTS.ADMIN.NEWSLETTER.BASE(), { auth: true }).then(applySubscribersPage), [])
   const { loading, error, setError, reload: load } = useAdminForm(fetchSubscribers)
 
-  const goToPage = (nextPage) => api.get(`/admin/newsletter?page=${nextPage}`, { auth: true }).then(applySubscribersPage)
+  const goToPage = (nextPage) => api.get(ENDPOINTS.ADMIN.NEWSLETTER.BASE(`?page=${nextPage}`), { auth: true }).then(applySubscribersPage)
 
   const handleDelete = async (id) => {
     if (!window.confirm('Remove this subscriber?')) return
     try {
-      await api.del(`/admin/newsletter/${id}`, { auth: true })
+      await api.del(ENDPOINTS.ADMIN.NEWSLETTER.BY_ID(id), { auth: true })
       load()
     } catch (err) {
       setError(err.message)
@@ -55,7 +56,7 @@ export default function AdminNewsletter() {
     setError('')
     setSentMessage('')
     try {
-      const data = await api.post('/admin/newsletter/send', { subject, message }, { auth: true })
+      const data = await api.post(ENDPOINTS.ADMIN.NEWSLETTER.SEND, { subject, message }, { auth: true })
       setSentMessage(`Sent to ${data.sent} subscriber(s).`)
       setSubject('')
       setMessage('')

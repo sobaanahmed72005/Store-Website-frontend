@@ -9,6 +9,7 @@ import { useSeo } from '../hooks/useSeo'
 import { useProductList } from '../hooks/useProductList'
 import SeoHeadingFiller from '../components/SeoHeadingFiller'
 import { useSiteSettings } from '../store/siteSettingsStore'
+import { ENDPOINTS } from '../api/endpoints'
 
 export default function SearchResults() {
   const { siteName } = useSiteSettings()
@@ -25,7 +26,7 @@ export default function SearchResults() {
   })
 
   const { products: results, loading, page, setPage, totalPages, total } = useProductList(
-    query ? `/products?search=${encodeURIComponent(query)}` : null
+    query ? ENDPOINTS.PRODUCTS.SEARCH(query) : null
   )
 
   return (

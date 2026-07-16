@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronRightIcon } from './icons'
 import { api } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 
 export default function Hero() {
   const [slides, setSlides] = useState(null)
@@ -9,7 +10,7 @@ export default function Hero() {
   const [active, setActive] = useState(0)
 
   useEffect(() => {
-    api.get('/content/hero-banners')
+    api.get(ENDPOINTS.CONTENT.HERO_BANNERS)
       .then((data) => {
         const activeSlides = (data.slides || []).filter((s) => s.active !== false && s.image)
         setSlides(activeSlides)

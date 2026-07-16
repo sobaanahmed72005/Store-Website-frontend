@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { useAdminForm } from '../../hooks/useAdminForm'
 import { useSeo } from '../../hooks/useSeo'
 import SeoHeadingFiller from '../../components/SeoHeadingFiller'
@@ -23,7 +24,7 @@ export default function AdminAboutUs() {
 
   const load = useCallback(
     () =>
-      api.get('/content/about-us').then((data) =>
+      api.get(ENDPOINTS.CONTENT.ABOUT_US).then((data) =>
         setContent({
           paragraphs: data.paragraphs?.length ? data.paragraphs : [''],
           highlights: data.highlights?.length ? data.highlights : [{ title: '', description: '' }],
@@ -57,7 +58,7 @@ export default function AdminAboutUs() {
     e.preventDefault()
     save(() =>
       api.put(
-        '/admin/content/about-us',
+        ENDPOINTS.ADMIN.CONTENT.ABOUT_US,
         {
           paragraphs: content.paragraphs.filter((p) => p.trim() !== ''),
           highlights: content.highlights.filter((h) => h.title.trim() !== ''),

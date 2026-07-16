@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { useCurrency } from '../../store/currencyStore'
 import { ADMIN_PATH } from '../../config/adminPath'
 import { useSeo } from '../../hooks/useSeo'
@@ -30,7 +31,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     api
-      .get('/admin/stats', { auth: true })
+      .get(ENDPOINTS.ADMIN.STATS, { auth: true })
       .then(setStats)
       .catch((err) => setError(err.message))
   }, [])

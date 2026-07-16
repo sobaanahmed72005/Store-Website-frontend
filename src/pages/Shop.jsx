@@ -13,6 +13,7 @@ import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../store/siteSettingsStore'
 import { useProductList } from '../hooks/useProductList'
 import { api } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 import { categorySlugToPath } from '../utils/categoryPath'
 import SeoHeadingFiller from '../components/SeoHeadingFiller'
 
@@ -75,7 +76,7 @@ export default function Shop() {
   // Independent of whatever brand filter/page is currently active, so the sidebar's checkbox
   // list stays stable instead of shrinking to just whatever's on the current filtered page.
   useEffect(() => {
-    api.get('/products/brands').then(setAvailableBrands).catch(() => setAvailableBrands([]))
+    api.get(ENDPOINTS.PRODUCTS.BRANDS).then(setAvailableBrands).catch(() => setAvailableBrands([]))
   }, [])
 
   // Server-paginated (24/page), server-filtered by brand, and now server-sorted too — sorting
@@ -85,7 +86,7 @@ export default function Shop() {
   const params = new URLSearchParams()
   if (selectedBrands.size > 0) params.set('brand', [...selectedBrands].join(','))
   params.set('sort', sortBy)
-  const { products, loading, error, page, setPage, totalPages, total } = useProductList(`/products?${params.toString()}`)
+  const { products, loading, error, page, setPage, totalPages, total } = useProductList(ENDPOINTS.PRODUCTS.LIST(`?${params.toString()}`))
 
   const toggleBrand = (brand) => {
     setSelectedBrands((prev) => {

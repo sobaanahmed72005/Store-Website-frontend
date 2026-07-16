@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { api, resolveImageUrl } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 
 const DEFAULT_BRAND = {
   description: '',
@@ -23,7 +24,7 @@ export const useSiteSettingsStore = create((set) => ({
 
   init: () => {
     api
-      .get('/content/site-settings')
+      .get(ENDPOINTS.CONTENT.SITE_SETTINGS)
       .then((data) => {
         if (data.siteName) set({ siteName: data.siteName })
         if (data.logo) set({ logo: data.logo })
@@ -34,7 +35,7 @@ export const useSiteSettingsStore = create((set) => ({
       })
 
     api
-      .get('/content/footer-brand')
+      .get(ENDPOINTS.CONTENT.FOOTER_BRAND)
       .then((data) => set({ brand: { ...DEFAULT_BRAND, ...data, social: { ...DEFAULT_BRAND.social, ...data.social } } }))
       .catch((err) => console.error('Failed to load footer brand content:', err))
   },

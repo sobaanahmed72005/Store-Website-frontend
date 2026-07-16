@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { useAdminForm } from '../../hooks/useAdminForm'
 import { useSeo } from '../../hooks/useSeo'
 import SeoHeadingFiller from '../../components/SeoHeadingFiller'
@@ -31,7 +32,7 @@ export default function AdminCourier() {
   const [testResult, setTestResult] = useState(null)
 
   const load = useCallback(
-    () => api.get('/admin/courier-settings', { auth: true }).then((data) => setForm({ ...emptyForm, ...data })),
+    () => api.get(ENDPOINTS.ADMIN.COURIER_SETTINGS.BASE, { auth: true }).then((data) => setForm({ ...emptyForm, ...data })),
     []
   )
   const { loading, saving, saved, error, setError, save } = useAdminForm(load)
@@ -46,7 +47,7 @@ export default function AdminCourier() {
     setTestResult(null)
     save(async () => {
       await api.put(
-        '/admin/courier-settings',
+        ENDPOINTS.ADMIN.COURIER_SETTINGS.BASE,
         { ...form, api_key: apiKeyInput || undefined, api_password: apiPasswordInput || undefined },
         { auth: true }
       )
@@ -63,7 +64,7 @@ export default function AdminCourier() {
     setError('')
     setTestResult(null)
     try {
-      const result = await api.post('/admin/courier-settings/test', {}, { auth: true })
+      const result = await api.post(ENDPOINTS.ADMIN.COURIER_SETTINGS.TEST, {}, { auth: true })
       setTestResult(result.message)
     } catch (err) {
       setError(err.message)

@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { api } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 
 export const useCategoryStore = create((set) => ({
   tree: [],
@@ -7,7 +8,7 @@ export const useCategoryStore = create((set) => ({
 
   init: () => {
     api
-      .get('/categories/tree')
+      .get(ENDPOINTS.CATEGORIES.TREE)
       .then((tree) => set({ tree }))
       .catch(() => set({ tree: [] }))
       .finally(() => set({ loading: false }))

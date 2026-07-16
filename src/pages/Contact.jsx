@@ -16,6 +16,7 @@ import {
   TiktokIcon,
 } from '../components/icons'
 import { api } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../store/siteSettingsStore'
 import SeoHeadingFiller from '../components/SeoHeadingFiller'
@@ -65,7 +66,7 @@ export default function Contact() {
     setSubmitting(true)
     setError('')
     try {
-      await api.post('/contact', form)
+      await api.post(ENDPOINTS.CONTACT.BASE, form)
       setStatus('success')
       setForm({ name: '', email: '', subject: '', message: '' })
     } catch (err) {

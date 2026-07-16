@@ -5,6 +5,7 @@ import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
 import { api } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
 import { useSeo } from '../hooks/useSeo'
 import SeoHeadingFiller from '../components/SeoHeadingFiller'
 import { useSiteSettings } from '../store/siteSettingsStore'
@@ -35,7 +36,7 @@ export default function ResetPassword() {
     }
     setSubmitting(true)
     try {
-      await api.post('/auth/reset-password', { token, newPassword: form.newPassword })
+      await api.post(ENDPOINTS.AUTH.RESET_PASSWORD, { token, newPassword: form.newPassword })
       setDone(true)
       setTimeout(() => navigate('/signin', { replace: true }), 2000)
     } catch (err) {

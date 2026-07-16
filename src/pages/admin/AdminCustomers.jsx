@@ -1,5 +1,6 @@
 import { Fragment, useCallback, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { useCurrency } from '../../store/currencyStore'
 import { useAdminForm } from '../../hooks/useAdminForm'
 import Pagination from '../../components/Pagination'
@@ -31,10 +32,10 @@ export default function AdminCustomers() {
   // Server-paginated (50/page) so the customer table can't grow into an unbounded fetch. The
   // search box below only filters within the current page — a search spanning the whole customer
   // base would need server-side search support this endpoint doesn't have yet.
-  const load = useCallback(() => api.get('/admin/customers', { auth: true }).then(applyCustomersPage), [])
+  const load = useCallback(() => api.get(ENDPOINTS.ADMIN.CUSTOMERS.BASE(), { auth: true }).then(applyCustomersPage), [])
   const { loading, error, setError } = useAdminForm(load)
 
-  const goToPage = (nextPage) => api.get(`/admin/customers?page=${nextPage}`, { auth: true }).then(applyCustomersPage)
+  const goToPage = (nextPage) => api.get(ENDPOINTS.ADMIN.CUSTOMERS.BASE(`?page=${nextPage}`), { auth: true }).then(applyCustomersPage)
 
   const toggleExpand = async (customer) => {
     if (expandedId === customer.id) {
@@ -44,7 +45,7 @@ export default function AdminCustomers() {
     setExpandedId(customer.id)
     if (!details[customer.id]) {
       try {
-        const detail = await api.get(`/admin/customers/${customer.id}`, { auth: true })
+        const detail = await api.get(ENDPOINTS.ADMIN.CUSTOMERS.BY_ID(customer.id), { auth: true })
         setDetails((prev) => ({ ...prev, [customer.id]: detail }))
       } catch (err) {
         setError(err.message)

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { useSeo } from '../../hooks/useSeo'
 import SeoHeadingFiller from '../../components/SeoHeadingFiller'
 import { useSiteSettings } from '../../store/siteSettingsStore'
@@ -139,7 +140,7 @@ export default function AdminEmailTemplates() {
 
   useEffect(() => {
     setLoading(true)
-    api.get('/content/email-templates')
+    api.get(ENDPOINTS.CONTENT.EMAIL_TEMPLATES)
       .then((data) => {
         // Deep-merge fetched data with TEMPLATE_DEFAULTS so all 10 types are
         // always present in state, even if the DB only stored a subset.
@@ -175,7 +176,7 @@ export default function AdminEmailTemplates() {
     setError('')
     setSavedKey(null)
     try {
-      await api.put('/admin/content/email-templates', templates, { auth: true })
+      await api.put(ENDPOINTS.ADMIN.CONTENT.EMAIL_TEMPLATES, templates, { auth: true })
       setSavedKey(selected)
     } catch (err) {
       setError(err.message)

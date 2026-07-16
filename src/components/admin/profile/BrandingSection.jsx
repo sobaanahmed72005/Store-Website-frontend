@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { api, uploadImage, resolveImageUrl } from '../../../api/client'
+import { ENDPOINTS } from '../../../api/endpoints'
 import { useSiteSettings } from '../../../store/siteSettingsStore'
 import { useAdminSave } from '../../../hooks/useAdminForm'
 
@@ -29,7 +30,7 @@ export default function BrandingSection() {
   const handleSubmit = (e) => {
     e.preventDefault()
     save(async () => {
-      await api.put('/admin/content/site-settings', { siteName: name, logo: logoValue }, { auth: true })
+      await api.put(ENDPOINTS.ADMIN.CONTENT.SITE_SETTINGS, { siteName: name, logo: logoValue }, { auth: true })
       setSiteName(name)
       setLogo(logoValue)
     })

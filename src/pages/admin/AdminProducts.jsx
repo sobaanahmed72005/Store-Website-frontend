@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { api, resolveImageUrl } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { useCurrency } from '../../store/currencyStore'
 import { getEffectivePrice } from '../../utils/pricing'
 import { ADMIN_PATH } from '../../config/adminPath'
@@ -24,7 +25,7 @@ export default function AdminProducts() {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
 
-  const queryPath = lowStockOnly ? '/admin/products?low_stock=1' : '/admin/products'
+  const queryPath = ENDPOINTS.ADMIN.PRODUCTS.BASE(lowStockOnly ? '?low_stock=1' : '')
   const separator = queryPath.includes('?') ? '&' : '?'
 
   const load = useCallback(
@@ -48,7 +49,7 @@ export default function AdminProducts() {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this product? This cannot be undone.')) return
     try {
-      await api.del(`/admin/products/${id}`, { auth: true })
+      await api.del(ENDPOINTS.ADMIN.PRODUCTS.BY_ID(id), { auth: true })
       reload()
     } catch (err) {
       setError(err.message)

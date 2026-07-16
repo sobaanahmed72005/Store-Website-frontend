@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 import { useSeo } from '../../hooks/useSeo'
 import SeoHeadingFiller from '../../components/SeoHeadingFiller'
 import { useSiteSettings } from '../../store/siteSettingsStore'
@@ -28,8 +29,8 @@ export default function AdminBulkSale() {
     // browsable, searchable list rather than a paged one, so request the max page size the
     // backend allows (100). A catalog beyond 100 products would need a proper searchable/paged
     // picker here instead — this at least bounds the fetch instead of pulling the whole table.
-    api.get('/admin/products?limit=100', { auth: true }).then((data) => setProducts(data.products)).catch((err) => setError(err.message))
-    api.get('/admin/categories', { auth: true }).then(setCategories).catch((err) => setError(err.message))
+    api.get(ENDPOINTS.ADMIN.PRODUCTS.BASE('?limit=100'), { auth: true }).then((data) => setProducts(data.products)).catch((err) => setError(err.message))
+    api.get(ENDPOINTS.ADMIN.CATEGORIES.BASE, { auth: true }).then(setCategories).catch((err) => setError(err.message))
   }, [])
 
   const topLevelCategories = categories.filter((c) => !c.parent_id)
@@ -68,7 +69,7 @@ export default function AdminBulkSale() {
 
     setSaving(true)
     try {
-      const data = await api.post('/admin/products/bulk-sale', buildPayload('apply'), { auth: true })
+      const data = await api.post(ENDPOINTS.ADMIN.PRODUCTS.BULK_SALE, buildPayload('apply'), { auth: true })
       setResult(`Sale applied to ${data.updated} product(s).`)
     } catch (err) {
       setError(err.message)
@@ -85,7 +86,7 @@ export default function AdminBulkSale() {
 
     setSaving(true)
     try {
-      const data = await api.post('/admin/products/bulk-sale', buildPayload('clear'), { auth: true })
+      const data = await api.post(ENDPOINTS.ADMIN.PRODUCTS.BULK_SALE, buildPayload('clear'), { auth: true })
       setResult(`Sale cleared on ${data.updated} product(s).`)
     } catch (err) {
       setError(err.message)
