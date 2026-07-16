@@ -133,11 +133,13 @@ export default function Checkout() {
   useEffect(() => {
     setForm((prev) => ({
       ...prev,
+      email: prev.email || user?.email || '',
+      fullName: prev.fullName || user?.name || '',
       phone: prev.phone || user?.saved_phone || '',
       address1: prev.address1 || user?.saved_address || '',
       city: prev.city || user?.saved_city || 'Lahore',
     }))
-  }, [user?.saved_phone, user?.saved_address, user?.saved_city]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user?.email, user?.name, user?.saved_phone, user?.saved_address, user?.saved_city]) // eslint-disable-line react-hooks/exhaustive-deps
   const [shippingFee, setShippingFee] = useState(1800)
   const [discountInput, setDiscountInput] = useState('')
   const [appliedDiscount, setAppliedDiscount] = useState(null)
