@@ -73,7 +73,6 @@ export default function AdminCurrency() {
             <p className="text-[12px] text-[#9ca3af]">
               Rates source: exchangerate-api.com (free tier, refreshes roughly every few hours).{' '}
               {rateInfo.updatedAt ? `Last refreshed: ${new Date(rateInfo.updatedAt).toLocaleString()}.` : ''}
-              {rateInfo.isFallback ? ' Currently showing fallback rates — live refresh has not succeeded yet.' : ''}
             </p>
           )}
 
