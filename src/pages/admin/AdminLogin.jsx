@@ -15,11 +15,13 @@ export default function AdminLogin() {
     canonical: `${window.location.origin}${window.location.pathname}`,
     noindex: true,
   })
-  const { login, verifyTwoFactor, logout, user, loading } = useAuth()
+  const { login, verifyTwoFactor, logout, user, loading, initializing } = useAuth()
   const navigate = useNavigate()
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
   const [challengeId, setChallengeId] = useState(null)
+
+  if (initializing) return null
 
   if (user?.role === 'admin') {
     return <Navigate to={ADMIN_PATH} replace />
