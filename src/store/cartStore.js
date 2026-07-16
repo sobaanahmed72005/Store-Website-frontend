@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
-import { api } from '../api/client'
+import { api, BASE_URL } from '../api/client'
 import { useAuthStore } from './authStore'
 import { getEffectivePrice, getVariantEffectivePrice } from '../utils/pricing'
 
@@ -166,6 +166,7 @@ useAuthStore.subscribe(
 // a later one and revert the quantity server-side). Collapsing rapid changes into a single
 // request after things settle avoids that almost entirely.
 let syncTimer = null
+let pendingSyncItems = null
 
 useCartStore.subscribe(
   (state) => state.items,
@@ -173,12 +174,41 @@ useCartStore.subscribe(
     const user = useAuthStore.getState().user
     if (!user || syncedForUserId !== user.id) return
 
+    pendingSyncItems = items
     if (syncTimer) clearTimeout(syncTimer)
     syncTimer = setTimeout(() => {
       api.put(`/cart/${user.id}`, { items }, { auth: true }).catch((err) => console.error('Failed to sync cart to server:', err))
+      syncTimer = null
+      pendingSyncItems = null
     }, 600)
   }
 )
+
+// A quantity change immediately followed by navigating away (closing the tab, clicking through
+// to checkout) can otherwise beat the 600ms debounce above — the next page load's "sync cart
+// FROM server" step then overwrites the correct local state with the server's now-stale copy,
+// silently reverting the change with no error shown anywhere. Flushing here, as the page is
+// actually being hidden/torn down, closes that window. sendBeacon (not fetch) is used because a
+// normal in-flight fetch gets cancelled when the page unloads, but sendBeacon is specifically
+// designed to survive it — the backend exposes a POST alongside the existing PUT for this since
+// sendBeacon can only send POST.
+function flushPendingCartSync() {
+  if (!syncTimer || !pendingSyncItems) return
+  const user = useAuthStore.getState().user
+  if (!user) return
+  clearTimeout(syncTimer)
+  syncTimer = null
+  navigator.sendBeacon(`${BASE_URL}/cart/${user.id}`, new Blob([JSON.stringify({ items: pendingSyncItems })], { type: 'application/json' }))
+  pendingSyncItems = null
+}
+
+// visibilitychange is the more reliable signal (fires on tab switch/backgrounding, where a
+// mobile browser may kill the page without ever emitting pagehide) — pagehide is a fallback for
+// same-tab hard navigation/close, which doesn't always flip visibility first.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') flushPendingCartSync()
+})
+window.addEventListener('pagehide', flushPendingCartSync)
 
 // Whole-object compatibility hook for pages that need most of these fields together (Cart,
 // Checkout) — subscribes to every field, so prefer a selector (e.g. useCartStore(s => s.count))
