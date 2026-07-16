@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { api, resolveImageUrl } from '../../api/client'
 import { useCurrency } from '../../store/currencyStore'
 import { getEffectivePrice } from '../../utils/pricing'
@@ -9,23 +9,28 @@ import Pagination from '../../components/Pagination'
 
 export default function AdminProducts() {
   const { format } = useCurrency()
+  const [searchParams] = useSearchParams()
+  const lowStockOnly = searchParams.get('low_stock') === '1'
   const [products, setProducts] = useState([])
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
 
+  const queryPath = lowStockOnly ? '/admin/products?low_stock=1' : '/admin/products'
+  const separator = queryPath.includes('?') ? '&' : '?'
+
   const load = useCallback(
     () =>
-      api.get('/admin/products', { auth: true }).then((data) => {
+      api.get(queryPath, { auth: true }).then((data) => {
         setProducts(data.products)
         setPage(data.page)
         setTotalPages(data.totalPages)
       }),
-    []
+    [queryPath]
   )
   const { loading, error, setError, reload } = useAdminForm(load)
 
   const goToPage = async (nextPage) => {
-    const data = await api.get(`/admin/products?page=${nextPage}`, { auth: true })
+    const data = await api.get(`${queryPath}${separator}page=${nextPage}`, { auth: true })
     setProducts(data.products)
     setPage(data.page)
     setTotalPages(data.totalPages)
@@ -54,6 +59,15 @@ export default function AdminProducts() {
       </div>
 
       {error && <div className="text-[14px] text-red-600 mb-4">{error}</div>}
+
+      {lowStockOnly && (
+        <div className="flex items-center justify-between rounded-[10px] bg-amber-50 border border-amber-200 text-amber-900 text-[13px] px-4 py-3 mb-4">
+          <span>Showing only low-stock products (5 or fewer in stock).</span>
+          <Link to={`${ADMIN_PATH}/products`} className="font-medium hover:underline">
+            Clear filter
+          </Link>
+        </div>
+      )}
 
       <div className="bg-white rounded-[10px] border border-[#dedede] overflow-hidden">
         <table className="w-full text-[14px]">

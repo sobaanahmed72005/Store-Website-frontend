@@ -40,7 +40,7 @@ export default function AdminDashboard() {
           <StatCard label="Customers" value={stats.totalUsers} to={`${ADMIN_PATH}/customers`} />
           <StatCard label="Revenue" value={format(stats.totalRevenue)} to={`${ADMIN_PATH}/reports`} />
           <StatCard label="Pending Orders" value={stats.pendingOrders} to={`${ADMIN_PATH}/orders`} />
-          <StatCard label="Low Stock (≤5)" value={stats.lowStock} to={`${ADMIN_PATH}/products`} />
+          <StatCard label="Low Stock (≤5)" value={stats.lowStock} to={`${ADMIN_PATH}/products?low_stock=1`} />
         </div>
       )}
 
