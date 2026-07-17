@@ -82,4 +82,3 @@ export function useWishlist() {
 }
 
 export const useIsWishlisted = (productId) => useWishlistStore((s) => s.items.some((item) => item.id === productId))
-export const useWishlistCount = () => useWishlistStore((s) => s.items.length)

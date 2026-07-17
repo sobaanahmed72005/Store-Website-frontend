@@ -221,5 +221,3 @@ export function useCart() {
   const subTotal = state.items.reduce((sum, item) => sum + item.price * item.qty, 0)
   return { ...state, count, subTotal }
 }
-
-export const useCartCount = () => useCartStore((s) => s.items.reduce((sum, item) => sum + item.qty, 0))

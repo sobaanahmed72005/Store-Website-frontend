@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useWishlistStore } from '../store/wishlistStore'
+import { useWishlistStore, useIsWishlisted } from '../store/wishlistStore'
 import { useCartStore } from '../store/cartStore'
 import { useAuthStore } from '../store/authStore'
 import { useCurrencyStore, parsePkr } from '../store/currencyStore'
@@ -58,7 +58,7 @@ export default function ProductCard({
   // mutations elsewhere on the page (e.g. someone changing quantity in the header's mini-cart).
   const wishlistId = id ?? href ?? title
   const user = useAuthStore((s) => s.user)
-  const wishlisted = useWishlistStore((s) => s.items.some((item) => item.id === wishlistId))
+  const wishlisted = useIsWishlisted(wishlistId)
   const toggleWishlist = useWishlistStore((s) => s.toggleWishlist)
   const addToCart = useCartStore((s) => s.addToCart)
   const { format } = useCurrencyStore()
