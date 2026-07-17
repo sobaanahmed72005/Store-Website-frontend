@@ -2,6 +2,8 @@
 
 Everything to do before, during, and right after taking this store live. Check items off as you go. Grouped by when it needs to happen.
 
+**Repo layout note:** frontend and backend are two separate GitHub repos (not one monorepo with a `backend/` subfolder, despite some earlier drafts of this doc assuming that). Below, "the backend repo" and paths like `config/db.js` refer to files in the backend repo; this file itself lives in the frontend repo.
+
 ---
 
 ## 0. Hosting setup — Railway (app) + PKNIC (domain, already owned) + Cloudflare (DNS) + Namecheap (email only)
@@ -18,22 +20,16 @@ Decided setup: the domain is already registered separately at **PKNIC** (not Nam
   5. Wait for Cloudflare to show the domain as "Active" (hours to ~2 days). From then on, all DNS records for this domain — Railway's and Namecheap's — get added inside **Cloudflare's DNS tab**, never at PKNIC or Namecheap directly.
 - [ ] **Create a Railway account and a new Project** at railway.app (GitHub login is easiest since deploys will pull from your repo). This and the following Railway steps don't need to wait on DNS propagation — Railway gives a free `*.up.railway.app` URL to test with in the meantime.
 - [ ] **Add a MySQL database** to the project: "New" → "Database" → "MySQL". Railway provisions it instantly and auto-generates connection variables (host/port/user/password/database) scoped to that service.
-- [ ] **Add the backend as a service**: "New" → "GitHub Repo" → select this repo, and set its **root directory to `backend/`** (important — this repo has both frontend and backend in one repo, and the backend needs its own service pointed only at that folder). Set the start command to `node server.js` if Railway doesn't auto-detect it from `package.json`.
+- [ ] **Add the backend as a service**: "New" → "GitHub Repo" → select the **backend repo** (frontend and backend are two separate GitHub repos, not one monorepo — point this service at the backend repo's root). Set the start command to `node server.js` if Railway doesn't auto-detect it from `package.json`.
 - [ ] **Wire the database into the backend's environment variables.** In the backend service's "Variables" tab, reference the MySQL service's auto-generated variables (Railway lets you reference another service's variable with `${{MySQL.VARIABLE_NAME}}` syntax — check the MySQL service's own "Variables" tab for the exact names it exposes, commonly things like `MYSQLHOST`/`MYSQLPORT`/`MYSQLUSER`/`MYSQLPASSWORD`/`MYSQLDATABASE`). Map those into this app's expected `DB_HOST`/`DB_PORT`/`DB_USER`/`DB_PASSWORD`/`DB_NAME` variable names (see `backend/config/db.js`) — the app reads those specific names, not Railway's.
 - [ ] **Set the rest of the backend's environment variables**, using `backend/.env.example` as the field list:
-  - `JWT_SECRET` / `CREDENTIALS_ENCRYPTION_KEY` — from `DEPLOYMENT.secrets.local`
+  - `JWT_SECRET` / `CREDENTIALS_ENCRYPTION_KEY` — generate fresh (see section 3 below)
   - `NODE_ENV=production`
   - `FRONTEND_URL` — your real domain, e.g. `https://yourdomain.com`
   - `SMTP_HOST`/`SMTP_PORT`/`SMTP_USER`/`SMTP_PASS`/`SMTP_FROM` — from the Namecheap mailbox you set up (see below)
   - `ADMIN_PATH` — optionally a custom value instead of the repo default
-- [ ] **Run the three database migrations against Railway's MySQL.** Unlike Stellar Plus, Railway's databases are reachable from your own machine (check the MySQL service's "Connect" tab for the external connection details), so you can run these the normal way from `backend/` on your own computer with `.env` temporarily pointed at Railway's DB credentials:
-  ```
-  npm run db:migrate-token-version
-  npm run db:migrate-discount-guard
-  npm run db:migrate-sessions
-  ```
-  (Or run `npm run db:init` instead, once, if this is a genuinely fresh database with no data yet — it applies the full current `schema.sql` in one shot, making the three migrations above unnecessary.)
-- [ ] **Add the frontend as a second service** in the same Railway project: "New" → "GitHub Repo" → same repo, but set the **root directory to the repo root** (where the frontend's `package.json` lives) and follow [Railway's static-site guide](https://docs.railway.com/guides/static-hosting) — set the build command to `npm run build` and let Railway serve the `dist/` output.
+- [ ] **Initialize Railway's MySQL.** Since this is a genuinely fresh database with no data yet, run `npm run db:init` once from `backend/` on your own computer with `.env` temporarily pointed at Railway's DB credentials (check the MySQL service's "Connect" tab for the external connection details) — it applies the full current `schema.sql` in one shot, which already includes every individual migration. Don't run the individual `db:migrate-*` scripts against a fresh database — `db:init` supersedes them. (`db:migrate-*` and the `npm run db:migrate` meta-script that chains all of them exist only for bringing an *already-live, older* database up to date incrementally — see section 2 below.)
+- [ ] **Add the frontend as a second service** in the same Railway project: "New" → "GitHub Repo" → the **frontend repo** (a separate repo from the backend). This repo already has a `"start": "serve -s dist -l $PORT"` script and `serve` as a dependency, so add it as a standard Node service (build command `npm run build`, Railway auto-detects the start script) rather than following Railway's dedicated static-site product — the frontend's security headers (CSP, X-Frame-Options — see `public/serve.json`) only apply because `serve` actually runs and reads that file; Railway's separate "Static Sites" offering is a different serving mechanism that doesn't know about it, and wouldn't emit those headers. Don't remove or rename the `"start"` script for the same reason.
 - [ ] **Set the frontend's build-time variable**: `VITE_API_URL=https://api.yourdomain.com/api` (baked in at build time, so set this *before* the first deploy of this service).
 - [ ] **Connect your custom domains** (only once Cloudflare shows the domain as active). In each Railway service's "Settings" → "Networking" → "Custom Domain": add `yourdomain.com` to the frontend service, and `api.yourdomain.com` to the backend service. Railway will show you a CNAME record and a TXT verification record for each — add both inside **Cloudflare's DNS tab** for the domain (set the CNAME to "DNS only"/grey-cloud, not proxied, until Railway's TLS certificate has verified — you can proxy it afterward if desired).
 - [ ] **TLS is automatic** once the CNAME/TXT records propagate and Railway verifies ownership — no separate SSL step needed, unlike the Stellar Plus/cPanel flow.
@@ -42,33 +38,29 @@ Decided setup: the domain is already registered separately at **PKNIC** (not Nam
 
 ---
 
-## 1. Must resolve before accepting real payments (Safepay)
+## 1. Payment methods — no gateway integration exists (nothing to resolve here)
 
-These came out of the security audit and are still open. None of them are safe to skip if real money will move through Safepay.
+This section previously described a Safepay payment-gateway integration with several open correctness issues (amount-unit confusion, webhook signature verification, stale-token overwrites, etc.). That integration was never actually built — there is no `safepayController.js` or any Safepay code anywhere in the backend repo (confirmed by grep). `orders.safepay_token` in `schema.sql` is a harmless, intentionally-kept-but-unused leftover column from whenever this was planned.
 
-- [ ] **Run one real Safepay sandbox transaction end-to-end** and inspect the actual request/response bytes. This single test answers the two questions below — don't guess at either.
-- [ ] **Confirm the amount unit.** `backend/controllers/safepayController.js` currently multiplies the order total by 100, assuming Safepay wants paisa. Safepay's own published examples show plain decimal rupee amounts instead. If the live API expects rupees, every transaction will attempt to charge **100x** the real total. Fix in `safepayController.js` around the `amountInPaisa` calculation once confirmed.
-- [ ] **Confirm the webhook signature payload.** The code HMACs the full raw request body; Safepay's docs have shown examples hashing just the tracker token string instead. If wrong, no payment will ever auto-confirm (fails closed — orders get stuck in `pending_payment`, not a security hole, but nothing will work). Fix in the webhook handler's HMAC computation once confirmed.
-- [ ] **Add an amount cross-check in the webhook handler** — currently it trusts token match + `state === 'PAID'` with no comparison against `order.total_amount`. Add this once the amount format above is confirmed.
-- [ ] **Fix the stale-token overwrite.** Creating a new Safepay session unconditionally overwrites `orders.safepay_token`. If a customer opens checkout twice and pays via the older token, the webhook can't find the order and the payment is silently lost. (`safepayController.js`, session-creation function.)
-- [ ] **Make the webhook status update atomic.** It currently does a `SELECT` then a separate `UPDATE` with no `WHERE status = 'pending_payment'` guard on the update itself — a replayed webhook could theoretically double-process. Match the pattern already used correctly in the admin order-status-change code (`ordersController.js`).
-- [ ] **Switch the signature comparison to `crypto.timingSafeEqual`** instead of `!==` — same pattern already used correctly in `backend/utils/unsubscribeToken.js`.
-- [ ] **Add a way to release stock from abandoned Safepay checkouts.** Stock is decremented as soon as an order is created, even before payment completes, and `pending_payment` orders currently can't transition to `cancelled` through the normal admin UI — so an abandoned checkout holds that stock forever. Either add a scheduled job to expire old `pending_payment` orders, or allow `pending_payment → cancelled` as a valid admin transition.
+The only real payment methods in this codebase today are **Cash on Delivery** and **manual bank/wallet transfer with an admin-verified proof screenshot** (see `contentController.js`'s payment-settings shape and `ordersController.js`'s `createOrder`). Neither involves a webhook or a third-party payment API, so none of the concerns this section used to list (amount units, webhook HMAC, stale-token races) apply. Nothing to do here — just don't go looking for a `safepayController.js` that doesn't exist.
+
+If a real payment gateway is added later, re-add a section like this one for it, and treat it as unverified until a real sandbox transaction has been run end-to-end (see the "Payment/third-party integration correctness" guidance in the security-audit skill).
 
 ---
 
 ## 2. Database migrations
 
-Schema changes were made locally as part of the security fixes. They need to run against whatever database production actually uses — **not just your local one**.
+If production is a **genuinely fresh database with no data yet**, don't run individual migrations at all — use `npm run db:init` (see section 0 above), which applies the full current `schema.sql` in one shot and already includes every migration below.
+
+If production is an **existing, already-live database** that predates some of these changes, run the full migration chain (not just a handful — the individual list below has grown well past the original 3 as more features shipped, and running a stale subset would leave production still missing recent tables/columns):
 
 - [ ] From `backend/`, with `.env` pointed at the **production** database:
   ```
-  npm run db:migrate-token-version
-  npm run db:migrate-discount-guard
-  npm run db:migrate-sessions
+  npm run db:migrate
   ```
-- [ ] Run these *before* the new backend code goes live, not after — the code expects the `sessions` table and the `single_use_guard` column to already exist, and will throw SQL errors on login/checkout if they don't. (`token_version` on `users` is no longer used by the code — superseded by the `sessions` table below — but the migration is harmless to run regardless.)
-- [ ] Confirm the seeded admin account (`ADMIN_EMAIL`/`ADMIN_PASSWORD` in `.env`, used by `sql/init.js`) is either not re-run against production, or set to credentials you actually intend to use — don't let placeholder/dev values become the real admin login.
+  This chains every migration in order (2FA, updated-at timestamps, token versioning, discount-guard, sessions, payment-proof, product variants, spec overrides, verification expiry, scale indexes, TOTP replay guard, review status, product video) — check `package.json`'s `db:migrate` script for the current, authoritative list rather than trusting a hardcoded list here, since it grows as features ship.
+- [ ] Run this *before* the new backend code goes live, not after — the code expects tables/columns from several of these migrations to already exist, and will throw SQL errors the first time an affected feature is hit if they don't.
+- [ ] Confirm the seeded admin account (`ADMIN_EMAIL`/`ADMIN_PASSWORD` in `.env`, used by `sql/init.js`) is either not re-run against production, or set to credentials you actually intend to use — don't let placeholder/dev values become the real admin login. `sql/init.js` will refuse to seed a weak `ADMIN_PASSWORD` (same length check as every other account), so a placeholder like "admin123" will fail loudly instead of silently succeeding.
 
 ---
 
@@ -77,9 +69,8 @@ Schema changes were made locally as part of the security fixes. They need to run
 Use `backend/.env.example` as the template — copy it to `backend/.env` on the production server and fill in **production-specific** values. Do not copy your local dev `.env` over as-is.
 
 - [ ] `NODE_ENV=production` — this is not optional. It affects: cookie `secure` flag (requires HTTPS to work at all), strict CORS origin checking, tenant resolution (real `Host` header only, no `X-Store-Slug` override), and error responses (raw DB errors get masked).
-- [ ] `JWT_SECRET` and `CREDENTIALS_ENCRYPTION_KEY` — already generated and waiting for you in **`DEPLOYMENT.secrets.local`** (repo root). That file is excluded from git (matches the `*.local` rule already in `.gitignore` — confirmed with `git check-ignore`), so the values only exist on your machine. Copy them into production's `backend/.env` when you provision the server; don't reuse them locally, don't paste them anywhere else, don't rename the file to something git would track.
-  - If you ever need fresh ones instead (e.g. these leak somehow): `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"` for `JWT_SECRET`, `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` for `CREDENTIALS_ENCRYPTION_KEY`.
-- [ ] `DB_HOST` / `DB_USER` / `DB_PASSWORD` / `DB_NAME` — production database, using a **dedicated non-root DB user** (same practice as your dev setup — confirmed good in the audit, just carry it forward). Blank placeholders for these are also in `DEPLOYMENT.secrets.local` — fill them in once you pick a host.
+- [ ] `JWT_SECRET` and `CREDENTIALS_ENCRYPTION_KEY` — generate fresh values for production, don't reuse your local dev ones: `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"` for `JWT_SECRET` (32+ chars required — the app refuses to start in production without one), `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` for `CREDENTIALS_ENCRYPTION_KEY` (must be exactly a 64-char hex string). Store them wherever you keep production secrets (Railway's service "Variables" tab, a password manager) — don't commit them to either repo.
+- [ ] `DB_HOST` / `DB_USER` / `DB_PASSWORD` / `DB_NAME` — production database, using a **dedicated non-root DB user** (same practice as your dev setup — confirmed good in the audit, just carry it forward).
 - [ ] `FRONTEND_URL` — your real production frontend domain (e.g. `https://yourstore.com`), not `localhost`. This drives the CORS allowlist, password-reset/verification email links, and the website link now shown on invoices.
 - [ ] `PORT` — whatever your host expects the backend to listen on.
 - [ ] `ADMIN_PATH` — consider setting a custom obscure value rather than the default, since the default is baked into this repo's source and is effectively public. This is obscurity, not real access control (the backend auth is the real gate) — but there's no reason to leave it at the well-known default either.
@@ -93,6 +84,7 @@ Use `backend/.env.example` as the template — copy it to `backend/.env` on the 
 - [ ] **Confirm `FRONTEND_URL` matches your real frontend domain exactly.** The CORS allowlist in `backend/server.js` is derived from this — a mismatch will silently block all API requests from the deployed frontend with CORS errors.
 - [ ] **Database backups.** Once real orders/customers exist, make sure automated backups are actually running — not something to discover you need after data loss.
 - [ ] **Rate limiting is in-process/in-memory** (`backend/middleware/loginRateLimit.js`, `accountActionRateLimit.js`, `twoFactorRateLimit.js`) — fine for a single server process, but if you ever deploy with multiple instances/containers behind a load balancer, these limits won't be shared across them and become much weaker per-instance. Not a blocker for a typical single-server launch, just something to revisit if you scale horizontally.
+- [ ] **Confirm the frontend's security headers actually reach production**, don't just trust that `public/serve.json` exists in the repo. Once the frontend is deployed, run `curl -I https://yourdomain.com/` and confirm `Content-Security-Policy`, `X-Frame-Options: DENY`, and `X-Content-Type-Options: nosniff` are all present in the real response. These headers only apply because `serve -s dist` (the frontend's `npm start`) actually runs and reads `serve.json` — if Railway ever serves this app through a different mechanism (its dedicated "Static Sites" product instead of a standard Node service, or if the `"start"` script in `package.json` is ever removed/renamed), these headers would silently stop being sent with no local-dev signal that anything changed. This local repo can't verify what Railway actually does at runtime — only a real `curl` against the live domain can.
 
 ---
 
@@ -111,7 +103,7 @@ Use `backend/.env.example` as the template — copy it to `backend/.env` on the 
 - [ ] Request a password reset, confirm the email arrives with the correct production link.
 - [ ] Set up 2FA on a test account, log out, log back in with the 2FA code, then disable 2FA — confirm each step works and you're not unexpectedly locked out.
 - [ ] Place a test order with Cash on Delivery, confirm it appears correctly in Admin → Orders.
-- [ ] Place a test order with Safepay **in sandbox mode first** — do not point it at live Safepay until section 1 above is fully resolved and you've watched a sandbox transaction complete correctly end-to-end.
+- [ ] Place a test order with manual bank/wallet transfer, upload a proof screenshot, confirm it's flagged for admin review and admin can approve/reject it correctly.
 - [ ] Log into the admin panel at your (possibly now-custom) `ADMIN_PATH`, confirm the dashboard loads and stats look right.
 - [ ] Run `npm audit --production` one more time in both `backend/` and the frontend root right before launch, in case a new advisory landed since the last check.
 

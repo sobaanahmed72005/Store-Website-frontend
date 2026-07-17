@@ -6,6 +6,13 @@
 > This document is kept as a historical record — what was checked, what was found, and why the
 > resulting fixes exist — not as a list of open work. The "what's already solid" sections below
 > are still worth keeping in mind for future audits (no need to re-check those).
+>
+> **Architecture note:** this audit's frontend findings reference `src/context/{Auth,Cart,
+> Currency,Wishlist,Category,SiteSettings}Context.jsx`. Those files were deleted shortly after
+> this audit (commit `3884811`, "Replace React Context state with Zustand stores") — the same
+> state now lives in `src/store/*.js`. The file:line citations below are historical, not
+> navigable in the current tree; the underlying findings and fixes they describe are still
+> accurate to what happened, just not to the current file layout.
 
 Date: 2026-07-14
 Scope: entire repo state (not a diff), both `Store-Website-frontend` and `Store-Website-backend`, covering scalability/growth risk, general code quality, and a full security pass (auth, injection, secrets/infra, business-logic/financial integrity).
