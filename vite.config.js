@@ -13,4 +13,10 @@ export default defineConfig({
       '/sitemap.xml': { target: 'http://localhost:5000', changeOrigin: false },
     },
   },
+  // Vitest reads this same config — jsdom is needed since cartStore.js touches
+  // localStorage/document/window/navigator.sendBeacon at import time.
+  test: {
+    environment: 'jsdom',
+    include: ['src/**/*.test.js'],
+  },
 })
