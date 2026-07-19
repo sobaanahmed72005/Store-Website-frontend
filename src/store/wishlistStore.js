@@ -35,10 +35,14 @@ export const useWishlistStore = create((set, get) => ({
         set((state) => (state.items.some((item) => item.id === product.id) ? state : { items: [mapItem(product), ...state.items] }))
       })
     } else {
-      set((state) => ({ items: [mapItem(product), ...state.items], wishlistOpen: true }))
+      const optimisticItem = mapItem(product)
+      set((state) => ({ items: [optimisticItem, ...state.items], wishlistOpen: true }))
       api.post(ENDPOINTS.WISHLIST.BASE, { product_id: product.id }, { auth: true }).catch((err) => {
         console.error('Failed to add to wishlist:', err)
-        set((state) => ({ items: state.items.filter((item) => item.id !== product.id) }))
+        // Only undo the exact optimistic entry this call added — a same-id item currently in the
+        // list is not necessarily this one (e.g. a background wishlist refetch already replaced
+        // it), and removing by id alone would wipe out that fresher state instead.
+        set((state) => ({ items: state.items.filter((item) => item !== optimisticItem) }))
       })
     }
     return true
