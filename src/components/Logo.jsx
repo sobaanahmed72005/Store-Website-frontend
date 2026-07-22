@@ -8,7 +8,7 @@ import { useSiteSettings } from '../store/siteSettingsStore'
 // getting cut in half with mismatched colors.
 function splitName(name) {
   const spaceIndex = name.indexOf(' ')
-  if (spaceIndex > 0) return [name.slice(0, spaceIndex), name.slice(spaceIndex + 1), true]
+  if (spaceIndex > 0) return [name.slice(0, spaceIndex), name.slice(spaceIndex + 1), true, true]
   const isCap = (ch) => !!ch && ch === ch.toUpperCase() && ch !== ch.toLowerCase()
   let boundary = -1
   for (let i = 1; i < name.length; i++) {
@@ -17,14 +17,14 @@ function splitName(name) {
       break
     }
   }
-  if (boundary > 0) return [name.slice(0, boundary), name.slice(boundary), true]
-  return [name, '', false]
+  if (boundary > 0) return [name.slice(0, boundary), name.slice(boundary), true, false]
+  return [name, '', false, false]
 }
 
 export default function Logo({ variant = 'dark', className = '', textClassName = 'text-2xl', iconOnly = false, hideIcon = false, iconClassName = 'h-7', truncate = false }) {
   const { siteName, logoUrl } = useSiteSettings()
   const isLight = variant === 'light'
-  const [first, second, hasBoundary] = splitName(siteName)
+  const [first, second, hasBoundary, hasSpace] = splitName(siteName)
 
   if (iconOnly && logoUrl) {
     return (
@@ -44,7 +44,10 @@ export default function Logo({ variant = 'dark', className = '', textClassName =
       <span className={truncate ? 'min-w-0 truncate' : ''}>
         <span className={isLight ? 'text-white' : 'text-cz-primary'}>{first}</span>
         {hasBoundary && (
-          <span className={isLight ? 'text-white' : 'text-cz-accent-hover'}>{second}</span>
+          <>
+            {hasSpace && ' '}
+            <span className={isLight ? 'text-white' : 'text-cz-accent-hover'}>{second}</span>
+          </>
         )}
       </span>
     </span>

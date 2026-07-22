@@ -331,7 +331,7 @@ export default function Header() {
       <div className="mx-auto px-5">
         <div className="hidden md:grid grid-cols-4 items-center gap-4">
           <Link to="/" className="flex items-center justify-start col-span-1">
-            <Logo iconOnly variant="light" textClassName="text-[26px]" className="h-11" />
+            <Logo iconOnly variant="light" textClassName="text-[26px]" className="h-16" />
           </Link>
 
           <div className="block col-span-2 px-6">
@@ -382,7 +382,7 @@ export default function Header() {
               <HamburgerIcon size={28} />
             </button>
             <Link to="/" className="flex items-center min-w-0">
-              <Logo iconOnly variant="light" textClassName="text-[22px]" className="h-9" truncate />
+              <Logo iconOnly variant="light" textClassName="text-[22px]" className="h-12" truncate />
             </Link>
           </div>
 

@@ -57,7 +57,7 @@ export default function AdminLayout() {
       >
         <div className="px-5 py-5 border-b border-white/10 flex items-center justify-between">
           <div>
-            <Logo iconOnly variant="light" textClassName="text-lg" className="h-9" />
+            <Logo iconOnly variant="light" textClassName="text-lg" className="h-14" />
             <div className="text-[12px] text-white/60 mt-0.5">Admin Panel</div>
           </div>
           <button
@@ -105,7 +105,7 @@ export default function AdminLayout() {
           <button type="button" aria-label="Open menu" onClick={() => setSidebarOpen(true)}>
             <HamburgerIcon size={24} />
           </button>
-          <Logo iconOnly variant="light" textClassName="text-lg" className="h-8" />
+          <Logo iconOnly variant="light" textClassName="text-lg" className="h-10" />
         </div>
 
         <div className="flex items-center justify-end gap-1 bg-white border-b border-[#dedede] px-4 py-2">
