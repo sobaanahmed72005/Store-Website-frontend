@@ -68,7 +68,7 @@ export default function AdminLogin() {
   if (challengeId) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-cz-topbar px-5">
-        <Logo variant="light" textClassName="text-2xl mb-6" />
+        <Logo iconOnly variant="light" textClassName="text-2xl mb-6" className="h-12 mb-6" />
         <div className="w-full max-w-[380px] bg-white rounded-[10px] border border-[#dedede] p-8">
           <h1 className="sr-only">Admin Sign In</h1>
           <TwoFactorCodeForm onSubmit={handleTwoFactorSubmit} loading={loading} error={error} />
@@ -79,7 +79,7 @@ export default function AdminLogin() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-cz-topbar px-5">
-      <Logo variant="light" textClassName="text-2xl mb-6" />
+      <Logo iconOnly variant="light" textClassName="text-2xl mb-6" className="h-12 mb-6" />
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-[380px] bg-white rounded-[10px] border border-[#dedede] p-8"

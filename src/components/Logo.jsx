@@ -26,10 +26,10 @@ export default function Logo({ variant = 'dark', className = '', textClassName =
   const isLight = variant === 'light'
   const [first, second, hasBoundary] = splitName(siteName)
 
-  if (iconOnly) {
-    return logoUrl ? (
+  if (iconOnly && logoUrl) {
+    return (
       <img src={logoUrl} alt={siteName} width={32} height={32} className={`h-8 w-auto object-contain shrink-0 ${className}`} />
-    ) : null
+    )
   }
 
   return (

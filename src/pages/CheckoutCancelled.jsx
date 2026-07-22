@@ -19,7 +19,7 @@ export default function CheckoutCancelled() {
       <div className="bg-white border-b border-[#dedede]">
         <div className="max-w-[1280px] mx-auto px-5 py-5">
           <Link to="/">
-            <Logo textClassName="text-[22px]" />
+            <Logo textClassName="text-[22px]" hideIcon />
           </Link>
         </div>
       </div>

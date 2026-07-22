@@ -183,7 +183,7 @@ export default function Footer() {
       <div className="bg-cz-gold-light mx-auto px-5 py-[35px] lg:py-10">
         <div className="flex flex-col lg:flex-row gap-[40px]">
           <div className="w-full lg:w-[40%] flex flex-col items-center lg:items-start text-center lg:text-left">
-            <Logo textClassName="text-[16px] mb-5" />
+            <Logo textClassName="text-[16px] mb-5" hideIcon />
             <p className="text-[14px] text-black">{brand.description}</p>
 
             <div className="flex flex-col gap-[10px] mt-5">
