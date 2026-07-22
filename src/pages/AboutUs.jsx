@@ -29,11 +29,11 @@ export default function AboutUs() {
   }, [])
 
   useSeo({
-    title: `About ${siteName || 'IT Network'} — Our Story and Store Information`,
-    description: content.paragraphs?.[0]?.slice(0, 155) || `Learn more about ${siteName || 'IT Network'} — who we are and what we stand for.`,
+    title: `About ${siteName || 'IT Solutions'} — Our Story and Store Information`,
+    description: content.paragraphs?.[0]?.slice(0, 155) || `Learn more about ${siteName || 'IT Solutions'} — who we are and what we stand for.`,
     canonical: `${window.location.origin}/about-us`,
-    keywords: `about ${siteName || 'IT Network'}, computer store Pakistan, laptop store Pakistan`,
-    publisher: siteName || 'IT Network',
+    keywords: `about ${siteName || 'IT Solutions'}, computer store Pakistan, laptop store Pakistan`,
+    publisher: siteName || 'IT Solutions',
   })
 
   return (

@@ -30,7 +30,7 @@ function AuthInput({ type = 'text', name, placeholder, value, onChange, required
 export default function SignUp() {
   const { siteName } = useSiteSettings()
   useSeo({
-    title: `Create an Account — Join ${siteName || 'IT Network'} Today`,
+    title: `Create an Account — Join ${siteName || 'IT Solutions'} Today`,
     canonical: `${window.location.origin}/signup`,
     noindex: true,
   })

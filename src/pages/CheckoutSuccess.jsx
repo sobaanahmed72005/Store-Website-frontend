@@ -9,7 +9,7 @@ import { useSiteSettings } from '../store/siteSettingsStore'
 export default function CheckoutSuccess() {
   const { siteName } = useSiteSettings()
   useSeo({
-    title: `Payment Successful — Order Confirmed | ${siteName || 'IT Network'}`,
+    title: `Payment Successful — Order Confirmed | ${siteName || 'IT Solutions'}`,
     canonical: `${window.location.origin}/checkout/success`,
     noindex: true,
   })

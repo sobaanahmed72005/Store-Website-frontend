@@ -27,11 +27,11 @@ export default function PrivacyPolicy() {
   }, [])
 
   useSeo({
-    title: `Privacy Policy — How We Protect Your Data | ${siteName || 'IT Network'}`,
-    description: `Read the privacy policy at ${siteName || 'IT Network'}.`,
+    title: `Privacy Policy — How We Protect Your Data | ${siteName || 'IT Solutions'}`,
+    description: `Read the privacy policy at ${siteName || 'IT Solutions'}.`,
     canonical: `${window.location.origin}/privacy-policy`,
-    keywords: `privacy policy, data protection, ${siteName || 'IT Network'} privacy`,
-    publisher: siteName || 'IT Network',
+    keywords: `privacy policy, data protection, ${siteName || 'IT Solutions'} privacy`,
+    publisher: siteName || 'IT Solutions',
   })
 
   return (

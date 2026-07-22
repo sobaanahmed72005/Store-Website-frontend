@@ -12,7 +12,7 @@ export default function NotFound() {
   // The SPA fallback serves this with a 200 status (no real server-side 404 to give it),
   // so noindex is the only way to stop it from being treated as indexable content.
   useSeo({
-    title: `Sorry, Page Not Found — Return to ${siteName || 'IT Network'} Home`,
+    title: `Sorry, Page Not Found — Return to ${siteName || 'IT Solutions'} Home`,
     canonical: `${window.location.origin}${window.location.pathname}`,
     noindex: true,
   })

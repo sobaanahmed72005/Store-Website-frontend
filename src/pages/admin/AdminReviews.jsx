@@ -24,7 +24,7 @@ const STATUS_LABEL = {
 export default function AdminReviews() {
   const { siteName } = useSiteSettings()
   useSeo({
-    title: `Reviews — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    title: `Reviews — Manage Your Store | ${siteName || 'IT Solutions'} Admin Panel`,
     canonical: `${window.location.origin}${window.location.pathname}`,
     noindex: true,
   })

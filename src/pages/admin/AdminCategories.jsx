@@ -21,7 +21,7 @@ function slugify(value) {
 export default function AdminCategories() {
   const { siteName } = useSiteSettings()
   useSeo({
-    title: `Categories — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    title: `Categories — Manage Your Store | ${siteName || 'IT Solutions'} Admin Panel`,
     canonical: `${window.location.origin}${window.location.pathname}`,
     noindex: true,
   })

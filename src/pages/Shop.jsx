@@ -66,11 +66,11 @@ export default function Shop() {
   const [view, setView] = useState('grid')
 
   useSeo({
-    title: `Shop All Products — Laptops, Gaming Gear & PC Components | ${siteName || 'IT Network'}`,
-    description: `Browse the full ${siteName || 'IT Network'} catalog — laptops, gaming gear, and PC components, with filters by brand.`,
+    title: `Shop All Products — Laptops, Gaming Gear & PC Components | ${siteName || 'IT Solutions'}`,
+    description: `Browse the full ${siteName || 'IT Solutions'} catalog — laptops, gaming gear, and PC components, with filters by brand.`,
     canonical: `${window.location.origin}/shop`,
     keywords: 'shop laptops Pakistan, gaming PC, PC components, buy laptop online, computer store Pakistan',
-    publisher: siteName || 'IT Network',
+    publisher: siteName || 'IT Solutions',
   })
 
   // Independent of whatever brand filter/page is currently active, so the sidebar's checkbox

@@ -46,11 +46,11 @@ export default function Contact() {
   const { siteName, brand } = useSiteSettings()
 
   useSeo({
-    title: `Contact Us — Support, Store Address & Hours | ${siteName || 'IT Network'}`,
-    description: `Get in touch with ${siteName || 'IT Network'} — store address, phone, email, and support hours.`,
+    title: `Contact Us — Support, Store Address & Hours | ${siteName || 'IT Solutions'}`,
+    description: `Get in touch with ${siteName || 'IT Solutions'} — store address, phone, email, and support hours.`,
     canonical: `${window.location.origin}/contact`,
-    keywords: `contact ${siteName || 'IT Network'}, customer support Pakistan, computer store contact`,
-    publisher: siteName || 'IT Network',
+    keywords: `contact ${siteName || 'IT Solutions'}, customer support Pakistan, computer store contact`,
+    publisher: siteName || 'IT Solutions',
   })
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' })
   const [submitting, setSubmitting] = useState(false)

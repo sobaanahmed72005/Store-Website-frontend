@@ -62,7 +62,7 @@ function ImagePreview({ src }) {
 export default function AdminBanners() {
   const { siteName } = useSiteSettings()
   useSeo({
-    title: `Hero Banners — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    title: `Hero Banners — Manage Your Store | ${siteName || 'IT Solutions'} Admin Panel`,
     canonical: `${window.location.origin}${window.location.pathname}`,
     noindex: true,
   })

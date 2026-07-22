@@ -268,12 +268,12 @@ export default function Product() {
   const origin = window.location.origin
   const canonical = `${origin}/product/${slug}`
   useSeo({
-    title: product ? `${product.name} — Buy Online in Pakistan | ${siteName || 'IT Network'}` : undefined,
+    title: product ? `${product.name} — Buy Online in Pakistan | ${siteName || 'IT Solutions'}` : undefined,
     description: product?.description ? product.description.slice(0, 155) : undefined,
     canonical: product ? canonical : undefined,
     image: galleryImages[0],
     keywords: product ? `${product.name.toLowerCase()}, ${product.brand || ''}, buy online Pakistan`.replace(', ,', ',') : undefined,
-    publisher: product ? siteName || 'IT Network' : undefined,
+    publisher: product ? siteName || 'IT Solutions' : undefined,
     noindex: !product,
     jsonLd: product
       ? [

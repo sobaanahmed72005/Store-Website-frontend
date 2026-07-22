@@ -27,11 +27,11 @@ export default function Policies() {
   }, [])
 
   useSeo({
-    title: `Return & Exchange Policy — How It Works | ${siteName || 'IT Network'}`,
-    description: `Read the return and exchange policy at ${siteName || 'IT Network'}.`,
+    title: `Return & Exchange Policy — How It Works | ${siteName || 'IT Solutions'}`,
+    description: `Read the return and exchange policy at ${siteName || 'IT Solutions'}.`,
     canonical: `${window.location.origin}/return-exchange`,
-    keywords: `return policy, exchange policy, ${siteName || 'IT Network'} returns`,
-    publisher: siteName || 'IT Network',
+    keywords: `return policy, exchange policy, ${siteName || 'IT Solutions'} returns`,
+    publisher: siteName || 'IT Solutions',
   })
 
   return (

@@ -8,7 +8,7 @@ import { useSiteSettings } from '../../store/siteSettingsStore'
 export default function AdminBulkSale() {
   const { siteName } = useSiteSettings()
   useSeo({
-    title: `Bulk Sale — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    title: `Bulk Sale — Manage Your Store | ${siteName || 'IT Solutions'} Admin Panel`,
     canonical: `${window.location.origin}${window.location.pathname}`,
     noindex: true,
   })

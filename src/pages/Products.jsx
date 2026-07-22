@@ -76,13 +76,13 @@ export default function Products() {
   // (?featured=1/?on_sale=1/?new_arrival=1) show content /shop can't reproduce, so they stay
   // real, independently indexed, self-canonical pages.
   useSeo({
-    title: `${pageTitle} — Laptops, Gaming Gear & PC Components | ${siteName || 'IT Network'}`,
-    description: `${pageTitle} at ${siteName || 'IT Network'} — competitive prices and fast delivery.`,
+    title: `${pageTitle} — Laptops, Gaming Gear & PC Components | ${siteName || 'IT Solutions'}`,
+    description: `${pageTitle} at ${siteName || 'IT Solutions'} — competitive prices and fast delivery.`,
     canonical: activeFilter
       ? `${window.location.origin}/products?${FILTER_CONFIG[activeFilter].param}`
       : `${window.location.origin}/shop`,
     keywords: `${pageTitle.toLowerCase()}, laptops Pakistan, gaming PC, PC components, buy laptop online`,
-    publisher: siteName || 'IT Network',
+    publisher: siteName || 'IT Solutions',
   })
 
   const [selectedBrands, setSelectedBrands] = useState(() => new Set())

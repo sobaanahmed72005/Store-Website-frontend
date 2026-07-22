@@ -16,7 +16,7 @@ const emptyMethods = {
 export default function AdminPayments() {
   const { siteName } = useSiteSettings()
   useSeo({
-    title: `Payment Methods — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    title: `Payment Methods — Manage Your Store | ${siteName || 'IT Solutions'} Admin Panel`,
     canonical: `${window.location.origin}${window.location.pathname}`,
     noindex: true,
   })

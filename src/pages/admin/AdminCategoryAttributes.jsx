@@ -11,7 +11,7 @@ import { useSiteSettings } from '../../store/siteSettingsStore'
 export default function AdminCategoryAttributes() {
   const { siteName } = useSiteSettings()
   useSeo({
-    title: `Filters — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    title: `Filters — Manage Your Store | ${siteName || 'IT Solutions'} Admin Panel`,
     canonical: `${window.location.origin}${window.location.pathname}`,
     noindex: true,
   })

@@ -14,7 +14,7 @@ import { useSiteSettings } from '../../store/siteSettingsStore'
 export default function AdminProducts() {
   const { siteName } = useSiteSettings()
   useSeo({
-    title: `Products — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    title: `Products — Manage Your Store | ${siteName || 'IT Solutions'} Admin Panel`,
     canonical: `${window.location.origin}${window.location.pathname}`,
     noindex: true,
   })

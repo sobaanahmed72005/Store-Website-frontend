@@ -19,8 +19,8 @@ export default function SearchResults() {
   // noindex rather than robots.txt disallow, so the tag itself can still be crawled and honored.
   useSeo({
     title: query
-      ? `Search Results for "${query}" | ${siteName || 'IT Network'}`
-      : `Search Our Products | ${siteName || 'IT Network'}`,
+      ? `Search Results for "${query}" | ${siteName || 'IT Solutions'}`
+      : `Search Our Products | ${siteName || 'IT Solutions'}`,
     canonical: `${window.location.origin}${window.location.pathname}${window.location.search}`,
     noindex: true,
   })

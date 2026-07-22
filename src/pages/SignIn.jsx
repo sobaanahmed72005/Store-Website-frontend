@@ -32,7 +32,7 @@ function AuthInput({ type = 'text', name, placeholder, value, onChange }) {
 export default function SignIn() {
   const { siteName } = useSiteSettings()
   useSeo({
-    title: `Sign In to Your ${siteName || 'IT Network'} Account — Access Orders & More`,
+    title: `Sign In to Your ${siteName || 'IT Solutions'} Account — Access Orders & More`,
     canonical: `${window.location.origin}/signin`,
     noindex: true,
   })

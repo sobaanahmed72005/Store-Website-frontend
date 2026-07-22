@@ -18,7 +18,7 @@ const COLOR_PRESETS = [
 export default function AdminAnnouncement() {
   const { siteName } = useSiteSettings()
   useSeo({
-    title: `Announcement Bar — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    title: `Announcement Bar — Manage Your Store | ${siteName || 'IT Solutions'} Admin Panel`,
     canonical: `${window.location.origin}${window.location.pathname}`,
     noindex: true,
   })

@@ -226,7 +226,7 @@ const STATUS_LABEL = {
 export default function Account() {
   const { siteName } = useSiteSettings()
   useSeo({
-    title: `My Account — Orders, Wishlist & Settings | ${siteName || 'IT Network'}`,
+    title: `My Account — Orders, Wishlist & Settings | ${siteName || 'IT Solutions'}`,
     canonical: `${window.location.origin}/account`,
     noindex: true,
   })

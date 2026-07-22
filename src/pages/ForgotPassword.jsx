@@ -13,7 +13,7 @@ import { useSiteSettings } from '../store/siteSettingsStore'
 export default function ForgotPassword() {
   const { siteName } = useSiteSettings()
   useSeo({
-    title: `Forgot Password — Reset Your ${siteName || 'IT Network'} Account`,
+    title: `Forgot Password — Reset Your ${siteName || 'IT Solutions'} Account`,
     canonical: `${window.location.origin}/forgot-password`,
     noindex: true,
   })

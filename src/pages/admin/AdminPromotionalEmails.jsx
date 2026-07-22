@@ -15,7 +15,7 @@ const STATUS_STYLE = {
 export default function AdminPromotionalEmails() {
   const { siteName } = useSiteSettings()
   useSeo({
-    title: `Promotional Emails — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    title: `Promotional Emails — Manage Your Store | ${siteName || 'IT Solutions'} Admin Panel`,
     canonical: `${window.location.origin}${window.location.pathname}`,
     noindex: true,
   })

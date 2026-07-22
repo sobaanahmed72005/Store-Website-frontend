@@ -127,7 +127,7 @@ const EMAIL_TYPES = [
 export default function AdminEmailTemplates() {
   const { siteName } = useSiteSettings()
   useSeo({
-    title: `Email Templates — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    title: `Email Templates — Manage Your Store | ${siteName || 'IT Solutions'} Admin Panel`,
     canonical: `${window.location.origin}${window.location.pathname}`,
     noindex: true,
   })

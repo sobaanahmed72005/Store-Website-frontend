@@ -13,7 +13,7 @@ const emptyForm = { code: '', discount_type: 'percent', discount_value: '', expi
 export default function AdminDiscountCodes() {
   const { siteName } = useSiteSettings()
   useSeo({
-    title: `Discount Codes — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    title: `Discount Codes — Manage Your Store | ${siteName || 'IT Solutions'} Admin Panel`,
     canonical: `${window.location.origin}${window.location.pathname}`,
     noindex: true,
   })

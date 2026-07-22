@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "start": "serve -s dist -l $PORT",
+    "start": "node server.js",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
@@ -14,11 +14,11 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.1",
+    "express": "^5.2.1",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-router-dom": "^7.18.0",
     "recharts": "^3.9.1",
-    "serve": "^14.2.6",
     "tailwindcss": "^4.3.1",
     "zustand": "^5.0.14"
   },

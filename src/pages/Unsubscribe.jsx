@@ -13,7 +13,7 @@ import { useSiteSettings } from '../store/siteSettingsStore'
 export default function Unsubscribe() {
   const { siteName } = useSiteSettings()
   useSeo({
-    title: `Unsubscribe from ${siteName || 'IT Network'} Newsletter`,
+    title: `Unsubscribe from ${siteName || 'IT Solutions'} Newsletter`,
     canonical: `${window.location.origin}/unsubscribe`,
     noindex: true,
   })

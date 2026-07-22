@@ -21,7 +21,7 @@ function StatCard({ label, value, to }) {
 export default function AdminDashboard() {
   const { siteName } = useSiteSettings()
   useSeo({
-    title: `Dashboard — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    title: `Dashboard — Manage Your Store | ${siteName || 'IT Solutions'} Admin Panel`,
     canonical: `${window.location.origin}${window.location.pathname}`,
     noindex: true,
   })

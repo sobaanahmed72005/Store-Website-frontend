@@ -132,15 +132,15 @@ export default function CategoryListing() {
   const origin = window.location.origin
   const canonical = `${origin}/category/${slug}`
   useSeo({
-    title: dbCategory ? `Buy ${dbCategory.name} Online in Pakistan — Best Prices | ${siteName || 'IT Network'}` : undefined,
+    title: dbCategory ? `Buy ${dbCategory.name} Online in Pakistan — Best Prices | ${siteName || 'IT Solutions'}` : undefined,
     description: dbCategory?.description
       ? dbCategory.description.slice(0, 155)
       : dbCategory
-        ? `Shop ${dbCategory.name} at ${siteName || 'IT Network'} — competitive prices and fast delivery.`
+        ? `Shop ${dbCategory.name} at ${siteName || 'IT Solutions'} — competitive prices and fast delivery.`
         : undefined,
     canonical: dbCategory ? canonical : undefined,
     keywords: dbCategory ? `${dbCategory.name.toLowerCase()}, laptops Pakistan, buy online, computer store Pakistan` : undefined,
-    publisher: dbCategory ? siteName || 'IT Network' : undefined,
+    publisher: dbCategory ? siteName || 'IT Solutions' : undefined,
     noindex: !dbCategory,
     jsonLd: dbCategory
       ? {

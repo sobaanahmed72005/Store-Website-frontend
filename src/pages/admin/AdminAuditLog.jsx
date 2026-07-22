@@ -54,7 +54,7 @@ function formatDetails(entry) {
 export default function AdminAuditLog() {
   const { siteName } = useSiteSettings()
   useSeo({
-    title: `Audit Log — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    title: `Audit Log — Manage Your Store | ${siteName || 'IT Solutions'} Admin Panel`,
     canonical: `${window.location.origin}${window.location.pathname}`,
     noindex: true,
   })

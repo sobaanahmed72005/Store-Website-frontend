@@ -7,7 +7,7 @@ import { useSiteSettings } from '../store/siteSettingsStore'
 export default function CheckoutCancelled() {
   const { siteName } = useSiteSettings()
   useSeo({
-    title: `Payment Cancelled — Order Not Completed | ${siteName || 'IT Network'}`,
+    title: `Payment Cancelled — Order Not Completed | ${siteName || 'IT Solutions'}`,
     canonical: `${window.location.origin}/checkout/cancelled`,
     noindex: true,
   })

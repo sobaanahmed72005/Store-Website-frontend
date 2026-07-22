@@ -13,7 +13,7 @@ import { useSiteSettings } from '../store/siteSettingsStore'
 export default function VerifyEmail() {
   const { siteName } = useSiteSettings()
   useSeo({
-    title: `Verify Your Email — ${siteName || 'IT Network'} Account`,
+    title: `Verify Your Email — ${siteName || 'IT Solutions'} Account`,
     canonical: `${window.location.origin}/verify-email`,
     noindex: true,
   })

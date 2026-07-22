@@ -35,7 +35,7 @@ function QuantityStepper({ qty, onDecrease, onIncrease }) {
 export default function Cart() {
   const { siteName } = useSiteSettings()
   useSeo({
-    title: `Your Shopping Cart — Review Items | ${siteName || 'IT Network'}`,
+    title: `Your Shopping Cart — Review Items | ${siteName || 'IT Solutions'}`,
     canonical: `${window.location.origin}/cart`,
     noindex: true,
   })

@@ -112,7 +112,7 @@ function PaymentMethodDetails({ methodKey, method }) {
 export default function Checkout() {
   const { siteName } = useSiteSettings()
   useSeo({
-    title: `Checkout — Complete Your Order | ${siteName || 'IT Network'}`,
+    title: `Checkout — Complete Your Order | ${siteName || 'IT Solutions'}`,
     canonical: `${window.location.origin}/checkout`,
     noindex: true,
   })

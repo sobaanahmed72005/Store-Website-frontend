@@ -59,7 +59,7 @@ const SOCIAL_FIELDS = [
 export default function AdminFooter() {
   const { siteName } = useSiteSettings()
   useSeo({
-    title: `Footer / Store Info — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    title: `Footer / Store Info — Manage Your Store | ${siteName || 'IT Solutions'} Admin Panel`,
     canonical: `${window.location.origin}${window.location.pathname}`,
     noindex: true,
   })

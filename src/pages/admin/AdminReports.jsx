@@ -101,7 +101,7 @@ const currencyTooltipFormatter = (format) => (value, name) => [format(value), na
 export default function AdminReports() {
   const { siteName } = useSiteSettings()
   useSeo({
-    title: `Reports — Manage Your Store | ${siteName || 'IT Network'} Admin Panel`,
+    title: `Reports — Manage Your Store | ${siteName || 'IT Solutions'} Admin Panel`,
     canonical: `${window.location.origin}${window.location.pathname}`,
     noindex: true,
   })
