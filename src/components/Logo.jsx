@@ -21,14 +21,46 @@ function splitName(name) {
   return [name, '', false, false]
 }
 
-export default function Logo({ variant = 'dark', className = '', textClassName = 'text-2xl', iconOnly = false, hideIcon = false, iconClassName = 'h-7', truncate = false }) {
+export default function Logo({
+  variant = 'dark',
+  className = '',
+  textClassName = 'text-2xl',
+  iconOnly = false,
+  hideIcon = false,
+  iconClassName = 'h-7',
+  truncate = false,
+  size,
+}) {
   const { siteName, logoUrl } = useSiteSettings()
   const isLight = variant === 'light'
   const [first, second, hasBoundary, hasSpace] = splitName(siteName)
 
-  if (iconOnly && logoUrl) {
+  // iconOnly reserves a single box (`size`, in px) for whichever ends up rendering — the logo
+  // image or, when no logo is configured, the name — so the two never end up sized/placed
+  // independently of each other.
+  if (iconOnly) {
+    const boxStyle = size ? { height: size, fontSize: size * 0.6 } : undefined
     return (
-      <img src={logoUrl} alt={siteName} width={32} height={32} className={`h-8 w-auto object-contain shrink-0 ${className}`} />
+      <span
+        className={`inline-flex items-center font-heading font-bold leading-none whitespace-nowrap ${
+          truncate ? 'min-w-0' : ''
+        } ${className}`}
+        style={boxStyle}
+      >
+        {logoUrl ? (
+          <img src={logoUrl} alt={siteName} className="h-full w-auto object-contain shrink-0" />
+        ) : (
+          <span className={truncate ? 'min-w-0 truncate' : ''}>
+            <span className={isLight ? 'text-white' : 'text-cz-primary'}>{first}</span>
+            {hasBoundary && (
+              <>
+                {hasSpace && ' '}
+                <span className={isLight ? 'text-white' : 'text-cz-accent-hover'}>{second}</span>
+              </>
+            )}
+          </span>
+        )}
+      </span>
     )
   }
 
