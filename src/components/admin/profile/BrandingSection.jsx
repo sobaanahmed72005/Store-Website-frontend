@@ -18,7 +18,7 @@ export default function BrandingSection() {
     setUploading(true)
     setError('')
     try {
-      const { url } = await uploadImage(file)
+      const { url } = await uploadImage(file, undefined, { purpose: 'logo' })
       setLogoValue(url)
     } catch (err) {
       setError(err.message)

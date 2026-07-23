@@ -91,9 +91,12 @@ export const api = {
   del: (path, opts) => request(path, { ...opts, method: 'DELETE' }),
 }
 
-export async function uploadImage(file, endpoint = '/admin/upload') {
+export async function uploadImage(file, endpoint = '/admin/upload', extraFields) {
   const formData = new FormData()
   formData.append('image', file)
+  if (extraFields) {
+    for (const [key, value] of Object.entries(extraFields)) formData.append(key, value)
+  }
 
   const res = await fetchWithAuthRetry(endpoint, {
     method: 'POST',
