@@ -291,13 +291,13 @@ export default function Checkout() {
     <div className="min-h-screen bg-cz-page">
       <h1 className="sr-only">Checkout</h1>
       <SeoHeadingFiller h3="Order review" h4="Discount code" h5="Payment proof upload" h6="Terms notice" />
-      <div className="bg-white border-b border-[#dedede]">
+      <div className="bg-cz-header">
         <div className="mx-auto px-5">
-          <div className="flex justify-between items-center py-5">
+          <div className="flex justify-between items-center py-2.5">
             <Link to="/">
-              <Logo iconOnly size={64} />
+              <Logo iconOnly variant="light" size={64} />
             </Link>
-            <Link to="/cart" aria-label="Cart" className="text-black">
+            <Link to="/cart" aria-label="Cart" className="text-white">
               <CartIcon size={24} />
             </Link>
           </div>

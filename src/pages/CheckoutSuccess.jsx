@@ -23,10 +23,10 @@ export default function CheckoutSuccess() {
 
   return (
     <div className="min-h-screen bg-cz-page flex flex-col">
-      <div className="bg-white border-b border-[#dedede]">
-        <div className="max-w-[1280px] mx-auto px-5 py-5">
+      <div className="bg-cz-header">
+        <div className="max-w-[1280px] mx-auto px-5 py-2.5">
           <Link to="/">
-            <Logo iconOnly size={64} />
+            <Logo iconOnly variant="light" size={64} />
           </Link>
         </div>
       </div>
