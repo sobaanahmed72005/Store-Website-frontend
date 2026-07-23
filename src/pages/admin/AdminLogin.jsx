@@ -7,6 +7,7 @@ import { ADMIN_PATH } from '../../config/adminPath'
 import { useSeo } from '../../hooks/useSeo'
 import SeoHeadingFiller from '../../components/SeoHeadingFiller'
 import { useSiteSettings } from '../../store/siteSettingsStore'
+import { EyeIcon, EyeOffIcon } from '../../components/icons'
 
 export default function AdminLogin() {
   const { siteName } = useSiteSettings()
@@ -20,6 +21,7 @@ export default function AdminLogin() {
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
   const [challengeId, setChallengeId] = useState(null)
+  const [showPassword, setShowPassword] = useState(false)
 
   if (initializing) return null
 
@@ -100,15 +102,24 @@ export default function AdminLogin() {
             className="w-full rounded-md border border-[#d1d5db] text-[14px] px-4 py-2.5 outline-none focus:border-cz-primary"
           />
         </div>
-        <div className="mb-4">
+        <div className="mb-4 relative">
           <input
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             placeholder="Password"
             value={form.password}
             onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
             required
-            className="w-full rounded-md border border-[#d1d5db] text-[14px] px-4 py-2.5 outline-none focus:border-cz-primary"
+            className="w-full rounded-md border border-[#d1d5db] text-[14px] px-4 py-2.5 pr-10 outline-none focus:border-cz-primary"
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword((s) => !s)}
+            tabIndex={-1}
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9ca3af] hover:text-[#4b4b4b]"
+          >
+            {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+          </button>
         </div>
 
         <button

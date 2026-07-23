@@ -10,13 +10,16 @@ import { ADMIN_PATH } from '../config/adminPath'
 import { useSeo } from '../hooks/useSeo'
 import SeoHeadingFiller from '../components/SeoHeadingFiller'
 import { useSiteSettings } from '../store/siteSettingsStore'
+import { EyeIcon, EyeOffIcon } from '../components/icons'
 
 function AuthInput({ type = 'text', name, placeholder, value, onChange }) {
+  const isPassword = type === 'password'
+  const [show, setShow] = useState(false)
   return (
     <div className="mb-2">
-      <div className="h-[47px] rounded-[30px] border border-[#a9a9a9] bg-white overflow-hidden">
+      <div className="h-[47px] rounded-[30px] border border-[#a9a9a9] bg-white overflow-hidden flex items-center">
         <input
-          type={type}
+          type={isPassword && show ? 'text' : type}
           name={name}
           placeholder={placeholder}
           value={value}
@@ -24,6 +27,17 @@ function AuthInput({ type = 'text', name, placeholder, value, onChange }) {
           required
           className="w-full h-full bg-transparent text-[16px] text-[#212121] placeholder-[#a9a9a9] px-5 outline-none"
         />
+        {isPassword && (
+          <button
+            type="button"
+            onClick={() => setShow((s) => !s)}
+            tabIndex={-1}
+            aria-label={show ? 'Hide password' : 'Show password'}
+            className="pr-5 text-[#a9a9a9] hover:text-[#212121] shrink-0"
+          >
+            {show ? <EyeOffIcon size={20} /> : <EyeIcon size={20} />}
+          </button>
+        )}
       </div>
     </div>
   )
