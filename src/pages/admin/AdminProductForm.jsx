@@ -78,6 +78,10 @@ export default function AdminProductForm() {
   // correct auto-derived value once that attribute has multiple options on the same product.
   const [specOverrides, setSpecOverrides] = useState({})
   const [existingBrands, setExistingBrands] = useState([])
+  // Free-form { label, value } rows shown in the storefront's Specifications table alongside (and
+  // independent of) the category-attribute-derived ones above — no predefined attribute/option
+  // taxonomy required, just plain admin-typed bullets (e.g. "Battery" -> "5000mAh").
+  const [keySpecs, setKeySpecs] = useState([])
 
   useEffect(() => {
     api.get(ENDPOINTS.ADMIN.CATEGORIES.BASE, { auth: true }).then(setCategories).catch((err) => setError(err.message))
@@ -115,6 +119,7 @@ export default function AdminProductForm() {
         setGalleryImages(p.images || [])
         setPendingVariants(p.variants || [])
         setSpecOverrides(Object.fromEntries((p.spec_overrides || []).map((o) => [o.attribute_name, o.value])))
+        setKeySpecs((p.key_specs || []).map(({ label, value }) => ({ label, value })))
       })
       .catch((err) => setError(err.message))
   }, [id, isEdit])
@@ -280,6 +285,18 @@ export default function AdminProductForm() {
     setGalleryImages((prev) => prev.filter((img) => img !== url))
   }
 
+  const addKeySpec = () => {
+    setKeySpecs((prev) => [...prev, { label: '', value: '' }])
+  }
+
+  const updateKeySpec = (index, field, value) => {
+    setKeySpecs((prev) => prev.map((row, i) => (i === index ? { ...row, [field]: value } : row)))
+  }
+
+  const removeKeySpec = (index) => {
+    setKeySpecs((prev) => prev.filter((_, i) => i !== index))
+  }
+
   const removeVideo = () => {
     setForm((prev) => ({ ...prev, video: '' }))
   }
@@ -338,6 +355,13 @@ export default function AdminProductForm() {
             .map((attr) => [attr.name, (specOverrides[attr.name] || '').trim()])
             .filter(([, value]) => value !== '')
         ),
+        // Fully-blank rows (e.g. an "+ Add" click the admin didn't fill in) are dropped here so
+        // they don't trip the backend's "needs both a label and a value" validation — a row with
+        // only one side filled is left in on purpose, so that validation catches it and the admin
+        // gets a clear message instead of it being silently discarded.
+        key_specs: keySpecs
+          .map((row) => ({ label: row.label.trim(), value: row.value.trim() }))
+          .filter((row) => row.label !== '' || row.value !== ''),
       }
       if (isEdit) {
         await api.put(ENDPOINTS.ADMIN.PRODUCTS.BY_ID(id), payload, { auth: true })
@@ -539,6 +563,49 @@ export default function AdminProductForm() {
             rows={3}
             className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2.5 outline-none focus:border-cz-primary resize-none"
           />
+        </div>
+
+        <div>
+          <label className="block text-[13px] text-[#4b4b4b] mb-1">Key Specifications</label>
+          <p className="text-[12px] text-[#9ca3af] mb-2">
+            Short facts shown as a bullet list on the product page (e.g. "Battery" → "5000mAh") — separate from the
+            Description paragraph above, and independent of the Filters section.
+          </p>
+          {keySpecs.length > 0 && (
+            <div className="flex flex-col gap-2 mb-2">
+              {keySpecs.map((row, index) => (
+                <div key={index} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
+                  <input
+                    type="text"
+                    placeholder="Label (e.g. Battery)"
+                    value={row.label}
+                    onChange={(e) => updateKeySpec(index, 'label', e.target.value)}
+                    maxLength={100}
+                    className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2 outline-none focus:border-cz-primary"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Value (e.g. 5000mAh)"
+                    value={row.value}
+                    onChange={(e) => updateKeySpec(index, 'value', e.target.value)}
+                    maxLength={255}
+                    className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2 outline-none focus:border-cz-primary"
+                  />
+                  <button
+                    type="button"
+                    aria-label="Remove specification"
+                    onClick={() => removeKeySpec(index)}
+                    className="w-8 h-8 shrink-0 rounded-md border border-[#dedede] text-[14px] text-red-600 flex items-center justify-center"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          <button type="button" onClick={addKeySpec} className="text-[13px] font-medium text-cz-primary hover:underline">
+            + Add specification
+          </button>
         </div>
 
         {activeCombos.length === 0 && (
