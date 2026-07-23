@@ -21,7 +21,7 @@ const DEFAULT_BRAND = {
 }
 
 function resetStore() {
-  useSiteSettingsStore.setState({ siteName: '', logo: null, storeStatus: 'checking', brand: DEFAULT_BRAND })
+  useSiteSettingsStore.setState({ siteName: '', logo: null, favicon: null, storeStatus: 'checking', brand: DEFAULT_BRAND })
   document.head.querySelectorAll('link[rel="icon"]').forEach((el) => el.remove())
 }
 
@@ -44,6 +44,19 @@ describe('siteSettingsStore', () => {
 
       expect(useSiteSettingsStore.getState().siteName).toBe('Acme')
       expect(useSiteSettingsStore.getState().logo).toBe('/logo.png')
+    })
+
+    it('sets favicon when the response includes one', async () => {
+      api.get.mockImplementation((path) => {
+        if (path === '/content/site-settings') return Promise.resolve({ siteName: 'Acme', logo: '/logo.png', favicon: '/logo-icon.png' })
+        if (path === '/content/footer-brand') return Promise.resolve({})
+        throw new Error(`unexpected path ${path}`)
+      })
+
+      useSiteSettingsStore.getState().init()
+      await vi.waitFor(() => expect(useSiteSettingsStore.getState().storeStatus).toBe('ok'))
+
+      expect(useSiteSettingsStore.getState().favicon).toBe('/logo-icon.png')
     })
 
     it('sets storeStatus to "not-found" when the backend reports STORE_NOT_FOUND', async () => {
@@ -175,6 +188,30 @@ describe('siteSettingsStore', () => {
 
     it('does nothing if no <link rel="icon"> exists in the document', () => {
       expect(() => useSiteSettingsStore.getState().setLogo('/new-logo.png')).not.toThrow()
+    })
+
+    it('prefers favicon over logo when both are set', () => {
+      useSiteSettingsStore.setState({ logo: '/logo.png', favicon: null })
+      const link = document.createElement('link')
+      link.rel = 'icon'
+      document.head.appendChild(link)
+
+      useSiteSettingsStore.getState().setFavicon('/logo-icon.png')
+
+      expect(document.querySelector('link[rel="icon"]').getAttribute('href')).toBe('http://cdn.test/logo-icon.png')
+    })
+
+    it('falls back to logo when favicon is cleared back to null', () => {
+      useSiteSettingsStore.setState({ logo: '/logo.png', favicon: '/logo-icon.png' })
+      const link = document.createElement('link')
+      document.head.appendChild(link)
+      link.rel = 'icon'
+
+      // Simulate a fresh logo upload that doesn't yield an icon crop, clearing the old favicon.
+      useSiteSettingsStore.setState({ favicon: null })
+      useSiteSettingsStore.getState().setLogo('/new-logo.png')
+
+      expect(document.querySelector('link[rel="icon"]').getAttribute('href')).toBe('http://cdn.test/new-logo.png')
     })
   })
 

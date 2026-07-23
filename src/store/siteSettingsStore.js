@@ -16,11 +16,13 @@ const DEFAULT_BRAND = {
 export const useSiteSettingsStore = create((set) => ({
   siteName: '',
   logo: null,
+  favicon: null,
   storeStatus: 'checking',
   brand: DEFAULT_BRAND,
 
   setSiteName: (siteName) => set({ siteName }),
   setLogo: (logo) => set({ logo }),
+  setFavicon: (favicon) => set({ favicon }),
 
   init: () => {
     api
@@ -28,6 +30,7 @@ export const useSiteSettingsStore = create((set) => ({
       .then((data) => {
         if (data.siteName) set({ siteName: data.siteName })
         if (data.logo) set({ logo: data.logo })
+        if (data.favicon) set({ favicon: data.favicon })
         set({ storeStatus: 'ok' })
       })
       .catch((err) => {
@@ -41,12 +44,17 @@ export const useSiteSettingsStore = create((set) => ({
   },
 }))
 
-// setLogo isn't just called from init — AdminBranding-style pages call it directly after
-// saving, so the favicon needs to react there too, not only on the initial load.
+// setLogo/setFavicon aren't just called from init — AdminBranding-style pages call them directly
+// after saving, so the browser-tab icon needs to react there too, not only on the initial load.
+// Prefer the dedicated favicon (a cropped-to-the-icon-mark version — see uploadHandler.js) over
+// the full logo, since the full logo is often a wide icon+wordmark lockup that looks like
+// illegible mush squeezed into a 16px tab icon.
 useSiteSettingsStore.subscribe((state, prevState) => {
-  if (state.logo !== prevState.logo && state.logo) {
+  const iconSource = state.favicon || state.logo
+  const prevIconSource = prevState.favicon || prevState.logo
+  if (iconSource !== prevIconSource && iconSource) {
     const link = document.querySelector('link[rel="icon"]')
-    if (link) link.href = resolveImageUrl(state.logo)
+    if (link) link.href = resolveImageUrl(iconSource)
   }
 })
 
