@@ -128,17 +128,29 @@ useCartStore.subscribe(
 // (mirrors what CartProvider's useEffect(() => {...}, [user]) used to do, but as a plain
 // module-level subscription — Zustand stores don't need a component in the tree to react to
 // each other).
+//
+// A cart is a customer-only concept — an admin session must never fetch or hold one (see the
+// backend's requireCustomer/requireSelfCustomer in middleware/auth.js, which now rejects these
+// calls outright for a non-customer role).
 let syncedForUserId = null
 
 useAuthStore.subscribe(
   (state) => state.user,
   (user) => {
-    if (!user) {
-      syncedForUserId = null
-      return
+    const nextOwnerId = user && user.role === 'customer' ? user.id : null
+
+    // The locally held items belong to whoever `syncedForUserId` names — not-yet-attributed
+    // guest items (syncedForUserId === null) are left alone so they can still merge into the
+    // very first login, same as always. But once the cart *has* belonged to a specific signed-in
+    // account, switching to a different account (or logging out) must not leave those items
+    // sitting in localStorage for the next person on this browser to see, or for a different
+    // account to silently adopt and push back up to the server as their own.
+    if (syncedForUserId !== null && nextOwnerId !== syncedForUserId) {
+      useCartStore.setState({ items: [] })
     }
-    if (syncedForUserId === user.id) return
-    syncedForUserId = user.id
+    syncedForUserId = nextOwnerId
+
+    if (nextOwnerId === null) return
 
     api
       .get(ENDPOINTS.CART.BY_USER(user.id), { auth: true })

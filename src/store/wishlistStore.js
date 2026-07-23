@@ -61,10 +61,13 @@ export const useWishlistStore = create((set, get) => ({
   closeWishlist: () => set({ wishlistOpen: false }),
 }))
 
+// A wishlist is a customer-only concept — an admin session must never fetch or hold one (see the
+// backend's requireCustomer in middleware/auth.js, which now rejects this call outright for a
+// non-customer role).
 useAuthStore.subscribe(
   (state) => state.user,
   async (user) => {
-    if (!user) {
+    if (!user || user.role !== 'customer') {
       useWishlistStore.setState({ items: [] })
       return
     }

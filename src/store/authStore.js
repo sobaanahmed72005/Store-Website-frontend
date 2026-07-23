@@ -7,30 +7,23 @@ import { ADMIN_PATH } from '../config/adminPath'
 // Session identity lives only in the httpOnly cookie + this in-memory store — nothing is
 // cached in localStorage, so pages that gate on `user` (AdminRoute, Checkout, Account) must
 // wait on `initializing` instead of treating a not-yet-checked user as "logged out".
-export const useAuthStore = create(subscribeWithSelector((set) => ({
+export const useAuthStore = create(subscribeWithSelector((set, get) => ({
   user: null,
   loading: false,
   initializing: true,
 
-  // Storefront and admin panel are the same SPA/origin, so a tab opened on the storefront still
-  // carries whatever session cookie is currently valid for this browser — including one left
-  // behind by an admin who is signed into the admin panel in another tab. This silent /auth/me
-  // check on boot must not let that surface as "the storefront is logged in as the admin" (nav
-  // greeting, checkout, orders placed under the admin's account): an admin identity is only
-  // trusted here when the tab that fetched it is actually the admin panel. Explicitly signing in
-  // via the admin login form (see `login` below) is unaffected — that sets `user` directly from
-  // the login response, not from this check.
+  // Storefront and admin panel share one SPA/origin but now carry entirely separate session
+  // cookies (see the backend's utils/authCookies.js) — /auth/me only ever reads the customer
+  // cookie, /auth/admin/me only ever reads the admin one, so each surface's boot-time "am I
+  // logged in" check can only ever see its own identity, never the other tab's. Which one to
+  // call is decided purely by the current URL, same as the equivalent decision in api/client.js's
+  // 401 refresh retry. Explicitly signing in via the admin login form (see `login` below) is
+  // unaffected — that sets `user` directly from the login response, not from this check.
   init: () => {
+    const onAdminSurface = window.location.pathname.startsWith(ADMIN_PATH)
     api
-      .get(ENDPOINTS.AUTH.ME)
-      .then((data) => {
-        const onAdminSurface = window.location.pathname.startsWith(ADMIN_PATH)
-        if (data.user.role === 'admin' && !onAdminSurface) {
-          set({ user: null })
-        } else {
-          set({ user: data.user })
-        }
-      })
+      .get(onAdminSurface ? ENDPOINTS.AUTH.ADMIN_ME : ENDPOINTS.AUTH.ME)
+      .then((data) => set({ user: data.user }))
       .catch(() => set({ user: null }))
       .finally(() => set({ initializing: false }))
   },
@@ -69,8 +62,12 @@ export const useAuthStore = create(subscribeWithSelector((set) => ({
   },
 
   logout: () => {
+    // Revoke through whichever endpoint matches the identity actually signed in — an admin's
+    // session lives in the admin cookie/session record, so it has to be revoked via
+    // admin-logout; posting to the customer /auth/logout wouldn't touch it at all.
+    const endpoint = get().user?.role === 'admin' ? ENDPOINTS.AUTH.ADMIN_LOGOUT : ENDPOINTS.AUTH.LOGOUT
     set({ user: null })
-    api.post(ENDPOINTS.AUTH.LOGOUT, {}).catch((err) => console.error('Failed to revoke session on logout:', err))
+    api.post(endpoint, {}).catch((err) => console.error('Failed to revoke session on logout:', err))
   },
 
   updateSession: (nextUser) => set({ user: nextUser }),

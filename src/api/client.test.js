@@ -1,8 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 // api/client.js reads API_URL from config/env at module-eval time — stub it before importing
-// the module under test so BASE_URL is deterministic regardless of .env.
-vi.mock('../config/env', () => ({ API_URL: 'http://api.test/api' }))
+// the module under test so BASE_URL is deterministic regardless of .env. config/adminPath.js
+// re-exports ADMIN_PATH from this same module, so it has to be included here too, or client.js's
+// admin-surface detection silently sees `undefined` instead of a real path.
+vi.mock('../config/env', () => ({ API_URL: 'http://api.test/api', ADMIN_PATH: '/mgmt-8f2k1c' }))
 
 function jsonResponse(body, { status = 200, ok = status >= 200 && status < 300 } = {}) {
   return {
@@ -225,7 +227,12 @@ describe('api/client', () => {
 
     it('does not attempt a refresh for admin-login, register, logout, or 2fa endpoints', async () => {
       const { api } = await import('./client')
-      const noRefreshPaths = ['/auth/admin-login', '/auth/register', '/auth/logout', '/auth/2fa/verify']
+      const noRefreshPaths = [
+        '/auth/admin-login', '/auth/register',
+        '/auth/logout', '/auth/admin-logout',
+        '/auth/admin-refresh',
+        '/auth/2fa/verify',
+      ]
 
       for (const path of noRefreshPaths) {
         fetchMock.mockClear()
@@ -233,6 +240,21 @@ describe('api/client', () => {
         await expect(api.post(path, {})).rejects.toThrow('Unauthorized')
         expect(fetchMock).toHaveBeenCalledTimes(1)
       }
+    })
+
+    it('retries against /auth/admin-refresh (not /auth/refresh) when on the admin panel path', async () => {
+      window.history.pushState({}, '', '/mgmt-8f2k1c/dashboard')
+      const { api } = await import('./client')
+      fetchMock
+        .mockResolvedValueOnce(jsonResponse({ error: 'Unauthorized' }, { status: 401, ok: false })) // original
+        .mockResolvedValueOnce(noBodyResponse({ status: 200 })) // /auth/admin-refresh
+        .mockResolvedValueOnce(jsonResponse({ ok: true })) // retried original
+
+      const data = await api.get('/admin/stats')
+
+      expect(fetchMock.mock.calls[1][0]).toBe('http://api.test/api/auth/admin-refresh')
+      expect(data).toEqual({ ok: true })
+      window.history.pushState({}, '', '/')
     })
 
     it('coalesces concurrent 401s into a single /auth/refresh call', async () => {

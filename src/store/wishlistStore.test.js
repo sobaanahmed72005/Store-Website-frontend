@@ -183,7 +183,7 @@ describe('wishlistStore', () => {
       await vi.waitFor(() => expect(useWishlistStore.getState().items).toEqual([]))
 
       api.get.mockResolvedValueOnce([product({ id: 7 })])
-      useAuthStore.setState({ user: { id: 1 } })
+      useAuthStore.setState({ user: { id: 1, role: 'customer' } })
 
       await vi.waitFor(() => expect(useWishlistStore.getState().items).toHaveLength(1))
       expect(useWishlistStore.getState().items[0]).toMatchObject({ id: 7, title: 'Widget' })
@@ -196,9 +196,18 @@ describe('wishlistStore', () => {
 
       useWishlistStore.setState({ items: [{ id: 999 }] }) // stale leftover, should be wiped
       api.get.mockRejectedValueOnce(new Error('unauthorized'))
-      useAuthStore.setState({ user: { id: 1 } })
+      useAuthStore.setState({ user: { id: 1, role: 'customer' } })
 
       await vi.waitFor(() => expect(useWishlistStore.getState().items).toEqual([]))
+    })
+
+    it('never fetches a wishlist for an admin session, and clears any leftover items', async () => {
+      useWishlistStore.setState({ items: [{ id: 1 }] })
+
+      useAuthStore.setState({ user: { id: 9, role: 'admin' } })
+
+      expect(useWishlistStore.getState().items).toEqual([])
+      expect(api.get).not.toHaveBeenCalled()
     })
   })
 

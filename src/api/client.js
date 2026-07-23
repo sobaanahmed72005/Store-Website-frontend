@@ -1,4 +1,5 @@
 import { API_URL } from '../config/env'
+import { ADMIN_PATH } from '../config/adminPath'
 
 const BASE_URL = API_URL
 
@@ -23,9 +24,17 @@ let refreshPromise = null
 // both landing right at token expiry) so a burst of requests triggers one refresh call, not one
 // per request — the backend's own refresh-rotation grace window (see authController.js) exists
 // for the same reason, this just avoids the redundant round-trips on top of it.
+//
+// Storefront and admin panel now carry entirely separate session cookies (see the backend's
+// utils/authCookies.js) — a 401 on the admin panel must be retried against /auth/admin-refresh
+// (which reads the admin refresh cookie), never /auth/refresh (which only ever reads the
+// customer one, and vice versa). Which one applies is decided purely by the current URL, the
+// same way authStore.js decides which /auth/me variant to call on boot.
 function refreshSession() {
   if (!refreshPromise) {
-    refreshPromise = fetch(`${BASE_URL}/auth/refresh`, {
+    const onAdminSurface = window.location.pathname.startsWith(ADMIN_PATH)
+    const refreshPath = onAdminSurface ? '/auth/admin-refresh' : '/auth/refresh'
+    refreshPromise = fetch(`${BASE_URL}${refreshPath}`, {
       method: 'POST',
       headers: { 'X-Store-Slug': getStoreSlug() },
       credentials: 'include',
@@ -39,10 +48,16 @@ function refreshSession() {
   return refreshPromise
 }
 
-// Session-establishment/teardown endpoints must surface their own 401 as-is: retrying /auth/refresh
+// Session-establishment/teardown endpoints must surface their own 401 as-is: retrying a refresh
 // after it 401s would recurse, and a 401 from a login attempt means "wrong credentials", not
 // "expired token" — there's no session yet to refresh.
-const NO_REFRESH_RETRY_PREFIXES = ['/auth/refresh', '/auth/login', '/auth/admin-login', '/auth/register', '/auth/logout', '/auth/2fa']
+const NO_REFRESH_RETRY_PREFIXES = [
+  '/auth/refresh', '/auth/admin-refresh',
+  '/auth/login', '/auth/admin-login',
+  '/auth/register',
+  '/auth/logout', '/auth/admin-logout',
+  '/auth/2fa',
+]
 
 // requireAuth on the backend rejects an unauthenticated request before it ever reaches the
 // route's actual handler (see middleware/auth.js) — so a 401 here means the original attempt

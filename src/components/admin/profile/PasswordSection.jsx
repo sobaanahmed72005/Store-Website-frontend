@@ -22,7 +22,7 @@ export default function PasswordSection() {
     }
     save(async () => {
       await api.put(
-        ENDPOINTS.AUTH.CHANGE_PASSWORD,
+        ENDPOINTS.AUTH.ADMIN_CHANGE_PASSWORD,
         { currentPassword: form.currentPassword, newPassword: form.newPassword },
         { auth: true }
       )

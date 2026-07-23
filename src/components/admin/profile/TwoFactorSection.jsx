@@ -21,7 +21,7 @@ export default function TwoFactorSection() {
   useEffect(() => {
     // A failed status check must not be treated as "2FA is off" — that would tell an admin their
     // account is unprotected when it might not be. Surface the failure instead of guessing.
-    api.get(ENDPOINTS.AUTH.TWO_FA_STATUS).then((data) => setStatus(data.enabled)).catch((err) => setStatusError(err.message))
+    api.get(ENDPOINTS.AUTH.ADMIN_TWO_FA_STATUS).then((data) => setStatus(data.enabled)).catch((err) => setStatusError(err.message))
   }, [])
 
   const startSetup = async (e) => {
@@ -29,7 +29,7 @@ export default function TwoFactorSection() {
     setError('')
     setBusy(true)
     try {
-      const data = await api.post(ENDPOINTS.AUTH.TWO_FA_SETUP, { password: setupPassword })
+      const data = await api.post(ENDPOINTS.AUTH.ADMIN_TWO_FA_SETUP, { password: setupPassword })
       setSetupData(data)
       setEnabling(false)
       setSetupPassword('')
@@ -45,7 +45,7 @@ export default function TwoFactorSection() {
     setError('')
     setBusy(true)
     try {
-      const data = await api.post(ENDPOINTS.AUTH.TWO_FA_CONFIRM, { token: confirmToken })
+      const data = await api.post(ENDPOINTS.AUTH.ADMIN_TWO_FA_CONFIRM, { token: confirmToken })
       setRecoveryCodes(data.recoveryCodes)
       setStatus(true)
     } catch (err) {
@@ -71,7 +71,7 @@ export default function TwoFactorSection() {
     setError('')
     setBusy(true)
     try {
-      await api.post(ENDPOINTS.AUTH.TWO_FA_DISABLE, disableForm)
+      await api.post(ENDPOINTS.AUTH.ADMIN_TWO_FA_DISABLE, disableForm)
       setStatus(false)
       setDisabling(false)
       setDisableForm({ password: '', token: '' })

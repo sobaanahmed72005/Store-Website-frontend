@@ -46,23 +46,29 @@ describe('authStore', () => {
       resolveGet({ user: { id: 1 } })
     })
 
-    it('does not adopt an admin identity on a storefront tab (stray admin cookie from another tab)', async () => {
+    // Storefront and admin panel now read from entirely separate cookies/endpoints (see
+    // authController.js's `me` vs `/admin/me` route), so a stray admin cookie left behind in
+    // another tab can no longer surface here at all — the storefront's own /auth/me physically
+    // can't decode it. What's left to verify is that boot picks the right endpoint per surface.
+    it('calls the customer /auth/me endpoint when the tab is on the storefront', async () => {
       window.history.pushState({}, '', '/')
-      api.get.mockResolvedValueOnce({ user: { id: 1, role: 'admin', email: 'admin@b.com' } })
+      api.get.mockResolvedValueOnce({ user: { id: 1, role: 'customer', email: 'a@b.com' } })
 
       useAuthStore.getState().init()
       await vi.waitFor(() => expect(useAuthStore.getState().initializing).toBe(false))
 
-      expect(useAuthStore.getState().user).toBeNull()
+      expect(api.get).toHaveBeenCalledWith('/auth/me')
+      expect(useAuthStore.getState().user).toEqual({ id: 1, role: 'customer', email: 'a@b.com' })
     })
 
-    it('does adopt an admin identity when the tab is actually on the admin panel path', async () => {
+    it('calls the admin-scoped /auth/admin/me endpoint when the tab is on the admin panel path', async () => {
       window.history.pushState({}, '', '/mgmt-8f2k1c/dashboard')
       api.get.mockResolvedValueOnce({ user: { id: 1, role: 'admin', email: 'admin@b.com' } })
 
       useAuthStore.getState().init()
       await vi.waitFor(() => expect(useAuthStore.getState().initializing).toBe(false))
 
+      expect(api.get).toHaveBeenCalledWith('/auth/admin/me')
       expect(useAuthStore.getState().user).toEqual({ id: 1, role: 'admin', email: 'admin@b.com' })
       window.history.pushState({}, '', '/')
     })
@@ -186,13 +192,22 @@ describe('authStore', () => {
       resolvePost({})
     })
 
-    it('calls the logout endpoint', () => {
-      useAuthStore.setState({ user: { id: 1 } })
+    it('calls the customer logout endpoint for a customer session', () => {
+      useAuthStore.setState({ user: { id: 1, role: 'customer' } })
       api.post.mockResolvedValueOnce({})
 
       useAuthStore.getState().logout()
 
       expect(api.post).toHaveBeenCalledWith('/auth/logout', {})
+    })
+
+    it('calls the admin logout endpoint for an admin session', () => {
+      useAuthStore.setState({ user: { id: 1, role: 'admin' } })
+      api.post.mockResolvedValueOnce({})
+
+      useAuthStore.getState().logout()
+
+      expect(api.post).toHaveBeenCalledWith('/auth/admin-logout', {})
     })
 
     it('logs but does not throw if the revoke request fails', async () => {

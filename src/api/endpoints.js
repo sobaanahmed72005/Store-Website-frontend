@@ -9,8 +9,10 @@ export const ENDPOINTS = {
     LOGIN: '/auth/login',
     ADMIN_LOGIN: '/auth/admin-login',
     LOGOUT: '/auth/logout',
+    ADMIN_LOGOUT: '/auth/admin-logout',
     ME: '/auth/me',
     REFRESH: '/auth/refresh',
+    ADMIN_REFRESH: '/auth/admin-refresh',
     CHANGE_PASSWORD: '/auth/change-password',
     FORGOT_PASSWORD: '/auth/forgot-password',
     RESET_PASSWORD: '/auth/reset-password',
@@ -21,6 +23,15 @@ export const ENDPOINTS = {
     TWO_FA_CONFIRM: '/auth/2fa/confirm',
     TWO_FA_VERIFY: '/auth/2fa/verify',
     TWO_FA_DISABLE: '/auth/2fa/disable',
+    // Admin-panel equivalents — same account/self-service operations, but scoped to the admin
+    // session cookie instead of the customer one (see backend routes/auth.js + middleware/auth.js
+    // for why these must be separate endpoints rather than shared ones).
+    ADMIN_ME: '/auth/admin/me',
+    ADMIN_CHANGE_PASSWORD: '/auth/admin/change-password',
+    ADMIN_TWO_FA_STATUS: '/auth/admin/2fa/status',
+    ADMIN_TWO_FA_SETUP: '/auth/admin/2fa/setup',
+    ADMIN_TWO_FA_CONFIRM: '/auth/admin/2fa/confirm',
+    ADMIN_TWO_FA_DISABLE: '/auth/admin/2fa/disable',
   },
 
   CONTENT: {

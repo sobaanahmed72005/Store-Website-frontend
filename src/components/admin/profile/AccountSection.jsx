@@ -13,7 +13,7 @@ export default function AccountSection() {
   const handleSubmit = (e) => {
     e.preventDefault()
     save(async () => {
-      const data = await api.put(ENDPOINTS.AUTH.ME, { name, email }, { auth: true })
+      const data = await api.put(ENDPOINTS.AUTH.ADMIN_ME, { name, email }, { auth: true })
       updateSession(data.user)
     })
   }

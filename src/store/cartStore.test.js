@@ -7,9 +7,11 @@ vi.mock('../api/client', () => ({
 
 const { api } = await import('../api/client')
 const { useCartStore } = await import('./cartStore')
+const { useAuthStore } = await import('./authStore')
 
 function resetCart() {
   useCartStore.setState({ items: [], cartOpen: false })
+  useAuthStore.setState({ user: null, loading: false, initializing: false })
 }
 
 describe('cartStore', () => {
@@ -165,6 +167,66 @@ describe('cartStore', () => {
       const result = await useCartStore.getState().refreshPrices()
       expect(result).toEqual({ changed: [], removed: [] })
       expect(api.get).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('authStore cross-subscription', () => {
+    it('merges a guest cart into the very first login without wiping it first', async () => {
+      useCartStore.getState().addToCart({ id: '1', title: 'Guest Item', price: 100 }, 1)
+      api.get.mockResolvedValueOnce([])
+
+      useAuthStore.setState({ user: { id: 1, role: 'customer' } })
+      await vi.waitFor(() => expect(api.get).toHaveBeenCalledWith('/cart/1', { auth: true }))
+
+      // Server had nothing for this (new) account, so the guest cart added before login survives.
+      expect(useCartStore.getState().items).toHaveLength(1)
+      expect(useCartStore.getState().items[0].title).toBe('Guest Item')
+    })
+
+    it('does not leak one signed-in account\'s cart into a different account that logs in next', async () => {
+      api.get.mockResolvedValueOnce([])
+      useAuthStore.setState({ user: { id: 1, role: 'customer' } })
+      await vi.waitFor(() => expect(api.get).toHaveBeenCalledWith('/cart/1', { auth: true }))
+      useCartStore.getState().addToCart({ id: '1', title: 'Customer A Item', price: 100 }, 1)
+
+      api.get.mockResolvedValueOnce([])
+      useAuthStore.setState({ user: { id: 2, role: 'customer' } })
+
+      // Customer A's item must be gone the instant the identity changes, not just after
+      // customer B's (empty) server cart comes back — otherwise it briefly renders, and if
+      // anything changes the cart before the fetch resolves, it would get pushed to B's account.
+      expect(useCartStore.getState().items).toEqual([])
+      await vi.waitFor(() => expect(api.get).toHaveBeenCalledWith('/cart/2', { auth: true }))
+    })
+
+    it('clears a signed-in account\'s cart on logout instead of leaving it for the next visitor', async () => {
+      api.get.mockResolvedValueOnce([])
+      useAuthStore.setState({ user: { id: 1, role: 'customer' } })
+      await vi.waitFor(() => expect(api.get).toHaveBeenCalledWith('/cart/1', { auth: true }))
+      useCartStore.getState().addToCart({ id: '1', title: 'Customer A Item', price: 100 }, 1)
+
+      useAuthStore.setState({ user: null })
+
+      expect(useCartStore.getState().items).toEqual([])
+    })
+
+    it('never fetches or holds a cart for an admin session', async () => {
+      useAuthStore.setState({ user: { id: 9, role: 'admin' } })
+      await new Promise((resolve) => setTimeout(resolve, 0))
+
+      expect(api.get).not.toHaveBeenCalled()
+      expect(useCartStore.getState().items).toEqual([])
+    })
+
+    it('clears a customer cart when the identity switches to an admin session', async () => {
+      api.get.mockResolvedValueOnce([])
+      useAuthStore.setState({ user: { id: 1, role: 'customer' } })
+      await vi.waitFor(() => expect(api.get).toHaveBeenCalledWith('/cart/1', { auth: true }))
+      useCartStore.getState().addToCart({ id: '1', title: 'Customer A Item', price: 100 }, 1)
+
+      useAuthStore.setState({ user: { id: 9, role: 'admin' } })
+
+      expect(useCartStore.getState().items).toEqual([])
     })
   })
 })
