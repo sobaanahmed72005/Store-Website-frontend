@@ -295,7 +295,7 @@ export default function Checkout() {
         <div className="mx-auto px-5">
           <div className="flex justify-between items-center py-5">
             <Link to="/">
-              <Logo textClassName="text-[22px]" hideIcon />
+              <Logo iconOnly size={64} />
             </Link>
             <Link to="/cart" aria-label="Cart" className="text-black">
               <CartIcon size={24} />
