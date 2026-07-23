@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
 import { api } from '../api/client'
 import { ENDPOINTS } from '../api/endpoints'
+import { ADMIN_PATH } from '../config/adminPath'
 
 // Session identity lives only in the httpOnly cookie + this in-memory store — nothing is
 // cached in localStorage, so pages that gate on `user` (AdminRoute, Checkout, Account) must
@@ -11,10 +12,25 @@ export const useAuthStore = create(subscribeWithSelector((set) => ({
   loading: false,
   initializing: true,
 
+  // Storefront and admin panel are the same SPA/origin, so a tab opened on the storefront still
+  // carries whatever session cookie is currently valid for this browser — including one left
+  // behind by an admin who is signed into the admin panel in another tab. This silent /auth/me
+  // check on boot must not let that surface as "the storefront is logged in as the admin" (nav
+  // greeting, checkout, orders placed under the admin's account): an admin identity is only
+  // trusted here when the tab that fetched it is actually the admin panel. Explicitly signing in
+  // via the admin login form (see `login` below) is unaffected — that sets `user` directly from
+  // the login response, not from this check.
   init: () => {
     api
       .get(ENDPOINTS.AUTH.ME)
-      .then((data) => set({ user: data.user }))
+      .then((data) => {
+        const onAdminSurface = window.location.pathname.startsWith(ADMIN_PATH)
+        if (data.user.role === 'admin' && !onAdminSurface) {
+          set({ user: null })
+        } else {
+          set({ user: data.user })
+        }
+      })
       .catch(() => set({ user: null }))
       .finally(() => set({ initializing: false }))
   },

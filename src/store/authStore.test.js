@@ -45,6 +45,27 @@ describe('authStore', () => {
       expect(useAuthStore.getState().user).toBeNull()
       resolveGet({ user: { id: 1 } })
     })
+
+    it('does not adopt an admin identity on a storefront tab (stray admin cookie from another tab)', async () => {
+      window.history.pushState({}, '', '/')
+      api.get.mockResolvedValueOnce({ user: { id: 1, role: 'admin', email: 'admin@b.com' } })
+
+      useAuthStore.getState().init()
+      await vi.waitFor(() => expect(useAuthStore.getState().initializing).toBe(false))
+
+      expect(useAuthStore.getState().user).toBeNull()
+    })
+
+    it('does adopt an admin identity when the tab is actually on the admin panel path', async () => {
+      window.history.pushState({}, '', '/mgmt-8f2k1c/dashboard')
+      api.get.mockResolvedValueOnce({ user: { id: 1, role: 'admin', email: 'admin@b.com' } })
+
+      useAuthStore.getState().init()
+      await vi.waitFor(() => expect(useAuthStore.getState().initializing).toBe(false))
+
+      expect(useAuthStore.getState().user).toEqual({ id: 1, role: 'admin', email: 'admin@b.com' })
+      window.history.pushState({}, '', '/')
+    })
   })
 
   describe('login', () => {
