@@ -213,7 +213,6 @@ function WishlistSection() {
 
 const STATUS_LABEL = {
   pending: 'Pending Confirmation',
-  pending_payment: 'Awaiting Payment',
   confirmed: 'Confirmed',
   packed: 'Packed',
   shipped: 'Shipped',

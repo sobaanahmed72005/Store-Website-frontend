@@ -19,11 +19,9 @@ const STATUS_TRANSITIONS = {
   delivered:         ['returned'],
   returned:          [],
   cancelled:         [],
-  pending_payment:   [],
 }
 
 const STATUS_LABEL = {
-  pending_payment:  'Awaiting Payment',
   pending:          'Pending Confirmation',
   confirmed:        'Confirmed',
   packed:           'Packed',
@@ -35,7 +33,6 @@ const STATUS_LABEL = {
 }
 
 const STATUS_STYLE = {
-  pending_payment:  'bg-blue-100 text-blue-700',
   pending:          'bg-cz-gold-light text-cz-ink',
   confirmed:        'bg-cz-accent text-cz-ink',
   packed:           'bg-cz-lavender text-cz-ink',

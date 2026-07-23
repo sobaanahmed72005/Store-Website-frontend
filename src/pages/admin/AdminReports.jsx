@@ -19,7 +19,6 @@ const CATEGORICAL = ['#2a78d6', '#1baf7a', '#eda100', '#008300', '#4a3aa7', '#e3
 const STATUS_COLOR = { good: '#0ca30c', warning: '#fab219', critical: '#d03b3b' }
 const STATUS_BUCKET = {
   delivered: 'good',
-  pending_payment: 'warning',
   pending: 'warning',
   confirmed: 'warning',
   packed: 'warning',
@@ -29,7 +28,6 @@ const STATUS_BUCKET = {
   cancelled: 'critical',
 }
 const STATUS_LABEL = {
-  pending_payment: 'Awaiting Payment',
   pending: 'Pending Confirmation',
   confirmed: 'Confirmed',
   packed: 'Packed',
