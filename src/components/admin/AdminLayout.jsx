@@ -92,7 +92,9 @@ export default function AdminLayout() {
           </Link>
           <button
             type="button"
-            onClick={logout}
+            onClick={() => {
+              if (window.confirm('Are you sure you want to log out?')) logout()
+            }}
             className="text-left text-[13px] text-white/70 hover:text-white px-3"
           >
             Logout ({user?.name})
