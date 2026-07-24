@@ -9,7 +9,7 @@ import { useSiteSettings } from '../../store/siteSettingsStore'
 const emptyForm = {
   provider: 'Leopards Courier',
   enabled: false,
-  tracking_url_template: 'https://leopardscourier.com/tracking/{tracking_number}',
+  tracking_url_template: 'https://pk.leopardscourier.com/shipment_tracking_view?cn_number={tracking_number}',
   sandbox: true,
   default_weight_grams: 1000,
   origin_city: 'self',
