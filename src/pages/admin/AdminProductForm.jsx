@@ -355,10 +355,10 @@ export default function AdminProductForm() {
             .map((attr) => [attr.name, (specOverrides[attr.name] || '').trim()])
             .filter(([, value]) => value !== '')
         ),
-        // Fully-blank rows (e.g. an "+ Add" click the admin didn't fill in) are dropped here so
-        // they don't trip the backend's "needs both a label and a value" validation — a row with
-        // only one side filled is left in on purpose, so that validation catches it and the admin
-        // gets a clear message instead of it being silently discarded.
+        // Fully-blank rows (e.g. a "+ Add" click the admin didn't fill in) are dropped here so
+        // they don't trip the backend's "needs at least a label" validation — a value-only row
+        // (label left blank) is sent through as-is on purpose, so that validation catches it and
+        // the admin gets a clear message instead of it being silently discarded.
         key_specs: keySpecs
           .map((row) => ({ label: row.label.trim(), value: row.value.trim() }))
           .filter((row) => row.label !== '' || row.value !== ''),
@@ -568,8 +568,9 @@ export default function AdminProductForm() {
         <div>
           <label className="block text-[13px] text-[#4b4b4b] mb-1">Key Specifications</label>
           <p className="text-[12px] text-[#9ca3af] mb-2">
-            Short facts shown as a bullet list on the product page (e.g. "Battery" → "5000mAh") — separate from the
-            Description paragraph above, and independent of the Filters section.
+            Short facts shown as a bullet list on the product page — separate from the Description paragraph above,
+            and independent of the Filters section. Add a Value for a "Label: Value" pair (e.g. "Battery" →
+            "5000mAh"), or leave Value blank for a plain bullet point (e.g. just "Waterproof").
           </p>
           {keySpecs.length > 0 && (
             <div className="flex flex-col gap-2 mb-2">
@@ -585,7 +586,7 @@ export default function AdminProductForm() {
                   />
                   <input
                     type="text"
-                    placeholder="Value (e.g. 5000mAh)"
+                    placeholder="Value (optional, e.g. 5000mAh)"
                     value={row.value}
                     onChange={(e) => updateKeySpec(index, 'value', e.target.value)}
                     maxLength={255}

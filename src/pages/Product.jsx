@@ -508,8 +508,17 @@ export default function Product() {
                 <div className="rounded-[8px] border border-[#dedede] overflow-hidden">
                   {product.specifications.map((spec, i) => (
                     <div key={i} className={`flex text-[14px] ${i > 0 ? 'border-t border-[#dedede]' : ''}`}>
-                      <span className="w-1/3 bg-cz-gold-light px-4 py-2.5 text-[#4b4b4b]">{spec.attribute}</span>
-                      <span className="flex-1 px-4 py-2.5 text-[#212121]">{spec.value}</span>
+                      {spec.value ? (
+                        <>
+                          <span className="w-1/3 bg-cz-gold-light px-4 py-2.5 text-[#4b4b4b]">{spec.attribute}</span>
+                          <span className="flex-1 px-4 py-2.5 text-[#212121]">{spec.value}</span>
+                        </>
+                      ) : (
+                        // A label with no value (see AdminProductForm's Key Specifications editor)
+                        // is a plain bullet point, not a "Label: Value" pair — shown as one
+                        // full-width line instead of a highlighted label cell next to empty space.
+                        <span className="flex-1 px-4 py-2.5 text-[#212121]">{spec.attribute}</span>
+                      )}
                     </div>
                   ))}
                 </div>
