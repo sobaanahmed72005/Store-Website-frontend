@@ -252,6 +252,12 @@ export default function Product() {
     return map
   }, [dimensionNames, product])
 
+  // Split into "Label: Value" pairs and plain-label bullets (see AdminProductForm's Key
+  // Specifications editor) so they can render as two visually distinct groups instead of
+  // interleaved — a value-less row sitting between two-column rows read as lopsided/broken.
+  const specPairs = useMemo(() => (product?.specifications || []).filter((s) => s.value), [product])
+  const specBullets = useMemo(() => (product?.specifications || []).filter((s) => !s.value), [product])
+
   const hasVariants = (product?.variants?.length ?? 0) > 0
 
   const matchedVariant = useMemo(() => {
@@ -505,23 +511,28 @@ export default function Product() {
             {product.specifications?.length > 0 && (
               <div className="mt-2">
                 <h2 className="text-[16px] font-semibold text-[#212121] mb-2">Specifications</h2>
-                <div className="rounded-[8px] border border-[#dedede] overflow-hidden">
-                  {product.specifications.map((spec, i) => (
-                    <div key={i} className={`flex text-[14px] ${i > 0 ? 'border-t border-[#dedede]' : ''}`}>
-                      {spec.value ? (
-                        <>
-                          <span className="w-1/3 bg-cz-gold-light px-4 py-2.5 text-[#4b4b4b]">{spec.attribute}</span>
-                          <span className="flex-1 px-4 py-2.5 text-[#212121]">{spec.value}</span>
-                        </>
-                      ) : (
-                        // A label with no value (see AdminProductForm's Key Specifications editor)
-                        // is a plain bullet point, not a "Label: Value" pair — shown as one
-                        // full-width line instead of a highlighted label cell next to empty space.
-                        <span className="flex-1 px-4 py-2.5 text-[#212121]">{spec.attribute}</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                {specPairs.length > 0 && (
+                  <div className="rounded-[8px] border border-[#dedede] overflow-hidden">
+                    {specPairs.map((spec, i) => (
+                      <div key={i} className={`flex text-[14px] ${i > 0 ? 'border-t border-[#dedede]' : ''}`}>
+                        <span className="w-1/3 bg-cz-gold-light px-4 py-2.5 text-[#4b4b4b]">{spec.attribute}</span>
+                        <span className="flex-1 px-4 py-2.5 text-[#212121]">{spec.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {specBullets.length > 0 && (
+                  <div className={`flex flex-wrap gap-2 ${specPairs.length > 0 ? 'mt-3' : ''}`}>
+                    {specBullets.map((spec, i) => (
+                      <span
+                        key={i}
+                        className="rounded-[8px] border border-[#dedede] bg-cz-gold-light px-3 py-1.5 text-[13px] text-[#4b4b4b]"
+                      >
+                        {spec.attribute}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
