@@ -6,7 +6,6 @@ import SeoHeadingFiller from '../../components/SeoHeadingFiller'
 import { useSiteSettings } from '../../store/siteSettingsStore'
 
 const TEMPLATE_DEFAULTS = {
-  signup: { subject: 'Verify your email address', message: "Thanks for creating an account with us! To get started, please verify your email address by clicking the button below." },
   order_received: { subject: 'Order #{{order_id}} received — thank you!', message: "Thanks for your order! We've received it and our team is reviewing it now. You'll receive another email as soon as your order is confirmed." },
   order_confirmed: { subject: 'Order #{{order_id}} confirmed ✓', message: 'Great news! Your order has been confirmed and our team is now preparing it for dispatch.' },
   order_packed: { subject: 'Order #{{order_id}} is packed and ready', message: 'Your order has been carefully packed and will be handed to the courier very soon.' },
@@ -21,12 +20,6 @@ const TEMPLATE_DEFAULTS = {
 }
 
 const EMAIL_TYPES = [
-  {
-    key: 'signup',
-    label: 'Welcome / Sign Up',
-    description: 'Sent when a customer creates a new account. The email verification button is always included automatically.',
-    placeholders: [{ tag: '{{name}}', desc: 'Customer name' }],
-  },
   {
     key: 'order_received',
     label: 'Order Received',
@@ -132,7 +125,7 @@ export default function AdminEmailTemplates() {
     noindex: true,
   })
   const [templates, setTemplates] = useState({})
-  const [selected, setSelected] = useState('signup')
+  const [selected, setSelected] = useState('order_received')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [savedKey, setSavedKey] = useState(null)
