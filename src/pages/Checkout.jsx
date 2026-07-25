@@ -20,6 +20,12 @@ function Input({ ...props }) {
   )
 }
 
+const CITY_SUGGESTIONS = [
+  'Lahore', 'Karachi', 'Islamabad', 'Rawalpindi', 'Faisalabad', 'Multan', 'Peshawar',
+  'Quetta', 'Sialkot', 'Gujranwala', 'Bahawalpur', 'Sargodha', 'Sukkur', 'Larkana',
+  'Burewala', 'Vehari', 'Sahiwal', 'Hyderabad', 'Abbottabad', 'Gujrat',
+]
+
 function Select({ value }) {
   return (
     <button
@@ -131,7 +137,7 @@ export default function Checkout() {
     fullName: user?.name || '',
     address1: user?.saved_address || '',
     address2: '',
-    city: user?.saved_city || 'Lahore',
+    city: user?.saved_city || '',
     notes: '',
   })
 
@@ -144,7 +150,7 @@ export default function Checkout() {
       fullName: prev.fullName || user?.name || '',
       phone: prev.phone || user?.saved_phone || '',
       address1: prev.address1 || user?.saved_address || '',
-      city: prev.city || user?.saved_city || 'Lahore',
+      city: prev.city || user?.saved_city || '',
     }))
   }, [user?.email, user?.name, user?.saved_phone, user?.saved_address, user?.saved_city]) // eslint-disable-line react-hooks/exhaustive-deps
   const [shippingFee, setShippingFee] = useState(1800)
@@ -328,7 +334,10 @@ export default function Checkout() {
                   <Select value="Punjab" />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Input name="city" type="text" placeholder="City" value={form.city} onChange={handleChange} />
+                  <Input name="city" type="text" placeholder="City" value={form.city} onChange={handleChange} list="city-suggestions" autoComplete="off" />
+                  <datalist id="city-suggestions">
+                    {CITY_SUGGESTIONS.map((c) => <option key={c} value={c} />)}
+                  </datalist>
                   <div />
                 </div>
 
