@@ -137,7 +137,10 @@ export default function Checkout() {
     fullName: user?.name || '',
     address1: user?.saved_address || '',
     address2: '',
-    city: user?.saved_city || '',
+    // Deliberately not pre-filled from user?.saved_city (unlike the other fields below) — the
+    // customer's shipping city can change order to order, so it should always start blank and
+    // be typed fresh each time rather than silently carrying over the last one used.
+    city: '',
     notes: '',
   })
 
@@ -150,9 +153,8 @@ export default function Checkout() {
       fullName: prev.fullName || user?.name || '',
       phone: prev.phone || user?.saved_phone || '',
       address1: prev.address1 || user?.saved_address || '',
-      city: prev.city || user?.saved_city || '',
     }))
-  }, [user?.email, user?.name, user?.saved_phone, user?.saved_address, user?.saved_city]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user?.email, user?.name, user?.saved_phone, user?.saved_address]) // eslint-disable-line react-hooks/exhaustive-deps
   const [shippingFee, setShippingFee] = useState(1800)
   const [discountInput, setDiscountInput] = useState('')
   const [appliedDiscount, setAppliedDiscount] = useState(null)
