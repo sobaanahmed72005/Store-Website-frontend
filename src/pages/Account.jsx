@@ -236,6 +236,7 @@ export default function Account() {
   const [ordersPage, setOrdersPage] = useState(1)
   const [ordersTotalPages, setOrdersTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)
+  const [copiedOrderId, setCopiedOrderId] = useState(null)
   const prevUserId = useRef(user?.id)
 
   useEffect(() => {
@@ -265,6 +266,16 @@ export default function Account() {
   if (initializing) return null
   if (!user) {
     return <Navigate to="/signin" replace />
+  }
+
+  // Leopards' tracking page has no way to be linked to directly with the number pre-filled —
+  // the customer has to paste it in themselves — so this copies it for them instead of leaving
+  // them to select/retype it by hand.
+  const handleCopyTracking = (orderId, trackingNumber) => {
+    navigator.clipboard.writeText(trackingNumber).then(() => {
+      setCopiedOrderId(orderId)
+      setTimeout(() => setCopiedOrderId((current) => (current === orderId ? null : current)), 2000)
+    })
   }
 
   return (
@@ -361,20 +372,37 @@ export default function Account() {
                   <span>{format(order.total_amount)}</span>
                 </div>
                 {order.tracking_number && (
-                  <div className="flex items-center justify-between flex-wrap gap-2 mt-3 pt-3 border-t border-[#dedede] text-[13px]">
-                    <span className="text-[#4b4b4b]">
-                      {order.courier_name || 'Courier'}: <span className="text-[#212121] font-medium">{order.tracking_number}</span>
-                    </span>
-                    {order.tracking_url && (
-                      <a
-                        href={order.tracking_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="rounded-full border border-cz-primary text-cz-primary hover:bg-cz-primary hover:text-white text-[13px] font-medium px-4 py-1.5 transition-colors"
+                  <div className="mt-3 rounded-[10px] border-2 border-cz-primary bg-cz-sky/10 p-4">
+                    <div className="text-[13px] font-semibold text-cz-primary mb-2">
+                      📦 Your order is on its way — here's how to track it:
+                    </div>
+                    <ol className="text-[13px] text-[#212121] list-decimal list-inside space-y-1 mb-3">
+                      <li>
+                        Copy your {order.courier_name || 'courier'} tracking number:{' '}
+                        <span className="font-mono font-semibold">{order.tracking_number}</span>
+                      </li>
+                      <li>Click "Track Package" below to open the tracking page</li>
+                      <li>Paste the number into their search box and click "Track Shipment"</li>
+                    </ol>
+                    <div className="flex items-center flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleCopyTracking(order.id, order.tracking_number)}
+                        className="rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[13px] font-medium px-4 py-1.5 transition-colors"
                       >
-                        Track Package
-                      </a>
-                    )}
+                        {copiedOrderId === order.id ? 'Copied ✓' : 'Copy Tracking Number'}
+                      </button>
+                      {order.tracking_url && (
+                        <a
+                          href={order.tracking_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="rounded-full border border-cz-primary text-cz-primary hover:bg-cz-primary hover:text-white text-[13px] font-medium px-4 py-1.5 transition-colors"
+                        >
+                          Track Package →
+                        </a>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
