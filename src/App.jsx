@@ -23,7 +23,6 @@ import CheckoutSuccess from './pages/CheckoutSuccess'
 import CheckoutCancelled from './pages/CheckoutCancelled'
 import SearchResults from './pages/SearchResults'
 import Account from './pages/Account'
-import VerifyEmail from './pages/VerifyEmail'
 import Unsubscribe from './pages/Unsubscribe'
 import Shop from './pages/Shop'
 import AdminRoute from './components/admin/AdminRoute'
@@ -122,7 +121,6 @@ function App() {
       <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       <Route path="/search" element={<SearchResults />} />
       <Route path="/account" element={<Account />} />
-      <Route path="/verify-email" element={<VerifyEmail />} />
       <Route path="/unsubscribe" element={<Unsubscribe />} />
 
       <Route path={`${ADMIN_PATH}/login`} element={<AdminLogin />} />

@@ -236,8 +236,6 @@ export default function Account() {
   const [ordersPage, setOrdersPage] = useState(1)
   const [ordersTotalPages, setOrdersTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)
-  const [resending, setResending] = useState(false)
-  const [resent, setResent] = useState(false)
   const prevUserId = useRef(user?.id)
 
   useEffect(() => {
@@ -269,18 +267,6 @@ export default function Account() {
     return <Navigate to="/signin" replace />
   }
 
-  const handleResendVerification = async () => {
-    setResending(true)
-    try {
-      await api.post(ENDPOINTS.AUTH.RESEND_VERIFICATION, {}, { auth: true })
-      setResent(true)
-    } catch {
-      // ignore
-    } finally {
-      setResending(false)
-    }
-  }
-
   return (
     <div className="min-h-screen bg-cz-page flex flex-col">
       <Navbar />
@@ -303,26 +289,6 @@ export default function Account() {
         {location.state?.orderPlaced && (
           <div className="rounded-[10px] bg-cz-gold-light text-cz-ink text-[14px] px-5 py-4 mb-6">
             Your order has been placed successfully. We&apos;ll update the status here as it progresses.
-          </div>
-        )}
-
-        {!user.email_verified && (
-          <div className="flex items-center justify-between flex-wrap gap-3 rounded-[10px] bg-amber-50 border border-amber-200 text-amber-900 text-[14px] px-5 py-4 mb-6">
-            <span>
-              {resent
-                ? 'Verification email sent — please check your inbox.'
-                : 'Please verify your email address. Check your inbox for the verification link.'}
-            </span>
-            {!resent && (
-              <button
-                type="button"
-                onClick={handleResendVerification}
-                disabled={resending}
-                className="rounded-full border border-amber-700 text-amber-900 hover:bg-amber-700 hover:text-white text-[13px] font-medium px-4 py-2 transition-colors disabled:opacity-60 shrink-0"
-              >
-                {resending ? 'Sending...' : 'Resend Email'}
-              </button>
-            )}
           </div>
         )}
 
