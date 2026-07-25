@@ -16,8 +16,6 @@ export const ENDPOINTS = {
     CHANGE_PASSWORD: '/auth/change-password',
     FORGOT_PASSWORD: '/auth/forgot-password',
     RESET_PASSWORD: '/auth/reset-password',
-    VERIFY_EMAIL: (token) => `/auth/verify-email?token=${encodeURIComponent(token)}`,
-    RESEND_VERIFICATION: '/auth/resend-verification',
     TWO_FA_STATUS: '/auth/2fa/status',
     TWO_FA_SETUP: '/auth/2fa/setup',
     TWO_FA_CONFIRM: '/auth/2fa/confirm',
