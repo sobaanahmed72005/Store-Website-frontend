@@ -96,7 +96,7 @@ export default function Home() {
       <CategoryMenu />
       <Hero />
       <CategoryIcons />
-      <ProductSection heading="Featured Products" seeAllHref="/products?featured=1" products={featured} />
+      <ProductSection heading="Products" seeAllHref="/products?featured=1" products={featured} />
       <ProductSection heading="On Sale" seeAllHref="/products?on_sale=1" products={onSale} />
       <ProductSection heading="New Arrivals" seeAllHref="/products?new_arrival=1" products={newArrivals} />
       <Footer />

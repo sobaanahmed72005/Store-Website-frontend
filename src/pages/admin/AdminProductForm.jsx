@@ -664,7 +664,7 @@ export default function AdminProductForm() {
           <label className="block text-[13px] text-[#4b4b4b] mb-1">Homepage Visibility</label>
           <label className="flex items-center gap-2 text-[14px] text-[#212121]">
             <input type="checkbox" name="is_featured" checked={form.is_featured} onChange={handleChange} />
-            Show in Featured Products
+            Show in Products
           </label>
           <label className="flex items-center gap-2 text-[14px] text-[#212121]">
             <input type="checkbox" name="is_new_arrival" checked={form.is_new_arrival} onChange={handleChange} />

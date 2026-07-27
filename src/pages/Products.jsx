@@ -47,7 +47,7 @@ function ProductsSidebar({ brands, selectedBrands, onToggleBrand }) {
 }
 
 const FILTER_CONFIG = {
-  featured:    { label: 'Featured Products' },
+  featured:    { label: 'Products' },
   on_sale:     { label: 'On Sale' },
   new_arrival: { label: 'New Arrivals' },
 }
