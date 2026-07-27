@@ -276,7 +276,14 @@ export default function Product() {
   // interleaved — a value-less row sitting between two-column rows read as lopsided/broken.
   const combinedSpecifications = useMemo(() => {
     const variantExtra = (matchedVariant?.key_specs || []).map((s) => ({ attribute: s.label, value: s.value }))
-    return [...variantExtra, ...(product?.specifications || [])]
+    // A label the selected variant already provides (e.g. "Resolution") replaces the product's own
+    // entry for that same label rather than sitting alongside it — the product-level value for a
+    // variant-defining attribute is only ever a generic fallback (see attachAttributeOptionIds in
+    // productsController.js), so once the matched variant has its own explicit value, showing both
+    // would just duplicate the fact with the wrong one never actually going away on selection.
+    const variantLabels = new Set(variantExtra.map((s) => s.attribute.trim().toLowerCase()))
+    const base = (product?.specifications || []).filter((s) => !variantLabels.has(s.attribute.trim().toLowerCase()))
+    return [...variantExtra, ...base]
   }, [product, matchedVariant])
   const specPairs = useMemo(() => combinedSpecifications.filter((s) => s.value), [combinedSpecifications])
   const specBullets = useMemo(() => combinedSpecifications.filter((s) => !s.value), [combinedSpecifications])
