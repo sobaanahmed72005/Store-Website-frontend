@@ -252,12 +252,6 @@ export default function Product() {
     return map
   }, [dimensionNames, product])
 
-  // Split into "Label: Value" pairs and plain-label bullets (see AdminProductForm's Key
-  // Specifications editor) so they can render as two visually distinct groups instead of
-  // interleaved — a value-less row sitting between two-column rows read as lopsided/broken.
-  const specPairs = useMemo(() => (product?.specifications || []).filter((s) => s.value), [product])
-  const specBullets = useMemo(() => (product?.specifications || []).filter((s) => !s.value), [product])
-
   const hasVariants = (product?.variants?.length ?? 0) > 0
 
   const matchedVariant = useMemo(() => {
@@ -270,6 +264,22 @@ export default function Product() {
   }, [product, selections, dimensionNames, hasVariants])
 
   const fullySelected = !hasVariants || matchedVariant != null
+
+  // The matched variant's own description, when set, replaces the product's — same override
+  // relationship as its price/stock above. Its key specs are additive on top of the product's own
+  // (rather than replacing them): a variant-scoped spec is an extra fact specific to that
+  // combination, not a substitute for the ones that hold true across every variant.
+  const displayDescription = matchedVariant?.description || product?.description
+
+  // Split into "Label: Value" pairs and plain-label bullets (see AdminProductForm's Key
+  // Specifications editor) so they can render as two visually distinct groups instead of
+  // interleaved — a value-less row sitting between two-column rows read as lopsided/broken.
+  const combinedSpecifications = useMemo(() => {
+    const variantExtra = (matchedVariant?.key_specs || []).map((s) => ({ attribute: s.label, value: s.value }))
+    return [...variantExtra, ...(product?.specifications || [])]
+  }, [product, matchedVariant])
+  const specPairs = useMemo(() => combinedSpecifications.filter((s) => s.value), [combinedSpecifications])
+  const specBullets = useMemo(() => combinedSpecifications.filter((s) => !s.value), [combinedSpecifications])
 
   const origin = window.location.origin
   const canonical = `${origin}/product/${slug}`
@@ -422,7 +432,7 @@ export default function Product() {
               </span>
             )}
 
-            {product.description && <p className="text-[14px] text-[#4b4b4b] leading-relaxed">{product.description}</p>}
+            {displayDescription && <p className="text-[14px] text-[#4b4b4b] leading-relaxed">{displayDescription}</p>}
 
             {dimensionNames.length > 0 && (
               <div className="flex flex-col gap-3">
@@ -508,7 +518,7 @@ export default function Product() {
               </button>
             </div>
 
-            {product.specifications?.length > 0 && (
+            {combinedSpecifications.length > 0 && (
               <div className="mt-2">
                 <h2 className="text-[16px] font-semibold text-[#212121] mb-2">Specifications</h2>
                 {specPairs.length > 0 && (

@@ -46,6 +46,14 @@ function cartesianProduct(arrays) {
   return arrays.reduce((acc, curr) => acc.flatMap((combo) => curr.map((item) => [...combo, item])), [[]])
 }
 
+// Inverse of comboKey — a key spec's variantKey is stored as that same string (see the "Applies
+// to" dropdown below), so recovering the flat option_ids the backend expects doesn't need a fresh
+// lookup against the current activeCombos list, which may have changed shape since the spec was
+// tagged (e.g. the admin added or removed a variant dimension in the same edit).
+function parseComboKey(key) {
+  return key.split('|').flatMap((group) => group.split(',').map(Number))
+}
+
 export default function AdminProductForm() {
   const { id } = useParams()
   const isEdit = Boolean(id)
@@ -119,7 +127,11 @@ export default function AdminProductForm() {
         setGalleryImages(p.images || [])
         setPendingVariants(p.variants || [])
         setSpecOverrides(Object.fromEntries((p.spec_overrides || []).map((o) => [o.attribute_name, o.value])))
-        setKeySpecs((p.key_specs || []).map(({ label, value }) => ({ label, value })))
+        // Only the "All Variants" key specs load here — each variant's own key_specs (in
+        // p.variants[].key_specs) are appended once attributes/combos are resolved, in the
+        // pendingVariants reconciliation effect below, since resolving them to a variantKey needs
+        // the same combo-matching logic that effect already does for price/stock.
+        setKeySpecs((p.key_specs || []).map(({ label, value }) => ({ label, value, variantKey: null })))
       })
       .catch((err) => setError(err.message))
   }, [id, isEdit])
@@ -156,6 +168,7 @@ export default function AdminProductForm() {
     )
     const nextRows = new Map()
     let anyOnSale = false
+    const variantKeySpecRows = []
     for (const v of pendingVariants) {
       const perAttr = dims.map((attr) => {
         const match = v.options.find((vo) => vo.attribute === attr.name)
@@ -163,15 +176,21 @@ export default function AdminProductForm() {
       })
       if (perAttr.length > 0 && perAttr.every(Boolean)) {
         if (v.discount_price != null) anyOnSale = true
-        nextRows.set(comboKey(perAttr.map((o) => o.ids)), {
+        const key = comboKey(perAttr.map((o) => o.ids))
+        nextRows.set(key, {
           price: v.price,
           stock: v.stock,
           discount_price: v.discount_price ?? '',
+          description: v.description ?? '',
         })
+        for (const spec of v.key_specs || []) {
+          variantKeySpecRows.push({ label: spec.label, value: spec.value, variantKey: key })
+        }
       }
     }
     setVariantRows(nextRows)
     setVariantsOnSale(anyOnSale)
+    if (variantKeySpecRows.length > 0) setKeySpecs((prev) => [...prev, ...variantKeySpecRows])
     setPendingVariants(null)
   }, [attributes, selectedOptionIds, pendingVariants])
 
@@ -286,7 +305,7 @@ export default function AdminProductForm() {
   }
 
   const addKeySpec = () => {
-    setKeySpecs((prev) => [...prev, { label: '', value: '' }])
+    setKeySpecs((prev) => [...prev, { label: '', value: '', variantKey: null }])
   }
 
   const updateKeySpec = (index, field, value) => {
@@ -331,6 +350,7 @@ export default function AdminProductForm() {
           price: Number(row.price),
           stock: Number(row.stock) || 0,
           discount_price: row.discount_price !== '' && row.discount_price != null ? Number(row.discount_price) : null,
+          description: (row.description || '').trim() || null,
         }
       })
       const payload = {
@@ -360,7 +380,11 @@ export default function AdminProductForm() {
         // (label left blank) is sent through as-is on purpose, so that validation catches it and
         // the admin gets a clear message instead of it being silently discarded.
         key_specs: keySpecs
-          .map((row) => ({ label: row.label.trim(), value: row.value.trim() }))
+          .map((row) => ({
+            label: row.label.trim(),
+            value: row.value.trim(),
+            variant_option_ids: row.variantKey ? parseComboKey(row.variantKey) : null,
+          }))
           .filter((row) => row.label !== '' || row.value !== ''),
       }
       if (isEdit) {
@@ -510,43 +534,51 @@ export default function AdminProductForm() {
               Put all variants on sale
             </label>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
               {activeCombos.map((combo) => {
                 const row = variantRows.get(combo.key) || {}
                 return (
-                  <div
-                    key={combo.key}
-                    className={`grid ${variantsOnSale ? 'grid-cols-[1fr_auto_auto_auto]' : 'grid-cols-[1fr_auto_auto]'} gap-2 items-center`}
-                  >
-                    <span className="text-[14px] text-[#212121]">{combo.label}</span>
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      placeholder="Price (PKR)"
-                      value={row.price ?? ''}
-                      onChange={(e) => updateVariantRow(combo.key, 'price', e.target.value)}
-                      className="w-[130px] rounded-md border border-[#d1d5db] text-[14px] px-3 py-2 outline-none focus:border-cz-primary"
-                    />
-                    <input
-                      type="number"
-                      min="0"
-                      placeholder="Stock"
-                      value={row.stock ?? ''}
-                      onChange={(e) => updateVariantRow(combo.key, 'stock', e.target.value)}
-                      className="w-[100px] rounded-md border border-[#d1d5db] text-[14px] px-3 py-2 outline-none focus:border-cz-primary"
-                    />
-                    {variantsOnSale && (
+                  <div key={combo.key} className="flex flex-col gap-1.5 pb-3 border-b border-[#f0f0f0] last:border-b-0 last:pb-0">
+                    <div
+                      className={`grid ${variantsOnSale ? 'grid-cols-[1fr_auto_auto_auto]' : 'grid-cols-[1fr_auto_auto]'} gap-2 items-center`}
+                    >
+                      <span className="text-[14px] text-[#212121]">{combo.label}</span>
                       <input
                         type="number"
                         min="0"
                         step="0.01"
-                        placeholder="Sale Price (PKR)"
-                        value={row.discount_price ?? ''}
-                        onChange={(e) => updateVariantRow(combo.key, 'discount_price', e.target.value)}
-                        className="w-[140px] rounded-md border border-[#d1d5db] text-[14px] px-3 py-2 outline-none focus:border-cz-primary"
+                        placeholder="Price (PKR)"
+                        value={row.price ?? ''}
+                        onChange={(e) => updateVariantRow(combo.key, 'price', e.target.value)}
+                        className="w-[130px] rounded-md border border-[#d1d5db] text-[14px] px-3 py-2 outline-none focus:border-cz-primary"
                       />
-                    )}
+                      <input
+                        type="number"
+                        min="0"
+                        placeholder="Stock"
+                        value={row.stock ?? ''}
+                        onChange={(e) => updateVariantRow(combo.key, 'stock', e.target.value)}
+                        className="w-[100px] rounded-md border border-[#d1d5db] text-[14px] px-3 py-2 outline-none focus:border-cz-primary"
+                      />
+                      {variantsOnSale && (
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          placeholder="Sale Price (PKR)"
+                          value={row.discount_price ?? ''}
+                          onChange={(e) => updateVariantRow(combo.key, 'discount_price', e.target.value)}
+                          className="w-[140px] rounded-md border border-[#d1d5db] text-[14px] px-3 py-2 outline-none focus:border-cz-primary"
+                        />
+                      )}
+                    </div>
+                    <textarea
+                      placeholder={`Description override for ${combo.label} (optional — leave blank to use the product Description below)`}
+                      value={row.description ?? ''}
+                      onChange={(e) => updateVariantRow(combo.key, 'description', e.target.value)}
+                      rows={2}
+                      className="w-full rounded-md border border-[#d1d5db] text-[13px] px-3 py-2 outline-none focus:border-cz-primary resize-none"
+                    />
                   </div>
                 )
               })}
@@ -571,11 +603,15 @@ export default function AdminProductForm() {
             Short facts shown as a bullet list on the product page — separate from the Description paragraph above,
             and independent of the Filters section. Add a Value for a "Label: Value" pair (e.g. "Battery" →
             "5000mAh"), or leave Value blank for a plain bullet point (e.g. just "Waterproof").
+            {activeCombos.length > 0 && ' Use "Applies to" to scope a spec to just one variant instead of all of them.'}
           </p>
           {keySpecs.length > 0 && (
             <div className="flex flex-col gap-2 mb-2">
               {keySpecs.map((row, index) => (
-                <div key={index} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
+                <div
+                  key={index}
+                  className={`grid ${activeCombos.length > 0 ? 'grid-cols-[1fr_1fr_1fr_auto]' : 'grid-cols-[1fr_1fr_auto]'} gap-2 items-center`}
+                >
                   <input
                     type="text"
                     placeholder="Label (e.g. Battery)"
@@ -592,6 +628,20 @@ export default function AdminProductForm() {
                     maxLength={255}
                     className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2 outline-none focus:border-cz-primary"
                   />
+                  {activeCombos.length > 0 && (
+                    <select
+                      value={row.variantKey ?? ''}
+                      onChange={(e) => updateKeySpec(index, 'variantKey', e.target.value || null)}
+                      className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2 outline-none focus:border-cz-primary bg-white"
+                    >
+                      <option value="">Applies to: All Variants</option>
+                      {activeCombos.map((combo) => (
+                        <option key={combo.key} value={combo.key}>
+                          Applies to: {combo.label}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                   <button
                     type="button"
                     aria-label="Remove specification"
