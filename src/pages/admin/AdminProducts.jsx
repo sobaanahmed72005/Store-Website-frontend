@@ -132,7 +132,7 @@ export default function AdminProducts() {
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap gap-1">
                         {Boolean(p.is_featured) && (
-                          <span className="rounded-full bg-cz-accent text-cz-ink text-[11px] font-medium px-2 py-0.5">Featured</span>
+                          <span className="rounded-full bg-cz-accent text-cz-ink text-[11px] font-medium px-2 py-0.5">Products</span>
                         )}
                         {Boolean(p.is_new_arrival) && (
                           <span className="rounded-full bg-cz-lavender text-cz-ink text-[11px] font-medium px-2 py-0.5">New</span>
