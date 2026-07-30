@@ -30,6 +30,7 @@ export default function Logo({
   iconClassName = 'h-7',
   truncate = false,
   size,
+  textScale = 0.6,
 }) {
   const { siteName, logoUrl } = useSiteSettings()
   const isLight = variant === 'light'
@@ -37,12 +38,13 @@ export default function Logo({
 
   // iconOnly reserves a single box (`size`, in px) for whichever ends up rendering — the logo
   // image or, when no logo is configured, the name — so the two never end up sized/placed
-  // independently of each other.
+  // independently of each other. `textScale` lets callers shrink the name text relative to
+  // that box without affecting the logo image's height.
   if (iconOnly) {
-    const boxStyle = size ? { height: size, fontSize: size * 0.6 } : undefined
+    const boxStyle = size ? { height: size, fontSize: size * textScale } : undefined
     return (
       <span
-        className={`inline-flex items-center gap-2 font-heading font-bold leading-none whitespace-nowrap ${
+        className={`inline-flex items-center gap-4 font-heading font-bold leading-none whitespace-nowrap ${
           truncate ? 'min-w-0' : ''
         } ${className}`}
         style={boxStyle}
