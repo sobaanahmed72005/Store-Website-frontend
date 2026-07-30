@@ -330,7 +330,7 @@ export default function Header() {
     <div className="bg-cz-header py-2.5">
       <div className="mx-auto px-5">
         <div className="hidden md:grid grid-cols-4 items-center gap-4">
-          <Link to="/" className="flex items-center justify-start col-span-1">
+          <Link to="/" className="flex items-center justify-start col-span-1 py-2 px-1">
             <Logo iconOnly variant="light" size={64} />
           </Link>
 
@@ -381,7 +381,7 @@ export default function Header() {
             <button type="button" aria-label="Menu" onClick={() => setNavOpen(true)} className="text-white shrink-0">
               <HamburgerIcon size={28} />
             </button>
-            <Link to="/" className="flex items-center min-w-0">
+            <Link to="/" className="flex items-center min-w-0 py-1 px-1">
               <Logo iconOnly variant="light" size={48} truncate />
             </Link>
           </div>
