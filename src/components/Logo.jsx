@@ -42,24 +42,23 @@ export default function Logo({
     const boxStyle = size ? { height: size, fontSize: size * 0.6 } : undefined
     return (
       <span
-        className={`inline-flex items-center font-heading font-bold leading-none whitespace-nowrap ${
+        className={`inline-flex items-center gap-2 font-heading font-bold leading-none whitespace-nowrap ${
           truncate ? 'min-w-0' : ''
         } ${className}`}
         style={boxStyle}
       >
-        {logoUrl ? (
+        {logoUrl && (
           <img src={logoUrl} alt={siteName} className="h-full w-auto object-contain shrink-0" />
-        ) : (
-          <span className={truncate ? 'min-w-0 truncate' : ''}>
-            <span className={isLight ? 'text-white' : 'text-cz-primary'}>{first}</span>
-            {hasBoundary && (
-              <>
-                {hasSpace && ' '}
-                <span className={isLight ? 'text-white' : 'text-cz-accent-hover'}>{second}</span>
-              </>
-            )}
-          </span>
         )}
+        <span className={truncate ? 'min-w-0 truncate' : ''}>
+          <span className={isLight ? 'text-white' : 'text-cz-primary'}>{first}</span>
+          {hasBoundary && (
+            <>
+              {hasSpace && ' '}
+              <span className={isLight ? 'text-white' : 'text-cz-accent-hover'}>{second}</span>
+            </>
+          )}
+        </span>
       </span>
     )
   }
