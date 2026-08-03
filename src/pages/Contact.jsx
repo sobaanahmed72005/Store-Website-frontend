@@ -99,27 +99,32 @@ export default function Contact() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 pb-10">
           <div className="flex flex-col gap-5">
             {brand.address && (
-              <div className="flex items-center gap-[10px] text-[15px] text-[#212121]">
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(brand.address)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center gap-[10px] text-[15px] text-[#212121]"
+              >
                 <LocationIcon size={24} className="shrink-0" />
-                <span>{brand.address}</span>
-              </div>
+                <span className="group-hover:underline">{brand.address}</span>
+              </a>
             )}
             {brand.phone && (
               <a
                 href={`tel:${firstPhone}`}
-                className="flex items-center gap-[10px] text-[15px] text-[#212121] hover:underline"
+                className="group flex items-center gap-[10px] text-[15px] text-[#212121]"
               >
                 <PhoneIcon size={24} className="shrink-0" />
-                <span>{brand.phone}</span>
+                <span className="group-hover:underline">{brand.phone}</span>
               </a>
             )}
             {brand.email && (
               <a
                 href={`mailto:${brand.email}`}
-                className="flex items-center gap-[10px] text-[15px] text-[#212121] hover:underline"
+                className="group flex items-center gap-[10px] text-[15px] text-[#212121]"
               >
                 <MailIcon size={24} className="shrink-0" />
-                <span>{brand.email}</span>
+                <span className="group-hover:underline">{brand.email}</span>
               </a>
             )}
             {brand.hours && (
@@ -136,7 +141,7 @@ export default function Contact() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={label}
-                    className="text-[#212121] hover:text-cz-primary"
+                    className="inline-flex text-[#212121] hover:text-cz-primary hover:scale-125 transition-transform duration-200"
                   >
                     <Icon size={24} />
                   </a>
