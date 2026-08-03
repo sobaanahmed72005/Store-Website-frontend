@@ -55,8 +55,8 @@ const SORT_OPTIONS = {
   name_desc:  { label: 'Z - A' },
 }
 
-const LIST_VIEW_CLASS = 'grid grid-cols-1 gap-3 pb-10'
-const GRID_VIEW_CLASS = 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 pb-10'
+const LIST_VIEW_CLASS = 'grid grid-cols-1 gap-6 pb-10'
+const GRID_VIEW_CLASS = 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 pb-10'
 
 export default function Shop() {
   const { siteName } = useSiteSettings()

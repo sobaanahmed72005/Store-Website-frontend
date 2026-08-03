@@ -38,7 +38,7 @@ function ProductSection({ heading, seeAllHref, products }) {
   return (
     <section className="mx-auto px-5 pt-[30px] pb-0 md:pb-[30px]">
       <SectionHeading heading={heading} seeAllHref={seeAllHref} />
-      <ProductGrid products={products} className="grid grid-cols-2 md:grid-cols-5 gap-[10px]" />
+      <ProductGrid products={products} className="grid grid-cols-2 md:grid-cols-5 gap-6" />
     </section>
   )
 }

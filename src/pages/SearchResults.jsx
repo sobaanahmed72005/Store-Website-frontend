@@ -72,7 +72,7 @@ export default function SearchResults() {
           </div>
         ) : (
           <>
-            <ProductGrid products={results} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 pb-10" />
+            <ProductGrid products={results} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 pb-10" />
             <Pagination page={page} totalPages={totalPages} onChange={setPage} />
           </>
         )}

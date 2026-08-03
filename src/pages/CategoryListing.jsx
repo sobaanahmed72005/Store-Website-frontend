@@ -211,7 +211,7 @@ export default function CategoryListing() {
               <>
                 <ProductGrid
                   products={products}
-                  className={view === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2' : 'grid grid-cols-1 gap-3'}
+                  className={view === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6' : 'grid grid-cols-1 gap-6'}
                 />
                 <Pagination page={page} totalPages={totalPages} onChange={setPage} />
               </>

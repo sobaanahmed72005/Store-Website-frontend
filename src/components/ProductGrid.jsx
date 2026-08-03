@@ -5,7 +5,7 @@ import { getEffectivePrice } from '../utils/pricing'
 // The `<ProductCard {...getEffectivePrice(p)} />` block, hand-copied across every product-listing
 // page (Products, Shop, CategoryListing, SearchResults). `className` lets a page override the
 // grid's column count/gap (SearchResults uses a 5-column layout, the rest use 4).
-export default function ProductGrid({ products, className = 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2' }) {
+export default function ProductGrid({ products, className = 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6' }) {
   return (
     <div className={className}>
       {products.map((p) => (
