@@ -439,8 +439,6 @@ export default function Product() {
               </span>
             )}
 
-            {displayDescription && <p className="text-[14px] text-[#4b4b4b] leading-relaxed">{displayDescription}</p>}
-
             {dimensionNames.length > 0 && (
               <div className="flex flex-col gap-3">
                 {dimensionNames.map((name) => (
@@ -564,6 +562,13 @@ export default function Product() {
             )}
           </div>
         </div>
+
+        {displayDescription && (
+          <div className="mt-12 max-w-[800px]">
+            <h2 className="text-[18px] font-semibold text-[#212121] mb-4">Description</h2>
+            <p className="text-[14px] text-[#4b4b4b] leading-relaxed">{displayDescription}</p>
+          </div>
+        )}
 
         <div className="mt-12 max-w-[800px]">
           <h2 className="text-[18px] font-semibold text-[#212121] mb-4">Reviews</h2>
