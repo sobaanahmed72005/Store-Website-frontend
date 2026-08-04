@@ -20,6 +20,8 @@ const emptyForm = {
   image: '',
   video: '',
   dataset: '',
+  content_image: '',
+  content_image_caption: '',
   is_featured: false,
   is_new_arrival: false,
   is_on_sale: false,
@@ -70,6 +72,7 @@ export default function AdminProductForm() {
   const [uploading, setUploading] = useState(false)
   const [videoUploading, setVideoUploading] = useState(false)
   const [datasetUploading, setDatasetUploading] = useState(false)
+  const [contentImageUploading, setContentImageUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [slugTouched, setSlugTouched] = useState(false)
@@ -122,6 +125,8 @@ export default function AdminProductForm() {
           image: p.image ?? '',
           video: p.video ?? '',
           dataset: p.dataset ?? '',
+          content_image: p.content_image ?? '',
+          content_image_caption: p.content_image_caption ?? '',
           is_featured: Boolean(p.is_featured),
           is_new_arrival: Boolean(p.is_new_arrival),
           is_on_sale: Boolean(p.is_on_sale),
@@ -342,6 +347,25 @@ export default function AdminProductForm() {
     setForm((prev) => ({ ...prev, dataset: '' }))
   }
 
+  const handleContentImageFileChange = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setContentImageUploading(true)
+    setError('')
+    try {
+      const { url } = await uploadImage(file)
+      setForm((prev) => ({ ...prev, content_image: url }))
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setContentImageUploading(false)
+    }
+  }
+
+  const removeContentImage = () => {
+    setForm((prev) => ({ ...prev, content_image: '', content_image_caption: '' }))
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
@@ -387,6 +411,8 @@ export default function AdminProductForm() {
         image: form.image,
         video: form.video || null,
         dataset: form.dataset || null,
+        content_image: form.content_image || null,
+        content_image_caption: form.content_image_caption.trim() || null,
         is_featured: form.is_featured,
         is_new_arrival: form.is_new_arrival,
         is_on_sale: form.is_on_sale,
@@ -826,10 +852,47 @@ export default function AdminProductForm() {
           {datasetUploading && <div className="text-[13px] text-[#4b4b4b] mt-1">Uploading...</div>}
         </div>
 
+        <div>
+          <label className="block text-[13px] text-[#4b4b4b] mb-1">Content Image (optional, shown below the description)</label>
+          <div className="flex items-center gap-4">
+            {form.content_image && (
+              <div className="relative">
+                <img
+                  src={resolveImageUrl(form.content_image)}
+                  alt="Preview"
+                  width={64}
+                  height={64}
+                  className="w-16 h-16 object-cover rounded-md border border-[#dedede]"
+                />
+                <button
+                  type="button"
+                  aria-label="Remove content image"
+                  onClick={removeContentImage}
+                  className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-white border border-[#dedede] text-[12px] text-red-600 flex items-center justify-center"
+                >
+                  ×
+                </button>
+              </div>
+            )}
+            <input type="file" accept="image/*" onChange={handleContentImageFileChange} className="text-[13px]" />
+          </div>
+          {contentImageUploading && <div className="text-[13px] text-[#4b4b4b] mt-1">Uploading...</div>}
+          {form.content_image && (
+            <input
+              type="text"
+              name="content_image_caption"
+              value={form.content_image_caption}
+              onChange={handleChange}
+              placeholder="Caption shown underneath the image (optional)"
+              className="w-full rounded-md border border-[#d1d5db] text-[13px] px-3 py-2 mt-2 outline-none focus:border-cz-primary"
+            />
+          )}
+        </div>
+
         <div className="flex gap-3 mt-2">
           <button
             type="submit"
-            disabled={saving || uploading || videoUploading || datasetUploading}
+            disabled={saving || uploading || videoUploading || datasetUploading || contentImageUploading}
             className="rounded-md bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-medium px-6 py-2.5 transition-colors disabled:opacity-60"
           >
             {saving ? 'Saving...' : isEdit ? 'Save Changes' : 'Create Product'}

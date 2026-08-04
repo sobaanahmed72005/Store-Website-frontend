@@ -571,6 +571,19 @@ export default function Product() {
           </div>
         )}
 
+        {product.content_image && (
+          <div className="mt-12 flex flex-col items-center text-center">
+            <img
+              src={resolveImageUrl(product.content_image)}
+              alt={product.content_image_caption || product.name}
+              className="max-w-full max-h-[500px] rounded-[10px] border border-[#dedede] object-contain"
+            />
+            {product.content_image_caption && (
+              <p className="mt-3 text-[13px] text-[#4b4b4b] max-w-[600px]">{product.content_image_caption}</p>
+            )}
+          </div>
+        )}
+
         <div className="mt-12 max-w-[800px]">
           <h2 className="text-[18px] font-semibold text-[#212121] mb-4">Reviews</h2>
 
