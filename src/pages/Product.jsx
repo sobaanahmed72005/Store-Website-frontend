@@ -11,7 +11,7 @@ import { useAuth } from '../store/authStore'
 import { useCart } from '../store/cartStore'
 import { useWishlist } from '../store/wishlistStore'
 import { useCurrency, parsePkr } from '../store/currencyStore'
-import { api, resolveImageUrl } from '../api/client'
+import { api, BASE_URL, resolveImageUrl } from '../api/client'
 import { ENDPOINTS } from '../api/endpoints'
 import { getEffectivePrice, getVariantEffectivePrice } from '../utils/pricing'
 import { useSeo } from '../hooks/useSeo'
@@ -527,10 +527,7 @@ export default function Product() {
 
             {product.dataset && (
               <a
-                href={resolveImageUrl(product.dataset)}
-                target="_blank"
-                rel="noopener noreferrer"
-                download
+                href={`${BASE_URL}${ENDPOINTS.PRODUCTS.DATASET(product.slug)}`}
                 className="inline-flex items-center gap-2 w-fit rounded-full border border-[#dedede] text-[14px] font-semibold text-[#212121] px-6 py-2.5 hover:bg-cz-gold-light transition-colors"
               >
                 <FileTextIcon size={18} />

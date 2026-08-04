@@ -57,6 +57,7 @@ export const ENDPOINTS = {
     SUGGEST: (query) => `/products/suggest?q=${encodeURIComponent(query)}`,
     BY_SLUG: (slug) => `/products/${slug}`,
     BY_CATEGORY: (slug) => `/products?category=${slug}`,
+    DATASET: (slug) => `/products/${slug}/dataset`,
     SEARCH: (query) => `/products?search=${encodeURIComponent(query)}`,
   },
 
