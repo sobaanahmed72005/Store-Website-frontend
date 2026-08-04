@@ -6,7 +6,7 @@ import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
 import { StarRating } from '../components/ProductCard'
 import ProductGrid from '../components/ProductGrid'
-import { PlusCircleIcon, MinusCircleIcon, ChevronLeftIcon, ChevronRightIcon, HeartIcon, PlayIcon } from '../components/icons'
+import { PlusCircleIcon, MinusCircleIcon, ChevronLeftIcon, ChevronRightIcon, HeartIcon, PlayIcon, FileTextIcon } from '../components/icons'
 import { useAuth } from '../store/authStore'
 import { useCart } from '../store/cartStore'
 import { useWishlist } from '../store/wishlistStore'
@@ -524,6 +524,19 @@ export default function Product() {
                 <HeartIcon size={20} filled={wishlisted} />
               </button>
             </div>
+
+            {product.dataset && (
+              <a
+                href={resolveImageUrl(product.dataset)}
+                target="_blank"
+                rel="noopener noreferrer"
+                download
+                className="inline-flex items-center gap-2 w-fit rounded-full border border-[#dedede] text-[14px] font-semibold text-[#212121] px-6 py-2.5 hover:bg-cz-gold-light transition-colors"
+              >
+                <FileTextIcon size={18} />
+                Dataset
+              </a>
+            )}
 
             {combinedSpecifications.length > 0 && (
               <div className="mt-2">

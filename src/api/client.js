@@ -139,6 +139,21 @@ export async function uploadVideo(file, endpoint = '/admin/upload-video') {
   return data
 }
 
+export async function uploadDataset(file, endpoint = '/admin/upload-dataset') {
+  const formData = new FormData()
+  formData.append('dataset', file)
+
+  const res = await fetchWithAuthRetry(endpoint, {
+    method: 'POST',
+    headers: { 'X-Store-Slug': getStoreSlug() },
+    credentials: 'include',
+    body: formData,
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data?.error || 'Upload failed')
+  return data
+}
+
 export function resolveImageUrl(image) {
   if (!image) return null
   if (/^https?:\/\//.test(image)) return image

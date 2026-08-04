@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
-import { api, uploadImage, uploadVideo, resolveImageUrl } from '../../api/client'
+import { api, uploadImage, uploadVideo, uploadDataset, resolveImageUrl } from '../../api/client'
 import { ENDPOINTS } from '../../api/endpoints'
 import { ADMIN_PATH } from '../../config/adminPath'
 import MultiSelectDropdown from '../../components/admin/MultiSelectDropdown'
@@ -19,6 +19,7 @@ const emptyForm = {
   stock: '0',
   image: '',
   video: '',
+  dataset: '',
   is_featured: false,
   is_new_arrival: false,
   is_on_sale: false,
@@ -68,6 +69,7 @@ export default function AdminProductForm() {
   const [categories, setCategories] = useState([])
   const [uploading, setUploading] = useState(false)
   const [videoUploading, setVideoUploading] = useState(false)
+  const [datasetUploading, setDatasetUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [slugTouched, setSlugTouched] = useState(false)
@@ -119,6 +121,7 @@ export default function AdminProductForm() {
           stock: p.stock,
           image: p.image ?? '',
           video: p.video ?? '',
+          dataset: p.dataset ?? '',
           is_featured: Boolean(p.is_featured),
           is_new_arrival: Boolean(p.is_new_arrival),
           is_on_sale: Boolean(p.is_on_sale),
@@ -320,6 +323,25 @@ export default function AdminProductForm() {
     setForm((prev) => ({ ...prev, video: '' }))
   }
 
+  const handleDatasetFileChange = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setDatasetUploading(true)
+    setError('')
+    try {
+      const { url } = await uploadDataset(file)
+      setForm((prev) => ({ ...prev, dataset: url }))
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setDatasetUploading(false)
+    }
+  }
+
+  const removeDataset = () => {
+    setForm((prev) => ({ ...prev, dataset: '' }))
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
@@ -364,6 +386,7 @@ export default function AdminProductForm() {
         stock: Number(form.stock) || 0,
         image: form.image,
         video: form.video || null,
+        dataset: form.dataset || null,
         is_featured: form.is_featured,
         is_new_arrival: form.is_new_arrival,
         is_on_sale: form.is_on_sale,
@@ -775,10 +798,38 @@ export default function AdminProductForm() {
           {videoUploading && <div className="text-[13px] text-[#4b4b4b] mt-1">Uploading...</div>}
         </div>
 
+        <div>
+          <label className="block text-[13px] text-[#4b4b4b] mb-1">Dataset File (optional, PDF or Word)</label>
+          <div className="flex items-center gap-4">
+            {form.dataset && (
+              <div className="relative flex items-center gap-2 rounded-md border border-[#dedede] px-3 py-1.5">
+                <a href={resolveImageUrl(form.dataset)} target="_blank" rel="noopener noreferrer" className="text-[13px] text-cz-primary hover:underline">
+                  View current file
+                </a>
+                <button
+                  type="button"
+                  aria-label="Remove dataset file"
+                  onClick={removeDataset}
+                  className="w-5 h-5 rounded-full bg-white border border-[#dedede] text-[12px] text-red-600 flex items-center justify-center"
+                >
+                  ×
+                </button>
+              </div>
+            )}
+            <input
+              type="file"
+              accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              onChange={handleDatasetFileChange}
+              className="text-[13px]"
+            />
+          </div>
+          {datasetUploading && <div className="text-[13px] text-[#4b4b4b] mt-1">Uploading...</div>}
+        </div>
+
         <div className="flex gap-3 mt-2">
           <button
             type="submit"
-            disabled={saving || uploading || videoUploading}
+            disabled={saving || uploading || videoUploading || datasetUploading}
             className="rounded-md bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-medium px-6 py-2.5 transition-colors disabled:opacity-60"
           >
             {saving ? 'Saving...' : isEdit ? 'Save Changes' : 'Create Product'}

@@ -107,6 +107,7 @@ export const ENDPOINTS = {
     STATS: '/admin/stats',
     UPLOAD: '/admin/upload',
     UPLOAD_VIDEO: '/admin/upload-video',
+    UPLOAD_DATASET: '/admin/upload-dataset',
     AUDIT_LOG: (qs = '') => `/admin/audit-log${qs}`,
 
     CATEGORIES: {
