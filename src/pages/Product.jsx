@@ -415,12 +415,41 @@ export default function Product() {
               {product.brand && <div className="text-[13px] text-[#4b4b4b] mb-1">{product.brand}</div>}
               <h1 className="text-[24px] font-semibold text-[#212121]">{product.name}</h1>
               <SeoHeadingFiller h3="Product details" h4="Delivery and returns" h5="Product gallery" h6="Wishlist and sharing" />
-              <div className="flex items-center gap-2 mt-2">
-                <StarRating rating={Math.round(reviewStats.average)} />
-                <span className="text-[13px] text-[#4b4b4b]">
-                  {reviewStats.count > 0 ? `${reviewStats.average.toFixed(1)} (${reviewStats.count} review${reviewStats.count === 1 ? '' : 's'})` : 'No reviews yet'}
-                </span>
+            </div>
+
+            {combinedSpecifications.length > 0 && (
+              <div>
+                <h2 className="text-[16px] font-semibold text-[#212121] mb-2">Specifications</h2>
+                {specPairs.length > 0 && (
+                  <div className="rounded-[8px] border border-[#dedede] overflow-hidden">
+                    {specPairs.map((spec, i) => (
+                      <div key={i} className={`flex text-[14px] ${i > 0 ? 'border-t border-[#dedede]' : ''}`}>
+                        <span className="w-1/3 bg-cz-gold-light px-4 py-2.5 text-[#4b4b4b]">{spec.attribute}</span>
+                        <span className="flex-1 px-4 py-2.5 text-[#212121]">{spec.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {specBullets.length > 0 && (
+                  <div className={`flex flex-wrap gap-2 ${specPairs.length > 0 ? 'mt-3' : ''}`}>
+                    {specBullets.map((spec, i) => (
+                      <span
+                        key={i}
+                        className="rounded-[8px] border border-[#dedede] bg-cz-gold-light px-3 py-1.5 text-[13px] text-[#4b4b4b]"
+                      >
+                        {spec.attribute}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
+            )}
+
+            <div className="flex items-center gap-2">
+              <StarRating rating={Math.round(reviewStats.average)} />
+              <span className="text-[13px] text-[#4b4b4b]">
+                {reviewStats.count > 0 ? `${reviewStats.average.toFixed(1)} (${reviewStats.count} review${reviewStats.count === 1 ? '' : 's'})` : 'No reviews yet'}
+              </span>
             </div>
 
             <div className="flex items-center gap-3">
@@ -531,34 +560,6 @@ export default function Product() {
                 <FileTextIcon size={18} />
                 Dataset
               </a>
-            )}
-
-            {combinedSpecifications.length > 0 && (
-              <div className="mt-2">
-                <h2 className="text-[16px] font-semibold text-[#212121] mb-2">Specifications</h2>
-                {specPairs.length > 0 && (
-                  <div className="rounded-[8px] border border-[#dedede] overflow-hidden">
-                    {specPairs.map((spec, i) => (
-                      <div key={i} className={`flex text-[14px] ${i > 0 ? 'border-t border-[#dedede]' : ''}`}>
-                        <span className="w-1/3 bg-cz-gold-light px-4 py-2.5 text-[#4b4b4b]">{spec.attribute}</span>
-                        <span className="flex-1 px-4 py-2.5 text-[#212121]">{spec.value}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {specBullets.length > 0 && (
-                  <div className={`flex flex-wrap gap-2 ${specPairs.length > 0 ? 'mt-3' : ''}`}>
-                    {specBullets.map((spec, i) => (
-                      <span
-                        key={i}
-                        className="rounded-[8px] border border-[#dedede] bg-cz-gold-light px-3 py-1.5 text-[13px] text-[#4b4b4b]"
-                      >
-                        {spec.attribute}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
             )}
           </div>
         </div>
