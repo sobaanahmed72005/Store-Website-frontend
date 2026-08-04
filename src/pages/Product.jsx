@@ -14,6 +14,7 @@ import { useCurrency, parsePkr } from '../store/currencyStore'
 import { api, BASE_URL, resolveImageUrl } from '../api/client'
 import { ENDPOINTS } from '../api/endpoints'
 import { getEffectivePrice, getVariantEffectivePrice } from '../utils/pricing'
+import { extractYoutubeId, getYoutubeThumbnail, getYoutubeWatchUrl } from '../utils/youtube'
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../store/siteSettingsStore'
 import SeoHeadingFiller from '../components/SeoHeadingFiller'
@@ -231,6 +232,12 @@ export default function Product() {
     if (product?.video) items.push({ type: 'video', src: resolveImageUrl(product.video) })
     return items
   }, [galleryImages, product])
+
+  // The backend already normalizes content_video_url to a canonical youtube.com/watch?v=<id>
+  // link on save, but this re-extracts the id rather than trusting the stored string directly —
+  // the id is what actually drives the thumbnail src and the outbound link, so it's the one value
+  // on this page that must always come from a validated 11-char match, never a raw string.
+  const contentVideoId = useMemo(() => extractYoutubeId(product?.content_video_url), [product])
 
   // Variant picker: derived straight from product.variants (already fully labeled by the
   // backend's attachVariants) — matched by (attribute name, value) pairs rather than raw option
@@ -571,15 +578,51 @@ export default function Product() {
           </div>
         )}
 
-        {product.content_image && (
-          <div className="mt-12 flex flex-col items-center text-center">
-            <img
-              src={resolveImageUrl(product.content_image)}
-              alt={product.content_image_caption || product.name}
-              className="max-w-full max-h-[500px] rounded-[10px] border border-[#dedede] object-contain"
-            />
-            {product.content_image_caption && (
-              <p className="mt-3 text-[13px] text-[#4b4b4b] max-w-[600px]">{product.content_image_caption}</p>
+        {(product.content_image || contentVideoId) && (
+          <div className="mt-12 flex flex-wrap justify-center items-start gap-8">
+            {product.content_image && (
+              <div className="flex flex-col items-center text-center max-w-[500px]">
+                <img
+                  src={resolveImageUrl(product.content_image)}
+                  alt={product.content_image_caption || product.name}
+                  className="max-w-full max-h-[400px] rounded-[10px] border border-[#dedede] object-contain"
+                />
+                {product.content_image_caption && (
+                  <p className="mt-3 text-[13px] text-[#4b4b4b] max-w-[500px]">{product.content_image_caption}</p>
+                )}
+              </div>
+            )}
+
+            {contentVideoId && (
+              <div className="flex flex-col items-center text-center max-w-[500px] w-full sm:w-auto">
+                <a
+                  href={getYoutubeWatchUrl(contentVideoId)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Watch ${product.content_video_title || product.name} on YouTube`}
+                  className="group relative block w-full sm:w-[400px] aspect-video rounded-[10px] overflow-hidden border border-[#dedede] bg-black"
+                >
+                  <img
+                    src={getYoutubeThumbnail(contentVideoId)}
+                    alt={product.content_video_title || product.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <span className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/10 to-transparent" />
+                  {product.content_video_title && (
+                    <span className="absolute top-0 left-0 right-0 px-3 py-2.5 text-left text-[14px] font-medium text-white line-clamp-2">
+                      {product.content_video_title}
+                    </span>
+                  )}
+                  <span className="absolute inset-0 flex items-center justify-center">
+                    <span className="flex items-center justify-center w-14 h-14 rounded-full bg-red-600/90 group-hover:bg-red-600 transition-colors">
+                      <PlayIcon size={24} className="text-white ml-0.5" />
+                    </span>
+                  </span>
+                </a>
+                {product.content_video_caption && (
+                  <p className="mt-3 text-[13px] text-[#4b4b4b] max-w-[500px]">{product.content_video_caption}</p>
+                )}
+              </div>
             )}
           </div>
         )}

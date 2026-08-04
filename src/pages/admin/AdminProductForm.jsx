@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { api, uploadImage, uploadVideo, uploadDataset, resolveImageUrl } from '../../api/client'
+import { extractYoutubeId, getYoutubeThumbnail } from '../../utils/youtube'
 import { ENDPOINTS } from '../../api/endpoints'
 import { ADMIN_PATH } from '../../config/adminPath'
 import MultiSelectDropdown from '../../components/admin/MultiSelectDropdown'
@@ -22,6 +23,9 @@ const emptyForm = {
   dataset: '',
   content_image: '',
   content_image_caption: '',
+  content_video_url: '',
+  content_video_title: '',
+  content_video_caption: '',
   is_featured: false,
   is_new_arrival: false,
   is_on_sale: false,
@@ -127,6 +131,9 @@ export default function AdminProductForm() {
           dataset: p.dataset ?? '',
           content_image: p.content_image ?? '',
           content_image_caption: p.content_image_caption ?? '',
+          content_video_url: p.content_video_url ?? '',
+          content_video_title: p.content_video_title ?? '',
+          content_video_caption: p.content_video_caption ?? '',
           is_featured: Boolean(p.is_featured),
           is_new_arrival: Boolean(p.is_new_arrival),
           is_on_sale: Boolean(p.is_on_sale),
@@ -413,6 +420,9 @@ export default function AdminProductForm() {
         dataset: form.dataset || null,
         content_image: form.content_image || null,
         content_image_caption: form.content_image_caption.trim() || null,
+        content_video_url: form.content_video_url.trim() || null,
+        content_video_title: form.content_video_title.trim() || null,
+        content_video_caption: form.content_video_caption.trim() || null,
         is_featured: form.is_featured,
         is_new_arrival: form.is_new_arrival,
         is_on_sale: form.is_on_sale,
@@ -448,6 +458,8 @@ export default function AdminProductForm() {
       setSaving(false)
     }
   }
+
+  const contentVideoId = extractYoutubeId(form.content_video_url)
 
   return (
     <div className="p-8 max-w-[640px]">
@@ -886,6 +898,52 @@ export default function AdminProductForm() {
               placeholder="Caption shown underneath the image (optional)"
               className="w-full rounded-md border border-[#d1d5db] text-[13px] px-3 py-2 mt-2 outline-none focus:border-cz-primary"
             />
+          )}
+        </div>
+
+        <div>
+          <label className="block text-[13px] text-[#4b4b4b] mb-1">
+            Content Video Link (optional, YouTube URL — shown next to the content image below the description)
+          </label>
+          <input
+            type="text"
+            name="content_video_url"
+            value={form.content_video_url}
+            onChange={handleChange}
+            placeholder="https://www.youtube.com/watch?v=..."
+            className="w-full rounded-md border border-[#d1d5db] text-[13px] px-3 py-2 outline-none focus:border-cz-primary"
+          />
+          {form.content_video_url && !contentVideoId && (
+            <div className="text-[13px] text-red-600 mt-1">That doesn't look like a valid YouTube URL.</div>
+          )}
+          {contentVideoId && (
+            <div className="flex items-center gap-4 mt-2">
+              <img
+                src={getYoutubeThumbnail(contentVideoId)}
+                alt="YouTube thumbnail preview"
+                width={112}
+                height={63}
+                className="w-28 h-[63px] object-cover rounded-md border border-[#dedede] bg-black"
+              />
+              <div className="flex-1 flex flex-col gap-2">
+                <input
+                  type="text"
+                  name="content_video_title"
+                  value={form.content_video_title}
+                  onChange={handleChange}
+                  placeholder="Title shown over the video thumbnail (optional)"
+                  className="w-full rounded-md border border-[#d1d5db] text-[13px] px-3 py-2 outline-none focus:border-cz-primary"
+                />
+                <input
+                  type="text"
+                  name="content_video_caption"
+                  value={form.content_video_caption}
+                  onChange={handleChange}
+                  placeholder="Caption shown underneath the video (optional)"
+                  className="w-full rounded-md border border-[#d1d5db] text-[13px] px-3 py-2 outline-none focus:border-cz-primary"
+                />
+              </div>
+            </div>
           )}
         </div>
 
