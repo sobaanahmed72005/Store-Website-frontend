@@ -565,7 +565,7 @@ export default function Product() {
                 className="inline-flex items-center gap-2 w-fit rounded-full border border-[#dedede] text-[14px] font-semibold text-[#212121] px-6 py-2.5 hover:bg-cz-gold-light transition-colors"
               >
                 <FileTextIcon size={18} />
-                Dataset
+                Datasheet
               </a>
             )}
           </div>

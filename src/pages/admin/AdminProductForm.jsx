@@ -837,7 +837,7 @@ export default function AdminProductForm() {
         </div>
 
         <div>
-          <label className="block text-[13px] text-[#4b4b4b] mb-1">Dataset File (optional, PDF or Word)</label>
+          <label className="block text-[13px] text-[#4b4b4b] mb-1">Datasheet File (optional, PDF or Word)</label>
           <div className="flex items-center gap-4">
             {form.dataset && (
               <div className="relative flex items-center gap-2 rounded-md border border-[#dedede] px-3 py-1.5">
@@ -846,7 +846,7 @@ export default function AdminProductForm() {
                 </a>
                 <button
                   type="button"
-                  aria-label="Remove dataset file"
+                  aria-label="Remove datasheet file"
                   onClick={removeDataset}
                   className="w-5 h-5 rounded-full bg-white border border-[#dedede] text-[12px] text-red-600 flex items-center justify-center"
                 >
