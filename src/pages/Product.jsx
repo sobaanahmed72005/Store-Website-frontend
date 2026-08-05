@@ -426,13 +426,13 @@ export default function Product() {
 
             {combinedSpecifications.length > 0 && (
               <div>
-                <h2 className="text-[16px] font-semibold text-[#212121] mb-2">Specifications</h2>
+                <h2 className="text-[16px] font-bold text-slate-900 mb-3 tracking-tight">Specifications</h2>
                 {specPairs.length > 0 && (
-                  <div className="rounded-[8px] border border-[#dedede] overflow-hidden">
+                  <div className="rounded-xl border border-slate-200/90 shadow-sm overflow-hidden bg-white">
                     {specPairs.map((spec, i) => (
-                      <div key={i} className={`flex text-[14px] ${i > 0 ? 'border-t border-[#dedede]' : ''}`}>
-                        <span className="w-1/3 bg-cz-gold-light px-4 py-2.5 text-[#4b4b4b]">{spec.attribute}</span>
-                        <span className="flex-1 px-4 py-2.5 text-[#212121]">{spec.value}</span>
+                      <div key={i} className={`flex text-[14px] ${i > 0 ? 'border-t border-slate-200/80' : ''} ${i % 2 === 0 ? 'bg-slate-50/70' : 'bg-white'}`}>
+                        <span className="w-1/3 bg-slate-100/90 font-bold text-slate-800 px-4 py-3 border-r border-slate-200/80 shrink-0">{spec.attribute}</span>
+                        <span className="flex-1 font-medium text-slate-900 px-4 py-3">{spec.value}</span>
                       </div>
                     ))}
                   </div>
@@ -442,7 +442,7 @@ export default function Product() {
                     {specBullets.map((spec, i) => (
                       <span
                         key={i}
-                        className="rounded-[8px] border border-[#dedede] bg-cz-gold-light px-3 py-1.5 text-[13px] text-[#4b4b4b]"
+                        className="rounded-lg border border-cyan-200 bg-cyan-50 px-3.5 py-1.5 text-[13px] font-bold text-cyan-900 shadow-sm hover:bg-cyan-100 transition-colors"
                       >
                         {spec.attribute}
                       </span>
@@ -526,13 +526,15 @@ export default function Product() {
               </div>
             )}
 
-            <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-3 flex-wrap pt-2">
               <button
                 type="button"
                 disabled={!inStock}
                 onClick={handleAddToCart}
-                className={`rounded-full text-[14px] font-semibold px-8 py-3 transition-colors ${
-                  inStock ? 'bg-cz-primary text-white hover:bg-cz-primary-hover cursor-pointer' : 'bg-cz-primary text-white opacity-60 cursor-not-allowed'
+                className={`rounded-full text-[14px] font-bold tracking-wide px-8 py-3.5 transition-all shadow-md ${
+                  inStock
+                    ? 'bg-cz-primary text-white hover:bg-cz-primary-hover cursor-pointer hover:scale-105 active:scale-95 hover:shadow-cyan-500/25'
+                    : 'bg-slate-200 text-slate-400 opacity-60 cursor-not-allowed'
                 }`}
               >
                 Add To Cart
@@ -541,33 +543,41 @@ export default function Product() {
                 type="button"
                 disabled={!inStock}
                 onClick={handleBuyNow}
-                className={`rounded-full text-[14px] font-semibold px-8 py-3 border transition-colors ${
-                  inStock ? 'border-cz-primary text-cz-primary hover:bg-cz-gold-light cursor-pointer' : 'border-[#dedede] text-[#9ca3af] cursor-not-allowed'
+                className={`rounded-full text-[14px] font-bold tracking-wide px-8 py-3.5 border-2 transition-all shadow-sm ${
+                  inStock
+                    ? 'border-cz-primary text-cz-primary hover:bg-cz-primary hover:text-white cursor-pointer hover:scale-105 active:scale-95'
+                    : 'border-slate-200 text-slate-400 cursor-not-allowed'
                 }`}
               >
                 Buy It Now
               </button>
+
               <button
                 type="button"
                 aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
                 onClick={handleWishlistClick}
-                className={`flex items-center justify-center w-12 h-12 rounded-full border border-[#dedede] transition-colors ${
-                  wishlisted ? 'text-cz-lavender' : 'text-[#9ca3af] hover:text-cz-lavender'
+                className={`flex items-center gap-2 rounded-full text-[14px] font-bold px-6 py-3.5 transition-all cursor-pointer shadow-md hover:scale-105 active:scale-95 ${
+                  wishlisted
+                    ? 'bg-rose-500 text-white shadow-rose-500/25'
+                    : 'bg-rose-50 text-rose-600 border-2 border-rose-200 hover:bg-rose-500 hover:text-white hover:border-rose-500'
                 }`}
               >
-                <HeartIcon size={20} filled={wishlisted} />
+                <HeartIcon size={18} filled={wishlisted} />
+                <span>{wishlisted ? 'Wishlisted' : 'Wishlist'}</span>
               </button>
-            </div>
 
-            {product.dataset && (
-              <a
-                href={`${BASE_URL}${ENDPOINTS.PRODUCTS.DATASET(product.slug)}`}
-                className="inline-flex items-center gap-2 w-fit rounded-full border border-[#dedede] text-[14px] font-semibold text-[#212121] px-6 py-2.5 hover:bg-cz-gold-light transition-colors"
-              >
-                <FileTextIcon size={18} />
-                Datasheet
-              </a>
-            )}
+              {product.dataset && (
+                <a
+                  href={`${BASE_URL}${ENDPOINTS.PRODUCTS.DATASET(product.slug)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border-2 border-sky-300 bg-sky-50 text-sky-700 text-[14px] font-bold px-6 py-3.5 shadow-sm hover:bg-sky-600 hover:text-white hover:border-sky-600 transition-all hover:scale-105 active:scale-95"
+                >
+                  <FileTextIcon size={18} />
+                  <span>Datasheet</span>
+                </a>
+              )}
+            </div>
           </div>
         </div>
 
