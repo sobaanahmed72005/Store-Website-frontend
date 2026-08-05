@@ -39,13 +39,13 @@ export default function CategoryIcons() {
         className="flex gap-[15px] overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {categories.map((cat) => (
-          <Link key={cat.slug} to={categorySlugToPath(cat.slug)} className="flex flex-col shrink-0 w-[140px]">
-            <div className="aspect-square w-full rounded-full overflow-hidden cursor-pointer bg-cz-gold-light">
+          <Link key={cat.slug} to={categorySlugToPath(cat.slug)} className="group flex flex-col shrink-0 w-[140px] transition-transform duration-300 hover:-translate-y-1.5">
+            <div className="aspect-square w-full rounded-full overflow-hidden cursor-pointer bg-cz-gold-light border-2 border-transparent group-hover:border-cz-primary group-hover:shadow-lg group-hover:shadow-cyan-500/10 transition-all duration-300">
               {cat.image && (
-                <img src={resolveImageUrl(cat.image)} alt={cat.name} width={400} height={400} className="w-full h-full object-cover" />
+                <img src={resolveImageUrl(cat.image)} alt={cat.name} width={400} height={400} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
               )}
             </div>
-            <div className="text-[15px] font-semibold text-black text-center mt-[10px] cursor-pointer">
+            <div className="text-[14px] font-semibold text-slate-800 text-center mt-2.5 cursor-pointer group-hover:text-cz-primary transition-colors">
               {cat.name}
             </div>
           </Link>

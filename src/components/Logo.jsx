@@ -34,12 +34,12 @@ export default function Logo({
 }) {
   const { siteName, logoUrl } = useSiteSettings()
   const isLight = variant === 'light'
+  const isNavy = variant === 'navy'
   const [first, second, hasBoundary, hasSpace] = splitName(siteName)
 
-  // iconOnly reserves a single box (`size`, in px) for whichever ends up rendering — the logo
-  // image or, when no logo is configured, the name — so the two never end up sized/placed
-  // independently of each other. `textScale` lets callers shrink the name text relative to
-  // that box without affecting the logo image's height.
+  const firstColor = isLight ? 'text-white' : isNavy ? 'text-[#0C4A6E]' : 'text-cz-primary'
+  const secondColor = isLight ? 'text-white' : isNavy ? 'text-cz-primary' : 'text-cz-sky'
+
   if (iconOnly) {
     const boxStyle = size ? { height: size, fontSize: size * textScale } : undefined
     return (
@@ -53,11 +53,11 @@ export default function Logo({
           <img src={logoUrl} alt={siteName} className="h-full w-auto object-contain shrink-0" />
         )}
         <span className={truncate ? 'min-w-0 truncate' : ''}>
-          <span className={isLight ? 'text-white' : 'text-cz-primary'}>{first}</span>
+          <span className={firstColor}>{first}</span>
           {hasBoundary && (
             <>
               {hasSpace && ' '}
-              <span className={isLight ? 'text-white' : 'text-cz-accent-hover'}>{second}</span>
+              <span className={secondColor}>{second}</span>
             </>
           )}
         </span>
@@ -75,11 +75,11 @@ export default function Logo({
         <img src={logoUrl} alt={siteName} width={28} height={28} className={`w-auto object-contain shrink-0 ${iconClassName}`} />
       )}
       <span className={truncate ? 'min-w-0 truncate' : ''}>
-        <span className={isLight ? 'text-white' : 'text-cz-primary'}>{first}</span>
+        <span className={firstColor}>{first}</span>
         {hasBoundary && (
           <>
             {hasSpace && ' '}
-            <span className={isLight ? 'text-white' : 'text-cz-accent-hover'}>{second}</span>
+            <span className={secondColor}>{second}</span>
           </>
         )}
       </span>

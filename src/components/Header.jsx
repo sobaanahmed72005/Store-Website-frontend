@@ -327,7 +327,7 @@ export default function Header() {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
 
   return (
-    <div className="bg-cz-header py-2.5">
+    <div className="bg-cz-header text-[var(--cz-header-text)] py-2.5">
       <div className="mx-auto px-5">
         <div className="hidden md:grid grid-cols-4 items-center gap-4">
           <Link to="/" className="flex items-center justify-start col-span-1 py-5 px-4">
@@ -342,7 +342,7 @@ export default function Header() {
             <Link
               to={user ? '/account' : '/signin'}
               aria-label="Account"
-              className="flex items-center text-white cursor-pointer"
+              className="flex items-center text-[var(--cz-header-text)] cursor-pointer hover:opacity-80 transition"
             >
               <AccountIcon size={28} />
               <span className="sr-only">Account</span>
@@ -352,10 +352,10 @@ export default function Header() {
               type="button"
               aria-label="Wishlist"
               onClick={openWishlist}
-              className="relative flex items-center text-white cursor-pointer"
+              className="relative flex items-center text-[var(--cz-header-text)] cursor-pointer hover:opacity-80 transition"
             >
               <HeartIcon size={28} />
-              <span className="absolute -top-[5px] -right-[5px] min-w-[17px] h-[17px] flex items-center justify-center rounded-full bg-cz-accent text-cz-ink text-[11px] font-medium leading-none">
+              <span className="absolute -top-[5px] -right-[5px] min-w-[17px] h-[17px] flex items-center justify-center rounded-full bg-cz-primary text-white text-[11px] font-bold leading-none">
                 {wishlistCount}
               </span>
             </button>
@@ -364,10 +364,10 @@ export default function Header() {
               type="button"
               aria-label="Cart"
               onClick={openCart}
-              className="relative flex items-center text-white cursor-pointer"
+              className="relative flex items-center text-[var(--cz-header-text)] cursor-pointer hover:opacity-80 transition"
             >
               <CartIcon size={28} />
-              <span className="absolute -top-[5px] -right-[5px] min-w-[17px] h-[17px] flex items-center justify-center rounded-full bg-cz-accent text-cz-ink text-[11px] font-medium leading-none">
+              <span className="absolute -top-[5px] -right-[5px] min-w-[17px] h-[17px] flex items-center justify-center rounded-full bg-cz-primary text-white text-[11px] font-bold leading-none">
                 {cartCount}
               </span>
             </button>
@@ -378,7 +378,7 @@ export default function Header() {
 
         <div className="flex md:hidden items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <button type="button" aria-label="Menu" onClick={() => setNavOpen(true)} className="text-white shrink-0">
+            <button type="button" aria-label="Menu" onClick={() => setNavOpen(true)} className="text-[var(--cz-header-text)] shrink-0">
               <HamburgerIcon size={28} />
             </button>
             <Link to="/" className="flex items-center min-w-0 py-3 px-2">
@@ -391,12 +391,12 @@ export default function Header() {
               type="button"
               aria-label="Search"
               onClick={() => setMobileSearchOpen((v) => !v)}
-              className="text-white"
+              className="text-[var(--cz-header-text)]"
             >
               <SearchIcon size={28} />
             </button>
 
-            <Link to={user ? '/account' : '/signin'} aria-label="Account" className="flex items-center text-white">
+            <Link to={user ? '/account' : '/signin'} aria-label="Account" className="flex items-center text-[var(--cz-header-text)]">
               <AccountIcon size={28} />
               <span className="sr-only">Account</span>
             </Link>
@@ -405,10 +405,10 @@ export default function Header() {
               type="button"
               aria-label="Wishlist"
               onClick={openWishlist}
-              className="relative flex items-center text-white"
+              className="relative flex items-center text-[var(--cz-header-text)]"
             >
               <HeartIcon size={28} />
-              <span className="absolute -top-[5px] -right-[5px] min-w-[17px] h-[17px] flex items-center justify-center rounded-full bg-cz-accent text-cz-ink text-[11px] font-medium leading-none">
+              <span className="absolute -top-[5px] -right-[5px] min-w-[17px] h-[17px] flex items-center justify-center rounded-full bg-cz-primary text-white text-[11px] font-bold leading-none">
                 {wishlistCount}
               </span>
             </button>
@@ -417,10 +417,10 @@ export default function Header() {
               type="button"
               aria-label="Cart"
               onClick={openCart}
-              className="relative flex items-center text-white"
+              className="relative flex items-center text-[var(--cz-header-text)]"
             >
               <CartIcon size={28} />
-              <span className="absolute -top-[5px] -right-[5px] min-w-[17px] h-[17px] flex items-center justify-center rounded-full bg-cz-accent text-cz-ink text-[11px] font-medium leading-none">
+              <span className="absolute -top-[5px] -right-[5px] min-w-[17px] h-[17px] flex items-center justify-center rounded-full bg-cz-primary text-white text-[11px] font-bold leading-none">
                 {cartCount}
               </span>
             </button>

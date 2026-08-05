@@ -102,7 +102,7 @@ export default function SearchBar({ placeholder = 'What are you looking for?' })
           <button
             type="submit"
             aria-label="Search"
-            className="flex items-center justify-center shrink-0 self-stretch w-[59px] bg-cz-accent text-[#888888] cursor-pointer"
+            className="flex items-center justify-center shrink-0 self-stretch w-[59px] bg-cz-primary hover:bg-cz-primary-hover text-white cursor-pointer transition-colors"
           >
             <SearchIcon size={20} />
           </button>
