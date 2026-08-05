@@ -81,21 +81,27 @@ export default function ProductCard({
 
   return (
     <div
-      className="w-full h-full flex flex-col bg-white rounded-[10px] overflow-hidden"
+      className="group w-full h-full flex flex-col bg-white rounded-[10px] overflow-hidden border border-gray-100/80 shadow-sm hover:-translate-y-1.5 hover:shadow-xl hover:shadow-cyan-500/10 transition-all duration-300"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={handleMouseLeave}
     >
       <div className="relative w-full aspect-square bg-white overflow-hidden rounded-[10px]">
-        {(discountPercent || isNew) && (
-          <div className="absolute left-[15px] top-[15px] z-10 flex flex-col items-start gap-[5px]">
+        {(discountPercent || isNew || actuallyInStock) && (
+          <div className="absolute left-[12px] top-[12px] z-10 flex flex-col items-start gap-1">
             {discountPercent ? (
-              <span className="rounded-[4px] bg-cz-lavender text-cz-ink text-[11px] font-semibold px-2.5 py-[3px]">
-                {discountPercent}% Off
+              <span className="rounded-full bg-emerald-500 text-white text-[11px] font-bold px-2.5 py-[3px] shadow-sm tracking-wide">
+                {discountPercent}% OFF
               </span>
             ) : null}
             {isNew && (
-              <span className="rounded-[4px] bg-cz-accent text-cz-ink text-[11px] font-semibold px-2.5 py-[3px]">
-                New
+              <span className="rounded-full bg-sky-500 text-white text-[11px] font-bold px-2.5 py-[3px] shadow-sm tracking-wide">
+                NEW
+              </span>
+            )}
+            {actuallyInStock && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-900/80 backdrop-blur-md text-emerald-400 text-[10px] font-semibold px-2.5 py-[2px] shadow-sm border border-emerald-500/30">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                In Stock
               </span>
             )}
           </div>
@@ -105,14 +111,16 @@ export default function ProductCard({
           type="button"
           aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
           onClick={handleWishlistClick}
-          className={`absolute right-[15px] top-[15px] z-10 flex items-center justify-center w-8 h-8 rounded-full bg-white/90 shadow-sm transition-colors cursor-pointer ${
-            wishlisted ? 'text-cz-lavender' : 'text-[#9ca3af] hover:text-cz-lavender'
+          className={`absolute right-[12px] top-[12px] z-10 flex items-center justify-center w-8 h-8 rounded-full shadow-md transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer ${
+            wishlisted
+              ? 'bg-rose-50 text-rose-500 border border-rose-200'
+              : 'bg-white/95 text-slate-400 hover:text-rose-500 hover:bg-rose-50 border border-slate-100'
           }`}
         >
-          <HeartIcon size={17} filled={wishlisted} />
+          <HeartIcon size={16} filled={wishlisted} />
         </button>
 
-        <Link to={productHref} className="absolute inset-0">
+        <Link to={productHref} className="absolute inset-0 overflow-hidden">
           {gallery.length > 0 ? (
             gallery.map((src, i) => (
               <img
@@ -123,45 +131,43 @@ export default function ProductCard({
                 height={400}
                 loading="lazy"
                 decoding="async"
-                className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-700 ${
+                className={`absolute inset-0 w-full h-full object-contain transition-all duration-500 group-hover:scale-105 ${
                   i === activeIndex ? 'opacity-100' : 'opacity-0'
                 }`}
               />
             ))
           ) : (
-            <span className="absolute inset-0 flex items-center justify-center text-[12px] text-[#9ca3af]">No image</span>
+            <span className="absolute inset-0 flex items-center justify-center text-[12px] text-slate-400">No image</span>
           )}
           <span className="sr-only">{title}</span>
         </Link>
       </div>
 
-      <div className="flex flex-1 flex-col justify-between gap-[5px] py-[10px] px-1">
-        <div className="flex flex-col gap-[5px]">
+      <div className="flex flex-1 flex-col justify-between gap-3 p-4">
+        <div className="flex flex-col gap-1.5">
           <Link
             to={productHref}
-            className="text-[13px] leading-[1.4] font-medium text-[#3d3d3d] line-clamp-3 cursor-pointer hover:text-cz-primary"
+            className="text-[14px] leading-snug font-semibold text-slate-800 line-clamp-2 cursor-pointer hover:text-cz-primary transition-colors"
           >
             {title}
           </Link>
           <StarRating rating={rating} />
         </div>
 
-        <div className="flex flex-col gap-[5px]">
-          <div className="flex flex-wrap items-center gap-[5px]">
-            <span className="text-[20px] font-semibold text-[#3d3d3d]">{format(pkrPrice)}</span>
+        <div className="flex flex-col gap-2.5 pt-1">
+          <div className="flex flex-wrap items-baseline gap-1.5">
+            <span className="text-[20px] font-bold text-slate-900 tracking-tight">{format(pkrPrice)}</span>
             {oldPrice && (
-              <span className="text-[14px] text-[#3d3d3d] opacity-70 line-through">
+              <span className="text-[13px] text-slate-400 font-normal line-through">
                 {format(oldPrice)}
               </span>
             )}
           </div>
 
           {hasVariants ? (
-            // A grid tile has no room for a variant picker — send shoppers to the product page
-            // to choose a combination instead of a quick-add that can't know which one to price.
             <Link
               to={productHref}
-              className="w-full flex items-center justify-center rounded-full text-[14px] font-semibold py-[10px] border border-cz-primary text-cz-primary hover:bg-cz-gold-light transition-colors cursor-pointer"
+              className="w-full flex items-center justify-center rounded-full text-[13px] font-bold py-2.5 border-2 border-cz-primary text-cz-primary hover:bg-cz-primary hover:text-white transition-all duration-200 hover:-translate-y-[1px] cursor-pointer shadow-sm"
             >
               View Options
             </Link>
@@ -170,10 +176,10 @@ export default function ProductCard({
               type="button"
               disabled={!actuallyInStock}
               onClick={() => addToCart({ id: wishlistId, title, image, price: pkrPrice, slug })}
-              className={`w-full rounded-full text-[14px] font-semibold py-[10px] transition-colors ${
+              className={`w-full rounded-full text-[13px] font-bold py-2.5 transition-all duration-200 shadow-md ${
                 actuallyInStock
-                  ? 'bg-cz-primary text-white hover:bg-cz-primary-hover cursor-pointer'
-                  : 'bg-cz-primary text-white cursor-not-allowed opacity-60'
+                  ? 'bg-cz-primary text-white hover:bg-cz-primary-hover hover:-translate-y-[1px] cursor-pointer hover:shadow-cyan-500/25'
+                  : 'bg-slate-200 text-slate-400 cursor-not-allowed'
               }`}
             >
               {actuallyInStock ? 'Add To Cart' : 'Out Of Stock'}

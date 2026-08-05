@@ -4,48 +4,66 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-heading: "Instrument Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
 
-  /* Teal blue family — layered shades, white text */
-  --color-cz-topbar: #1e3f4f;
-  --color-cz-header: #2b6580;
-  --color-cz-nav: #4790ac;
-  --color-cz-primary: #35708f;
-  --color-cz-primary-hover: #244f66;
+  --color-cz-topbar: var(--cz-topbar);
+  --color-cz-topbar-text: var(--cz-topbar-text);
 
-  /* Sky blue accent */
-  --color-cz-sky: #6fb8d9;
+  --color-cz-header: var(--cz-header);
+  --color-cz-header-text: var(--cz-header-text);
 
-  /* Gold family — metallic gold */
-  --color-cz-accent: #d4af37;
-  --color-cz-accent-hover: #b8932e;
-  --color-cz-gold-light: #f7ecd9;
+  --color-cz-nav: var(--cz-nav);
+  --color-cz-nav-text: var(--cz-nav-text);
 
-  /* Sea green accent (product badges / wishlist) */
-  --color-cz-lavender: #4fae8a;
+  --color-cz-primary: var(--cz-primary);
+  --color-cz-primary-hover: var(--cz-primary-hover);
+  --color-cz-sky: var(--cz-sky);
+  --color-cz-accent: var(--cz-accent);
+  --color-cz-accent-hover: var(--cz-accent-hover);
+  --color-cz-gold-light: var(--cz-gold-light);
+  --color-cz-lavender: var(--cz-lavender);
+  --color-cz-rose: var(--cz-rose);
+  --color-cz-ink: var(--cz-ink);
+  --color-cz-page: var(--cz-page);
+  --color-cz-card: var(--cz-card);
+}
 
-  --color-cz-ink: #1f3a44;
+/* Base Theme Tokens */
+:root {
+  --cz-primary: #06b6d4;
+  --cz-primary-hover: #0891b2;
+  --cz-sky: #38bdf8;
+  --cz-accent: #bf9a33;
+  --cz-accent-hover: #967724;
+  --cz-gold-light: #ffffff;
+  --cz-lavender: #06b6d4;
+  --cz-rose: #f43f5e;
+  --cz-ink: #0f172a;
+  --cz-page: #f8fafc;
+  --cz-card: #ffffff;
 
-  /* Page background — warm cream instead of stark white */
-  --color-cz-page: #fbf6ec;
+  /* Chosen Option 2 Palette */
+  --cz-topbar: #0c4a6e;      /* Deep Ocean Navy */
+  --cz-topbar-text: #ffffff;
+
+  --cz-header: #0b658a;      /* Ocean Slate */
+  --cz-header-text: #ffffff;
+
+  --cz-nav: #0891b2;         /* Bright Ocean Cyan */
+  --cz-nav-text: #ffffff;
+}
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 body {
   margin: 0;
   font-family: var(--font-sans);
   color: var(--color-cz-ink);
-  background-color: #fbf6ec;
-}
-
-@keyframes marquee-scroll {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-.marquee-track {
-  animation: marquee-scroll 30s linear infinite;
-}
-.marquee-track:hover {
-  animation-play-state: paused;
+  background-color: var(--color-cz-page);
+  -webkit-font-smoothing: antialiased;
 }

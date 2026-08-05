@@ -528,7 +528,7 @@ export default function Checkout() {
                 <button
                   type="submit"
                   disabled={submitting || uploadingProof || enabledPaymentMethods.length === 0 || !isFormComplete}
-                  className="w-full rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[15px] font-medium py-4 mt-6 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="w-full rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[15px] font-bold tracking-wide py-4 mt-6 transition-colors disabled:opacity-60 disabled:cursor-not-allowed shadow-md"
                 >
                   {submitting ? 'Placing Order...' : 'Complete Order'}
                 </button>

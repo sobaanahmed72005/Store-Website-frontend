@@ -98,7 +98,7 @@ export default function Cart() {
             <span className="text-[16px] text-[#212121] mb-4">Your shopping cart is empty.</span>
             <Link
               to="/"
-              className="rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-medium px-8 py-3 transition-colors"
+              className="rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-bold tracking-wide px-8 py-3 transition-colors shadow-md"
             >
               Continue Shopping
             </Link>
@@ -206,7 +206,7 @@ export default function Cart() {
               <Link
                 to={user ? '/checkout' : '/signin'}
                 state={!user ? { from: '/checkout' } : undefined}
-                className="w-full flex justify-center items-center rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-medium py-3 transition-colors"
+                className="w-full flex justify-center items-center rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-bold tracking-wide py-3 transition-colors shadow-md"
               >
                 Checkout
               </Link>

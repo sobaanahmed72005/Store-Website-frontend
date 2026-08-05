@@ -1,0 +1,36 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "feature/theme-redesign",
+    "fix-tracking-link-deeplink-false-error",
+    "fix/checkout-city-no-default",
+    "fix/checkout-city-stop-saved-city-carryover",
+    "fix/leopards-tracking-url-default",
+    "main",
+    "remove-email-verification",
+    "tracking-instructions-copy-button",
+    "zustand-state-migration"
+  ],
+  "parent": {
+    "feature/theme-redesign": "main",
+    "fix-tracking-link-deeplink-false-error": "main",
+    "fix/checkout-city-no-default": "main",
+    "fix/checkout-city-stop-saved-city-carryover": "main",
+    "fix/leopards-tracking-url-default": "main",
+    "main": null,
+    "remove-email-verification": "main",
+    "tracking-instructions-copy-button": "main",
+    "zustand-state-migration": "main"
+  },
+  "order": [
+    "main",
+    "feature/theme-redesign",
+    "fix-tracking-link-deeplink-false-error",
+    "fix/checkout-city-no-default",
+    "fix/checkout-city-stop-saved-city-carryover",
+    "fix/leopards-tracking-url-default",
+    "remove-email-verification",
+    "tracking-instructions-copy-button",
+    "zustand-state-migration"
+  ]
+}

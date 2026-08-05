@@ -49,12 +49,12 @@ export default function CategoryMenu() {
           {navItems.map((item) => {
             const content = (
               <>
-                <span className="relative group-hover:text-cz-accent-hover transition-colors">
+                <span className="relative group-hover:text-cz-sky transition-colors font-medium">
                   {item.label}
-                  <span className="absolute left-0 -bottom-0.5 h-px w-0 bg-cz-accent-hover transition-all duration-300 group-hover:w-full" />
+                  <span className="absolute left-0 -bottom-0.5 h-[2px] w-0 bg-cz-sky transition-all duration-300 group-hover:w-full" />
                 </span>
                 {item.hasDropdown && (
-                  <ChevronDownIcon size={14} className="ms-2 group-hover:text-cz-accent-hover" />
+                  <ChevronDownIcon size={14} className="ms-2 group-hover:text-cz-sky transition-colors" />
                 )}
               </>
             )
@@ -63,12 +63,12 @@ export default function CategoryMenu() {
                 {item.to ? (
                   <Link
                     to={item.to}
-                    className="group flex items-center text-[13px] font-normal text-white"
+                    className="group flex items-center text-[13px] font-normal text-[var(--cz-nav-text,#ffffff)]"
                   >
                     {content}
                   </Link>
                 ) : (
-                  <span className="group flex items-center text-[13px] font-normal text-white cursor-default">
+                  <span className="group flex items-center text-[13px] font-normal text-[var(--cz-nav-text,#ffffff)] cursor-default">
                     {content}
                   </span>
                 )}

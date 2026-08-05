@@ -27,7 +27,7 @@ export default function Navbar() {
   }, [messages])
 
   return (
-    <div className="bg-cz-topbar text-white text-[13px] py-2.5">
+    <div className="bg-cz-topbar text-[var(--cz-topbar-text)] text-[13px] py-2.5">
       <div className="mx-auto px-5 flex flex-col gap-1.5 lg:grid lg:grid-cols-3 lg:items-center lg:gap-2">
 
         {/* Rotating messages — edit from Admin → Footer / Store Info → Marquee Messages */}
@@ -49,7 +49,7 @@ export default function Navbar() {
             <Link
               key={link.label}
               to={link.href}
-              className="hover:text-cz-accent-hover transition-colors"
+              className="hover:text-cz-sky transition-colors"
             >
               {link.label}
             </Link>
