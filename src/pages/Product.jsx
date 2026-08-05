@@ -556,14 +556,14 @@ export default function Product() {
                 type="button"
                 aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
                 onClick={handleWishlistClick}
-                className={`flex items-center gap-2 rounded-full text-[14px] font-bold px-6 py-3.5 transition-all cursor-pointer shadow-md hover:scale-105 active:scale-95 ${
+                className={`flex items-center justify-center w-12 h-12 rounded-full transition-all cursor-pointer shadow-md hover:scale-110 active:scale-95 shrink-0 ${
                   wishlisted
-                    ? 'bg-rose-500 text-white shadow-rose-500/25'
-                    : 'bg-rose-50 text-rose-600 border-2 border-rose-200 hover:bg-rose-500 hover:text-white hover:border-rose-500'
+                    ? 'bg-rose-500 text-white shadow-rose-500/30'
+                    : 'bg-rose-50 text-rose-500 border-2 border-rose-200 hover:bg-rose-500 hover:text-white hover:border-rose-500'
                 }`}
+                title={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
               >
-                <HeartIcon size={18} filled={wishlisted} />
-                <span>{wishlisted ? 'Wishlisted' : 'Wishlist'}</span>
+                <HeartIcon size={22} filled={wishlisted} />
               </button>
 
               {product.dataset && (
@@ -571,7 +571,8 @@ export default function Product() {
                   href={`${BASE_URL}${ENDPOINTS.PRODUCTS.DATASET(product.slug)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full border-2 border-sky-300 bg-sky-50 text-sky-700 text-[14px] font-bold px-6 py-3.5 shadow-sm hover:bg-sky-600 hover:text-white hover:border-sky-600 transition-all hover:scale-105 active:scale-95"
+                  className="inline-flex items-center gap-2 rounded-full border-2 border-sky-300 bg-sky-50 text-sky-700 text-[14px] font-bold px-6 py-3.5 shadow-sm hover:bg-sky-600 hover:text-white hover:border-sky-600 transition-all hover:scale-105 active:scale-95 shrink-0"
+                  title="View Datasheet"
                 >
                   <FileTextIcon size={18} />
                   <span>Datasheet</span>
