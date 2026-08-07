@@ -156,7 +156,13 @@ export async function uploadDataset(file, endpoint = '/admin/upload-dataset') {
 
 export function resolveImageUrl(image) {
   if (!image) return null
-  if (/^https?:\/\//.test(image)) return image
+  if (/^https?:\/\//.test(image)) {
+    const driveMatch = String(image).match(/(?:drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:.*&)?id=)|lh3\.googleusercontent\.com\/d\/)([a-zA-Z0-9_-]{25,})/)
+    if (driveMatch && driveMatch[1]) {
+      return `https://lh3.googleusercontent.com/d/${driveMatch[1]}`
+    }
+    return image
+  }
   const origin = BASE_URL.replace(/\/api\/?$/, '')
   return `${origin}${image}`
 }

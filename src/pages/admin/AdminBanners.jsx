@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { api } from '../../api/client'
+import { api, resolveImageUrl, uploadImage } from '../../api/client'
 import { ENDPOINTS } from '../../api/endpoints'
 import { useAdminForm } from '../../hooks/useAdminForm'
 import { useSeo } from '../../hooks/useSeo'
@@ -49,7 +49,7 @@ function ImagePreview({ src }) {
   if (!src || broken) return null
   return (
     <img
-      src={src}
+      src={resolveImageUrl(src)}
       alt="preview"
       width={600}
       height={80}
@@ -79,6 +79,41 @@ export default function AdminBanners() {
     []
   )
   const { loading, saving, saved, setSaved, error, setError, save } = useAdminForm(load)
+
+  const [uploadingSlideImg, setUploadingSlideImg] = useState(false)
+  const [uploadingSideImg, setUploadingSideImg] = useState({})
+
+  async function handleSlideFileUpload(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      setUploadingSlideImg(true)
+      setError('')
+      const { url } = await uploadImage(file)
+      setForm((f) => ({ ...f, image: url }))
+    } catch (err) {
+      setError(err.message || 'Image upload failed')
+    } finally {
+      setUploadingSlideImg(false)
+      e.target.value = ''
+    }
+  }
+
+  async function handleSideFileUpload(i, e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      setUploadingSideImg((prev) => ({ ...prev, [i]: true }))
+      setError('')
+      const { url } = await uploadImage(file)
+      updateSide(i, 'image', url)
+    } catch (err) {
+      setError(err.message || 'Image upload failed')
+    } finally {
+      setUploadingSideImg((prev) => ({ ...prev, [i]: false }))
+      e.target.value = ''
+    }
+  }
 
   useEffect(() => {
     if (!saved) return
@@ -181,7 +216,7 @@ export default function AdminBanners() {
             <div key={slide._key} className="flex items-center gap-3 border border-[#e5e7eb] rounded-lg p-3 bg-[#fafafa]">
               {slide.image ? (
                 <img
-                  src={slide.image}
+                  src={resolveImageUrl(slide.image)}
                   alt=""
                   width={64}
                   height={40}
@@ -221,13 +256,21 @@ export default function AdminBanners() {
               {editIdx === 'new' ? 'Add New Slide' : `Edit Slide ${editIdx + 1}`}
             </h3>
             <div className="flex flex-col gap-3">
-              <Field label="Image URL *" hint="Paste a direct image link. The image should be at least 1200×660 px for best quality.">
-                <TextInput
-                  type="url"
-                  value={form.image}
-                  onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
-                  placeholder="https://i.imgur.com/yourimage.jpg"
-                />
+              <Field label="Slide Image *" hint="Upload an image file from your device, or paste an image URL / Google Drive link. (Recommended: 1200×660 px)">
+                <div className="flex gap-2 items-center">
+                  <div className="flex-1">
+                    <TextInput
+                      type="url"
+                      value={form.image}
+                      onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
+                      placeholder="Paste image URL or click Upload File"
+                    />
+                  </div>
+                  <label className={`cursor-pointer border border-[#d1d5db] bg-white hover:bg-[#f3f4f6] text-[#374151] text-[13px] font-medium px-4 py-2 rounded-md shrink-0 flex items-center gap-1.5 transition-colors ${uploadingSlideImg ? 'opacity-50 cursor-wait' : ''}`}>
+                    <span>{uploadingSlideImg ? 'Uploading...' : 'Upload File'}</span>
+                    <input type="file" accept="image/*" className="hidden" onChange={handleSlideFileUpload} disabled={uploadingSlideImg} />
+                  </label>
+                </div>
                 <ImagePreview src={form.image} />
               </Field>
 
@@ -292,10 +335,18 @@ export default function AdminBanners() {
             <div key={banner._key} className="border border-[#e5e7eb] rounded-lg p-4">
               <p className="text-[13px] font-semibold text-[#4b4b4b] mb-3">Banner {i + 1}</p>
               <div className="flex flex-col gap-3">
-                <Field label="Image URL" hint="Recommended size: 600×360 px.">
-                  <TextInput type="url" value={banner.image || ''}
-                    onChange={(e) => updateSide(i, 'image', e.target.value)}
-                    placeholder="https://i.imgur.com/yourimage.jpg" />
+                <Field label="Image" hint="Upload an image file from your device, or paste an image URL / Google Drive link. (Recommended: 600×360 px)">
+                  <div className="flex gap-2 items-center">
+                    <div className="flex-1">
+                      <TextInput type="url" value={banner.image || ''}
+                        onChange={(e) => updateSide(i, 'image', e.target.value)}
+                        placeholder="Paste image URL or click Upload File" />
+                    </div>
+                    <label className={`cursor-pointer border border-[#d1d5db] bg-white hover:bg-[#f3f4f6] text-[#374151] text-[13px] font-medium px-4 py-2 rounded-md shrink-0 flex items-center gap-1.5 transition-colors ${uploadingSideImg[i] ? 'opacity-50 cursor-wait' : ''}`}>
+                      <span>{uploadingSideImg[i] ? 'Uploading...' : 'Upload File'}</span>
+                      <input type="file" accept="image/*" className="hidden" onChange={(e) => handleSideFileUpload(i, e)} disabled={uploadingSideImg[i]} />
+                    </label>
+                  </div>
                   <ImagePreview src={banner.image} />
                 </Field>
 
