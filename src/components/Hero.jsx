@@ -140,17 +140,25 @@ export default function Hero() {
                     />
                   )}
                   {hasText ? (
-                    <div className="absolute inset-0 flex items-center justify-start p-4">
-                      <div className="flex flex-col items-start bg-white/95 backdrop-blur-md border border-slate-100 rounded-xl p-5 w-full shadow-md">
-                        {banner.tagline && <span className="text-[12px] font-bold text-cz-primary tracking-wide uppercase mb-1">{banner.tagline}</span>}
-                        {banner.title && <h3 className="text-[18px] font-bold text-slate-800 mb-1.5 leading-snug">{banner.title}</h3>}
+                    <div className="absolute inset-0 flex items-end justify-start p-4 md:p-6 pb-4 md:pb-6 text-start">
+                      <div className="flex flex-col items-start max-w-[70%] sm:max-w-[60%]">
+                        {banner.tagline && (
+                          <span className="text-[11px] md:text-[12px] font-bold text-[#0ea5e9] uppercase tracking-wide mb-1 whitespace-pre-line">
+                            {String(banner.tagline).replace(/\\n/g, '\n')}
+                          </span>
+                        )}
+                        {banner.title && (
+                          <h3 className="text-[15px] md:text-[18px] font-bold text-[#0f172a] mb-1.5 leading-snug whitespace-pre-line">
+                            {String(banner.title).replace(/\\n/g, '\n')}
+                          </h3>
+                        )}
                         {banner.description && (
-                          <p className="text-[12px] text-slate-600 mb-3 leading-relaxed whitespace-pre-line">
-                            {banner.description}
+                          <p className="text-[11px] md:text-[12px] font-medium text-[#0f172a] mb-3 leading-relaxed whitespace-pre-line max-w-[280px]">
+                            {String(banner.description).replace(/\\n/g, '\n')}
                           </p>
                         )}
                         {banner.cta && (
-                          <span className="inline-flex items-center justify-center rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[12px] font-bold px-4 py-1.5 transition-all shadow-sm">
+                          <span className="inline-flex items-center justify-center rounded-full bg-[#0ea5e9] hover:bg-[#0284c7] text-white text-[11px] md:text-[12px] font-medium px-4 py-1.5 transition-all shadow-sm">
                             {banner.cta}
                           </span>
                         )}
