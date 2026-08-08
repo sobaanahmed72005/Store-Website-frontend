@@ -69,10 +69,10 @@ export default function Hero() {
                         <div className="flex flex-col items-start max-w-[90%] sm:max-w-[60%] md:max-w-[45%]">
                           {slide.tagline && (
                             <span
-                              className="text-[13px] md:text-[15px] font-semibold mb-1.5"
+                              className="text-[13px] md:text-[15px] font-semibold mb-1.5 whitespace-pre-line"
                               style={{ color: accentColor }}
                             >
-                              {slide.tagline}
+                              {String(slide.tagline).replace(/\\n/g, '\n')}
                             </span>
                           )}
                           {slide.title && (
@@ -81,8 +81,8 @@ export default function Hero() {
                             </h2>
                           )}
                           {slide.description && (
-                            <p className="block text-[12px] sm:text-[13px] md:text-[14px] font-medium text-[#0f172a] mb-4 leading-relaxed max-w-[380px]">
-                              {slide.description}
+                            <p className="block text-[12px] sm:text-[13px] md:text-[14px] font-medium text-[#0f172a] mb-4 leading-relaxed max-w-[380px] whitespace-pre-line">
+                              {String(slide.description).replace(/\\n/g, '\n')}
                             </p>
                           )}
                           {slide.cta && (
