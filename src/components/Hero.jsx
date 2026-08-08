@@ -65,8 +65,8 @@ export default function Hero() {
                       className="absolute inset-0 w-full h-full object-cover"
                     />
                     {(slide.tagline || slide.title || slide.description || slide.cta) && (
-                      <div className="absolute inset-0 flex items-end justify-start text-start p-6 md:px-12 pb-8 md:pb-14">
-                        <div className="flex flex-col items-start max-w-[90%] sm:max-w-[65%] md:max-w-[50%]">
+                      <div className="absolute inset-0 flex items-end justify-start text-start p-6 md:px-12 pb-8 md:pb-12">
+                        <div className="flex flex-col items-start max-w-[90%] sm:max-w-[60%] md:max-w-[45%]">
                           {slide.tagline && (
                             <span
                               className="text-[13px] md:text-[15px] font-semibold mb-1.5"
@@ -77,11 +77,11 @@ export default function Hero() {
                           )}
                           {slide.title && (
                             <h2 className="text-[22px] sm:text-[28px] md:text-[36px] font-bold text-[#0f172a] mb-2.5 leading-[1.15] whitespace-pre-line">
-                              {slide.title}
+                              {String(slide.title).replace(/\\n/g, '\n')}
                             </h2>
                           )}
                           {slide.description && (
-                            <p className="block text-[12px] sm:text-[13px] md:text-[14px] font-medium text-[#0f172a] mb-4 leading-relaxed max-w-[420px]">
+                            <p className="block text-[12px] sm:text-[13px] md:text-[14px] font-medium text-[#0f172a] mb-4 leading-relaxed max-w-[380px]">
                               {slide.description}
                             </p>
                           )}
