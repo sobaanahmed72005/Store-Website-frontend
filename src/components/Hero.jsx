@@ -65,8 +65,8 @@ export default function Hero() {
                       className="absolute inset-0 w-full h-full object-cover"
                     />
                     {(slide.tagline || slide.title || slide.description || slide.cta) && (
-                      <div className="absolute inset-0 flex items-center justify-start text-start p-6 md:px-12 pt-12 md:pt-20 pb-6">
-                        <div className="flex flex-col items-start max-w-[90%] sm:max-w-[65%] md:max-w-[50%] mt-6 md:mt-10">
+                      <div className="absolute inset-0 flex items-end justify-start text-start p-6 md:px-12 pb-8 md:pb-14">
+                        <div className="flex flex-col items-start max-w-[90%] sm:max-w-[65%] md:max-w-[50%]">
                           {slide.tagline && (
                             <span
                               className="text-[13px] md:text-[15px] font-semibold mb-1.5"
