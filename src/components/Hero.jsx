@@ -11,6 +11,11 @@ const SLIDE_THEMES = [
   { tagline: '#7c3aed', ctaBg: '#7c3aed' }, // Slide 4: Purple
 ]
 
+const SIDE_BANNER_THEMES = [
+  { tagline: '#ea580c', ctaBg: '#ea580c' }, // Side Banner 1: Orange (Mobile Accessories)
+  { tagline: '#0d9488', ctaBg: '#0d9488' }, // Side Banner 2: Teal (Complete IT Solutions)
+]
+
 export default function Hero() {
   const [slides, setSlides] = useState(null)
   const [sideBanners, setSideBanners] = useState([])
@@ -124,6 +129,10 @@ export default function Hero() {
           <div className={`w-full ${slides?.length > 0 ? 'md:w-[30%]' : ''} flex flex-col gap-5`}>
             {sideBanners.slice(0, 2).map((banner, i) => {
               const hasText = banner.title || banner.tagline || banner.description
+              const sideTheme = SIDE_BANNER_THEMES[i % SIDE_BANNER_THEMES.length]
+              const taglineColor = banner.taglineColor || banner.color || sideTheme.tagline
+              const ctaBg = banner.ctaBg || banner.color || sideTheme.ctaBg
+
               return (
                 <Link
                   key={i}
@@ -140,25 +149,31 @@ export default function Hero() {
                     />
                   )}
                   {hasText ? (
-                    <div className="absolute inset-0 flex items-end justify-start p-4 md:p-6 pb-4 md:pb-6 text-start">
+                    <div className="absolute inset-0 flex items-center justify-start p-4 md:p-6 text-start">
                       <div className="flex flex-col items-start max-w-[70%] sm:max-w-[60%]">
                         {banner.tagline && (
-                          <span className="text-[11px] md:text-[12px] font-bold text-[#0ea5e9] uppercase tracking-wide mb-1 whitespace-pre-line">
+                          <span
+                            className="text-[12px] md:text-[13px] font-semibold mb-1 whitespace-pre-line"
+                            style={{ color: taglineColor }}
+                          >
                             {String(banner.tagline).replace(/\\n/g, '\n')}
                           </span>
                         )}
                         {banner.title && (
-                          <h3 className="text-[15px] md:text-[18px] font-bold text-[#0f172a] mb-1.5 leading-snug whitespace-pre-line">
+                          <h3 className="text-[16px] sm:text-[18px] md:text-[20px] font-bold text-[#0f172a] mb-1.5 leading-[1.2] whitespace-pre-line">
                             {String(banner.title).replace(/\\n/g, '\n')}
                           </h3>
                         )}
                         {banner.description && (
-                          <p className="text-[11px] md:text-[12px] font-medium text-[#0f172a] mb-3 leading-relaxed whitespace-pre-line max-w-[280px]">
+                          <p className="text-[11px] md:text-[12px] font-medium text-[#334155] mb-3 leading-relaxed whitespace-pre-line max-w-[260px]">
                             {String(banner.description).replace(/\\n/g, '\n')}
                           </p>
                         )}
                         {banner.cta && (
-                          <span className="inline-flex items-center justify-center rounded-full bg-[#0ea5e9] hover:bg-[#0284c7] text-white text-[11px] md:text-[12px] font-medium px-4 py-1.5 transition-all shadow-sm">
+                          <span
+                            className="inline-flex items-center justify-center rounded-full text-white text-[11px] md:text-[12px] font-medium px-4 py-1.5 transition-all shadow-sm hover:brightness-110"
+                            style={{ backgroundColor: ctaBg }}
+                          >
                             {banner.cta}
                           </span>
                         )}
