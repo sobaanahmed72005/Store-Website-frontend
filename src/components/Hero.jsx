@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronRightIcon } from './icons'
-import { api } from '../api/client'
+import { api, resolveImageUrl } from '../api/client'
 import { ENDPOINTS } from '../api/endpoints'
 
 export default function Hero() {
@@ -46,28 +46,32 @@ export default function Hero() {
                   }`}
                 >
                   <img
-                    src={slide.image}
+                    src={resolveImageUrl(slide.image)}
                     alt={slide.title || `Slide ${i + 1}`}
                     width={938}
                     height={516}
                     className="absolute inset-0 w-full h-full object-cover"
                   />
                   {(slide.tagline || slide.title || slide.description || slide.cta) && (
-                    <div className="absolute inset-0 flex items-end justify-start text-start p-5 pb-10 md:p-[35px] md:pb-12">
-                      <div className="flex flex-col items-start w-[70%] md:max-w-[40%]">
+                    <div className="absolute inset-0 flex items-center justify-start text-start p-6 md:p-12">
+                      <div className="flex flex-col items-start max-w-[90%] sm:max-w-[65%] md:max-w-[50%]">
                         {slide.tagline && (
-                          <span className="text-[15px] font-normal text-[#212121] mb-[5px]">{slide.tagline}</span>
+                          <span className="text-[13px] md:text-[15px] font-semibold text-[#0284c7] mb-1.5">
+                            {slide.tagline}
+                          </span>
                         )}
                         {slide.title && (
-                          <h2 className="text-[18px] md:text-[35px] font-semibold text-[#212121] mb-[10px] leading-tight">
+                          <h2 className="text-[22px] sm:text-[28px] md:text-[36px] font-bold text-[#0f172a] mb-2.5 leading-[1.15] whitespace-pre-line">
                             {slide.title}
                           </h2>
                         )}
                         {slide.description && (
-                          <p className="block text-[14px] font-normal text-[#212121] mb-[10px]">{slide.description}</p>
+                          <p className="block text-[12px] sm:text-[13px] md:text-[14px] font-normal text-[#475569] mb-4 leading-relaxed max-w-[420px]">
+                            {slide.description}
+                          </p>
                         )}
                         {slide.cta && (
-                          <span className="inline-flex items-center justify-center gap-[5px] rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[13px] md:text-[14px] font-bold tracking-wide px-5 md:px-6 py-2.5 md:py-3 shadow-md hover:shadow-cyan-500/25 transition-all">
+                          <span className="inline-flex items-center justify-center rounded-full bg-[#0284c7] hover:bg-[#0369a1] text-white text-[13px] md:text-[14px] font-medium px-5 md:px-6 py-2 md:py-2.5 shadow-sm transition-all">
                             {slide.cta}
                           </span>
                         )}
@@ -109,7 +113,7 @@ export default function Hero() {
                 >
                   {banner.image && (
                     <img
-                      src={banner.image}
+                      src={resolveImageUrl(banner.image)}
                       alt={banner.title || `Banner ${i + 1}`}
                       width={400}
                       height={300}
