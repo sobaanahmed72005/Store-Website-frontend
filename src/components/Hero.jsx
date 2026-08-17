@@ -38,11 +38,11 @@ export default function Hero() {
   if (!slides?.length) return null
 
   const prevSlide = () => {
-    setActive((i) => (i - 1 + slides.length) % slides.length)
+    if (active > 0) setActive((i) => i - 1)
   }
 
   const nextSlide = () => {
-    setActive((i) => (i + 1) % slides.length)
+    if (active < slides.length - 1) setActive((i) => i + 1)
   }
 
   return (
@@ -83,8 +83,8 @@ export default function Hero() {
             )
           })}
 
-          {/* Left Arrow Button */}
-          {slides.length > 1 && (
+          {/* Left Arrow Button (visible only when there is a slide to the left) */}
+          {slides.length > 1 && active > 0 && (
             <button
               type="button"
               aria-label="Previous Slide"
@@ -97,8 +97,8 @@ export default function Hero() {
             </button>
           )}
 
-          {/* Right Arrow Button */}
-          {slides.length > 1 && (
+          {/* Right Arrow Button (visible only when there is a slide to the right) */}
+          {slides.length > 1 && active < slides.length - 1 && (
             <button
               type="button"
               aria-label="Next Slide"
