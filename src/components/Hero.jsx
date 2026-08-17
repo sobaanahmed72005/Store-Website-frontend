@@ -48,18 +48,17 @@ export default function Hero() {
         {/* Main slider */}
         {slides?.length > 0 && (
           <div className={`w-full ${sideBanners.length > 0 ? 'md:w-[70%]' : ''}`}>
-            <div className="relative rounded-xl overflow-hidden h-[300px] md:h-auto md:aspect-[938/516]">
+            <div className="relative rounded-xl overflow-hidden aspect-[938/516] sm:aspect-[938/516] bg-[#f8fafc]">
               {slides.map((slide, i) => {
                 const theme = SLIDE_THEMES[i % SLIDE_THEMES.length]
-                const accentColor = slide.taglineColor || slide.color || theme.tagline
                 const ctaBg = slide.ctaBg || slide.color || theme.ctaBg
 
                 return (
                   <Link
                     key={i}
                     to={slide.href || '/shop'}
-                    className={`absolute inset-0 transition-opacity duration-500 ${
-                      i === active ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                    className={`absolute inset-0 transition-opacity duration-500 block ${
+                      i === active ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'
                     }`}
                   >
                     <img
@@ -67,38 +66,16 @@ export default function Hero() {
                       alt={slide.title || `Slide ${i + 1}`}
                       width={938}
                       height={516}
-                      className="absolute inset-0 w-full h-full object-cover"
+                      className="w-full h-full object-cover"
                     />
-                    {(slide.tagline || slide.title || slide.description || slide.cta) && (
-                      <div className="absolute inset-0 flex items-end justify-start text-start p-6 md:px-12 pb-8 md:pb-12">
-                        <div className="flex flex-col items-start max-w-[90%] sm:max-w-[60%] md:max-w-[45%]">
-                          {slide.tagline && (
-                            <span
-                              className="text-[13px] md:text-[15px] font-semibold mb-1.5 whitespace-pre-line"
-                              style={{ color: accentColor }}
-                            >
-                              {String(slide.tagline).replace(/\\n/g, '\n')}
-                            </span>
-                          )}
-                          {slide.title && (
-                            <h2 className="text-[22px] sm:text-[28px] md:text-[36px] font-bold text-[#0f172a] mb-2.5 leading-[1.15] whitespace-pre-line">
-                              {String(slide.title).replace(/\\n/g, '\n')}
-                            </h2>
-                          )}
-                          {slide.description && (
-                            <p className="block text-[12px] sm:text-[13px] md:text-[14px] font-medium text-[#0f172a] mb-4 leading-relaxed max-w-[380px] whitespace-pre-line">
-                              {String(slide.description).replace(/\\n/g, '\n')}
-                            </p>
-                          )}
-                          {slide.cta && (
-                            <span
-                              className="inline-flex items-center justify-center rounded-full text-white text-[13px] md:text-[14px] font-medium px-5 md:px-6 py-2 md:py-2.5 shadow-sm transition-all hover:brightness-110"
-                              style={{ backgroundColor: ctaBg }}
-                            >
-                              {slide.cta}
-                            </span>
-                          )}
-                        </div>
+                    {slide.cta && (
+                      <div className="absolute inset-0 flex items-end justify-start p-4 sm:p-6 md:p-10 pointer-events-none">
+                        <span
+                          className="inline-flex items-center justify-center rounded-full text-white text-[11px] sm:text-[13px] md:text-[14px] font-semibold px-4 sm:px-6 py-1.5 sm:py-2.5 shadow-md transition-all hover:scale-105"
+                          style={{ backgroundColor: ctaBg }}
+                        >
+                          {slide.cta}
+                        </span>
                       </div>
                     )}
                   </Link>
@@ -106,7 +83,7 @@ export default function Hero() {
               })}
 
               {slides.length > 1 && (
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+                <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-2">
                   {slides.map((_, i) => (
                     <button
                       key={i}
@@ -114,7 +91,7 @@ export default function Hero() {
                       aria-label={`Go to slide ${i + 1}`}
                       onClick={() => setActive(i)}
                       className={`h-2 rounded-full transition-all ${
-                        i === active ? 'w-6 bg-white' : 'w-2 bg-white/60'
+                        i === active ? 'w-6 bg-white shadow-sm' : 'w-2 bg-white/60'
                       }`}
                     />
                   ))}
@@ -126,18 +103,16 @@ export default function Hero() {
 
         {/* Side banners */}
         {sideBanners.length > 0 && (
-          <div className={`w-full ${slides?.length > 0 ? 'md:w-[30%]' : ''} flex flex-col gap-5`}>
+          <div className={`w-full ${slides?.length > 0 ? 'md:w-[30%]' : ''} flex flex-col gap-4 sm:gap-5`}>
             {sideBanners.slice(0, 2).map((banner, i) => {
-              const hasText = banner.title || banner.tagline || banner.description
               const sideTheme = SIDE_BANNER_THEMES[i % SIDE_BANNER_THEMES.length]
-              const taglineColor = banner.taglineColor || banner.color || sideTheme.tagline
               const ctaBg = banner.ctaBg || banner.color || sideTheme.ctaBg
 
               return (
                 <Link
                   key={i}
                   to={banner.href || '/shop'}
-                  className="relative flex-1 rounded-xl overflow-hidden h-[150px] md:h-auto"
+                  className="relative flex-1 rounded-xl overflow-hidden aspect-[400/250] md:aspect-auto block bg-[#f8fafc] group"
                 >
                   {banner.image && (
                     <img
@@ -145,49 +120,18 @@ export default function Hero() {
                       alt={banner.title || `Banner ${i + 1}`}
                       width={400}
                       height={300}
-                      className="absolute inset-0 w-full h-full object-cover"
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                   )}
-                  {hasText ? (
-                    <div className="absolute inset-0 flex items-center justify-start p-4 md:p-6 text-start">
-                      <div className="flex flex-col items-start max-w-[70%] sm:max-w-[60%]">
-                        {banner.tagline && (
-                          <span
-                            className="text-[12px] md:text-[13px] font-semibold mb-1 whitespace-pre-line"
-                            style={{ color: taglineColor }}
-                          >
-                            {String(banner.tagline).replace(/\\n/g, '\n')}
-                          </span>
-                        )}
-                        {banner.title && (
-                          <h3 className="text-[16px] sm:text-[18px] md:text-[20px] font-bold text-[#0f172a] mb-1.5 leading-[1.2] whitespace-pre-line">
-                            {String(banner.title).replace(/\\n/g, '\n')}
-                          </h3>
-                        )}
-                        {banner.description && (
-                          <p className="text-[11px] md:text-[12px] font-medium text-[#334155] mb-3 leading-relaxed whitespace-pre-line max-w-[260px]">
-                            {String(banner.description).replace(/\\n/g, '\n')}
-                          </p>
-                        )}
-                        {banner.cta && (
-                          <span
-                            className="inline-flex items-center justify-center rounded-full text-white text-[11px] md:text-[12px] font-medium px-4 py-1.5 transition-all shadow-sm hover:brightness-110"
-                            style={{ backgroundColor: ctaBg }}
-                          >
-                            {banner.cta}
-                          </span>
-                        )}
-                      </div>
+                  {banner.cta && (
+                    <div className="absolute inset-0 flex items-end justify-start p-3 sm:p-5 pointer-events-none">
+                      <span
+                        className="inline-flex items-center justify-center rounded-full text-white text-[10px] sm:text-[12px] font-semibold px-3.5 sm:px-4 py-1 sm:py-1.5 shadow-md transition-all group-hover:scale-105"
+                        style={{ backgroundColor: ctaBg }}
+                      >
+                        {banner.cta}
+                      </span>
                     </div>
-                  ) : (
-                    banner.cta && (
-                      <div className="absolute inset-0 flex items-end justify-start p-[17px]">
-                        <span className="inline-flex items-center justify-center gap-1 rounded-[5px] bg-cz-primary text-white text-[13px] px-4 py-2">
-                          {banner.cta}
-                          <ChevronRightIcon size={16} />
-                        </span>
-                      </div>
-                    )
                   )}
                 </Link>
               )
