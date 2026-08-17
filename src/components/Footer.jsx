@@ -267,7 +267,8 @@ export default function Footer() {
         <p className="text-center text-[13px] tracking-wide mt-1">
           <span className="text-cyan-100/90 font-medium">Powered by </span>
           <span className="text-[#38BDF8] font-black">IT </span>
-          <span className="text-white font-extrabold">SOLUTIONS</span>
+          <span className="text-white font-extrabold">SOLUTIONS </span>
+          <span className="text-cyan-100/90 font-medium">Trade & Service Pvt. Ltd.</span>
         </p>
       </div>
     </footer>
