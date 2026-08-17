@@ -93,16 +93,18 @@ function Newsletter() {
   }
 
   return (
-    <div className="bg-cz-header px-[30px] py-[25px] md:px-[60px] border-b border-cyan-600/30">
-      <div className="flex flex-col items-center w-full md:w-1/2 mx-auto text-center">
-        <h2 className="text-[28px] md:text-[32px] font-bold text-white mb-3 tracking-tight">Subscribe to our newsletter</h2>
+    <div className="bg-cz-header px-4 py-6 sm:px-8 sm:py-8 border-b border-cyan-600/30">
+      <div className="flex flex-col items-center w-full max-w-[620px] mx-auto text-center">
+        <h2 className="text-[20px] sm:text-[26px] md:text-[32px] font-bold text-white mb-3 tracking-tight">
+          Subscribe to our newsletter
+        </h2>
 
         {alreadySubscribed ? (
-          <p className="text-[14px] text-cyan-300 font-bold mb-[10px]">You&apos;re already subscribed to our newsletter. Thanks for being with us!</p>
+          <p className="text-[13px] sm:text-[14px] text-cyan-300 font-bold mb-3">You&apos;re already subscribed to our newsletter. Thanks for being with us!</p>
         ) : status === 'success' ? (
-          <p className="text-[14px] text-cyan-300 font-bold mb-[10px]">You&apos;re subscribed! Watch your inbox for offers and updates.</p>
+          <p className="text-[13px] sm:text-[14px] text-cyan-300 font-bold mb-3">You&apos;re subscribed! Watch your inbox for offers and updates.</p>
         ) : (
-          <form onSubmit={handleSubmit} className="w-full flex flex-col md:flex-row items-center justify-center gap-[10px] mb-[10px]">
+          <form onSubmit={handleSubmit} className="w-full flex flex-row items-center justify-center gap-2 mb-3 max-w-[540px]">
             <input
               type="email"
               name="email"
@@ -110,21 +112,21 @@ function Newsletter() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter Your Email Address..."
-              className="w-full md:max-w-[70%] rounded-full border border-slate-300 bg-white text-[14px] font-medium text-slate-900 placeholder-slate-400 px-[20px] py-[14px] outline-none focus:ring-2 focus:ring-cyan-400 shadow-inner"
+              className="flex-1 min-w-0 rounded-full border border-slate-300 bg-white text-[12px] sm:text-[14px] font-medium text-slate-900 placeholder-slate-400 px-4 sm:px-5 py-2.5 sm:py-3.5 outline-none focus:ring-2 focus:ring-cyan-400 shadow-inner"
             />
             <button
               type="submit"
               disabled={status === 'submitting'}
-              className="w-full md:w-auto shrink-0 rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-bold tracking-wide px-8 py-[14px] transition-all disabled:opacity-60 cursor-pointer shadow-md hover:shadow-cyan-500/25"
+              className="shrink-0 rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[11px] sm:text-[13px] md:text-[14px] font-bold tracking-wider px-4 sm:px-7 py-2.5 sm:py-3.5 transition-all disabled:opacity-60 cursor-pointer shadow-md hover:shadow-cyan-500/25 uppercase"
             >
               {status === 'submitting' ? '...' : 'SUBSCRIBE'}
             </button>
           </form>
         )}
 
-        {status === 'error' && <p className="text-[13px] text-rose-300 font-semibold mb-[10px]">{error}</p>}
+        {status === 'error' && <p className="text-[12px] sm:text-[13px] text-rose-300 font-semibold mb-2">{error}</p>}
 
-        <p className="text-[12px] text-slate-200 leading-relaxed font-normal">
+        <p className="text-[11px] sm:text-[12px] text-slate-200 leading-relaxed font-normal max-w-[500px]">
           Your personal data will be used to support your experience throughout this website, to
           manage access to your account, and for other purposes described in our{' '}
           <Link to="/privacy-policy" className="underline font-bold text-white hover:text-cyan-300">
