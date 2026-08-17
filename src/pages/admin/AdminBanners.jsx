@@ -6,13 +6,8 @@ import { useSeo } from '../../hooks/useSeo'
 import SeoHeadingFiller from '../../components/SeoHeadingFiller'
 import { useSiteSettings } from '../../store/siteSettingsStore'
 
-const EMPTY_SLIDE = { image: '', tagline: '', title: '', description: '', cta: '', href: '', active: true }
-const EMPTY_SIDE = { image: '', tagline: '', title: '', description: '', cta: '', href: '', active: true }
+const EMPTY_SLIDE = { image: '', href: '/shop', cta: '', active: true }
 
-// Slides/side banners are stored as a plain array with no server-assigned id, but the list here
-// supports add/delete/reorder — keying rows by array index would make React reattach each row's
-// DOM (and any future per-row state) to the wrong item after a reorder or delete. `_key` is a
-// client-only identity tag, stripped before saving so it never reaches the stored JSON.
 function withKeys(items) {
   return (items || []).map((item) => ({ ...item, _key: item._key || crypto.randomUUID() }))
 }
@@ -24,7 +19,7 @@ function stripKeys(items) {
 function Field({ label, hint, children }) {
   return (
     <div>
-      <label className="block text-[12px] text-[#4b4b4b] mb-1">{label}</label>
+      <label className="block text-[12px] font-medium text-[#374151] mb-1">{label}</label>
       {children}
       {hint && <p className="text-[11px] text-[#9ca3af] mt-1">{hint}</p>}
     </div>
@@ -52,8 +47,8 @@ function ImagePreview({ src }) {
       src={resolveImageUrl(src)}
       alt="preview"
       width={600}
-      height={80}
-      className="mt-2 h-20 w-full object-cover rounded-md border border-[#e5e7eb]"
+      height={120}
+      className="mt-2 h-28 w-full object-cover rounded-md border border-[#e5e7eb]"
       onError={() => setBroken(true)}
     />
   )
@@ -67,21 +62,22 @@ export default function AdminBanners() {
     noindex: true,
   })
   const [slides, setSlides] = useState([])
-  const [sideBanners, setSideBanners] = useState(withKeys([{ ...EMPTY_SIDE }, { ...EMPTY_SIDE }]))
   const [editIdx, setEditIdx] = useState(null)
   const [form, setForm] = useState({ ...EMPTY_SLIDE })
+
   const load = useCallback(
     () =>
       api.get(ENDPOINTS.CONTENT.HERO_BANNERS).then((data) => {
-        setSlides(withKeys(data.slides))
-        if (data.sideBanners?.length >= 2) setSideBanners(withKeys(data.sideBanners))
+        // Combine any existing slides & sideBanners into a single list
+        const mainSlides = data.slides || []
+        const sideBanners = data.sideBanners || []
+        setSlides(withKeys([...mainSlides, ...sideBanners]))
       }),
     []
   )
-  const { loading, saving, saved, setSaved, error, setError, save } = useAdminForm(load)
 
+  const { loading, saving, saved, setSaved, error, setError, save } = useAdminForm(load)
   const [uploadingSlideImg, setUploadingSlideImg] = useState(false)
-  const [uploadingSideImg, setUploadingSideImg] = useState({})
 
   async function handleSlideFileUpload(e) {
     const file = e.target.files?.[0]
@@ -95,22 +91,6 @@ export default function AdminBanners() {
       setError(err.message || 'Image upload failed')
     } finally {
       setUploadingSlideImg(false)
-      e.target.value = ''
-    }
-  }
-
-  async function handleSideFileUpload(i, e) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    try {
-      setUploadingSideImg((prev) => ({ ...prev, [i]: true }))
-      setError('')
-      const { url } = await uploadImage(file)
-      updateSide(i, 'image', url)
-    } catch (err) {
-      setError(err.message || 'Image upload failed')
-    } finally {
-      setUploadingSideImg((prev) => ({ ...prev, [i]: false }))
       e.target.value = ''
     }
   }
@@ -135,7 +115,7 @@ export default function AdminBanners() {
 
   function saveSlide() {
     if (!form.image.trim()) {
-      setError('Image URL is required for a slide.')
+      setError('Image URL or file upload is required.')
       return
     }
     const updated = [...slides]
@@ -163,16 +143,14 @@ export default function AdminBanners() {
     setSlides(updated)
   }
 
-  function updateSide(idx, field, value) {
-    setSideBanners((prev) => {
-      const updated = [...prev]
-      updated[idx] = { ...updated[idx], [field]: value }
-      return updated
-    })
-  }
-
   function handleSave() {
-    save(() => api.put(ENDPOINTS.ADMIN.CONTENT.HERO_BANNERS, { slides: stripKeys(slides), sideBanners: stripKeys(sideBanners) }, { auth: true }))
+    save(() =>
+      api.put(
+        ENDPOINTS.ADMIN.CONTENT.HERO_BANNERS,
+        { slides: stripKeys(slides), sideBanners: [] },
+        { auth: true }
+      )
+    )
   }
 
   if (loading) return <div className="p-8 text-[14px] text-[#4b4b4b]">Loading...</div>
@@ -180,60 +158,59 @@ export default function AdminBanners() {
   return (
     <div className="p-8 max-w-[760px]">
       <h1 className="text-[22px] font-semibold text-[#212121] mb-1">Hero Banners</h1>
-      <SeoHeadingFiller h4="Slide editor" h5="Side banners" h6="Save action" />
+      <SeoHeadingFiller h4="Slide editor" h5="Banner list" h6="Save action" />
       <p className="text-[14px] text-[#6b7280] mb-6">
-        Control the slider and side banners at the top of the home page. Use public image URLs from
-        Imgur, Google Drive (set to "Anyone with link"), or Cloudinary.
+        Manage full-width Hero Banners for your home page. Upload poster images with graphics/text designed into the poster image. The entire poster is clickable!
       </p>
 
       {error && <div className="text-[13px] text-red-600 bg-red-50 border border-red-200 rounded-md px-4 py-2 mb-4">{error}</div>}
       {saved && <div className="text-[13px] text-green-700 bg-green-50 border border-green-200 rounded-md px-4 py-2 mb-4">Saved successfully.</div>}
 
-      {/* ── MAIN SLIDER ── */}
-      <div className="bg-white rounded-[10px] border border-[#dedede] p-6 mb-6">
+      {/* ── HERO BANNERS LIST ── */}
+      <div className="bg-white rounded-[10px] border border-[#dedede] p-6 mb-6 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-[15px] font-semibold text-[#212121]">Main Slider</h2>
-            <p className="text-[12px] text-[#9ca3af]">Large rotating banner on the left. Slides cycle every 5 seconds.</p>
+            <h2 className="text-[15px] font-semibold text-[#212121]">Hero Banners Carousel</h2>
+            <p className="text-[12px] text-[#9ca3af]">Add as many hero banners as you want. They cycle automatically and support left/right arrows.</p>
           </div>
           <button
             type="button"
             onClick={() => openEdit('new')}
             className="shrink-0 text-[13px] font-medium text-white bg-cz-primary hover:bg-cz-primary-hover px-4 py-2 rounded-md transition-colors"
           >
-            + Add Slide
+            + Add Hero Banner
           </button>
         </div>
 
         {slides.length === 0 && editIdx !== 'new' && (
-          <p className="text-[13px] text-[#9ca3af] py-3 text-center border border-dashed border-[#e5e7eb] rounded-lg">
-            No slides added yet — the home page will show the default images until you add your own.
+          <p className="text-[13px] text-[#9ca3af] py-6 text-center border border-dashed border-[#e5e7eb] rounded-lg">
+            No hero banners added yet — click "+ Add Hero Banner" to add your first poster banner.
           </p>
         )}
 
-        <div className="flex flex-col gap-2 mb-4">
+        <div className="flex flex-col gap-2.5 mb-4">
           {slides.map((slide, i) => (
             <div key={slide._key} className="flex items-center gap-3 border border-[#e5e7eb] rounded-lg p-3 bg-[#fafafa]">
               {slide.image ? (
                 <img
                   src={resolveImageUrl(slide.image)}
                   alt=""
-                  width={64}
-                  height={40}
-                  className="w-16 h-10 object-cover rounded shrink-0"
+                  width={80}
+                  height={45}
+                  className="w-20 h-11 object-cover rounded shrink-0 border border-[#e5e7eb]"
                   onError={(e) => { e.target.style.display = 'none' }}
                 />
               ) : (
-                <div className="w-16 h-10 bg-[#f3f4f6] rounded shrink-0 flex items-center justify-center text-[10px] text-[#9ca3af]">
-                  No img
+                <div className="w-20 h-11 bg-[#f3f4f6] rounded shrink-0 flex items-center justify-center text-[10px] text-[#9ca3af]">
+                  No image
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-medium text-[#212121] truncate">{slide.title || '(No title)'}</p>
-                {slide.tagline && <p className="text-[11px] text-[#9ca3af] truncate">{slide.tagline}</p>}
+                <p className="text-[13px] font-semibold text-[#212121] truncate">Banner #{i + 1}</p>
+                <p className="text-[11px] text-[#6b7280] truncate">Target Link: <span className="font-mono text-[#0ea5e9]">{slide.href || '/shop'}</span></p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
-                <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${slide.active !== false ? 'bg-green-100 text-green-700' : 'bg-[#f3f4f6] text-[#9ca3af]'}`}>
+                <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-medium ${slide.active !== false ? 'bg-green-100 text-green-700' : 'bg-[#f3f4f6] text-[#9ca3af]'}`}>
                   {slide.active !== false ? 'Active' : 'Hidden'}
                 </span>
                 <button type="button" onClick={() => moveSlide(i, -1)} disabled={i === 0} title="Move up"
@@ -249,14 +226,14 @@ export default function AdminBanners() {
           ))}
         </div>
 
-        {/* Slide form */}
+        {/* Banner form */}
         {editIdx !== null && (
-          <div className="border border-[#e5e7eb] rounded-lg p-4 bg-[#f9fafb]">
-            <h3 className="text-[13px] font-semibold text-[#212121] mb-4">
-              {editIdx === 'new' ? 'Add New Slide' : `Edit Slide ${editIdx + 1}`}
+          <div className="border border-[#e5e7eb] rounded-lg p-5 bg-[#f9fafb] mt-4">
+            <h3 className="text-[14px] font-semibold text-[#212121] mb-4">
+              {editIdx === 'new' ? 'Add New Hero Banner' : `Edit Hero Banner #${editIdx + 1}`}
             </h3>
-            <div className="flex flex-col gap-3">
-              <Field label="Slide Image *" hint="Upload an image file from your device, or paste an image URL / Google Drive link. (Recommended: 1200×660 px)">
+            <div className="flex flex-col gap-4">
+              <Field label="Banner Poster Image *" hint="Upload a poster image file from your device, or paste an image URL / Google Drive link. (Recommended: 1200×500 px or 16:9 widescreen)">
                 <div className="flex gap-2 items-center">
                   <div className="flex-1">
                     <TextInput
@@ -275,29 +252,13 @@ export default function AdminBanners() {
               </Field>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <Field label="Tagline (small text above title)">
-                  <TextInput value={form.tagline} onChange={(e) => setForm((f) => ({ ...f, tagline: e.target.value }))}
-                    placeholder="e.g. Power Meets Performance" />
-                </Field>
-                <Field label="Title (large heading)">
-                  <TextInput value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-                    placeholder="e.g. Latest Laptops" />
-                </Field>
-              </div>
-
-              <Field label="Description">
-                <TextInput value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                  placeholder="Short line under the title" />
-              </Field>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <Field label="Button Text">
-                  <TextInput value={form.cta} onChange={(e) => setForm((f) => ({ ...f, cta: e.target.value }))}
-                    placeholder="Shop Now" />
-                </Field>
-                <Field label="Button Link" hint="Use /shop, /products, or a full URL">
+                <Field label="Destination Link" hint="Where clicking this poster takes the customer (e.g. /shop, /products, /cctv)">
                   <TextInput value={form.href} onChange={(e) => setForm((f) => ({ ...f, href: e.target.value }))}
                     placeholder="/shop" />
+                </Field>
+                <Field label="Optional Button Label" hint="Leave blank if button is already designed inside your poster image">
+                  <TextInput value={form.cta} onChange={(e) => setForm((f) => ({ ...f, cta: e.target.value }))}
+                    placeholder="Optional (e.g. Shop CCTV)" />
                 </Field>
               </div>
 
@@ -308,10 +269,10 @@ export default function AdminBanners() {
                 Active (show on site)
               </label>
 
-              <div className="flex gap-2 pt-1">
+              <div className="flex gap-2 pt-2">
                 <button type="button" onClick={saveSlide}
                   className="rounded-md bg-cz-primary hover:bg-cz-primary-hover text-white text-[13px] font-medium px-5 py-2 transition-colors">
-                  {editIdx === 'new' ? 'Add Slide' : 'Update Slide'}
+                  {editIdx === 'new' ? 'Add Hero Banner' : 'Update Hero Banner'}
                 </button>
                 <button type="button" onClick={cancelEdit}
                   className="rounded-md border border-[#d1d5db] text-[13px] text-[#4b4b4b] px-5 py-2 hover:bg-[#f3f4f6] transition-colors">
@@ -321,72 +282,6 @@ export default function AdminBanners() {
             </div>
           </div>
         )}
-      </div>
-
-      {/* ── SIDE BANNERS ── */}
-      <div className="bg-white rounded-[10px] border border-[#dedede] p-6 mb-6">
-        <h2 className="text-[15px] font-semibold text-[#212121] mb-1">Side Banners</h2>
-        <p className="text-[12px] text-[#9ca3af] mb-5">
-          Two stacked panels on the right side of the hero. Leave Title empty for a minimal layout (just button at the bottom).
-        </p>
-
-        <div className="flex flex-col gap-6">
-          {sideBanners.map((banner, i) => (
-            <div key={banner._key} className="border border-[#e5e7eb] rounded-lg p-4">
-              <p className="text-[13px] font-semibold text-[#4b4b4b] mb-3">Banner {i + 1}</p>
-              <div className="flex flex-col gap-3">
-                <Field label="Image" hint="Upload an image file from your device, or paste an image URL / Google Drive link. (Recommended: 600×360 px)">
-                  <div className="flex gap-2 items-center">
-                    <div className="flex-1">
-                      <TextInput type="url" value={banner.image || ''}
-                        onChange={(e) => updateSide(i, 'image', e.target.value)}
-                        placeholder="Paste image URL or click Upload File" />
-                    </div>
-                    <label className={`cursor-pointer border border-[#d1d5db] bg-white hover:bg-[#f3f4f6] text-[#374151] text-[13px] font-medium px-4 py-2 rounded-md shrink-0 flex items-center gap-1.5 transition-colors ${uploadingSideImg[i] ? 'opacity-50 cursor-wait' : ''}`}>
-                      <span>{uploadingSideImg[i] ? 'Uploading...' : 'Upload File'}</span>
-                      <input type="file" accept="image/*" className="hidden" onChange={(e) => handleSideFileUpload(i, e)} disabled={uploadingSideImg[i]} />
-                    </label>
-                  </div>
-                  <ImagePreview src={banner.image} />
-                </Field>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <Field label="Tagline">
-                    <TextInput value={banner.tagline || ''} onChange={(e) => updateSide(i, 'tagline', e.target.value)}
-                      placeholder="e.g. Tested. Trusted." />
-                  </Field>
-                  <Field label="Title">
-                    <TextInput value={banner.title || ''} onChange={(e) => updateSide(i, 'title', e.target.value)}
-                      placeholder="e.g. Used Laptops" />
-                  </Field>
-                </div>
-
-                <Field label="Description">
-                  <TextInput value={banner.description || ''} onChange={(e) => updateSide(i, 'description', e.target.value)}
-                    placeholder="Short line" />
-                </Field>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <Field label="Button Text">
-                    <TextInput value={banner.cta || ''} onChange={(e) => updateSide(i, 'cta', e.target.value)}
-                      placeholder="See Offers" />
-                  </Field>
-                  <Field label="Button Link">
-                    <TextInput value={banner.href || ''} onChange={(e) => updateSide(i, 'href', e.target.value)}
-                      placeholder="/shop" />
-                  </Field>
-                </div>
-
-                <label className="flex items-center gap-2 text-[13px] text-[#4b4b4b] cursor-pointer">
-                  <input type="checkbox" checked={banner.active !== false}
-                    onChange={(e) => updateSide(i, 'active', e.target.checked)}
-                    className="rounded" />
-                  Active (show on site)
-                </label>
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
 
       <button
