@@ -23,6 +23,15 @@ import {
 
 function NavDrawer({ open, onClose }) {
   const categoryItems = useNavItems()
+  const { navCategories } = useCategories()
+  const [expandedItem, setExpandedItem] = useState(null)
+
+  const toggleExpand = (label, e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setExpandedItem((prev) => (prev === label ? null : label))
+  }
+
   return (
     <div
       className={`fixed inset-0 z-[1101] flex justify-start items-center bg-[#6b7280]/70 backdrop-blur-sm transition-opacity duration-300 ${
@@ -45,26 +54,71 @@ function NavDrawer({ open, onClose }) {
           </button>
         </div>
 
-        <ul className="flex flex-col px-6 py-4 gap-4 overflow-y-auto">
-          {categoryItems.map((item) => (
-            <li key={item.label}>
-              {item.to ? (
-                <Link
-                  to={item.to}
-                  onClick={onClose}
-                  className="flex items-center justify-between text-[14px] text-[#212121]"
-                >
-                  {item.label}
-                  {item.hasDropdown && <ChevronDownIcon size={14} className="-rotate-90" />}
-                </Link>
-              ) : (
-                <span className="flex items-center justify-between text-[14px] text-[#212121]">
-                  {item.label}
-                  {item.hasDropdown && <ChevronDownIcon size={14} className="-rotate-90" />}
-                </span>
-              )}
-            </li>
-          ))}
+        <ul className="flex flex-col px-6 py-4 gap-2 overflow-y-auto">
+          {categoryItems.map((item) => {
+            let subLinks = []
+            if (item.label === 'Products') {
+              subLinks = [...navCategories]
+                .sort((a, b) => a.sort_order - b.sort_order || a.name.localeCompare(b.name))
+                .map((cat) => ({ label: cat.name, to: categorySlugToPath(cat.slug) }))
+            } else if (item.subcategories) {
+              subLinks = item.subcategories.map((sub) => ({ label: sub.name, to: categorySlugToPath(sub.slug) }))
+            }
+
+            const isExpanded = expandedItem === item.label
+
+            return (
+              <li key={item.label} className="border-b border-[#f1f5f9] last:border-none pb-2">
+                <div className="flex items-center justify-between py-1.5">
+                  {item.to ? (
+                    <Link
+                      to={item.to}
+                      onClick={onClose}
+                      className="text-[15px] font-semibold text-[#1e293b] hover:text-cz-primary transition-colors flex-1"
+                    >
+                      {item.label}
+                    </Link>
+                  ) : (
+                    <span
+                      onClick={(e) => item.hasDropdown && toggleExpand(item.label, e)}
+                      className="text-[15px] font-semibold text-[#1e293b] flex-1 cursor-pointer"
+                    >
+                      {item.label}
+                    </span>
+                  )}
+
+                  {item.hasDropdown && (
+                    <button
+                      type="button"
+                      onClick={(e) => toggleExpand(item.label, e)}
+                      aria-label={`Toggle ${item.label} subcategories`}
+                      className="p-2 text-[#64748b] hover:text-[#0ea5e9] transition-colors"
+                    >
+                      <ChevronDownIcon
+                        size={16}
+                        className={`transition-transform duration-200 ${isExpanded ? 'rotate-180 text-cz-sky' : ''}`}
+                      />
+                    </button>
+                  )}
+                </div>
+
+                {item.hasDropdown && isExpanded && subLinks.length > 0 && (
+                  <div className="flex flex-col gap-1 pl-4 pt-1 pb-2 border-l-2 border-[#0ea5e9]/40 my-1 bg-[#f8fafc] rounded-r-lg">
+                    {subLinks.map((sub) => (
+                      <Link
+                        key={sub.label}
+                        to={sub.to}
+                        onClick={onClose}
+                        className="text-[13px] font-medium text-[#475569] hover:text-cz-primary py-1 px-2 rounded hover:bg-[#e0f2fe] transition-colors"
+                      >
+                        {sub.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </li>
+            )
+          })}
         </ul>
       </div>
     </div>
