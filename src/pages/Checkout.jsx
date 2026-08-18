@@ -188,9 +188,29 @@ export default function Checkout() {
       .catch((err) => console.error('Failed to load payment settings:', err))
   }, [])
 
+  const [isFirstOrder, setIsFirstOrder] = useState(true)
+
+  useEffect(() => {
+    const checkEligibility = async () => {
+      try {
+        const queryParams = new URLSearchParams()
+        if (form.email) queryParams.append('email', form.email.trim())
+        if (form.phone) queryParams.append('phone', form.phone.trim())
+        const qs = queryParams.toString() ? `?${queryParams.toString()}` : ''
+
+        const data = await api.get(ENDPOINTS.ORDERS.CHECK_FIRST_ORDER(qs), { auth: true })
+        setIsFirstOrder(Boolean(data.isFirstOrder))
+      } catch (err) {
+        setIsFirstOrder(true)
+      }
+    }
+    checkEligibility()
+  }, [user, form.email, form.phone])
+
   const enabledPaymentMethods = Object.entries(paymentMethods).filter(([, method]) => method.enabled)
 
-  const shipping = items.length > 0 ? shippingFee : 0
+  const effectiveShippingFee = isFirstOrder ? 0 : shippingFee
+  const shipping = items.length > 0 ? effectiveShippingFee : 0
   const discountAmount = appliedDiscount?.discount_amount || 0
   const total = Math.max(0, subTotal + shipping - discountAmount)
 
@@ -446,6 +466,19 @@ export default function Checkout() {
             </div>
 
             <div className="px-5 lg:px-16 pb-10 pt-[30px] bg-cz-gold-light lg:bg-transparent">
+              {isFirstOrder && (
+                <div className="mb-4 rounded-xl bg-emerald-50 border border-emerald-300 p-3.5 flex items-center gap-3 text-emerald-900 text-[13px] font-medium shadow-sm">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-white shrink-0 text-[15px]">
+                    🎉
+                  </span>
+                  <div>
+                    <p className="font-bold text-emerald-900 text-[14px]">First Order Special Offer!</p>
+                    <p className="text-[12px] text-emerald-700 leading-tight">
+                      Free nationwide delivery has been automatically applied to your order.
+                    </p>
+                  </div>
+                </div>
+              )}
               <div className="grid gap-y-4 mt-2">
                 {items.map((item, index) => (
                   <div key={`${item.id}-${item.variantId ?? ''}`} className="flex items-center bg-white rounded-md p-3">
@@ -511,7 +544,16 @@ export default function Checkout() {
                   </div>
                   <div className="flex items-center justify-between text-[14px] text-[#212121]">
                     <span>Shipping</span>
-                    <span>{format(shipping)}</span>
+                    <span>
+                      {isFirstOrder ? (
+                        <span className="flex items-center gap-1.5 font-bold text-emerald-600">
+                          <span className="line-through text-slate-400 font-normal text-[12px]">{format(shippingFee)}</span>
+                          <span>FREE</span>
+                        </span>
+                      ) : (
+                        format(shipping)
+                      )}
+                    </span>
                   </div>
                   {discountAmount > 0 && (
                     <div className="flex items-center justify-between text-[14px] text-green-700">

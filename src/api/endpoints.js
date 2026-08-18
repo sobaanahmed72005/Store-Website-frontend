@@ -99,6 +99,7 @@ export const ENDPOINTS = {
 
   ORDERS: {
     BASE: '/orders',
+    CHECK_FIRST_ORDER: (qs = '') => `/orders/check-first-order${qs}`,
     PAYMENT_PROOF: '/orders/payment-proof',
     PAYMENT_PROOF_FILE: (filename) => `/orders/payment-proof/${filename}`,
     BY_USER: (userId, qs = '') => `/orders/user/${userId}${qs}`,
