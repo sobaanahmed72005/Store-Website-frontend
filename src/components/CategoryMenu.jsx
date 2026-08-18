@@ -68,9 +68,9 @@ export default function CategoryMenu() {
   }, [])
 
   return (
-    <nav ref={menuRef} className="hidden lg:block bg-cz-nav sticky top-0 z-30">
-      <div className="mx-auto px-5 py-2.5">
-        <ul className="flex flex-row flex-wrap items-center gap-x-5">
+    <nav ref={menuRef} className="hidden lg:block bg-cz-nav sticky top-0 z-30 shadow-sm">
+      <div className="mx-auto px-5">
+        <ul className="flex flex-row flex-nowrap items-center gap-x-6 overflow-x-auto no-scrollbar py-2.5 whitespace-nowrap scroll-smooth">
           {navItems.map((item) => {
             const isOpen = openDropdown === item.label
 
@@ -81,7 +81,7 @@ export default function CategoryMenu() {
             }
 
             return (
-              <li key={item.label} className="relative group flex items-center">
+              <li key={item.label} className="relative group flex items-center shrink-0">
                 {item.to ? (
                   <Link
                     to={item.to}
