@@ -6,38 +6,25 @@ export default function PwaInstallPrompt() {
   const [isIos, setIsIos] = useState(false)
 
   useEffect(() => {
-    // Check if user already dismissed or installed recently
-    const dismissed = localStorage.getItem('pwa_prompt_dismissed')
-    if (dismissed && Date.now() - parseInt(dismissed, 10) < 7 * 24 * 60 * 60 * 1000) {
-      return
-    }
+    // Check if user is in standalone mode already
+    const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches
+    if (isStandalone) return
 
     // Detect iOS
     const userAgent = window.navigator.userAgent.toLowerCase()
     const iosDevice = /iphone|ipad|ipod/.test(userAgent) && !window.MSStream
-    const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches
+    if (iosDevice) setIsIos(true)
 
-    if (isStandalone) {
-      return // Already installed & running in app mode
-    }
-
-    if (iosDevice) {
-      setIsIos(true)
-      setIsVisible(true)
-      return
-    }
+    // Show banner immediately on load!
+    setIsVisible(true)
 
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault()
       setDeferredPrompt(e)
-      setIsVisible(true)
     }
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
-    }
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
   }, [])
 
   const handleInstallClick = async () => {
@@ -50,12 +37,14 @@ export default function PwaInstallPrompt() {
       setDeferredPrompt(null)
     } else if (isIos) {
       alert('To install IT Solutions App on iPhone:\n\n1. Tap the Share button at the bottom of Safari\n2. Scroll down and select "Add to Home Screen"')
+    } else {
+      alert('To install IT Solutions App:\n\n1. Tap the 3 dots (⋮) in the top-right corner of Chrome\n2. Select "Add to Home screen" or "Install app"')
     }
   }
 
   const handleDismiss = () => {
     setIsVisible(false)
-    localStorage.setItem('pwa_prompt_dismissed', Date.now().toString())
+    sessionStorage.setItem('pwa_prompt_dismissed', 'true')
   }
 
   if (!isVisible) return null
