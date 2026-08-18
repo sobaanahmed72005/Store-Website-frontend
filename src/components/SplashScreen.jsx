@@ -12,9 +12,11 @@ function splitBrandName(name) {
 export default function SplashScreen() {
   const [isVisible, setIsVisible] = useState(true)
   const [isFadingOut, setIsFadingOut] = useState(false)
+  const [imgFailed, setImgFailed] = useState(false)
   const { siteName, logoUrl } = useSiteSettings()
 
   const [firstPart, secondPart] = splitBrandName(siteName)
+  const logoImageSource = logoUrl || '/logo-new.png'
 
   useEffect(() => {
     // Show splash on fresh page load or reload
@@ -48,30 +50,21 @@ export default function SplashScreen() {
 
       {/* Main Logo Container */}
       <div className="relative z-10 flex flex-col items-center justify-center text-center px-4">
-        {/* Dynamic Logo Image or Glowing Globe Icon */}
+        {/* Dynamic Logo Image or Brand Icon Mark */}
         <div className="relative mb-5 transform transition-transform duration-700 animate-bounce-subtle flex items-center justify-center">
           <div className="absolute -inset-3 bg-gradient-to-r from-[#0891b2] via-[#38bdf8] to-[#bf9a33] rounded-full blur-md opacity-70 animate-pulse" />
-          
-          {logoUrl ? (
+
+          {!imgFailed ? (
             <img
-              src={logoUrl}
+              src={logoImageSource}
               alt={siteName || 'IT SOLUTIONS'}
+              onError={() => setImgFailed(true)}
               className="relative h-20 md:h-24 w-auto object-contain drop-shadow-[0_0_20px_rgba(56,189,248,0.7)]"
             />
           ) : (
-            <svg
-              className="relative w-20 h-20 md:w-24 md:h-24 text-[#38bdf8] drop-shadow-[0_0_15px_rgba(56,189,248,0.6)]"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" />
-              <path d="M2 12h20" stroke="currentColor" strokeWidth="1.2" />
-              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10z" stroke="currentColor" strokeWidth="1.2" />
-            </svg>
+            <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-[#0c4a6e] to-[#030b13] border border-[#38bdf8]/40 flex items-center justify-center text-[#38bdf8] font-extrabold text-2xl md:text-3xl shadow-[0_0_20px_rgba(56,189,248,0.5)]">
+              IT
+            </div>
           )}
         </div>
 
