@@ -56,6 +56,11 @@ export default function CategoryMenu() {
   const navItems = useNavItems()
   const [openDropdown, setOpenDropdown] = useState(null)
   const menuRef = useRef(null)
+  const scrollRef = useRef(null)
+
+  const [isDragging, setIsDragging] = useState(false)
+  const [startX, setStartX] = useState(0)
+  const [scrollLeft, setScrollLeft] = useState(0)
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -67,10 +72,54 @@ export default function CategoryMenu() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  const handleMouseDown = (e) => {
+    if (!scrollRef.current) return
+    setIsDragging(true)
+    setStartX(e.pageX - scrollRef.current.offsetLeft)
+    setScrollLeft(scrollRef.current.scrollLeft)
+  }
+
+  const handleMouseLeaveOrUp = () => {
+    setIsDragging(false)
+  }
+
+  const handleMouseMove = (e) => {
+    if (!isDragging || !scrollRef.current) return
+    e.preventDefault()
+    const x = e.pageX - scrollRef.current.offsetLeft
+    const walk = (x - startX) * 1.8
+    scrollRef.current.scrollLeft = scrollLeft - walk
+  }
+
+  const scrollBy = (offset) => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: offset, behavior: 'smooth' })
+    }
+  }
+
   return (
-    <nav ref={menuRef} className="hidden lg:block bg-cz-nav sticky top-0 z-30 shadow-sm">
-      <div className="mx-auto px-5">
-        <ul className="flex flex-row flex-nowrap items-center gap-x-6 overflow-x-auto no-scrollbar py-2.5 whitespace-nowrap scroll-smooth">
+    <nav ref={menuRef} className="hidden lg:block bg-cz-nav sticky top-0 z-30 shadow-sm group/nav">
+      <div className="mx-auto px-5 relative flex items-center">
+        {/* Left Arrow Button */}
+        <button
+          type="button"
+          onClick={() => scrollBy(-250)}
+          aria-label="Scroll left"
+          className="absolute left-1 z-40 w-7 h-7 rounded-full bg-slate-900/60 hover:bg-slate-900 text-white flex items-center justify-center opacity-0 group-hover/nav:opacity-100 transition-opacity shadow cursor-pointer"
+        >
+          ‹
+        </button>
+
+        <ul
+          ref={scrollRef}
+          onMouseDown={handleMouseDown}
+          onMouseLeave={handleMouseLeaveOrUp}
+          onMouseUp={handleMouseLeaveOrUp}
+          onMouseMove={handleMouseMove}
+          className={`flex flex-row flex-nowrap items-center gap-x-6 overflow-x-auto no-scrollbar py-2.5 whitespace-nowrap scroll-smooth ${
+            isDragging ? 'cursor-grabbing select-none' : 'cursor-grab'
+          }`}
+        >
           {navItems.map((item) => {
             const isOpen = openDropdown === item.label
 
@@ -121,6 +170,16 @@ export default function CategoryMenu() {
             )
           })}
         </ul>
+
+        {/* Right Arrow Button */}
+        <button
+          type="button"
+          onClick={() => scrollBy(250)}
+          aria-label="Scroll right"
+          className="absolute right-1 z-40 w-7 h-7 rounded-full bg-slate-900/60 hover:bg-slate-900 text-white flex items-center justify-center opacity-0 group-hover/nav:opacity-100 transition-opacity shadow cursor-pointer"
+        >
+          ›
+        </button>
       </div>
     </nav>
   )
