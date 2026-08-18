@@ -49,13 +49,13 @@ function ProductSection({ heading, seeAllHref, products }) {
 }
 
 /**
- * Reorganizes products so that every sub-category of every main category is represented
- * at the top of the homepage grid in a balanced round-robin fashion.
+ * Reorganizes products so that EXACTLY ONE product per sub-category appears on the homepage grid,
+ * alternating across parent categories to showcase maximum variety without clutter.
  */
 function diversifyProductsBySubCategory(products) {
   if (!Array.isArray(products) || products.length === 0) return []
 
-  // 1. Group products by their subcategory (category_id)
+  // 1. Pick the first product from each subcategory
   const subCatMap = new Map()
   for (const product of products) {
     const subKey = product.category_id || product.category_name || 'uncategorized'
@@ -63,10 +63,9 @@ function diversifyProductsBySubCategory(products) {
       subCatMap.set(subKey, {
         parentId: product.category_parent_id || subKey,
         subKey,
-        items: [],
+        item: product,
       })
     }
-    subCatMap.get(subKey).items.push(product)
   }
 
   // 2. Group subcategories by their parent category
@@ -79,32 +78,20 @@ function diversifyProductsBySubCategory(products) {
     parentMap.get(pId).push(subGroup)
   }
 
+  // 3. Interleave 1 product per subcategory round-robin across parent categories
   const parentGroups = Array.from(parentMap.values())
   const result = []
 
-  let hasMore = true
-  let round = 0
-
-  // 3. Interleave across parent categories & subcategories
-  while (hasMore && round < 100) {
-    hasMore = false
-    for (const subGroups of parentGroups) {
-      // Find a subcategory under this parent that still has items for this round
-      for (const subGroup of subGroups) {
-        if (subGroup.items.length > 0) {
-          result.push(subGroup.items.shift())
-          hasMore = true
-          break // Move to next parent category to maintain alternating variety
-        }
-      }
-    }
-    round++
+  let maxSubCats = 0
+  for (const group of parentGroups) {
+    if (group.length > maxSubCats) maxSubCats = group.length
   }
 
-  // Append any remaining products
-  for (const subGroup of subCatMap.values()) {
-    if (subGroup.items.length > 0) {
-      result.push(...subGroup.items)
+  for (let i = 0; i < maxSubCats; i++) {
+    for (const group of parentGroups) {
+      if (group[i]) {
+        result.push(group[i].item)
+      }
     }
   }
 
