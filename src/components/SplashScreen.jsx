@@ -48,27 +48,37 @@ export default function SplashScreen() {
 
       {/* Main Logo Container */}
       <div className="relative z-10 flex flex-col items-center justify-center text-center px-4">
-        {/* Dynamic Uploaded Logo or Current Sleek IT Emblem */}
-        <div className="relative mb-5 transform transition-transform duration-700 animate-bounce-subtle flex items-center justify-center">
-          <div className="absolute -inset-3 bg-gradient-to-r from-[#0891b2] via-[#38bdf8] to-[#0c4a6e] rounded-full blur-md opacity-70 animate-pulse" />
+        {/* Sleek Animated Brand Mark Container (No Flicker / No Box Shift) */}
+        <div className="relative mb-6 transform transition-transform duration-700 animate-bounce-subtle flex items-center justify-center min-h-[80px]">
+          <div className="absolute -inset-4 bg-gradient-to-r from-[#0891b2] via-[#38bdf8] to-[#0c4a6e] rounded-full blur-lg opacity-60 animate-pulse" />
 
           {logoUrl ? (
             <img
               src={logoUrl}
               alt={siteName || 'IT SOLUTIONS'}
-              className="relative h-20 md:h-24 w-auto object-contain drop-shadow-[0_0_20px_rgba(56,189,248,0.7)]"
+              className="relative h-20 md:h-24 w-auto object-contain drop-shadow-[0_0_25px_rgba(56,189,248,0.75)] transition-opacity duration-300"
             />
           ) : (
-            <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-[#0c4a6e] via-[#0891b2] to-[#04101b] border-2 border-[#38bdf8]/50 flex items-center justify-center shadow-[0_0_25px_rgba(56,189,248,0.6)]">
-              <span className="font-heading font-black text-3xl md:text-4xl text-white tracking-tighter drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">
-                IT
-              </span>
+            <div className="relative flex items-center justify-center p-2">
+              <svg
+                className="w-16 h-16 md:w-20 md:h-20 text-[#38bdf8] drop-shadow-[0_0_20px_rgba(56,189,248,0.8)]"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" />
+                <path d="M2 12h20" stroke="currentColor" strokeWidth="1.2" />
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10z" stroke="currentColor" strokeWidth="1.2" />
+              </svg>
             </div>
           )}
         </div>
 
-        {/* Brand Name Typography */}
-        <div className="flex items-center gap-2 font-heading font-extrabold text-3xl md:text-5xl tracking-tight mb-2">
+        {/* Brand Name Typography - Instant Render (0ms) */}
+        <div className="flex items-center gap-2.5 font-heading font-extrabold text-3xl md:text-5xl tracking-tight mb-2">
           <span className="text-white drop-shadow-[0_0_12px_rgba(255,255,255,0.4)]">
             {firstPart}
           </span>
@@ -80,12 +90,12 @@ export default function SplashScreen() {
         </div>
 
         {/* Subtitle / Company Name */}
-        <p className="text-[11px] md:text-[13px] tracking-[0.3em] font-medium uppercase text-[#94a3b8] mb-6">
+        <p className="text-[11px] md:text-[13px] tracking-[0.3em] font-semibold uppercase text-[#94a3b8] mb-6">
           Trade &amp; Service Pvt. Ltd.
         </p>
 
         {/* Shimmer Progress Line */}
-        <div className="w-36 md:w-48 h-[3px] bg-[#1e293b] rounded-full overflow-hidden relative">
+        <div className="w-40 md:w-52 h-[3px] bg-[#1e293b] rounded-full overflow-hidden relative">
           <div
             className="h-full bg-gradient-to-r from-[#0891b2] via-[#38bdf8] to-[#0c4a6e] rounded-full"
             style={{
