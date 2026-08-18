@@ -66,11 +66,11 @@ export default function Shop() {
   const [view, setView] = useState('grid')
 
   useSeo({
-    title: `Shop All Products — Laptops, Gaming Gear & PC Components | ${siteName || 'IT Solutions'}`,
-    description: `Browse the full ${siteName || 'IT Solutions'} catalog — laptops, gaming gear, and PC components, with filters by brand.`,
+    title: `Buy CCTV Cameras, Routers, Solar Panels & Laptops Online in Pakistan | ${siteName || 'IT Solutions'}`,
+    description: `Explore the full ${siteName || 'IT Solutions'} catalog — 4K CCTV security cameras, enterprise networking Wi-Fi routers, solar systems, and laptops with nationwide cash on delivery in Pakistan.`,
     canonical: `${window.location.origin}/shop`,
-    keywords: 'shop laptops Pakistan, gaming PC, PC components, buy laptop online, computer store Pakistan',
-    publisher: siteName || 'IT Solutions',
+    keywords: 'buy cctv camera pakistan, wifi 6 router pakistan, solar panel price pakistan, laptop hardware online store pakistan, it solutions lahore',
+    publisher: siteName || 'IT Solutions Trade & Service Pvt. Ltd.',
   })
 
   // Independent of whatever brand filter/page is currently active, so the sidebar's checkbox

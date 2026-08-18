@@ -135,17 +135,17 @@ export default function Home() {
 
   const origin = window.location.origin
   useSeo({
-    title: `${siteName || 'IT Solutions'} — Laptops, Gaming Gear & PC Components in Pakistan`,
-    description: SITE_TAGLINE,
+    title: `${siteName || 'IT Solutions'} — 4K CCTV Cameras, Wi-Fi Routers, Solar Systems & Laptops in Pakistan`,
+    description: `Shop original 4K CCTV security cameras, enterprise Wi-Fi 6 routers, solar panels, and laptops in Pakistan at ${siteName || 'IT Solutions'}. Official warranty & free nationwide delivery on your 1st order!`,
     canonical: `${origin}/`,
     image: logoUrl,
-    keywords: 'laptops in Pakistan, gaming PC, PC components, buy laptop online, computer store Pakistan',
-    publisher: siteName || 'IT Solutions',
+    keywords: 'cctv camera pakistan, 4k cctv camera price lahore, wifi 6 router pakistan, solar panel price pakistan, laptops online store pakistan, it solutions lahore',
+    publisher: siteName || 'IT Solutions Trade & Service Pvt. Ltd.',
     jsonLd: [
       {
         '@context': 'https://schema.org',
         '@type': 'Organization',
-        name: siteName || 'IT Solutions',
+        name: siteName || 'IT Solutions Trade & Service Pvt. Ltd.',
         url: origin,
         logo: logoUrl || undefined,
         description: SITE_TAGLINE,
