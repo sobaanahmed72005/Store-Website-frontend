@@ -52,7 +52,7 @@ export default function SplashScreen() {
 
       {/* Main Logo Container */}
       <div className="relative z-10 flex flex-col items-center justify-center text-center px-4">
-        {/* Instant Logo Render (0ms Delay - No Globe Swap / No Icon Flash) */}
+        {/* Animated Brand Mark / Cached Logo Container */}
         <div className="relative mb-6 transform transition-transform duration-700 animate-bounce-subtle flex items-center justify-center min-h-[90px]">
           <div className="absolute -inset-4 bg-gradient-to-r from-[#0891b2] via-[#38bdf8] to-[#0c4a6e] rounded-full blur-lg opacity-60 animate-pulse" />
 
@@ -63,10 +63,20 @@ export default function SplashScreen() {
               className="relative h-20 md:h-24 w-auto object-contain drop-shadow-[0_0_25px_rgba(56,189,248,0.8)]"
             />
           ) : (
-            <div className="relative px-5 py-2.5 rounded-2xl bg-gradient-to-r from-[#0c4a6e] via-[#0891b2] to-[#04101b] border-2 border-[#38bdf8]/50 shadow-[0_0_30px_rgba(56,189,248,0.5)]">
-              <span className="font-heading font-black text-3xl md:text-4xl text-white tracking-wider">
-                IT<span className="text-[#38bdf8] ml-1">SOLUTIONS</span>
-              </span>
+            <div className="relative flex items-center justify-center p-2">
+              <svg
+                className="w-16 h-16 md:w-20 md:h-20 text-[#38bdf8] drop-shadow-[0_0_20px_rgba(56,189,248,0.8)]"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" />
+                <path d="M2 12h20" stroke="currentColor" strokeWidth="1.2" />
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10z" stroke="currentColor" strokeWidth="1.2" />
+              </svg>
             </div>
           )}
         </div>
