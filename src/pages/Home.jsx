@@ -100,25 +100,46 @@ function diversifyProductsBySubCategory(products) {
   return result
 }
 
+// Module-level in-memory cache for instant zero-delay render on Back button navigation
+let homeCache = {
+  featured: null,
+  newArrivals: null,
+  onSale: null,
+}
+
 export default function Home() {
-  const [featured, setFeatured] = useState([])
-  const [newArrivals, setNewArrivals] = useState([])
-  const [onSale, setOnSale] = useState([])
+  const [featured, setFeatured] = useState(() => homeCache.featured || [])
+  const [newArrivals, setNewArrivals] = useState(() => homeCache.newArrivals || [])
+  const [onSale, setOnSale] = useState(() => homeCache.onSale || [])
+  const [loading, setLoading] = useState(!homeCache.featured)
   const { siteName, logoUrl } = useSiteSettings()
 
   useEffect(() => {
     // Fetch limit=100 to get products across all subcategories, then interleave
     // round-robin so at least one product from EVERY subcategory appears at the top.
     api.get(ENDPOINTS.PRODUCTS.LIST('?limit=100'))
-      .then((data) => setFeatured(diversifyProductsBySubCategory(data.products || [])))
+      .then((data) => {
+        const res = diversifyProductsBySubCategory(data.products || [])
+        homeCache.featured = res
+        setFeatured(res)
+        setLoading(false)
+      })
       .catch(() => setFeatured([]))
 
     api.get(ENDPOINTS.PRODUCTS.LIST('?new_arrival=1&limit=50'))
-      .then((data) => setNewArrivals(diversifyProductsBySubCategory(data.products || [])))
+      .then((data) => {
+        const res = diversifyProductsBySubCategory(data.products || [])
+        homeCache.newArrivals = res
+        setNewArrivals(res)
+      })
       .catch(() => setNewArrivals([]))
 
     api.get(ENDPOINTS.PRODUCTS.LIST('?on_sale=1&limit=50'))
-      .then((data) => setOnSale(diversifyProductsBySubCategory(data.products || [])))
+      .then((data) => {
+        const res = diversifyProductsBySubCategory(data.products || [])
+        homeCache.onSale = res
+        setOnSale(res)
+      })
       .catch(() => setOnSale([]))
   }, [])
 
@@ -161,9 +182,9 @@ export default function Home() {
       <CategoryMenu />
       <Hero />
       <CategoryIcons />
-      <ProductSection heading="Products" seeAllHref="/products?featured=1" products={featured} />
-      <ProductSection heading="On Sale" seeAllHref="/products?on_sale=1" products={onSale} />
-      <ProductSection heading="New Arrivals" seeAllHref="/products?new_arrival=1" products={newArrivals} />
+      <ProductSection heading="Products" seeAllHref="/products?featured=1" products={featured} loading={loading} />
+      <ProductSection heading="On Sale" seeAllHref="/products?on_sale=1" products={onSale} loading={loading} />
+      <ProductSection heading="New Arrivals" seeAllHref="/products?new_arrival=1" products={newArrivals} loading={loading} />
       <Footer />
     </div>
   )
