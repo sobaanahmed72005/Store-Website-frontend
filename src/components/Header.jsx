@@ -385,22 +385,23 @@ export default function Header() {
   return (
     <div className="bg-cz-header text-[var(--cz-header-text)] py-2.5">
       <div className="mx-auto px-5">
-        <div className="hidden md:grid grid-cols-4 items-center gap-4">
-          <Link to="/" className="flex items-center justify-start col-span-1 py-5 px-4">
-            <Logo iconOnly variant="light" size={64} textScale={0.35} />
+        {/* Desktop Header Layout */}
+        <div className="hidden md:flex items-center justify-between gap-4 py-2">
+          <Link to="/" className="flex items-center gap-3 shrink-0 py-2">
+            <Logo iconOnly variant="light" size={52} textScale={0.35} />
           </Link>
 
-          <div className="block col-span-2 px-6">
+          <div className="flex-1 max-w-xl mx-4">
             <SearchBar />
           </div>
 
-          <div className="flex items-center justify-end gap-[15px]">
+          <div className="flex items-center justify-end gap-4 shrink-0">
             <Link
               to={user ? '/account' : '/signin'}
               aria-label="Account"
               className="flex items-center text-[var(--cz-header-text)] cursor-pointer hover:opacity-80 transition"
             >
-              <AccountIcon size={28} />
+              <AccountIcon size={26} />
               <span className="sr-only">Account</span>
             </Link>
 
@@ -410,7 +411,7 @@ export default function Header() {
               onClick={openWishlist}
               className="relative flex items-center text-[var(--cz-header-text)] cursor-pointer hover:opacity-80 transition"
             >
-              <HeartIcon size={28} />
+              <HeartIcon size={26} />
               <span className="absolute -top-[5px] -right-[5px] min-w-[17px] h-[17px] flex items-center justify-center rounded-full bg-cz-primary text-white text-[11px] font-bold leading-none">
                 {wishlistCount}
               </span>
@@ -422,7 +423,7 @@ export default function Header() {
               onClick={openCart}
               className="relative flex items-center text-[var(--cz-header-text)] cursor-pointer hover:opacity-80 transition"
             >
-              <CartIcon size={28} />
+              <CartIcon size={26} />
               <span className="absolute -top-[5px] -right-[5px] min-w-[17px] h-[17px] flex items-center justify-center rounded-full bg-cz-primary text-white text-[11px] font-bold leading-none">
                 {cartCount}
               </span>
@@ -432,28 +433,29 @@ export default function Header() {
           </div>
         </div>
 
-        <div className="flex md:hidden items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <button type="button" aria-label="Menu" onClick={() => setNavOpen(true)} className="text-[var(--cz-header-text)] shrink-0">
-              <HamburgerIcon size={28} />
+        {/* Mobile / Tablet Header Layout */}
+        <div className="flex md:hidden items-center justify-between gap-2 py-1">
+          <div className="flex items-center gap-2 shrink-0">
+            <button type="button" aria-label="Menu" onClick={() => setNavOpen(true)} className="text-[var(--cz-header-text)] p-1 shrink-0">
+              <HamburgerIcon size={24} />
             </button>
-            <Link to="/" className="flex items-center min-w-0 py-3 px-2">
-              <Logo iconOnly variant="light" size={48} truncate textScale={0.35} />
+            <Link to="/" className="flex items-center shrink-0">
+              <Logo iconOnly variant="light" size={40} textScale={0.32} />
             </Link>
           </div>
 
-          <div className="flex items-center gap-4 shrink-0">
+          <div className="flex items-center gap-3 shrink-0">
             <button
               type="button"
               aria-label="Search"
               onClick={() => setMobileSearchOpen((v) => !v)}
-              className="text-[var(--cz-header-text)]"
+              className="text-[var(--cz-header-text)] p-1"
             >
-              <SearchIcon size={28} />
+              <SearchIcon size={24} />
             </button>
 
-            <Link to={user ? '/account' : '/signin'} aria-label="Account" className="flex items-center text-[var(--cz-header-text)]">
-              <AccountIcon size={28} />
+            <Link to={user ? '/account' : '/signin'} aria-label="Account" className="flex items-center text-[var(--cz-header-text)] p-1">
+              <AccountIcon size={24} />
               <span className="sr-only">Account</span>
             </Link>
 
@@ -461,10 +463,10 @@ export default function Header() {
               type="button"
               aria-label="Wishlist"
               onClick={openWishlist}
-              className="relative flex items-center text-[var(--cz-header-text)]"
+              className="relative flex items-center text-[var(--cz-header-text)] p-1"
             >
-              <HeartIcon size={28} />
-              <span className="absolute -top-[5px] -right-[5px] min-w-[17px] h-[17px] flex items-center justify-center rounded-full bg-cz-primary text-white text-[11px] font-bold leading-none">
+              <HeartIcon size={24} />
+              <span className="absolute -top-[3px] -right-[3px] min-w-[16px] h-[16px] flex items-center justify-center rounded-full bg-cz-primary text-white text-[10px] font-bold leading-none">
                 {wishlistCount}
               </span>
             </button>
@@ -473,20 +475,20 @@ export default function Header() {
               type="button"
               aria-label="Cart"
               onClick={openCart}
-              className="relative flex items-center text-[var(--cz-header-text)]"
+              className="relative flex items-center text-[var(--cz-header-text)] p-1"
             >
-              <CartIcon size={28} />
-              <span className="absolute -top-[5px] -right-[5px] min-w-[17px] h-[17px] flex items-center justify-center rounded-full bg-cz-primary text-white text-[11px] font-bold leading-none">
+              <CartIcon size={24} />
+              <span className="absolute -top-[3px] -right-[3px] min-w-[16px] h-[16px] flex items-center justify-center rounded-full bg-cz-primary text-white text-[10px] font-bold leading-none">
                 {cartCount}
               </span>
             </button>
 
-            <CurrencySwitcher size={18} showLabel={false} />
+            <CurrencySwitcher size={16} showLabel={false} />
           </div>
         </div>
 
         {mobileSearchOpen && (
-          <div className="md:hidden mt-3">
+          <div className="md:hidden pt-2 pb-1">
             <SearchBar />
           </div>
         )}
