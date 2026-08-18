@@ -60,6 +60,10 @@ useSiteSettingsStore.subscribe((state, prevState) => {
 
 export function useSiteSettings() {
   const state = useSiteSettingsStore()
-  const logoUrl = state.logo ? resolveImageUrl(state.logo) : null
+  const resolvedLogo = state.logo ? resolveImageUrl(state.logo) : null
+  if (resolvedLogo && typeof window !== 'undefined') {
+    try { localStorage.setItem('itsolutions_cached_logo', resolvedLogo) } catch {}
+  }
+  const logoUrl = resolvedLogo || (typeof window !== 'undefined' ? localStorage.getItem('itsolutions_cached_logo') : null)
   return { ...state, logoUrl }
 }

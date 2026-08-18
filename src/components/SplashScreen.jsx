@@ -16,15 +16,19 @@ export default function SplashScreen() {
 
   const [firstPart, secondPart] = splitBrandName(siteName)
 
+  // Synchronously fetch cached logo URL if store state is initializing
+  const cachedLogo = typeof window !== 'undefined' ? localStorage.getItem('itsolutions_cached_logo') : null
+  const activeLogo = logoUrl || cachedLogo
+
   useEffect(() => {
-    // Show splash on fresh page load or reload
+    // Show splash for exactly 1.0s, then fade out
     const timer1 = setTimeout(() => {
       setIsFadingOut(true)
-    }, 1000) // 1.0s display duration
+    }, 1000)
 
     const timer2 = setTimeout(() => {
       setIsVisible(false)
-    }, 1350) // 350ms fade-out transition duration
+    }, 1350)
 
     return () => {
       clearTimeout(timer1)
@@ -44,40 +48,30 @@ export default function SplashScreen() {
       }}
     >
       {/* Background Ambient Radial Glow */}
-      <div className="absolute w-[320px] h-[320px] rounded-full bg-[#38bdf8]/15 blur-3xl animate-pulse" />
+      <div className="absolute w-[340px] h-[340px] rounded-full bg-[#38bdf8]/15 blur-3xl animate-pulse" />
 
       {/* Main Logo Container */}
       <div className="relative z-10 flex flex-col items-center justify-center text-center px-4">
-        {/* Sleek Animated Brand Mark Container (No Flicker / No Box Shift) */}
-        <div className="relative mb-6 transform transition-transform duration-700 animate-bounce-subtle flex items-center justify-center min-h-[80px]">
+        {/* Instant Logo Render (0ms Delay - No Globe Swap / No Icon Flash) */}
+        <div className="relative mb-6 transform transition-transform duration-700 animate-bounce-subtle flex items-center justify-center min-h-[90px]">
           <div className="absolute -inset-4 bg-gradient-to-r from-[#0891b2] via-[#38bdf8] to-[#0c4a6e] rounded-full blur-lg opacity-60 animate-pulse" />
 
-          {logoUrl ? (
+          {activeLogo ? (
             <img
-              src={logoUrl}
+              src={activeLogo}
               alt={siteName || 'IT SOLUTIONS'}
-              className="relative h-20 md:h-24 w-auto object-contain drop-shadow-[0_0_25px_rgba(56,189,248,0.75)] transition-opacity duration-300"
+              className="relative h-20 md:h-24 w-auto object-contain drop-shadow-[0_0_25px_rgba(56,189,248,0.8)]"
             />
           ) : (
-            <div className="relative flex items-center justify-center p-2">
-              <svg
-                className="w-16 h-16 md:w-20 md:h-20 text-[#38bdf8] drop-shadow-[0_0_20px_rgba(56,189,248,0.8)]"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" />
-                <path d="M2 12h20" stroke="currentColor" strokeWidth="1.2" />
-                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10z" stroke="currentColor" strokeWidth="1.2" />
-              </svg>
+            <div className="relative px-5 py-2.5 rounded-2xl bg-gradient-to-r from-[#0c4a6e] via-[#0891b2] to-[#04101b] border-2 border-[#38bdf8]/50 shadow-[0_0_30px_rgba(56,189,248,0.5)]">
+              <span className="font-heading font-black text-3xl md:text-4xl text-white tracking-wider">
+                IT<span className="text-[#38bdf8] ml-1">SOLUTIONS</span>
+              </span>
             </div>
           )}
         </div>
 
-        {/* Brand Name Typography - Instant Render (0ms) */}
+        {/* Brand Name Typography */}
         <div className="flex items-center gap-2.5 font-heading font-extrabold text-3xl md:text-5xl tracking-tight mb-2">
           <span className="text-white drop-shadow-[0_0_12px_rgba(255,255,255,0.4)]">
             {firstPart}
