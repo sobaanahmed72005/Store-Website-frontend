@@ -4,6 +4,7 @@ import { useSiteSettingsStore } from './store/siteSettingsStore'
 import { useBootstrapStores } from './store/bootstrap'
 import { ADMIN_PATH } from './config/adminPath'
 import ScrollToTop from './components/ScrollToTop'
+import PwaInstallPrompt from './components/PwaInstallPrompt'
 import Home from './pages/Home'
 import Product from './pages/Product'
 import Products from './pages/Products'
@@ -99,6 +100,7 @@ function App() {
   return (
     <>
       <ScrollToTop />
+      <PwaInstallPrompt />
       <Suspense fallback={<PageLoading />}>
       <Routes>
       <Route path="/" element={<Home />} />
