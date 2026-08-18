@@ -67,6 +67,18 @@ export default function ProductCard({
   const actuallyInStock = stock != null ? stock > 0 : inStock
   const productHref = slug ? `/product/${slug}` : href || '/shop'
 
+  const [isAdding, setIsAdding] = useState(false)
+
+  const handleAddToCart = async () => {
+    if (isAdding || !actuallyInStock) return
+    setIsAdding(true)
+    try {
+      addToCart({ id: wishlistId, title, image, price: pkrPrice, slug })
+    } finally {
+      setTimeout(() => setIsAdding(false), 250)
+    }
+  }
+
   const handleWishlistClick = async () => {
     if (!user) {
       navigate('/signin', { state: { from: window.location.pathname } })
@@ -174,15 +186,27 @@ export default function ProductCard({
           ) : (
             <button
               type="button"
-              disabled={!actuallyInStock}
-              onClick={() => addToCart({ id: wishlistId, title, image, price: pkrPrice, slug })}
-              className={`w-full rounded-full text-[13px] font-bold py-2.5 transition-all duration-200 shadow-md ${
+              disabled={!actuallyInStock || isAdding}
+              onClick={handleAddToCart}
+              className={`w-full flex items-center justify-center gap-2 rounded-full text-[13px] font-bold py-2.5 transition-all duration-200 shadow-md ${
                 actuallyInStock
                   ? 'bg-cz-primary text-white hover:bg-cz-primary-hover hover:-translate-y-[1px] cursor-pointer hover:shadow-cyan-500/25'
                   : 'bg-slate-200 text-slate-400 cursor-not-allowed'
               }`}
             >
-              {actuallyInStock ? 'Add To Cart' : 'Out Of Stock'}
+              {isAdding ? (
+                <>
+                  <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  <span>Adding...</span>
+                </>
+              ) : actuallyInStock ? (
+                'Add To Cart'
+              ) : (
+                'Out Of Stock'
+              )}
             </button>
           )}
         </div>
