@@ -48,6 +48,69 @@ function ProductSection({ heading, seeAllHref, products }) {
   )
 }
 
+/**
+ * Reorganizes products so that every sub-category of every main category is represented
+ * at the top of the homepage grid in a balanced round-robin fashion.
+ */
+function diversifyProductsBySubCategory(products) {
+  if (!Array.isArray(products) || products.length === 0) return []
+
+  // 1. Group products by their subcategory (category_id)
+  const subCatMap = new Map()
+  for (const product of products) {
+    const subKey = product.category_id || product.category_name || 'uncategorized'
+    if (!subCatMap.has(subKey)) {
+      subCatMap.set(subKey, {
+        parentId: product.category_parent_id || subKey,
+        subKey,
+        items: [],
+      })
+    }
+    subCatMap.get(subKey).items.push(product)
+  }
+
+  // 2. Group subcategories by their parent category
+  const parentMap = new Map()
+  for (const subGroup of subCatMap.values()) {
+    const pId = subGroup.parentId
+    if (!parentMap.has(pId)) {
+      parentMap.set(pId, [])
+    }
+    parentMap.get(pId).push(subGroup)
+  }
+
+  const parentGroups = Array.from(parentMap.values())
+  const result = []
+
+  let hasMore = true
+  let round = 0
+
+  // 3. Interleave across parent categories & subcategories
+  while (hasMore && round < 100) {
+    hasMore = false
+    for (const subGroups of parentGroups) {
+      // Find a subcategory under this parent that still has items for this round
+      for (const subGroup of subGroups) {
+        if (subGroup.items.length > 0) {
+          result.push(subGroup.items.shift())
+          hasMore = true
+          break // Move to next parent category to maintain alternating variety
+        }
+      }
+    }
+    round++
+  }
+
+  // Append any remaining products
+  for (const subGroup of subCatMap.values()) {
+    if (subGroup.items.length > 0) {
+      result.push(...subGroup.items)
+    }
+  }
+
+  return result
+}
+
 export default function Home() {
   const [featured, setFeatured] = useState([])
   const [newArrivals, setNewArrivals] = useState([])
@@ -55,11 +118,19 @@ export default function Home() {
   const { siteName, logoUrl } = useSiteSettings()
 
   useEffect(() => {
-    // GET /products now returns { products, page, limit, total, totalPages } instead of a bare
-    // array — these homepage teaser sections only ever show the first page's worth anyway.
-    api.get(ENDPOINTS.PRODUCTS.LIST('?featured=1')).then((data) => setFeatured(data.products)).catch(() => setFeatured([]))
-    api.get(ENDPOINTS.PRODUCTS.LIST('?new_arrival=1')).then((data) => setNewArrivals(data.products)).catch(() => setNewArrivals([]))
-    api.get(ENDPOINTS.PRODUCTS.LIST('?on_sale=1')).then((data) => setOnSale(data.products)).catch(() => setOnSale([]))
+    // Fetch limit=100 to get products across all subcategories, then interleave
+    // round-robin so at least one product from EVERY subcategory appears at the top.
+    api.get(ENDPOINTS.PRODUCTS.LIST('?limit=100'))
+      .then((data) => setFeatured(diversifyProductsBySubCategory(data.products || [])))
+      .catch(() => setFeatured([]))
+
+    api.get(ENDPOINTS.PRODUCTS.LIST('?new_arrival=1&limit=50'))
+      .then((data) => setNewArrivals(diversifyProductsBySubCategory(data.products || [])))
+      .catch(() => setNewArrivals([]))
+
+    api.get(ENDPOINTS.PRODUCTS.LIST('?on_sale=1&limit=50'))
+      .then((data) => setOnSale(diversifyProductsBySubCategory(data.products || [])))
+      .catch(() => setOnSale([]))
   }, [])
 
   const origin = window.location.origin
