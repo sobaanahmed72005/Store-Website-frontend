@@ -33,13 +33,15 @@ function SectionHeading({ heading, seeAllHref }) {
   )
 }
 
-function ProductSection({ heading, seeAllHref, products }) {
-  if (products.length === 0) return null
+function ProductSection({ heading, seeAllHref, products, loading }) {
+  if (!loading && products.length === 0) return null
   return (
     <section className="mx-auto px-5 pt-[30px] pb-0 md:pb-[30px]">
       <SectionHeading heading={heading} seeAllHref={seeAllHref} />
       <ProductGrid
         products={products}
+        loading={loading}
+        skeletonCount={5}
         seeAllHref={seeAllHref}
         seeAllTitle={heading}
         className="grid grid-cols-2 md:grid-cols-5 gap-6"

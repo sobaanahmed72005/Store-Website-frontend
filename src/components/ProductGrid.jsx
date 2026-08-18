@@ -1,14 +1,25 @@
 import { Link } from 'react-router-dom'
 import ProductCard from './ProductCard'
+import ProductSkeleton from './skeletons/ProductSkeleton'
 import { resolveImageUrl } from '../api/client'
 import { getEffectivePrice } from '../utils/pricing'
 
 export default function ProductGrid({
-  products,
+  products = [],
+  loading = false,
+  skeletonCount = 8,
   className = 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6',
   seeAllHref,
   seeAllTitle,
 }) {
+  if (loading) {
+    return (
+      <div className={className}>
+        <ProductSkeleton count={skeletonCount} />
+      </div>
+    )
+  }
+
   return (
     <div className={className}>
       {products.map((p) => (

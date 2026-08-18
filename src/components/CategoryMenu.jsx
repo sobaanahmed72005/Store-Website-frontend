@@ -4,6 +4,7 @@ import { ChevronDownIcon } from './icons'
 import { useCategories } from '../store/categoryStore'
 import { useNavItems } from '../hooks/useNavItems'
 import { categorySlugToPath } from '../utils/categoryPath'
+import { prefetchCategory } from '../utils/routePrefetch'
 
 function MegaMenuPanel({ item, isOpen }) {
   const { navCategories } = useCategories()
@@ -32,15 +33,20 @@ function MegaMenuPanel({ item, isOpen }) {
           isWide ? 'grid grid-cols-3 gap-x-8 gap-y-1 w-[640px]' : 'flex flex-col gap-1 min-w-[220px]'
         }`}
       >
-        {links.map((link) => (
-          <Link
-            key={link.label}
-            to={link.to}
-            className="text-[13px] text-[#353535] whitespace-nowrap py-1 hover:text-cz-primary hover:underline"
-          >
-            {link.label}
-          </Link>
-        ))}
+        {links.map((link) => {
+          const slug = link.to.replace('/category/', '').replace('/', '')
+          return (
+            <Link
+              key={link.label}
+              to={link.to}
+              onMouseEnter={() => prefetchCategory(slug)}
+              onTouchStart={() => prefetchCategory(slug)}
+              className="text-[13px] text-[#353535] whitespace-nowrap py-1 hover:text-cz-primary hover:underline"
+            >
+              {link.label}
+            </Link>
+          )
+        })}
       </div>
     </div>
   )

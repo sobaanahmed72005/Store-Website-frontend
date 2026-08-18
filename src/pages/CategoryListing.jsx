@@ -192,7 +192,12 @@ export default function CategoryListing() {
             </div>
 
             {loadingProducts ? (
-              <div className="text-[14px] text-[#4b4b4b] py-20 text-center">Loading products...</div>
+              <ProductGrid
+                products={[]}
+                loading={true}
+                skeletonCount={8}
+                className={view === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6' : 'grid grid-cols-1 gap-6'}
+              />
             ) : products.length === 0 ? (
               <div className="flex flex-col items-center justify-center text-center py-20 border border-[#dedede] rounded-[10px]">
                 {hasActiveFilters ? (

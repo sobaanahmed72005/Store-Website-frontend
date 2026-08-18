@@ -147,7 +147,7 @@ export default function Shop() {
             </div>
 
             {loading ? (
-              <div className="text-[14px] text-[#4b4b4b] py-20 text-center">Loading products...</div>
+              <ProductGrid products={[]} loading={true} skeletonCount={12} className={view === 'grid' ? GRID_VIEW_CLASS : LIST_VIEW_CLASS} />
             ) : products.length === 0 ? (
               <div className="flex flex-col items-center justify-center text-center py-20 border border-[#dedede] rounded-[10px] mb-10">
                 {selectedBrands.size > 0 ? (
