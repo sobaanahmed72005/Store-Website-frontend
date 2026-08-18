@@ -3,20 +3,18 @@ import { useSiteSettings } from '../store/siteSettingsStore'
 
 // Helper to split store name into styled parts (e.g. "IT" "SOLUTIONS")
 function splitBrandName(name) {
-  if (!name) return ['IT', 'SOLUTIONS']
-  const spaceIndex = name.indexOf(' ')
-  if (spaceIndex > 0) return [name.slice(0, spaceIndex), name.slice(spaceIndex + 1)]
-  return [name, '']
+  const brandName = name || 'IT SOLUTIONS'
+  const spaceIndex = brandName.indexOf(' ')
+  if (spaceIndex > 0) return [brandName.slice(0, spaceIndex), brandName.slice(spaceIndex + 1)]
+  return [brandName, '']
 }
 
 export default function SplashScreen() {
   const [isVisible, setIsVisible] = useState(true)
   const [isFadingOut, setIsFadingOut] = useState(false)
-  const [imgFailed, setImgFailed] = useState(false)
   const { siteName, logoUrl } = useSiteSettings()
 
   const [firstPart, secondPart] = splitBrandName(siteName)
-  const logoImageSource = logoUrl || '/logo-new.png'
 
   useEffect(() => {
     // Show splash on fresh page load or reload
@@ -50,20 +48,21 @@ export default function SplashScreen() {
 
       {/* Main Logo Container */}
       <div className="relative z-10 flex flex-col items-center justify-center text-center px-4">
-        {/* Dynamic Logo Image or Brand Icon Mark */}
+        {/* Dynamic Uploaded Logo or Current Sleek IT Emblem */}
         <div className="relative mb-5 transform transition-transform duration-700 animate-bounce-subtle flex items-center justify-center">
-          <div className="absolute -inset-3 bg-gradient-to-r from-[#0891b2] via-[#38bdf8] to-[#bf9a33] rounded-full blur-md opacity-70 animate-pulse" />
+          <div className="absolute -inset-3 bg-gradient-to-r from-[#0891b2] via-[#38bdf8] to-[#0c4a6e] rounded-full blur-md opacity-70 animate-pulse" />
 
-          {!imgFailed ? (
+          {logoUrl ? (
             <img
-              src={logoImageSource}
+              src={logoUrl}
               alt={siteName || 'IT SOLUTIONS'}
-              onError={() => setImgFailed(true)}
               className="relative h-20 md:h-24 w-auto object-contain drop-shadow-[0_0_20px_rgba(56,189,248,0.7)]"
             />
           ) : (
-            <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-[#0c4a6e] to-[#030b13] border border-[#38bdf8]/40 flex items-center justify-center text-[#38bdf8] font-extrabold text-2xl md:text-3xl shadow-[0_0_20px_rgba(56,189,248,0.5)]">
-              IT
+            <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-[#0c4a6e] via-[#0891b2] to-[#04101b] border-2 border-[#38bdf8]/50 flex items-center justify-center shadow-[0_0_25px_rgba(56,189,248,0.6)]">
+              <span className="font-heading font-black text-3xl md:text-4xl text-white tracking-tighter drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">
+                IT
+              </span>
             </div>
           )}
         </div>
@@ -88,7 +87,7 @@ export default function SplashScreen() {
         {/* Shimmer Progress Line */}
         <div className="w-36 md:w-48 h-[3px] bg-[#1e293b] rounded-full overflow-hidden relative">
           <div
-            className="h-full bg-gradient-to-r from-[#0891b2] via-[#38bdf8] to-[#bf9a33] rounded-full"
+            className="h-full bg-gradient-to-r from-[#0891b2] via-[#38bdf8] to-[#0c4a6e] rounded-full"
             style={{
               animation: 'splashProgress 1.0s ease-in-out forwards',
             }}
