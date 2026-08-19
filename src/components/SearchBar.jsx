@@ -110,7 +110,7 @@ export default function SearchBar({ placeholder = 'What are you looking for?' })
       </form>
 
       {open && suggestions.length > 0 && (
-        <div className="absolute left-0 right-0 top-full mt-2 bg-white border border-[#dedede] rounded-[14px] shadow-lg z-[60] overflow-hidden">
+        <div className="absolute left-0 right-0 top-full mt-2 bg-white border border-[#dedede] rounded-[14px] shadow-2xl z-[300] overflow-hidden">
           {suggestions.map((p, i) => {
             const { price, oldPrice } = getEffectivePrice(p)
             return (

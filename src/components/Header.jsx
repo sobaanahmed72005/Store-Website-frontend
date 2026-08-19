@@ -383,7 +383,7 @@ export default function Header() {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
 
   return (
-    <div className="bg-cz-header text-[var(--cz-header-text)] py-2.5">
+    <div className="bg-cz-header text-[var(--cz-header-text)] py-2.5 relative z-[200]">
       <div className="mx-auto px-5">
         {/* Desktop Header Layout */}
         <div className="hidden md:flex items-center justify-between gap-4 py-2">
