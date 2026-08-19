@@ -256,8 +256,8 @@ export default function Account() {
     api
       .get(ENDPOINTS.ORDERS.BY_USER(user.id, `?page=${ordersPage}`), { auth: true })
       .then((data) => {
-        setOrders(Array.isArray(data?.orders) ? data.orders : [])
-        setOrdersTotalPages(data?.totalPages || 1)
+        setOrders(data.orders)
+        setOrdersTotalPages(data.totalPages)
       })
       .catch(() => setOrders([]))
       .finally(() => setLoading(false))

@@ -59,12 +59,11 @@ function NavDrawer({ open, onClose }) {
         <ul className="flex flex-col px-6 py-4 gap-2 overflow-y-auto">
           {categoryItems.map((item) => {
             let subLinks = []
-            const safeNavCategories = Array.isArray(navCategories) ? navCategories : []
             if (item.label === 'Products') {
-              subLinks = [...safeNavCategories]
-                .sort((a, b) => (a?.sort_order || 0) - (b?.sort_order || 0) || (a?.name || '').localeCompare(b?.name || ''))
+              subLinks = [...navCategories]
+                .sort((a, b) => a.sort_order - b.sort_order || a.name.localeCompare(b.name))
                 .map((cat) => ({ label: cat.name, to: categorySlugToPath(cat.slug) }))
-            } else if (Array.isArray(item.subcategories)) {
+            } else if (item.subcategories) {
               subLinks = item.subcategories.map((sub) => ({ label: sub.name, to: categorySlugToPath(sub.slug) }))
             }
 
@@ -77,14 +76,14 @@ function NavDrawer({ open, onClose }) {
                     <Link
                       to={item.to}
                       onClick={onClose}
-                      className="text-[15px] font-semibold text-[#1e293b] hover:text-cz-primary transition-colors flex-1 bg-transparent border-none outline-none select-none"
+                      className="text-[15px] font-semibold text-[#1e293b] hover:text-cz-primary transition-colors flex-1"
                     >
                       {item.label}
                     </Link>
                   ) : (
                     <span
                       onClick={(e) => item.hasDropdown && toggleExpand(item.label, e)}
-                      className="text-[15px] font-semibold text-[#1e293b] flex-1 cursor-pointer bg-transparent border-none outline-none select-none"
+                      className="text-[15px] font-semibold text-[#1e293b] flex-1 cursor-pointer"
                     >
                       {item.label}
                     </span>

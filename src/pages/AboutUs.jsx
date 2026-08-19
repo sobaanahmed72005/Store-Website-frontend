@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
@@ -17,101 +18,64 @@ const DEFAULT_CONTENT = {
 }
 
 export default function AboutUs() {
-  const { siteName, brand } = useSiteSettings()
+  const { siteName } = useSiteSettings()
   const [content, setContent] = useState(DEFAULT_CONTENT)
 
   useEffect(() => {
     api
       .get(ENDPOINTS.CONTENT.ABOUT_US)
-      .then((data) => {
-        if (!data || typeof data !== 'object') return
-        setContent({
-          paragraphs: Array.isArray(data.paragraphs) ? data.paragraphs : [],
-          highlights: Array.isArray(data.highlights) ? data.highlights : [],
-          storeAddress: typeof data.storeAddress === 'string' ? data.storeAddress : '',
-          storeTimings: typeof data.storeTimings === 'string' ? data.storeTimings : '',
-        })
-      })
+      .then(setContent)
       .catch((err) => console.error('Failed to load /content/about-us content:', err))
   }, [])
 
-  // Clean fallback for store operating hours
-  const rawTimings = typeof content?.storeTimings === 'string' ? content.storeTimings.trim() : ''
-  const storeTimings =
-    rawTimings && !rawTimings.toLowerCase().includes('add your store')
-      ? rawTimings
-      : brand?.hours || 'Monday – Saturday: 11:00 AM – 8:00 PM | Sunday: Closed'
-
-  const safeParagraphs = Array.isArray(content?.paragraphs) ? content.paragraphs : []
-  const safeHighlights = Array.isArray(content?.highlights) ? content.highlights : []
-
   useSeo({
-    title: `About ${siteName || 'IT Solutions'} — Our Story & Store Details`,
-    description: safeParagraphs[0]?.slice(0, 155) || `Learn more about ${siteName || 'IT Solutions'}.`,
+    title: `About ${siteName || 'IT Solutions'} — Our Story and Store Information`,
+    description: content.paragraphs?.[0]?.slice(0, 155) || `Learn more about ${siteName || 'IT Solutions'} — who we are and what we stand for.`,
     canonical: `${window.location.origin}/about-us`,
     keywords: `about ${siteName || 'IT Solutions'}, computer store Pakistan, laptop store Pakistan`,
     publisher: siteName || 'IT Solutions',
   })
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans">
+    <div className="min-h-screen bg-cz-page flex flex-col">
       <Navbar />
       <Header />
       <CategoryMenu />
 
-      <main className="max-w-[1000px] w-full mx-auto px-4 sm:px-5 py-6 sm:py-8 flex-1">
-        {/* Left-Aligned Title Heading */}
-        <div className="mb-5 sm:mb-6">
-          <h1 className="text-[24px] sm:text-[30px] font-bold text-[#0c4a6e] font-heading tracking-tight">
-            About Us
-          </h1>
+      <div className="w-full mx-auto px-5 py-5">
+        <section className="flex flex-col items-start mb-4">
+          <h1 className="text-[24px] font-medium text-[#353535]">About Us</h1>
           <SeoHeadingFiller h4="Why choose us" h5="Store details" h6="Get in touch" />
-        </div>
+          <div className="flex items-center gap-2 my-[10px] text-[14px]">
+            <span className="opacity-70">
+              <Link to="/">Home</Link>
+            </span>
+            <span className="opacity-70">/</span>
+            <span>About Us</span>
+          </div>
+        </section>
 
-        {/* Intro Paragraphs Card */}
-        {safeParagraphs.length > 0 && (
-          <section className="w-full bg-white rounded-xl p-5 sm:p-7 border border-slate-100 shadow-sm mb-6 flex flex-col gap-4 text-[14px] sm:text-[15px] text-slate-700 leading-relaxed font-normal">
-            {safeParagraphs.map((para, i) => (
-              <p key={i}>{para}</p>
-            ))}
-          </section>
-        )}
+        <section className="max-w-[800px] text-[14px] text-[#4b4b4b] leading-relaxed flex flex-col gap-4 mb-10">
+          {content.paragraphs.map((para, i) => (
+            <p key={i}>{para}</p>
+          ))}
+        </section>
 
-        {/* Highlights Cards (2x2 Grid on Mobile, 4 Columns on Desktop) */}
-        {safeHighlights.length > 0 && (
-          <section className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 mb-6">
-            {safeHighlights.map((item, idx) => (
-              <div
-                key={idx}
-                className="bg-white rounded-xl p-3.5 sm:p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all relative overflow-hidden group min-w-0 flex flex-col justify-between"
-              >
-                <div className="absolute top-0 left-0 bottom-0 w-1 bg-gradient-to-b from-[#0891b2] to-[#38bdf8] opacity-80 group-hover:w-1.5 transition-all" />
-                <div className="pl-1">
-                  <h3 className="text-[12px] sm:text-[15px] font-bold text-slate-800 font-heading mb-1 sm:mb-1.5 leading-snug">
-                    {item?.title || ''}
-                  </h3>
-                  <p className="text-[11px] sm:text-[13px] text-slate-500 leading-relaxed">{item?.description || ''}</p>
-                </div>
-              </div>
-            ))}
-          </section>
-        )}
-
-        {/* Store Operating Hours Card */}
-        {storeTimings && (
-          <section className="w-full bg-gradient-to-r from-[#0c4a6e] to-[#0b658a] text-white rounded-xl p-5 sm:p-6 shadow-md flex items-center gap-4 relative overflow-hidden">
-            <div className="w-10 h-10 rounded-lg bg-white/10 text-cz-sky flex items-center justify-center text-xl shrink-0 border border-white/10">
-              🕒
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
+          {content.highlights.map((item) => (
+            <div key={item.title} className="rounded-[10px] border border-[#dedede] p-5">
+              <h3 className="text-[16px] font-semibold text-[#212121] mb-2">{item.title}</h3>
+              <p className="text-[13px] text-[#4b4b4b] leading-relaxed">{item.description}</p>
             </div>
-            <div>
-              <h3 className="text-[15px] sm:text-[16px] font-bold text-white font-heading mb-0.5">
-                Store Operating Hours
-              </h3>
-              <p className="text-[13px] text-slate-200">{storeTimings}</p>
-            </div>
-          </section>
-        )}
-      </main>
+          ))}
+        </section>
+
+        <section className="rounded-[10px] bg-cz-gold-light p-5 text-[14px] text-[#4b4b4b]">
+          <h2 className="text-[18px] font-semibold text-[#212121] mb-2">Visit Our Store</h2>
+          <p>{content.storeAddress}</p>
+          <p className="mt-1">Store Timings: {content.storeTimings}</p>
+        </section>
+      </div>
 
       <Footer />
     </div>

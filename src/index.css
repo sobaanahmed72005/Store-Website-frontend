@@ -51,16 +51,6 @@
   --cz-nav-text: #ffffff;
 }
 
-/* Disable native mobile tap highlight overlay & browser mark backgrounds */
-* {
-  -webkit-tap-highlight-color: transparent;
-}
-
-mark {
-  background-color: transparent;
-  color: inherit;
-}
-
 /* Hide scrollbar utility */
 .no-scrollbar::-webkit-scrollbar {
   display: none;

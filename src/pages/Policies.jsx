@@ -11,38 +11,23 @@ import { useSiteSettings } from '../store/siteSettingsStore'
 import SeoHeadingFiller from '../components/SeoHeadingFiller'
 
 const DEFAULT_CONTENT = {
-  pageTitle: 'Return & Exchange Policy',
+  pageTitle: '',
   sections: [],
 }
 
-const TOPIC_BADGES = [
-  { icon: '⚡', title: '7-Day Easy Returns', desc: 'Hassle-free return window' },
-  { icon: '🛡️', title: '100% Brand Warranty', desc: 'Official manufacturer cover' },
-  { icon: '🚚', title: 'Fast Replacements', desc: 'Quick exchange dispatch' },
-]
-
 export default function Policies() {
-  const { siteName, sitePhone } = useSiteSettings()
+  const { siteName } = useSiteSettings()
   const [content, setContent] = useState(DEFAULT_CONTENT)
 
   useEffect(() => {
     api
       .get(ENDPOINTS.CONTENT.POLICIES)
-      .then((data) => {
-        if (!data || typeof data !== 'object') return
-        setContent({
-          pageTitle: data.pageTitle || 'Return & Exchange Policy',
-          sections: Array.isArray(data.sections) ? data.sections : [],
-        })
-      })
+      .then(setContent)
       .catch((err) => console.error('Failed to load /content/policies content:', err))
   }, [])
 
-  const title = content?.pageTitle || 'Return & Exchange Policy'
-  const safeSections = Array.isArray(content?.sections) ? content.sections : []
-
   useSeo({
-    title: `${title} — How It Works | ${siteName || 'IT Solutions'}`,
+    title: `Return & Exchange Policy — How It Works | ${siteName || 'IT Solutions'}`,
     description: `Read the return and exchange policy at ${siteName || 'IT Solutions'}.`,
     canonical: `${window.location.origin}/return-exchange`,
     keywords: `return policy, exchange policy, ${siteName || 'IT Solutions'} returns`,
@@ -50,99 +35,33 @@ export default function Policies() {
   })
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans">
+    <div className="min-h-screen bg-cz-page flex flex-col">
       <Navbar />
       <Header />
       <CategoryMenu />
 
-      <main className="max-w-[1000px] w-full mx-auto px-4 sm:px-5 py-6 sm:py-8 flex-1">
-        {/* Left-Aligned Title Heading */}
-        <div className="mb-5 sm:mb-6">
-          <h1 className="text-[24px] sm:text-[30px] font-bold text-[#0c4a6e] font-heading tracking-tight">
-            {title}
-          </h1>
+      <div className="w-full mx-auto px-5 py-5">
+        <section className="flex flex-col items-start mb-4">
+          <h1 className="text-[24px] font-medium text-[#353535]">{content.pageTitle}</h1>
           <SeoHeadingFiller h3="Policy details" h4="Eligibility" h5="Process" h6="Contact for help" />
-        </div>
+          <div className="flex items-center gap-2 my-[10px] text-[14px]">
+            <span className="opacity-70">
+              <Link to="/">Home</Link>
+            </span>
+            <span className="opacity-70">/</span>
+            <span>{content.pageTitle}</span>
+          </div>
+        </section>
 
-        {/* Quick Highlights Bar - STRICTLY Horizontal Side-by-Side Row on Mobile (3 Columns) */}
-        <div className="grid grid-cols-3 gap-1.5 sm:gap-4 mb-6">
-          {TOPIC_BADGES.map((b, idx) => (
-            <div
-              key={idx}
-              className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-1.5 sm:gap-3.5 bg-white p-2 sm:p-4 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all group min-w-0"
-            >
-              <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-lg bg-cz-sky/10 text-cz-primary flex items-center justify-center text-xs sm:text-lg shrink-0 group-hover:scale-105 transition-transform">
-                {b.icon}
-              </div>
-              <div className="min-w-0 w-full">
-                <h4 className="text-[10px] sm:text-[14px] font-semibold text-slate-800 leading-tight sm:leading-snug truncate">
-                  {b.title}
-                </h4>
-                <p className="text-[9px] sm:text-[12px] text-slate-500 leading-tight mt-0.5 hidden xs:block sm:block truncate">
-                  {b.desc}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Policy Cards Stream - Symmetrically Aligned */}
-        <section className="grid grid-cols-1 gap-4 mb-8">
-          {safeSections.map((section, i) => (
-            <div
-              key={i}
-              className="bg-white rounded-xl p-4 sm:p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all group relative overflow-hidden"
-            >
-              {/* Decorative Side Accent Bar */}
-              <div className="absolute top-0 left-0 bottom-0 w-1 bg-gradient-to-b from-[#0891b2] to-[#38bdf8] opacity-80 group-hover:w-1.5 transition-all" />
-
-              <div className="flex items-start gap-3 pl-1 sm:pl-2">
-                <span className="text-[12px] sm:text-[13px] font-bold text-[#0891b2] bg-[#f0f9ff] px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg shrink-0 border border-[#bae6fd]">
-                  {i < 9 ? `0${i + 1}` : i + 1}
-                </span>
-
-                <div className="flex-1 min-w-0">
-                  <h2 className="text-[15px] sm:text-[16px] font-bold text-slate-800 font-heading mb-1.5 pt-0.5">
-                    {section?.heading || ''}
-                  </h2>
-                  <p className="text-[13px] sm:text-[14px] text-slate-600 leading-relaxed font-normal whitespace-pre-line">
-                    {section?.body || ''}
-                  </p>
-                </div>
-              </div>
+        <section className="max-w-[800px] flex flex-col gap-6 pb-10">
+          {content.sections.map((section, i) => (
+            <div key={i}>
+              <h2 className="text-[16px] font-semibold text-[#212121] mb-1.5">{section.heading}</h2>
+              <p className="text-[14px] text-[#4b4b4b] leading-relaxed">{section.body}</p>
             </div>
           ))}
         </section>
-
-        {/* Support Contact Callout Banner */}
-        <div className="bg-gradient-to-r from-[#0c4a6e] to-[#0b658a] text-white rounded-xl p-5 sm:p-6 shadow-md flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-5 relative overflow-hidden">
-          <div className="relative z-10 text-center sm:text-left">
-            <h3 className="text-[17px] sm:text-[18px] font-bold text-white mb-1">Have Questions About Your Return?</h3>
-            <p className="text-[12px] sm:text-[13px] text-slate-200 max-w-md">
-              Our support team is here to assist you with instant order lookups, warranty claims, and exchange requests.
-            </p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 shrink-0 relative z-10 w-full sm:w-auto">
-            {sitePhone && (
-              <a
-                href={`https://wa.me/${sitePhone.replace(/[^0-9]/g, '')}`}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-[#25D366] hover:bg-[#20bd5a] text-white text-[13px] font-semibold shadow hover:scale-105 transition-all text-center"
-              >
-                <span>WhatsApp Support</span>
-              </a>
-            )}
-            <Link
-              to="/contact"
-              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white text-cz-primary hover:bg-cz-sky hover:text-white text-[13px] font-semibold shadow hover:scale-105 transition-all text-center"
-            >
-              <span>Contact Us</span>
-            </Link>
-          </div>
-        </div>
-      </main>
+      </div>
 
       <Footer />
     </div>

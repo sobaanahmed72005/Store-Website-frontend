@@ -10,22 +10,13 @@ export default function PwaInstallPrompt() {
     const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches
     if (isStandalone) return
 
-    // Check if prompt has already been shown/dismissed in local storage (shows ONLY once ever)
-    const hasBeenShown =
-      localStorage.getItem('pwa_prompt_shown') === 'true' ||
-      localStorage.getItem('pwa_prompt_dismissed') === 'true' ||
-      sessionStorage.getItem('pwa_prompt_dismissed') === 'true'
-
-    if (hasBeenShown) return
-
     // Detect iOS
     const userAgent = window.navigator.userAgent.toLowerCase()
     const iosDevice = /iphone|ipad|ipod/.test(userAgent) && !window.MSStream
     if (iosDevice) setIsIos(true)
 
-    // Show banner on first open only, and immediately mark as shown so reloads won't trigger it again
+    // Show banner immediately on load!
     setIsVisible(true)
-    localStorage.setItem('pwa_prompt_shown', 'true')
 
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault()
@@ -53,7 +44,6 @@ export default function PwaInstallPrompt() {
 
   const handleDismiss = () => {
     setIsVisible(false)
-    localStorage.setItem('pwa_prompt_dismissed', 'true')
     sessionStorage.setItem('pwa_prompt_dismissed', 'true')
   }
 

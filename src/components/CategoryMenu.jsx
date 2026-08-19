@@ -8,13 +8,12 @@ import { prefetchCategory } from '../utils/routePrefetch'
 
 function MegaMenuPanel({ item, isOpen, leftPos }) {
   const { navCategories } = useCategories()
-  const safeCategories = Array.isArray(navCategories) ? navCategories : []
   let links
   if (item.label === 'Products') {
-    links = [...safeCategories]
-      .sort((a, b) => (a?.sort_order || 0) - (b?.sort_order || 0) || (a?.name || '').localeCompare(b?.name || ''))
+    links = [...navCategories]
+      .sort((a, b) => a.sort_order - b.sort_order || a.name.localeCompare(b.name))
       .map((cat) => ({ label: cat.name, to: categorySlugToPath(cat.slug) }))
-  } else if (Array.isArray(item.subcategories)) {
+  } else if (item.subcategories) {
     links = item.subcategories.map((sub) => ({ label: sub.name, to: categorySlugToPath(sub.slug) }))
   }
   if (!links || links.length === 0) return null
