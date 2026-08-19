@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 function upsertMeta(attr, key, content) {
   let el = document.querySelector(`meta[${attr}="${key}"]`)
   if (!content) {
-    if (el) el.remove()
+    if (el) el.setAttribute('content', '')
     return
   }
   if (!el) {
@@ -17,7 +17,7 @@ function upsertMeta(attr, key, content) {
 function upsertLink(rel, href) {
   let el = document.querySelector(`link[rel="${rel}"]`)
   if (!href) {
-    if (el) el.remove()
+    if (el) el.setAttribute('href', '')
     return
   }
   if (!el) {
@@ -32,7 +32,7 @@ function upsertJsonLd(data) {
   const id = 'seo-jsonld'
   let el = document.getElementById(id)
   if (!data) {
-    if (el) el.remove()
+    if (el) el.textContent = ''
     return
   }
   if (!el) {
@@ -45,9 +45,7 @@ function upsertJsonLd(data) {
 }
 
 // Manages per-page <title>, meta description, canonical link, Open Graph/Twitter
-// tags, robots directive, and JSON-LD — the app has no server-side rendering, so
-// this all runs client-side on mount/update (Googlebot's second indexing wave
-// picks these up after JS execution).
+// tags, robots directive, and JSON-LD safely outside React's DOM reconciliation loop.
 export function useSeo({
   title,
   description,
@@ -59,19 +57,21 @@ export function useSeo({
   publisher,
 } = {}) {
   useEffect(() => {
-    if (title) document.title = title
-    upsertMeta('name', 'description', description)
-    upsertMeta('name', 'keywords', keywords)
-    upsertMeta('name', 'publisher', publisher)
-    upsertMeta('property', 'og:title', title)
-    upsertMeta('property', 'og:description', description)
-    upsertMeta('property', 'og:type', 'website')
-    upsertMeta('property', 'og:url', canonical)
-    upsertMeta('property', 'og:image', image)
-    upsertMeta('name', 'twitter:card', image ? 'summary_large_image' : 'summary')
-    upsertMeta('name', 'robots', noindex ? 'noindex, follow' : 'index, follow')
-    upsertLink('canonical', canonical)
-    upsertJsonLd(jsonLd)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const handle = requestAnimationFrame(() => {
+      if (title) document.title = title
+      upsertMeta('name', 'description', description)
+      upsertMeta('name', 'keywords', keywords)
+      upsertMeta('name', 'publisher', publisher)
+      upsertMeta('property', 'og:title', title)
+      upsertMeta('property', 'og:description', description)
+      upsertMeta('property', 'og:type', 'website')
+      upsertMeta('property', 'og:url', canonical)
+      upsertMeta('property', 'og:image', image)
+      upsertMeta('name', 'twitter:card', image ? 'summary_large_image' : 'summary')
+      upsertMeta('name', 'robots', noindex ? 'noindex, follow' : 'index, follow')
+      upsertLink('canonical', canonical)
+      upsertJsonLd(jsonLd)
+    })
+    return () => cancelAnimationFrame(handle)
   }, [title, description, canonical, image, noindex, keywords, publisher, JSON.stringify(jsonLd)])
 }
