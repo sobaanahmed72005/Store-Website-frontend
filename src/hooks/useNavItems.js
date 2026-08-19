@@ -7,21 +7,25 @@ import { categorySlugToPath } from '../utils/categoryPath'
 // Refresh only reliably fast-reloads files that export solely components.
 export function useNavItems() {
   const { navCategories } = useCategories()
+  const safeCategories = Array.isArray(navCategories) ? navCategories : []
 
   const fixedItems = [
     { label: 'Home', to: '/' },
     { label: 'Products', to: '/products', hasDropdown: true },
   ]
 
-  const dynamicItems = navCategories
+  const dynamicItems = safeCategories
     .slice()
-    .sort((a, b) => a.sort_order - b.sort_order || a.name.localeCompare(b.name))
-    .map((cat) => ({
-      label: cat.name,
-      to: categorySlugToPath(cat.slug),
-      hasDropdown: cat.subcategories && cat.subcategories.length > 0,
-      subcategories: cat.subcategories,
-    }))
+    .sort((a, b) => (a?.sort_order || 0) - (b?.sort_order || 0) || (a?.name || '').localeCompare(b?.name || ''))
+    .map((cat) => {
+      const subs = Array.isArray(cat?.subcategories) ? cat.subcategories : []
+      return {
+        label: cat?.name || '',
+        to: categorySlugToPath(cat?.slug || ''),
+        hasDropdown: subs.length > 0,
+        subcategories: subs,
+      }
+    })
 
   return [...fixedItems, ...dynamicItems]
 }

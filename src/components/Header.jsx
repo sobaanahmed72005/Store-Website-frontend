@@ -59,11 +59,12 @@ function NavDrawer({ open, onClose }) {
         <ul className="flex flex-col px-6 py-4 gap-2 overflow-y-auto">
           {categoryItems.map((item) => {
             let subLinks = []
+            const safeNavCategories = Array.isArray(navCategories) ? navCategories : []
             if (item.label === 'Products') {
-              subLinks = [...navCategories]
-                .sort((a, b) => a.sort_order - b.sort_order || a.name.localeCompare(b.name))
+              subLinks = [...safeNavCategories]
+                .sort((a, b) => (a?.sort_order || 0) - (b?.sort_order || 0) || (a?.name || '').localeCompare(b?.name || ''))
                 .map((cat) => ({ label: cat.name, to: categorySlugToPath(cat.slug) }))
-            } else if (item.subcategories) {
+            } else if (Array.isArray(item.subcategories)) {
               subLinks = item.subcategories.map((sub) => ({ label: sub.name, to: categorySlugToPath(sub.slug) }))
             }
 
