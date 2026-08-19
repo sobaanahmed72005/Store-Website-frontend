@@ -40,36 +40,38 @@ function ProfileSection() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-slate-100 p-5 sm:p-6 shadow-sm flex flex-col gap-4">
-      <h3 className="text-[16px] font-bold text-slate-800 font-heading">Profile Details</h3>
-      {error && <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-[13px] text-rose-700">{error}</div>}
-      {saved && <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-[13px] text-emerald-800">Profile saved successfully.</div>}
+    <form onSubmit={handleSubmit} className="rounded-[10px] border border-[#dedede] p-5 flex flex-col gap-3">
+      <h3 className="text-[15px] font-semibold text-[#212121]">Profile Details</h3>
+      {error && <div className="text-[13px] text-red-600">{error}</div>}
+      {saved && <div className="text-[13px] text-green-700">Saved.</div>}
       <div>
-        <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">Full Name</label>
+        <label className="block text-[13px] text-[#4b4b4b] mb-1">Name</label>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          className="w-full rounded-xl border border-slate-200 bg-slate-50/50 text-[14px] text-slate-800 px-4 py-2.5 outline-none focus:border-cz-primary focus:bg-white transition-all"
+          className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2.5 outline-none focus:border-cz-primary"
         />
       </div>
       <div>
-        <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">Email Address</label>
+        <label className="block text-[13px] text-[#4b4b4b] mb-1">Email</label>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="w-full rounded-xl border border-slate-200 bg-slate-50/50 text-[14px] text-slate-800 px-4 py-2.5 outline-none focus:border-cz-primary focus:bg-white transition-all"
+          className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2.5 outline-none focus:border-cz-primary"
         />
       </div>
-      <button
-        type="submit"
-        disabled={saving}
-        className="self-start rounded-xl bg-cz-primary hover:bg-cz-primary-hover text-white text-[13px] font-semibold px-6 py-2.5 shadow hover:shadow-md transition-all disabled:opacity-60"
-      >
-        {saving ? 'Saving...' : 'Save Profile'}
-      </button>
+      <div>
+        <button
+          type="submit"
+          disabled={saving}
+          className="rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-medium px-6 py-2.5 transition-colors disabled:opacity-60"
+        >
+          {saving ? 'Saving...' : 'Save Profile'}
+        </button>
+      </div>
     </form>
   )
 }
@@ -96,12 +98,12 @@ function PasswordSection() {
     setSaving(true)
     try {
       await api.put(
-        ENDPOINTS.AUTH.PASSWORD,
+        ENDPOINTS.AUTH.CHANGE_PASSWORD,
         { currentPassword: form.currentPassword, newPassword: form.newPassword },
         { auth: true }
       )
-      setSaved(true)
       setForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
+      setSaved(true)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -110,160 +112,123 @@ function PasswordSection() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-slate-100 p-5 sm:p-6 shadow-sm flex flex-col gap-4">
-      <h3 className="text-[16px] font-bold text-slate-800 font-heading">Change Password</h3>
-      {error && <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-[13px] text-rose-700">{error}</div>}
-      {saved && <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-[13px] text-emerald-800">Password changed successfully.</div>}
+    <form onSubmit={handleSubmit} className="rounded-[10px] border border-[#dedede] p-5 flex flex-col gap-3">
+      <h3 className="text-[15px] font-semibold text-[#212121]">Change Password</h3>
+      {error && <div className="text-[13px] text-red-600">{error}</div>}
+      {saved && <div className="text-[13px] text-green-700">Password updated.</div>}
       <div>
-        <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">Current Password</label>
+        <label className="block text-[13px] text-[#4b4b4b] mb-1">Current Password</label>
         <input
           type="password"
           name="currentPassword"
           value={form.currentPassword}
           onChange={handleChange}
           required
-          className="w-full rounded-xl border border-slate-200 bg-slate-50/50 text-[14px] text-slate-800 px-4 py-2.5 outline-none focus:border-cz-primary focus:bg-white transition-all"
+          className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2.5 outline-none focus:border-cz-primary"
         />
       </div>
       <div>
-        <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">New Password</label>
+        <label className="block text-[13px] text-[#4b4b4b] mb-1">New Password</label>
         <input
           type="password"
           name="newPassword"
           value={form.newPassword}
           onChange={handleChange}
           required
-          className="w-full rounded-xl border border-slate-200 bg-slate-50/50 text-[14px] text-slate-800 px-4 py-2.5 outline-none focus:border-cz-primary focus:bg-white transition-all"
+          minLength={8}
+          className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2.5 outline-none focus:border-cz-primary"
         />
+        <p className="text-[12px] text-[#9ca3af] mt-1">At least 8 characters.</p>
       </div>
       <div>
-        <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">Confirm New Password</label>
+        <label className="block text-[13px] text-[#4b4b4b] mb-1">Confirm New Password</label>
         <input
           type="password"
           name="confirmPassword"
           value={form.confirmPassword}
           onChange={handleChange}
           required
-          className="w-full rounded-xl border border-slate-200 bg-slate-50/50 text-[14px] text-slate-800 px-4 py-2.5 outline-none focus:border-cz-primary focus:bg-white transition-all"
+          minLength={8}
+          className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2.5 outline-none focus:border-cz-primary"
         />
       </div>
-      <button
-        type="submit"
-        disabled={saving}
-        className="self-start rounded-xl bg-cz-primary hover:bg-cz-primary-hover text-white text-[13px] font-semibold px-6 py-2.5 shadow hover:shadow-md transition-all disabled:opacity-60"
-      >
-        {saving ? 'Updating...' : 'Update Password'}
-      </button>
+      <div>
+        <button
+          type="submit"
+          disabled={saving}
+          className="rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-medium px-6 py-2.5 transition-colors disabled:opacity-60"
+        >
+          {saving ? 'Saving...' : 'Change Password'}
+        </button>
+      </div>
     </form>
   )
 }
 
 function WishlistSection() {
-  const { wishlist, loading, removeItem } = useWishlist()
-  const { addItem: addToCart } = useCart()
+  const { items, removeFromWishlist } = useWishlist()
+  const { addToCart } = useCart()
   const { format } = useCurrency()
-  const [movingId, setMovingId] = useState(null)
 
-  const handleMoveToCart = async (product) => {
-    setMovingId(product.id)
-    try {
-      await addToCart(product)
-      await removeItem(product.id)
-    } catch (err) {
-      console.error('Failed to move product to cart:', err)
-    } finally {
-      setMovingId(null)
-    }
-  }
-
-  if (loading) {
-    return <div className="text-[14px] text-slate-500 py-6 text-center">Loading wishlist...</div>
-  }
-
-  if (wishlist.length === 0) {
+  if (items.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center text-center py-10 bg-white border border-slate-100 rounded-xl">
-        <span className="text-[14px] text-slate-600 mb-3">Your wishlist is currently empty.</span>
-        <Link
-          to="/shop"
-          className="rounded-xl bg-cz-sky/10 text-cz-primary hover:bg-cz-primary hover:text-white text-[13px] font-semibold px-6 py-2 transition-all"
-        >
-          Explore Catalog
-        </Link>
+      <div className="rounded-[10px] border border-[#dedede] p-5 text-[14px] text-[#4b4b4b]">
+        Your wishlist is empty.
       </div>
     )
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {wishlist.map((item) => {
-        const product = item.product
-        if (!product) return null
-        return (
-          <div key={item.id} className="bg-white rounded-xl border border-slate-100 p-4 shadow-sm flex flex-col justify-between gap-3">
-            <div className="flex gap-3 items-center">
-              {product.image_url ? (
-                <img src={product.image_url} alt={product.name} className="w-14 h-14 object-contain rounded-lg shrink-0 border border-slate-100" />
-              ) : (
-                <div className="w-14 h-14 rounded-lg bg-slate-100 shrink-0" />
-              )}
-              <div className="min-w-0">
-                <Link to={`/product/${product.slug}`} className="text-[13px] font-semibold text-slate-800 hover:text-cz-primary line-clamp-2 leading-snug">
-                  {product.name}
-                </Link>
-                <div className="text-[13px] font-bold text-cz-primary mt-1">{format(product.price)}</div>
-              </div>
-            </div>
-            <div className="flex gap-2 pt-2 border-t border-slate-100">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      {items.map((item) => (
+        <div key={item.id} className="rounded-[10px] border border-[#dedede] p-4 flex gap-3">
+          <img src={item.image} alt={item.title} width={64} height={64} className="w-[64px] h-[64px] object-contain shrink-0" />
+          <div className="flex-1 min-w-0">
+            <Link to={item.slug ? `/product/${item.slug}` : '/shop'} className="text-[14px] font-medium text-[#212121] line-clamp-2 hover:text-cz-primary">
+              {item.title}
+            </Link>
+            <div className="text-[14px] text-[#212121] mt-1">{format(item.price)}</div>
+            <div className="flex items-center gap-3 mt-2">
               <button
                 type="button"
-                onClick={() => handleMoveToCart(product)}
-                disabled={movingId === product.id}
-                className="flex-1 rounded-lg bg-cz-primary hover:bg-cz-primary-hover text-white text-[12px] font-semibold py-1.5 transition-all text-center"
+                onClick={() => {
+                  addToCart({ id: item.id, slug: item.slug, title: item.title, image: item.image, price: item.price }, 1)
+                  removeFromWishlist(item.id)
+                }}
+                disabled={item.stock != null && item.stock <= 0}
+                className="text-[12px] font-medium text-cz-primary hover:underline disabled:text-gray-400 disabled:no-underline disabled:cursor-not-allowed"
               >
-                {movingId === product.id ? 'Moving...' : 'Add to Cart'}
+                {item.stock != null && item.stock <= 0 ? 'Out of stock' : 'Move to Cart'}
               </button>
-              <button
-                type="button"
-                onClick={() => removeItem(product.id)}
-                className="px-3 rounded-lg border border-slate-200 hover:bg-rose-50 hover:border-rose-200 text-slate-500 hover:text-rose-600 text-[12px] font-semibold transition-all"
-              >
+              <button type="button" onClick={() => removeFromWishlist(item.id)} className="text-[12px] text-gray-500 hover:text-red-500">
                 Remove
               </button>
             </div>
           </div>
-        )
-      })}
+        </div>
+      ))}
     </div>
   )
 }
 
 const STATUS_LABEL = {
-  pending: 'Pending Review',
+  pending: 'Pending Confirmation',
   confirmed: 'Confirmed',
-  processing: 'Processing Order',
-  dispatched: 'Dispatched & Shipped',
+  packed: 'Packed',
+  shipped: 'Shipped',
+  out_for_delivery: 'Out for Delivery',
   delivered: 'Delivered',
   cancelled: 'Cancelled',
-}
-
-const STATUS_COLOR = {
-  pending: 'bg-amber-50 text-amber-700 border-amber-200',
-  confirmed: 'bg-sky-50 text-sky-700 border-sky-200',
-  processing: 'bg-blue-50 text-blue-700 border-blue-200',
-  dispatched: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-  delivered: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  cancelled: 'bg-rose-50 text-rose-700 border-rose-200',
+  returned: 'Returned',
 }
 
 export default function Account() {
   const { siteName } = useSiteSettings()
   useSeo({
-    title: `My Account — Orders & Profile | ${siteName || 'IT Solutions'}`,
+    title: `My Account — Orders, Wishlist & Settings | ${siteName || 'IT Solutions'}`,
     canonical: `${window.location.origin}/account`,
     noindex: true,
   })
-
   const { user, logout, initializing } = useAuth()
   const { format } = useCurrency()
   const location = useLocation()
@@ -272,40 +237,27 @@ export default function Account() {
   const [ordersTotalPages, setOrdersTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)
   const [copiedOrderId, setCopiedOrderId] = useState(null)
-
-  const isNewUser = useRef(false)
-  const isFirstRender = useRef(true)
-
-  if (isFirstRender.current) {
-    isFirstRender.current = false
-    if (user?.id) {
-      const isNew = Boolean(location.state?.isNewUser)
-      isNewUser.current = isNew
-      sessionStorage.setItem(`order_history_cache_${user.id}`, JSON.stringify({ isNewUser: isNew }))
-    }
-  }
+  const prevUserId = useRef(user?.id)
 
   useEffect(() => {
     if (!user) return
 
-    if (isNewUser.current) {
-      setOrders([])
-      setOrdersTotalPages(1)
-      setLoading(false)
-      return
-    }
-
-    if (isNewUser.current && ordersPage !== 1) {
+    // A stale page number surviving a different user logging in without this page remounting
+    // (e.g. logout then a second account signs in in the same tab) would otherwise request a
+    // page that's out of range for the new user's order history.
+    const isNewUser = prevUserId.current !== user.id
+    prevUserId.current = user.id
+    if (isNewUser && ordersPage !== 1) {
       setOrdersPage(1)
-      return
+      return // this effect reruns once `ordersPage` settles to 1, below
     }
 
     setLoading(true)
     api
       .get(ENDPOINTS.ORDERS.BY_USER(user.id, `?page=${ordersPage}`), { auth: true })
       .then((data) => {
-        setOrders(data.orders)
-        setOrdersTotalPages(data.totalPages)
+        setOrders(Array.isArray(data?.orders) ? data.orders : [])
+        setOrdersTotalPages(data?.totalPages || 1)
       })
       .catch(() => setOrders([]))
       .finally(() => setLoading(false))
@@ -316,6 +268,9 @@ export default function Account() {
     return <Navigate to="/signin" replace />
   }
 
+  // Leopards' tracking page has no way to be linked to directly with the number pre-filled —
+  // the customer has to paste it in themselves — so this copies it for them instead of leaving
+  // them to select/retype it by hand.
   const handleCopyTracking = (orderId, trackingNumber) => {
     navigator.clipboard.writeText(trackingNumber).then(() => {
       setCopiedOrderId(orderId)
@@ -324,148 +279,138 @@ export default function Account() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans">
+    <div className="min-h-screen bg-cz-page flex flex-col">
       <Navbar />
       <Header />
       <CategoryMenu />
 
-      <main className="max-w-[1000px] w-full mx-auto px-4 sm:px-5 py-6 sm:py-8 flex-1">
-        {/* Left-Aligned Title Heading (Symmetrically Aligned to 1000px & No Home/Account Breadcrumb) */}
-        <div className="mb-5 sm:mb-6">
-          <h1 className="text-[24px] sm:text-[30px] font-bold text-[#0c4a6e] font-heading tracking-tight">
-            My Account
-          </h1>
+      <div className="mx-auto px-5 py-5 flex-1 w-full">
+        <section className="flex flex-col items-start mb-4">
+          <h1 className="text-[24px] font-medium text-[#353535]">My Account</h1>
           <SeoHeadingFiller h4="Account tabs" h5="Account settings" h6="Support links" />
-        </div>
+          <div className="flex items-center gap-2 my-[10px] text-[14px]">
+            <span className="opacity-70">
+              <Link to="/">Home</Link>
+            </span>
+            <span className="opacity-70">/</span>
+            <span>Account</span>
+          </div>
+        </section>
 
         {location.state?.orderPlaced && (
-          <div className="rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-[14px] px-5 py-4 mb-6 shadow-sm flex items-center gap-2">
-            <span>🎉</span>
-            <span>Your order has been placed successfully. We&apos;ll update the status here as it progresses.</span>
+          <div className="rounded-[10px] bg-cz-gold-light text-cz-ink text-[14px] px-5 py-4 mb-6">
+            Your order has been placed successfully. We&apos;ll update the status here as it progresses.
           </div>
         )}
 
-        {/* User Account Info Header Card */}
-        <div className="flex items-center justify-between flex-wrap gap-4 bg-white rounded-xl border border-slate-100 p-5 mb-6 shadow-sm">
+        <div className="flex items-center justify-between flex-wrap gap-3 rounded-[10px] border border-[#dedede] p-5 mb-6">
           <div>
-            <div className="text-[17px] font-bold text-slate-800 font-heading">{user.name}</div>
-            <div className="text-[13px] text-slate-500">{user.email}</div>
+            <div className="text-[16px] font-semibold text-[#212121]">{user.name}</div>
+            <div className="text-[14px] text-[#4b4b4b]">{user.email}</div>
           </div>
           <button
             type="button"
             onClick={logout}
-            className="rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 text-[13px] font-semibold px-5 py-2 transition-all"
+            className="rounded-full border border-cz-primary text-cz-primary hover:bg-cz-primary hover:text-white text-[14px] font-medium px-6 py-2.5 transition-colors"
           >
             Logout
           </button>
         </div>
 
-        {/* Profile & Password Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-10">
           <ProfileSection />
           <PasswordSection />
         </div>
 
-        {/* Wishlist Section */}
-        <div className="mb-8">
-          <h2 className="text-[18px] font-bold text-slate-800 font-heading mb-3">Wishlist</h2>
+        <h2 className="text-[18px] font-semibold text-[#212121] mb-3">Wishlist</h2>
+        <div className="mb-10">
           <WishlistSection />
         </div>
 
-        {/* Order History & Package Order Tracking Section */}
-        <div>
-          <h2 className="text-[18px] font-bold text-slate-800 font-heading mb-3">Order History & Tracking</h2>
+        <h2 className="text-[18px] font-semibold text-[#212121] mb-3">Order History</h2>
 
-          {loading ? (
-            <div className="text-[14px] text-slate-500 py-10 text-center bg-white rounded-xl border border-slate-100">Loading orders...</div>
-          ) : orders.length === 0 ? (
-            <div className="flex flex-col items-center justify-center text-center py-12 bg-white border border-slate-100 rounded-xl mb-8">
-              <span className="text-[14px] text-slate-600 mb-4">You haven&apos;t placed any orders yet.</span>
-              <Link
-                to="/shop"
-                className="rounded-xl bg-cz-primary hover:bg-cz-primary-hover text-white text-[13px] font-semibold px-6 py-2.5 shadow hover:shadow-md transition-all"
-              >
-                Start Shopping
-              </Link>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-4 mb-8">
-              {orders.map((order) => {
-                const colorClass = STATUS_COLOR[order.status] || 'bg-slate-50 text-slate-700 border-slate-200'
-                return (
-                  <div key={order.id} className="bg-white rounded-xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-all">
-                    <div className="flex items-center justify-between flex-wrap gap-2 mb-3 pb-3 border-b border-slate-100">
-                      <div>
-                        <div className="text-[15px] font-bold text-slate-800 font-heading">Order #{order.id}</div>
-                        <div className="text-[12px] text-slate-400">
-                          {new Date(order.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
-                        </div>
-                      </div>
-                      <span className={`rounded-lg border text-[12px] font-semibold px-3 py-1 ${colorClass}`}>
-                        {STATUS_LABEL[order.status] || order.status}
-                      </span>
+        {loading ? (
+          <div className="text-[14px] text-[#4b4b4b] py-10 text-center">Loading orders...</div>
+        ) : orders.length === 0 ? (
+          <div className="flex flex-col items-center justify-center text-center py-16 border border-[#dedede] rounded-[10px] mb-10">
+            <span className="text-[15px] text-[#212121] mb-4">You haven&apos;t placed any orders yet.</span>
+            <Link
+              to="/"
+              className="rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-medium px-8 py-3 transition-colors"
+            >
+              Start Shopping
+            </Link>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4 mb-10">
+            {orders.map((order) => (
+              <div key={order.id} className="rounded-[10px] border border-[#dedede] p-5">
+                <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
+                  <div>
+                    <div className="text-[14px] font-semibold text-[#212121]">Order #{order.id}</div>
+                    <div className="text-[13px] text-[#4b4b4b]">
+                      {new Date(order.created_at).toLocaleDateString()}
                     </div>
-
-                    <div className="flex flex-col gap-2 mb-3">
-                      {(order.items || []).map((item) => (
-                        <div key={item.id} className="flex items-center justify-between text-[13px] text-slate-600">
-                          <span className="line-clamp-1 pr-3">
-                            {item.product_name}
-                            {item.variant_label && ` — ${item.variant_label}`} × {item.quantity}
-                          </span>
-                          <span className="shrink-0 font-medium text-slate-800">{format(item.price * item.quantity)}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-[14px] font-bold text-slate-800">
-                      <span>Total Amount</span>
-                      <span className="text-cz-primary">{format(order.total_amount)}</span>
-                    </div>
-
-                    {/* Order Courier Package Tracking Box */}
-                    {order.tracking_number && (
-                      <div className="mt-4 rounded-xl border border-sky-200 bg-[#f0f9ff] p-4">
-                        <div className="text-[13px] font-bold text-[#0891b2] mb-2 flex items-center gap-1.5">
-                          <span>📦</span>
-                          <span>Package Tracking ({order.courier_name || 'Leopards Courier'})</span>
-                        </div>
-                        <ol className="text-[12px] text-slate-700 list-decimal list-inside space-y-1 mb-3">
-                          <li>
-                            Tracking Number:{' '}
-                            <span className="font-mono font-bold text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-200">{order.tracking_number}</span>
-                          </li>
-                          <li>Click &quot;Track Package&quot; to view live delivery status</li>
-                        </ol>
-                        <div className="flex items-center flex-wrap gap-2.5">
-                          <button
-                            type="button"
-                            onClick={() => handleCopyTracking(order.id, order.tracking_number)}
-                            className="rounded-lg bg-[#0891b2] hover:bg-[#0c4a6e] text-white text-[12px] font-semibold px-4 py-2 transition-all shadow"
-                          >
-                            {copiedOrderId === order.id ? 'Copied ✓' : 'Copy Tracking Number'}
-                          </button>
-                          {order.tracking_url && (
-                            <a
-                              href={order.tracking_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="rounded-lg border border-[#0891b2] text-[#0891b2] hover:bg-[#0891b2] hover:text-white text-[12px] font-semibold px-4 py-2 transition-all"
-                            >
-                              Track Package →
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                    )}
                   </div>
-                )
-              })}
-              <Pagination page={ordersPage} totalPages={ordersTotalPages} onChange={setOrdersPage} />
-            </div>
-          )}
-        </div>
-      </main>
+                  <span className="rounded-full bg-cz-gold-light text-cz-ink text-[12px] font-medium px-3 py-1">
+                    {STATUS_LABEL[order.status] || order.status}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-2 mb-3">
+                  {(order.items || []).map((item) => (
+                    <div key={item.id} className="flex items-center justify-between text-[13px] text-[#4b4b4b]">
+                      <span className="line-clamp-1 pr-3">
+                        {item.product_name}
+                        {item.variant_label && ` — ${item.variant_label}`} × {item.quantity}
+                      </span>
+                      <span className="shrink-0">{format(item.price * item.quantity)}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex items-center justify-between pt-3 border-t border-[#dedede] text-[14px] font-semibold text-[#212121]">
+                  <span>Total</span>
+                  <span>{format(order.total_amount)}</span>
+                </div>
+                {order.tracking_number && (
+                  <div className="mt-3 rounded-[10px] border-2 border-cz-primary bg-cz-sky/10 p-4">
+                    <div className="text-[13px] font-semibold text-cz-primary mb-2">
+                      📦 Your order is on its way — here's how to track it:
+                    </div>
+                    <ol className="text-[13px] text-[#212121] list-decimal list-inside space-y-1 mb-3">
+                      <li>
+                        Copy your {order.courier_name || 'courier'} tracking number:{' '}
+                        <span className="font-mono font-semibold">{order.tracking_number}</span>
+                      </li>
+                      <li>Click "Track Package" below to open the tracking page</li>
+                      <li>Paste the number into their search box and click "Track Shipment"</li>
+                    </ol>
+                    <div className="flex items-center flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleCopyTracking(order.id, order.tracking_number)}
+                        className="rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[13px] font-medium px-4 py-1.5 transition-colors"
+                      >
+                        {copiedOrderId === order.id ? 'Copied ✓' : 'Copy Tracking Number'}
+                      </button>
+                      {order.tracking_url && (
+                        <a
+                          href={order.tracking_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="rounded-full border border-cz-primary text-cz-primary hover:bg-cz-primary hover:text-white text-[13px] font-medium px-4 py-1.5 transition-colors"
+                        >
+                          Track Package →
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+            <Pagination page={ordersPage} totalPages={ordersTotalPages} onChange={setOrdersPage} />
+          </div>
+        )}
+      </div>
 
       <Footer />
     </div>
