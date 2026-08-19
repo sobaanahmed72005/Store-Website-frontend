@@ -77,14 +77,14 @@ function NavDrawer({ open, onClose }) {
                     <Link
                       to={item.to}
                       onClick={onClose}
-                      className="text-[15px] font-semibold text-[#1e293b] hover:text-cz-primary transition-colors flex-1"
+                      className="text-[15px] font-semibold text-[#1e293b] hover:text-cz-primary transition-colors flex-1 bg-transparent border-none outline-none select-none"
                     >
                       {item.label}
                     </Link>
                   ) : (
                     <span
                       onClick={(e) => item.hasDropdown && toggleExpand(item.label, e)}
-                      className="text-[15px] font-semibold text-[#1e293b] flex-1 cursor-pointer"
+                      className="text-[15px] font-semibold text-[#1e293b] flex-1 cursor-pointer bg-transparent border-none outline-none select-none"
                     >
                       {item.label}
                     </span>
