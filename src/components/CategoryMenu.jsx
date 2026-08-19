@@ -22,7 +22,7 @@ function MegaMenuPanel({ item, isOpen }) {
 
   return (
     <div
-      className={`absolute left-0 top-full pt-2 transition-all duration-200 z-40 ${
+      className={`absolute left-0 top-full pt-2 transition-all duration-200 z-[110] ${
         isOpen
           ? 'opacity-100 visible pointer-events-auto'
           : 'opacity-0 invisible pointer-events-none group-hover:opacity-100 group-hover:visible group-hover:pointer-events-auto'
@@ -98,7 +98,7 @@ export default function CategoryMenu() {
   }
 
   return (
-    <nav ref={menuRef} className="hidden lg:block bg-cz-nav sticky top-0 z-30 shadow-sm group/nav">
+    <nav ref={menuRef} className="hidden lg:block bg-cz-nav sticky top-0 z-[100] shadow-sm group/nav">
       <div className="mx-auto px-5 relative flex items-center">
         {/* Left Arrow Button */}
         <button
