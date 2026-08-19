@@ -19,7 +19,7 @@ const emptyContent = {
       links: [
         { label: 'All Products', href: '/shop' },
         { label: 'Cart', href: '/cart' },
-        { label: 'Track Order', href: '/account' },
+        { label: 'Track Order', href: '/order-tracking' },
       ],
     },
     {

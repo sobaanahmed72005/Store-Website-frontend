@@ -6,6 +6,10 @@ export default function PwaInstallPrompt() {
   const [isIos, setIsIos] = useState(false)
 
   useEffect(() => {
+    // Check if prompt was shown/dismissed previously in localStorage so reloads won't trigger it again
+    const hasBeenShown = localStorage.getItem('pwa_prompt_shown')
+    if (hasBeenShown) return
+
     // Check if user is in standalone mode already
     const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches
     if (isStandalone) return
@@ -15,8 +19,9 @@ export default function PwaInstallPrompt() {
     const iosDevice = /iphone|ipad|ipod/.test(userAgent) && !window.MSStream
     if (iosDevice) setIsIos(true)
 
-    // Show banner immediately on load!
+    // Show banner on first open only, and immediately mark as shown in localStorage so reloads won't trigger it again
     setIsVisible(true)
+    localStorage.setItem('pwa_prompt_shown', 'true')
 
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault()
@@ -28,6 +33,7 @@ export default function PwaInstallPrompt() {
   }, [])
 
   const handleInstallClick = async () => {
+    localStorage.setItem('pwa_prompt_shown', 'true')
     if (deferredPrompt) {
       deferredPrompt.prompt()
       const { outcome } = await deferredPrompt.userChoice
@@ -44,7 +50,8 @@ export default function PwaInstallPrompt() {
 
   const handleDismiss = () => {
     setIsVisible(false)
-    sessionStorage.setItem('pwa_prompt_dismissed', 'true')
+    localStorage.setItem('pwa_prompt_shown', 'true')
+    localStorage.setItem('pwa_prompt_dismissed', 'true')
   }
 
   if (!isVisible) return null

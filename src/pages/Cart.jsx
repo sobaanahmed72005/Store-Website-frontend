@@ -14,19 +14,19 @@ import { useSiteSettings } from '../store/siteSettingsStore'
 
 function QuantityStepper({ qty, onDecrease, onIncrease }) {
   return (
-    <div className="flex items-center border border-[#dedede] rounded-full lg:mx-5">
-      <button type="button" aria-label="Decrease quantity" onClick={onDecrease} className="px-2 py-1 hover:text-[#212121]">
-        <MinusIcon size={16} />
+    <div className="flex items-center border border-slate-200 rounded-lg bg-slate-50/50 lg:mx-3">
+      <button type="button" aria-label="Decrease quantity" onClick={onDecrease} className="px-2.5 py-1 text-slate-600 hover:text-slate-900 transition-colors">
+        <MinusIcon size={14} />
       </button>
       <input
         type="number"
         min="1"
         value={qty}
         readOnly
-        className="quantity-number flex-1 w-8 text-center outline-none"
+        className="quantity-number flex-1 w-7 text-center outline-none bg-transparent font-semibold text-[13px] text-slate-800"
       />
-      <button type="button" aria-label="Increase quantity" onClick={onIncrease} className="px-2 py-1 hover:text-[#212121]">
-        <PlusIcon size={16} />
+      <button type="button" aria-label="Increase quantity" onClick={onIncrease} className="px-2.5 py-1 text-slate-600 hover:text-slate-900 transition-colors">
+        <PlusIcon size={14} />
       </button>
     </div>
   )
@@ -55,30 +55,22 @@ export default function Cart() {
   const totalItems = items.reduce((sum, item) => sum + item.qty, 0)
 
   return (
-    <div className="min-h-screen bg-cz-page flex flex-col">
+    <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans">
       <Navbar />
       <Header />
       <CategoryMenu />
 
-      <div className="w-full mx-auto px-5 py-5">
-        <section className="flex flex-col items-start mb-4">
-          <h1 className="text-[24px] font-medium text-[#353535]">Shopping Cart</h1>
+      <main className="max-w-[1000px] w-full mx-auto px-4 sm:px-5 py-6 sm:py-8 flex-1">
+        {/* Left-Aligned Ocean Navy Title Heading (No Breadcrumbs) */}
+        <div className="mb-5 sm:mb-6">
+          <h1 className="text-[24px] sm:text-[30px] font-bold text-[#0c4a6e] font-heading tracking-tight">
+            Shopping Cart
+          </h1>
           <SeoHeadingFiller h3="Cart items" h4="Item details" h5="Quantity and pricing" h6="Order summary" />
-          <div className="flex items-center gap-2 my-[10px] text-[14px]">
-            <span className="opacity-70">
-              <Link to="/">Home</Link>
-            </span>
-            <span className="opacity-70">/</span>
-            <span className="opacity-70">
-              <Link to={user ? '/account' : '/signin'}>Account</Link>
-            </span>
-            <span className="opacity-70">/</span>
-            <span>Cart</span>
-          </div>
-        </section>
+        </div>
 
         {priceNotice && (
-          <div className="w-full rounded-[8px] bg-amber-50 border border-amber-200 px-4 py-3 mb-4 text-[13px] text-amber-800">
+          <div className="w-full rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 mb-5 text-[13px] text-amber-800 shadow-sm">
             {priceNotice.changed.map((c) => (
               <div key={c.title}>
                 The price of <strong>{c.title}</strong> changed from {format(c.from)} to {format(c.to)} — updated below.
@@ -93,41 +85,45 @@ export default function Cart() {
         )}
 
         {items.length === 0 ? (
-          <div className="flex flex-col items-center text-center py-10">
-            <CartIcon size={80} className="text-[#9ca3af] mb-4" />
-            <span className="text-[16px] text-[#212121] mb-4">Your shopping cart is empty.</span>
+          <div className="flex flex-col items-center text-center py-14 px-5 bg-white border border-slate-100 rounded-xl shadow-sm mb-8">
+            <CartIcon size={64} className="text-slate-300 mb-4" />
+            <h3 className="text-[17px] font-bold text-slate-800 font-heading mb-1">Your Shopping Cart is Empty</h3>
+            <p className="text-[13px] text-slate-500 max-w-sm mb-6 leading-relaxed">
+              Looks like you haven&apos;t added any items to your cart yet. Explore our products and discover great deals!
+            </p>
             <Link
-              to="/"
-              className="rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-bold tracking-wide px-8 py-3 transition-colors shadow-md"
+              to="/shop"
+              className="rounded-xl bg-cz-primary hover:bg-cz-primary-hover text-white text-[13px] font-semibold px-7 py-3 transition-all shadow hover:shadow-md"
             >
-              Continue Shopping
+              Explore Products
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-12 gap-4 pb-10 items-start w-full">
-            <div className="cart-table-card lg:col-span-8 col-span-12 bg-white border border-[#dedede] rounded-[10px] p-[25px]">
+          <div className="grid grid-cols-12 gap-5 pb-10 items-start w-full">
+            {/* Cart Items List Card */}
+            <div className="cart-table-card lg:col-span-8 col-span-12 bg-white border border-slate-100 rounded-xl p-4 sm:p-6 shadow-sm">
               <div className="grid gap-3 overflow-hidden">
-                <div className="hidden lg:grid grid-cols-12 w-full pb-4 mb-2 border-b border-[#dedede] text-[14px] text-[#212121]">
+                <div className="hidden lg:grid grid-cols-12 w-full pb-3 mb-2 border-b border-slate-100 text-[13px] font-bold text-slate-700">
                   <div className="col-span-7">Product</div>
                   <div className="col-span-2 text-center">Quantity</div>
-                  <div className="col-span-2 text-end pe-10">Price</div>
+                  <div className="col-span-2 text-end pe-4">Price</div>
                   <div className="col-span-1" />
                 </div>
 
                 {items.map((item) => (
                   <div key={`${item.id}-${item.variantId ?? ''}`}>
-                    {/* desktop row */}
-                    <div className="pb-3 border-b border-[#dedede] lg:flex flex-col hidden">
-                      <div className="grid grid-cols-12 w-full">
+                    {/* Desktop Row */}
+                    <div className="pb-3 pt-1 border-b border-slate-100 lg:flex flex-col hidden last:border-none">
+                      <div className="grid grid-cols-12 w-full items-center">
                         <div className="lg:col-span-7 col-span-12 flex items-center">
-                          <div className="w-[70px] h-[70px] aspect-square object-cover rounded-lg overflow-hidden shrink-0">
-                            <img src={item.image} alt={item.title} width={70} height={70} className="w-full h-full object-cover" />
+                          <div className="w-[64px] h-[64px] aspect-square object-cover rounded-lg overflow-hidden shrink-0 border border-slate-100 bg-slate-50">
+                            <img src={item.image} alt={item.title} width={64} height={64} className="w-full h-full object-contain p-1" />
                           </div>
-                          <div className="flex flex-col ps-4 flex-1">
-                            <Link to={item.slug ? `/product/${item.slug}` : '/shop'} className="text-[14px] text-[#212121] hover:text-cz-primary">
-                              {item.title.length > 50 ? `${item.title.slice(0, 50)}...` : item.title}
+                          <div className="flex flex-col ps-3.5 flex-1 min-w-0">
+                            <Link to={item.slug ? `/product/${item.slug}` : '/shop'} className="text-[14px] font-semibold text-slate-800 hover:text-cz-primary transition-colors leading-snug truncate">
+                              {item.title}
                             </Link>
-                            {item.variantLabel && <span className="text-[12px] text-[#6b7280] mt-0.5">{item.variantLabel}</span>}
+                            {item.variantLabel && <span className="text-[12px] text-slate-400 mt-0.5">{item.variantLabel}</span>}
                           </div>
                         </div>
                         <div className="lg:col-span-2 col-span-5 flex items-center justify-center">
@@ -137,35 +133,35 @@ export default function Cart() {
                             onIncrease={() => updateQty(item.id, item.variantId, 1)}
                           />
                         </div>
-                        <div className="lg:col-span-2 col-span-6 flex items-center justify-end">
-                          <span className="text-[14px] text-[#212121]">{format(item.price)}</span>
+                        <div className="lg:col-span-2 col-span-6 flex items-center justify-end pr-4">
+                          <span className="text-[14px] font-bold text-slate-800">{format(item.price)}</span>
                         </div>
                         <div className="col-span-1 flex items-center justify-end">
                           <button
                             type="button"
                             aria-label="Remove item"
                             onClick={() => removeFromCart(item.id, item.variantId)}
-                            className="px-3 text-gray-500 hover:text-red-500"
+                            className="p-1.5 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
                           >
-                            <TrashIcon size={20} />
+                            <TrashIcon size={18} />
                           </button>
                         </div>
                       </div>
                     </div>
 
-                    {/* mobile row */}
-                    <div className="pb-3 border-b border-[#dedede] lg:hidden flex flex-col">
+                    {/* Mobile Row */}
+                    <div className="pb-3.5 pt-1 border-b border-slate-100 lg:hidden flex flex-col last:border-none">
                       <div className="w-full gap-3 items-start grid grid-cols-4">
-                        <div className="overflow-hidden rounded-md bg-gray-200">
-                          <img src={item.image} alt={item.title} width={100} height={100} className="w-full h-full object-cover" />
+                        <div className="overflow-hidden rounded-lg border border-slate-100 bg-slate-50 aspect-square">
+                          <img src={item.image} alt={item.title} width={80} height={80} className="w-full h-full object-contain p-1" />
                         </div>
                         <div className="col-span-3">
                           <div className="flex flex-col gap-1">
-                            <Link to={item.slug ? `/product/${item.slug}` : '/shop'} className="font-semibold text-[14px] text-[#212121] line-clamp-2">
+                            <Link to={item.slug ? `/product/${item.slug}` : '/shop'} className="font-semibold text-[14px] text-slate-800 line-clamp-2 leading-snug">
                               {item.title}
                             </Link>
-                            {item.variantLabel && <span className="text-[12px] text-[#6b7280]">{item.variantLabel}</span>}
-                            <span className="text-[14px] text-[#212121]">{format(item.price)}</span>
+                            {item.variantLabel && <span className="text-[12px] text-slate-400">{item.variantLabel}</span>}
+                            <span className="text-[14px] font-bold text-cz-primary mt-0.5">{format(item.price)}</span>
                           </div>
                           <div className="flex justify-between items-center gap-3 mt-3">
                             <QuantityStepper
@@ -177,9 +173,9 @@ export default function Cart() {
                               type="button"
                               aria-label="Remove item"
                               onClick={() => removeFromCart(item.id, item.variantId)}
-                              className="px-3 text-gray-500 hover:text-red-500"
+                              className="p-1.5 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
                             >
-                              <TrashIcon size={20} />
+                              <TrashIcon size={18} />
                             </button>
                           </div>
                         </div>
@@ -190,30 +186,34 @@ export default function Cart() {
               </div>
             </div>
 
-            <div className="summary-card lg:col-span-4 col-span-12 sticky top-0 bg-white border border-[#dedede] rounded-[10px] p-5 text-[14px] text-[#212121]">
-              <div className="flex justify-between pb-2">
+            {/* Order Summary Card */}
+            <div className="summary-card lg:col-span-4 col-span-12 sticky top-4 bg-white border border-slate-100 rounded-xl p-5 text-[14px] text-slate-700 shadow-sm">
+              <h3 className="text-[16px] font-bold text-slate-800 font-heading pb-3 mb-3 border-b border-slate-100">
+                Order Summary
+              </h3>
+              <div className="flex justify-between pb-2 text-[13px] text-slate-600">
                 <span>Total Products</span>
-                <span>{totalProducts}</span>
+                <span className="font-semibold text-slate-800">{totalProducts}</span>
               </div>
-              <div className="flex justify-between pb-4">
+              <div className="flex justify-between pb-4 text-[13px] text-slate-600 border-b border-slate-100">
                 <span>Total Items</span>
-                <span>{totalItems}</span>
+                <span className="font-semibold text-slate-800">{totalItems}</span>
               </div>
-              <div className="flex justify-between items-center pb-4">
-                <span className="font-semibold">SubTotal</span>
-                <div className="font-semibold">{format(subTotal)}</div>
+              <div className="flex justify-between items-center py-4 text-[15px]">
+                <span className="font-bold text-slate-800 font-heading">SubTotal</span>
+                <div className="font-bold text-cz-primary text-[18px]">{format(subTotal)}</div>
               </div>
               <Link
                 to={user ? '/checkout' : '/signin'}
                 state={!user ? { from: '/checkout' } : undefined}
-                className="w-full flex justify-center items-center rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-bold tracking-wide py-3 transition-colors shadow-md"
+                className="w-full flex justify-center items-center rounded-xl bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-bold tracking-wide py-3.5 transition-all shadow hover:shadow-md text-center mt-2"
               >
-                Checkout
+                Proceed to Checkout
               </Link>
             </div>
           </div>
         )}
-      </div>
+      </main>
 
       <Footer />
     </div>

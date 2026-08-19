@@ -1,190 +1,169 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
-import {
-  LocationIcon,
-  PhoneIcon,
-  MailIcon,
-  FacebookIcon,
-  TwitterIcon,
-  InstagramIcon,
-  YoutubeIcon,
-  WhatsappIcon,
-  TiktokIcon,
-} from '../components/icons'
 import { api } from '../api/client'
 import { ENDPOINTS } from '../api/endpoints'
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../store/siteSettingsStore'
 import SeoHeadingFiller from '../components/SeoHeadingFiller'
 
-const SOCIAL_ICONS = [
-  { key: 'facebook', label: 'Facebook', Icon: FacebookIcon },
-  { key: 'twitter', label: 'Twitter', Icon: TwitterIcon },
-  { key: 'instagram', label: 'Instagram', Icon: InstagramIcon },
-  { key: 'youtube', label: 'YouTube', Icon: YoutubeIcon },
-  { key: 'whatsapp', label: 'WhatsApp', Icon: WhatsappIcon },
-  { key: 'tiktok', label: 'TikTok', Icon: TiktokIcon },
-]
-
-function Input({ label, ...props }) {
-  return (
-    <div className="flex flex-col gap-1">
-      <label className="text-[13px] text-[#4b4b4b]">{label}</label>
-      <input
-        {...props}
-        className="w-full rounded-md border border-[#d1d5db] bg-white text-[14px] text-[#212121] placeholder-[#9ca3af] px-4 py-3 outline-none focus:border-cz-primary transition-colors"
-      />
-    </div>
-  )
-}
-
 export default function Contact() {
-  const { siteName, brand } = useSiteSettings()
-
-  useSeo({
-    title: `Contact Us — Support, Store Address & Hours | ${siteName || 'IT Solutions'}`,
-    description: `Get in touch with ${siteName || 'IT Solutions'} — store address, phone, email, and support hours.`,
-    canonical: `${window.location.origin}/contact`,
-    keywords: `contact ${siteName || 'IT Solutions'}, customer support Pakistan, computer store contact`,
-    publisher: siteName || 'IT Solutions',
-  })
-  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' })
-  const [submitting, setSubmitting] = useState(false)
+  const { siteName, sitePhone } = useSiteSettings()
+  const [form, setForm] = useState({ name: '', email: '', phone: '', subject: '', message: '' })
   const [status, setStatus] = useState('idle')
   const [error, setError] = useState('')
 
-  const firstPhone = brand.phone ? brand.phone.split('|')[0].trim() : ''
+  useSeo({
+    title: `Contact Us — Get in Touch | ${siteName || 'IT Solutions'}`,
+    description: `Contact ${siteName || 'IT Solutions'}. We're here to help with order inquiries, product questions, and technical support.`,
+    canonical: `${window.location.origin}/contact`,
+    keywords: `contact ${siteName || 'IT Solutions'}, customer support, computer store contact`,
+    publisher: siteName || 'IT Solutions',
+  })
 
-  const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setForm((prev) => ({ ...prev, [name]: value }))
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setSubmitting(true)
+    setStatus('submitting')
     setError('')
     try {
-      await api.post(ENDPOINTS.CONTACT.BASE, form)
+      await api.post(ENDPOINTS.CONTACT.SUBMIT, form)
       setStatus('success')
-      setForm({ name: '', email: '', subject: '', message: '' })
+      setForm({ name: '', email: '', phone: '', subject: '', message: '' })
     } catch (err) {
       setStatus('error')
       setError(err.message)
-    } finally {
-      setSubmitting(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-cz-page flex flex-col">
+    <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans">
       <Navbar />
       <Header />
       <CategoryMenu />
 
-      <div className="w-full mx-auto px-5 py-5">
-        <section className="flex flex-col items-start mb-4">
-          <h1 className="text-[24px] font-medium text-[#353535]">Contact Us</h1>
-          <SeoHeadingFiller h3="Store information" h4="Contact form" h5="Business hours" h6="Social links" />
-          <div className="flex items-center gap-2 my-[10px] text-[14px]">
-            <span className="opacity-70">
-              <Link to="/">Home</Link>
-            </span>
-            <span className="opacity-70">/</span>
-            <span>Contact Us</span>
-          </div>
-        </section>
+      <main className="max-w-[1000px] w-full mx-auto px-4 sm:px-5 py-6 sm:py-8 flex-1">
+        {/* Left-Aligned Title Heading */}
+        <div className="mb-5 sm:mb-6">
+          <h1 className="text-[24px] sm:text-[30px] font-bold text-[#0c4a6e] font-heading tracking-tight">
+            Contact Us
+          </h1>
+          <SeoHeadingFiller h4="Contact details" h5="Send a message" h6="Map location" />
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 pb-10">
-          <div className="flex flex-col gap-5">
-            {brand.address && (
-              <a
-                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(brand.address)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex items-center gap-[10px] text-[15px] text-[#212121]"
-              >
-                <LocationIcon size={24} className="shrink-0" />
-                <span className="group-hover:underline">{brand.address}</span>
-              </a>
-            )}
-            {brand.phone && (
-              <a
-                href={`tel:${firstPhone}`}
-                className="group flex items-center gap-[10px] text-[15px] text-[#212121]"
-              >
-                <PhoneIcon size={24} className="shrink-0" />
-                <span className="group-hover:underline">{brand.phone}</span>
-              </a>
-            )}
-            {brand.email && (
-              <a
-                href={`mailto:${brand.email}`}
-                className="group flex items-center gap-[10px] text-[15px] text-[#212121]"
-              >
-                <MailIcon size={24} className="shrink-0" />
-                <span className="group-hover:underline">{brand.email}</span>
-              </a>
-            )}
-            {brand.hours && (
-              <div className="text-[14px] text-[#4b4b4b] mt-2">Store Timings: {brand.hours}</div>
-            )}
+        {/* Contact Message Form Card with Vertical Sky Blue Side Accent Line */}
+        <div className="bg-white rounded-xl border border-slate-100 p-5 sm:p-7 shadow-sm mb-6 relative overflow-hidden group">
+          {/* Vertical Sky Blue Side Accent Bar */}
+          <div className="absolute top-0 left-0 bottom-0 w-1 bg-gradient-to-b from-[#0891b2] to-[#38bdf8] opacity-80 group-hover:w-1.5 transition-all" />
 
-            <div className="flex flex-wrap gap-[15px] mt-2">
-              {SOCIAL_ICONS.map(({ key, label, Icon }) => {
-                const href = brand.social[key]
-                return href ? (
-                  <a
-                    key={key}
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={label}
-                    className="inline-flex text-[#212121] hover:text-cz-primary hover:scale-125 transition-transform duration-200"
-                  >
-                    <Icon size={24} />
-                  </a>
-                ) : null
-              })}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 pb-5 border-b border-slate-100 pl-1 sm:pl-2">
+            <div>
+              <h2 className="text-[17px] sm:text-[19px] font-bold text-slate-800 font-heading">Send Us a Message</h2>
+              <p className="text-[13px] text-slate-500 mt-0.5">Fill out the form below and our support team will respond promptly.</p>
             </div>
+            {sitePhone && (
+              <a
+                href={`https://wa.me/${sitePhone.replace(/[^0-9]/g, '')}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-[13px] font-semibold shadow transition-all shrink-0"
+              >
+                <span>WhatsApp Support</span>
+              </a>
+            )}
           </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <h2 className="text-[18px] font-semibold text-[#212121]">Send us a message</h2>
+          {status === 'success' ? (
+            <div className="rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-[14px] px-5 py-4 shadow-sm ml-1 sm:ml-2">
+              ✨ Thank you! Your message has been sent successfully. We will get back to you shortly.
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4 pl-1 sm:pl-2">
+              {status === 'error' && (
+                <div className="rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-[13px] px-4 py-3">
+                  {error}
+                </div>
+              )}
 
-            {status === 'success' ? (
-              <p className="text-[14px] text-green-700">Thanks! Your message has been sent — we'll get back to you soon.</p>
-            ) : (
-              <>
-                {error && <div className="text-[13px] text-red-600">{error}</div>}
-                <Input label="Name" name="name" type="text" placeholder="Your name" value={form.name} onChange={handleChange} required />
-                <Input label="Email" name="email" type="email" placeholder="you@example.com" value={form.email} onChange={handleChange} required />
-                <Input label="Subject" name="subject" type="text" placeholder="How can we help?" value={form.subject} onChange={handleChange} />
-                <div className="flex flex-col gap-1">
-                  <label className="text-[13px] text-[#4b4b4b]">Message</label>
-                  <textarea
-                    name="message"
-                    rows={5}
-                    placeholder="Write your message..."
-                    value={form.message}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">Full Name *</label>
+                  <input
+                    name="name"
+                    value={form.name}
                     onChange={handleChange}
                     required
-                    className="w-full rounded-md border border-[#d1d5db] bg-white text-[14px] text-[#212121] placeholder-[#9ca3af] px-4 py-3 outline-none focus:border-cz-primary resize-none"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50/50 text-[14px] text-slate-800 px-4 py-2.5 outline-none focus:border-cz-primary focus:bg-white transition-all"
+                    placeholder="Enter your name"
                   />
                 </div>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="self-start rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-semibold py-2.5 px-8 transition-colors disabled:opacity-60"
-                >
-                  {submitting ? 'Sending...' : 'Send Message'}
-                </button>
-              </>
-            )}
-          </form>
+                <div>
+                  <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">Email Address *</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={form.email}
+                    onChange={handleChange}
+                    required
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50/50 text-[14px] text-slate-800 px-4 py-2.5 outline-none focus:border-cz-primary focus:bg-white transition-all"
+                    placeholder="Enter your email"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">Phone Number</label>
+                  <input
+                    name="phone"
+                    value={form.phone}
+                    onChange={handleChange}
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50/50 text-[14px] text-slate-800 px-4 py-2.5 outline-none focus:border-cz-primary focus:bg-white transition-all"
+                    placeholder="e.g. +92 300 1234567"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">Subject</label>
+                  <input
+                    name="subject"
+                    value={form.subject}
+                    onChange={handleChange}
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50/50 text-[14px] text-slate-800 px-4 py-2.5 outline-none focus:border-cz-primary focus:bg-white transition-all"
+                    placeholder="How can we help?"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">Message *</label>
+                <textarea
+                  name="message"
+                  value={form.message}
+                  onChange={handleChange}
+                  required
+                  rows={5}
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 text-[14px] text-slate-800 px-4 py-2.5 outline-none focus:border-cz-primary focus:bg-white transition-all resize-none"
+                  placeholder="Write your message here..."
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={status === 'submitting'}
+                className="self-start rounded-xl bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-semibold px-7 py-3 shadow hover:shadow-md transition-all disabled:opacity-60 cursor-pointer"
+              >
+                {status === 'submitting' ? 'Sending Message...' : 'Send Message'}
+              </button>
+            </form>
+          )}
         </div>
-      </div>
+      </main>
 
       <Footer />
     </div>

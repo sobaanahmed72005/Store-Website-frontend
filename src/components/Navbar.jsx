@@ -6,7 +6,7 @@ const NAV_LINKS = [
   { label: 'About us',      href: '/about-us' },
   { label: 'Contact us',    href: '/contact' },
   { label: 'Policies',      href: '/return-exchange' },
-  { label: 'Order tracking', href: '/account' },
+  { label: 'Order tracking', href: '/order-tracking' },
 ]
 
 const DEFAULT_MESSAGES = [

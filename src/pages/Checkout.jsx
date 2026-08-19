@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
-import { CartIcon, ChevronDownIcon, CheckIcon } from '../components/icons'
-import Logo from '../components/Logo'
+import Navbar from '../components/Navbar'
+import Header from '../components/Header'
+import CategoryMenu from '../components/CategoryMenu'
+import Footer from '../components/Footer'
+import { ChevronDownIcon } from '../components/icons'
 import { useCurrency } from '../store/currencyStore'
 import { useCart } from '../store/cartStore'
 import { useAuth } from '../store/authStore'
@@ -15,7 +18,7 @@ function Input({ ...props }) {
   return (
     <input
       {...props}
-      className="w-full rounded-md border border-[#d1d5db] bg-white text-[14px] text-[#212121] placeholder-[#9ca3af] px-4 py-3 outline-none focus:border-cz-primary transition-colors"
+      className="w-full rounded-xl border border-slate-200 bg-slate-50/50 text-[14px] text-slate-800 placeholder-slate-400 px-4 py-2.5 outline-none focus:border-cz-primary focus:bg-white transition-all"
     />
   )
 }
@@ -30,23 +33,19 @@ function Select({ value }) {
   return (
     <button
       type="button"
-      className="w-full flex items-center justify-between rounded-md border border-[#d1d5db] bg-white text-[14px] text-[#212121] px-4 py-3"
+      className="w-full flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50/50 text-[14px] text-slate-800 px-4 py-2.5"
     >
       <span>{value}</span>
-      <ChevronDownIcon size={14} />
+      <ChevronDownIcon size={14} className="text-slate-500" />
     </button>
   )
 }
 
-// A real <input type="radio"> under the hood when `onClick`/`groupName` are given — gives
-// keyboard selection (Tab + Space, arrow keys between options in the group) and screen-reader
-// semantics for free, instead of a div with just a click handler. Renders as a plain read-only
-// card (no input) when there's nothing to select, e.g. the single fixed shipping method below.
 function RadioCard({ active, name, price, onClick, children, groupName, value }) {
   const card = (
     <div
-      className={`rounded-md border p-4 transition-colors ${
-        active ? 'border-cz-primary ring-1 ring-cz-primary' : 'border-[#d1d5db]'
+      className={`rounded-xl border p-4 transition-all ${
+        active ? 'border-cz-primary bg-sky-50/30 ring-1 ring-cz-primary' : 'border-slate-200 bg-white hover:border-slate-300'
       }`}
     >
       <div className="flex items-center justify-between">
@@ -58,22 +57,22 @@ function RadioCard({ active, name, price, onClick, children, groupName, value })
               value={value}
               checked={active}
               onChange={onClick}
-              className="w-4 h-4 shrink-0 accent-cz-primary"
+              className="w-4 h-4 shrink-0 accent-cz-primary cursor-pointer"
             />
           ) : (
             <span
               className={`flex items-center justify-center w-4 h-4 rounded-full border-2 shrink-0 ${
-                active ? 'border-cz-primary' : 'border-[#9ca3af]'
+                active ? 'border-cz-primary' : 'border-slate-300'
               }`}
             >
               {active && <span className="w-2 h-2 rounded-full bg-cz-primary" />}
             </span>
           )}
-          <span className="font-medium text-[14px] text-[#212121]">{name}</span>
+          <span className="font-semibold text-[14px] text-slate-800">{name}</span>
         </div>
-        {price && <span className="text-[14px] text-[#212121]">{price}</span>}
+        {price && <span className="text-[14px] font-bold text-slate-800">{price}</span>}
       </div>
-      {children && <div className="mt-3 text-[13px] text-[#4b4b4b] leading-relaxed">{children}</div>}
+      {children && <div className="mt-3 text-[13px] text-slate-600 leading-relaxed">{children}</div>}
     </div>
   )
 
@@ -98,17 +97,11 @@ function PaymentMethodDetails({ methodKey, method }) {
           {method.accountNumber && <>Account #: {method.accountNumber}</>}
           {method.instructions && <><br /><br />{method.instructions}</>}
           <br /><br />
-          Please ensure the account name matches the customer's name where possible.
+          Enter your reference number below and upload a payment proof screenshot.
         </>
       ) : (
         <>
-          Send your order amount to the following {method.label} account.
-          <br /><br />
-          {method.accountTitle && <>Account Title: {method.accountTitle}<br /></>}
-          {method.number && <>{method.label} Number: {method.number}</>}
-          {method.instructions && <><br /><br />{method.instructions}</>}
-          <br /><br />
-          Please ensure the account name matches the customer's name where possible.
+          {method.instructions || 'Send your payment using the details provided by this gateway, then enter your transaction reference below.'}
         </>
       )}
     </div>
@@ -122,156 +115,158 @@ export default function Checkout() {
     canonical: `${window.location.origin}/checkout`,
     noindex: true,
   })
+
   const { format } = useCurrency()
   const { items, subTotal, clearCart } = useCart()
-  const { user, initializing } = useAuth()
-  const { brand } = useSiteSettings()
+  const { user } = useAuth()
   const navigate = useNavigate()
-  const [sameAsBilling, setSameAsBilling] = useState(true)
-  const [submitting, setSubmitting] = useState(false)
-  const [orderPlaced, setOrderPlaced] = useState(false)
-  const [error, setError] = useState('')
-  const [form, setForm] = useState({
-    email: user?.email || '',
-    phone: user?.saved_phone || '',
-    fullName: user?.name || '',
-    address1: user?.saved_address || '',
-    address2: '',
-    // Deliberately not pre-filled from user?.saved_city (unlike the other fields below) — the
-    // customer's shipping city can change order to order, so it should always start blank and
-    // be typed fresh each time rather than silently carrying over the last one used.
-    city: '',
-    notes: '',
-  })
 
-  // When AuthContext finishes re-fetching the user (e.g. after a page refresh),
-  // backfill any empty fields with the saved values without overwriting what the user has typed
-  useEffect(() => {
-    setForm((prev) => ({
-      ...prev,
-      email: prev.email || user?.email || '',
-      fullName: prev.fullName || user?.name || '',
-      phone: prev.phone || user?.saved_phone || '',
-      address1: prev.address1 || user?.saved_address || '',
-    }))
-  }, [user?.email, user?.name, user?.saved_phone, user?.saved_address]) // eslint-disable-line react-hooks/exhaustive-deps
-  const [shippingFee, setShippingFee] = useState(1800)
-  const [discountInput, setDiscountInput] = useState('')
-  const [appliedDiscount, setAppliedDiscount] = useState(null)
-  const [discountError, setDiscountError] = useState('')
-  const [applyingDiscount, setApplyingDiscount] = useState(false)
-  const [paymentMethods, setPaymentMethods] = useState({})
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null)
+  const [shippingMethods, setShippingMethods] = useState([])
+  const [selectedShippingId, setSelectedShippingId] = useState(null)
+  const [isFirstOrder, setIsFirstOrder] = useState(false)
+  const [paymentMethods, setPaymentMethods] = useState(null)
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('')
   const [paymentReference, setPaymentReference] = useState('')
   const [paymentProofImage, setPaymentProofImage] = useState('')
   const [uploadingProof, setUploadingProof] = useState(false)
   const [proofError, setProofError] = useState('')
-  const helplinePhone = brand.phone.split('|')[0].trim()
-  const helplineEmail = brand.email
+
+  const [form, setForm] = useState({
+    email: '',
+    phone: '',
+    fullName: '',
+    address1: '',
+    address2: '',
+    city: '',
+    postalCode: '',
+    notes: '',
+  })
+
+  const [appliedDiscount, setAppliedDiscount] = useState(null)
+  const [discountInput, setDiscountInput] = useState('')
+  const [discountError, setDiscountError] = useState('')
+  const [applyingDiscount, setApplyingDiscount] = useState(false)
+
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
+  const [orderPlaced, setOrderPlaced] = useState(false)
 
   useEffect(() => {
     api
       .get(ENDPOINTS.CONTENT.SHIPPING_SETTINGS)
-      .then((data) => setShippingFee(Number(data.fee) || 1800))
-      .catch((err) => console.error('Failed to load shipping settings:', err))
+      .then((data) => {
+        const methods = Array.isArray(data?.methods) ? data.methods : []
+        const activeMethods = methods.filter((m) => m.enabled)
+        setShippingMethods(activeMethods)
+        if (activeMethods.length > 0) setSelectedShippingId(activeMethods[0].id)
+      })
+      .catch((err) => console.error('Failed to load shipping methods:', err))
+
     api
       .get(ENDPOINTS.CONTENT.PAYMENT_SETTINGS)
       .then((data) => {
-        const methods = data.methods || {}
+        const methods = data?.methods || data || {}
         setPaymentMethods(methods)
-        const firstEnabled = Object.keys(methods).find((key) => methods[key].enabled)
-        if (firstEnabled) setSelectedPaymentMethod(firstEnabled)
+        if (methods?.cod?.enabled) setSelectedPaymentMethod('cod')
+        else if (methods?.bank_transfer?.enabled) setSelectedPaymentMethod('bank_transfer')
+        else if (methods?.custom?.enabled) setSelectedPaymentMethod('custom')
       })
-      // Empty paymentMethods already renders the "No payment methods configured" notice below,
-      // so checkout doesn't silently look broken — this just makes a fetch failure (vs. an admin
-      // genuinely not having set any up yet) distinguishable in the console.
-      .catch((err) => console.error('Failed to load payment settings:', err))
+      .catch((err) => console.error('Failed to load payment methods:', err))
   }, [])
 
-  const [isFirstOrder, setIsFirstOrder] = useState(true)
-
   useEffect(() => {
-    const checkEligibility = async () => {
-      try {
-        const queryParams = new URLSearchParams()
-        if (form.email) queryParams.append('email', form.email.trim())
-        if (form.phone) queryParams.append('phone', form.phone.trim())
-        const qs = queryParams.toString() ? `?${queryParams.toString()}` : ''
+    if (user) {
+      setForm((prev) => ({
+        ...prev,
+        email: user.email || prev.email,
+        fullName: user.name || prev.fullName,
+      }))
 
-        const data = await api.get(ENDPOINTS.ORDERS.CHECK_FIRST_ORDER(qs), { auth: true })
-        setIsFirstOrder(Boolean(data.isFirstOrder))
-      } catch (err) {
-        setIsFirstOrder(true)
-      }
+      api
+        .get(ENDPOINTS.ORDERS.BY_USER(user.id), { auth: true })
+        .then((data) => {
+          const list = Array.isArray(data?.orders) ? data.orders : []
+          setIsFirstOrder(list.length === 0)
+        })
+        .catch(() => setIsFirstOrder(false))
     }
-    checkEligibility()
-  }, [user, form.email, form.phone])
-
-  const enabledPaymentMethods = Object.entries(paymentMethods).filter(([, method]) => method.enabled)
-
-  const effectiveShippingFee = isFirstOrder ? 0 : shippingFee
-  const shipping = items.length > 0 ? effectiveShippingFee : 0
-  const discountAmount = appliedDiscount?.discount_amount || 0
-  const total = Math.max(0, subTotal + shipping - discountAmount)
-
-  // Mirrors the checks in handleSubmit so the button's disabled/greyed-out look always matches
-  // whether submitting would actually succeed, instead of looking clickable and then bouncing
-  // the user back with "fill out this field".
-  const isFormComplete =
-    form.email.trim() &&
-    form.phone.trim() &&
-    form.fullName.trim() &&
-    form.address1.trim() &&
-    Boolean(selectedPaymentMethod) &&
-    (selectedPaymentMethod === 'cod' || (paymentReference.trim() && Boolean(paymentProofImage)))
-
-  const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+  }, [user])
 
   const handleApplyDiscount = async () => {
     if (!discountInput.trim()) return
     setApplyingDiscount(true)
     setDiscountError('')
     try {
-      const data = await api.post(ENDPOINTS.DISCOUNT_CODES.VALIDATE, { code: discountInput.trim(), subtotal: subTotal }, { auth: true })
-      setAppliedDiscount(data)
+      const result = await api.post(ENDPOINTS.DISCOUNT_CODES.VALIDATE, { code: discountInput.trim(), subTotal })
+      if (result.valid) {
+        setAppliedDiscount(result.discount)
+        setDiscountInput('')
+      } else {
+        setDiscountError(result.message || 'Invalid discount code')
+      }
     } catch (err) {
-      setAppliedDiscount(null)
-      setDiscountError(err.message)
+      setDiscountError(err.message || 'Failed to validate discount code')
     } finally {
       setApplyingDiscount(false)
     }
   }
 
-  const handleRemoveDiscount = () => {
-    setAppliedDiscount(null)
-    setDiscountInput('')
-    setDiscountError('')
+  const handleRemoveDiscount = () => setAppliedDiscount(null)
+
+  const selectedShipping = shippingMethods.find((m) => m.id === selectedShippingId)
+  const shippingFee = selectedShipping ? Number(selectedShipping.fee) : 0
+  const shipping = isFirstOrder ? 0 : shippingFee
+
+  let discountAmount = 0
+  if (appliedDiscount) {
+    if (appliedDiscount.type === 'percentage') {
+      discountAmount = Math.round((subTotal * Number(appliedDiscount.value)) / 100)
+    } else {
+      discountAmount = Number(appliedDiscount.value)
+    }
+    if (discountAmount > subTotal) discountAmount = subTotal
+  }
+
+  const total = Math.max(0, subTotal + shipping - discountAmount)
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setForm((prev) => ({ ...prev, [name]: value }))
   }
 
   const handleProofUpload = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
-    setProofError('')
     setUploadingProof(true)
+    setProofError('')
     try {
-      const data = await uploadImage(file, ENDPOINTS.ORDERS.PAYMENT_PROOF)
-      setPaymentProofImage(data.url)
+      const url = await uploadImage(file)
+      setPaymentProofImage(url)
     } catch (err) {
-      setProofError(err.message || 'Upload failed')
-      setPaymentProofImage('')
+      setProofError(err.message || 'Failed to upload screenshot')
     } finally {
       setUploadingProof(false)
     }
   }
 
-  if (initializing) return null
-  if (!user) {
-    return <Navigate to="/signin" state={{ from: '/checkout' }} replace />
-  }
-
   if (items.length === 0 && !orderPlaced) {
     return <Navigate to="/cart" replace />
   }
+
+  const enabledPaymentMethods = paymentMethods
+    ? Object.entries(paymentMethods).filter(([, m]) => m?.enabled)
+    : []
+
+  const isFormComplete =
+    form.email.trim() &&
+    form.phone.trim() &&
+    form.fullName.trim() &&
+    form.address1.trim() &&
+    selectedPaymentMethod &&
+    (selectedPaymentMethod === 'cod' || (paymentReference.trim() && paymentProofImage))
+
+  const helplinePhone = paymentMethods?.bank_transfer?.helplinePhone || ''
+  const helplineEmail = paymentMethods?.bank_transfer?.helplineEmail || ''
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -316,269 +311,291 @@ export default function Checkout() {
   }
 
   return (
-    <div className="min-h-screen bg-cz-page">
-      <h1 className="sr-only">Checkout</h1>
-      <SeoHeadingFiller h3="Order review" h4="Discount code" h5="Payment proof upload" h6="Terms notice" />
-      <div className="bg-cz-header">
-        <div className="mx-auto px-5">
-          <div className="flex justify-between items-center py-2.5">
-            <Link to="/">
-              <Logo iconOnly variant="light" size={64} />
-            </Link>
-            <Link to="/cart" aria-label="Cart" className="text-white">
-              <CartIcon size={24} />
-            </Link>
-          </div>
+    <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans">
+      <Navbar />
+      <Header />
+      <CategoryMenu />
+
+      <main className="max-w-[1000px] w-full mx-auto px-4 sm:px-5 py-6 sm:py-8 flex-1">
+        {/* Left-Aligned Ocean Navy Title Heading (No Breadcrumbs) */}
+        <div className="mb-5 sm:mb-6">
+          <h1 className="text-[24px] sm:text-[30px] font-bold text-[#0c4a6e] font-heading tracking-tight">
+            Checkout
+          </h1>
+          <SeoHeadingFiller h3="Order review" h4="Discount code" h5="Payment proof upload" h6="Terms notice" />
         </div>
-      </div>
 
-      <div className="relative bg-cz-gold-light lg:bg-[linear-gradient(90deg,transparent_50%,var(--color-cz-gold-light)_0)]">
-        <div className="mx-auto px-5 max-sm:!px-0">
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-            <div className="lg:pr-16 px-5 lg:px-0 pt-5 pb-10 lg:py-10">
-              <div className="grid grid-cols-1 gap-4">
-                <div className="flex items-center justify-between flex-wrap">
-                  <h2 className="text-[18px] font-semibold text-[#212121]">Contact Information</h2>
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-5 pb-10 items-start w-full">
+          {/* Left Column: Contact, Shipping & Payment Form Card */}
+          <div className="lg:col-span-7 col-span-12 bg-white rounded-xl border border-slate-100 p-5 sm:p-7 shadow-sm flex flex-col gap-6">
+            <div>
+              <h2 className="text-[17px] sm:text-[18px] font-bold text-slate-800 font-heading mb-3 pb-2 border-b border-slate-100">
+                Contact Information
+              </h2>
+              {error && <div className="text-[13px] text-rose-600 mb-3 bg-rose-50 border border-rose-200 p-3 rounded-lg">{error}</div>}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block text-[13px] font-semibold text-slate-700 mb-1">Email Address *</label>
+                  <Input name="email" type="email" placeholder="Enter your email" value={form.email} onChange={handleChange} required />
                 </div>
+                <div>
+                  <label className="block text-[13px] font-semibold text-slate-700 mb-1">Phone Number *</label>
+                  <Input name="phone" type="tel" placeholder="Enter your phone number" value={form.phone} onChange={handleChange} required />
+                </div>
+              </div>
+            </div>
 
-                {error && <div className="text-[13px] text-red-600">{error}</div>}
-
-                <Input name="email" type="email" placeholder="Enter your email" value={form.email} onChange={handleChange} required />
-                <Input name="phone" type="tel" placeholder="Enter your phone number" value={form.phone} onChange={handleChange} required />
-
-                <h2 className="text-[18px] font-semibold text-[#212121] mt-6">Shipping Address</h2>
-                <Input name="fullName" type="text" placeholder="Full Name" value={form.fullName} onChange={handleChange} required />
-                <Input name="address1" type="text" placeholder="Address" value={form.address1} onChange={handleChange} required />
-                <Input name="address2" type="text" placeholder="Address Line 2" value={form.address2} onChange={handleChange} />
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <h2 className="text-[17px] sm:text-[18px] font-bold text-slate-800 font-heading mb-3 pb-2 border-b border-slate-100">
+                Shipping Address
+              </h2>
+              <div className="flex flex-col gap-3.5">
+                <div>
+                  <label className="block text-[13px] font-semibold text-slate-700 mb-1">Full Name *</label>
+                  <Input name="fullName" type="text" placeholder="Full Name" value={form.fullName} onChange={handleChange} required />
+                </div>
+                <div>
+                  <label className="block text-[13px] font-semibold text-slate-700 mb-1">Address *</label>
+                  <Input name="address1" type="text" placeholder="House / Building / Street address" value={form.address1} onChange={handleChange} required />
+                </div>
+                <div>
+                  <label className="block text-[13px] font-semibold text-slate-700 mb-1">Address Line 2 (Optional)</label>
+                  <Input name="address2" type="text" placeholder="Apartment, suite, unit, etc." value={form.address2} onChange={handleChange} />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <Select value="Pakistan" />
                   <Select value="Punjab" />
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[13px] font-semibold text-slate-700 mb-1">City *</label>
                   <Input name="city" type="text" placeholder="City" value={form.city} onChange={handleChange} list="city-suggestions" autoComplete="off" />
                   <datalist id="city-suggestions">
-                    {CITY_SUGGESTIONS.map((c) => <option key={c} value={c} />)}
-                  </datalist>
-                  <div />
-                </div>
-
-                <div className="flex items-center py-2">
-                  <div className="relative inline-flex w-4 h-4 shrink-0 cursor-pointer select-none">
-                    <input
-                      id="same_as_shipping"
-                      type="checkbox"
-                      checked={sameAsBilling}
-                      onChange={(e) => setSameAsBilling(e.target.checked)}
-                      className="absolute inset-0 w-full h-full z-10 m-0 p-0 opacity-0 cursor-pointer"
-                    />
-                    <div
-                      className={`flex items-center justify-center w-4 h-4 rounded border transition-colors ${
-                        sameAsBilling ? 'bg-cz-primary border-cz-primary text-white' : 'bg-white border-[#cbd5e1]'
-                      }`}
-                    >
-                      <CheckIcon size={11} />
-                    </div>
-                  </div>
-                  <label htmlFor="same_as_shipping" className="ml-2 cursor-pointer text-[14px] text-[#212121]">
-                    Use shipping address as billing address.
-                  </label>
-                </div>
-
-                <h2 className="text-[18px] font-semibold text-[#212121] mt-4">Shipping Methods</h2>
-                <RadioCard active name="Standard Delivery" price={format(shipping)} />
-
-                <h2 className="text-[18px] font-semibold text-[#212121] mt-4">Payment</h2>
-                {enabledPaymentMethods.length === 0 ? (
-                  <div className="rounded-md border border-amber-300 bg-amber-50 text-amber-900 text-[13px] px-4 py-3">
-                    No payment methods are configured yet. Please contact us to complete your order.
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-3">
-                    {enabledPaymentMethods.map(([key, method]) => (
-                      <RadioCard
-                        key={key}
-                        active={selectedPaymentMethod === key}
-                        name={method.label}
-                        groupName="payment-method"
-                        value={key}
-                        onClick={() => setSelectedPaymentMethod(key)}
-                      >
-                        {selectedPaymentMethod === key && (
-                          <PaymentMethodDetails methodKey={key} method={method} />
-                        )}
-                      </RadioCard>
+                    {CITY_SUGGESTIONS.map((city) => (
+                      <option key={city} value={city} />
                     ))}
-                    {selectedPaymentMethod && selectedPaymentMethod !== 'cod' && (
-                      <>
-                        <Input
-                          name="paymentReference"
-                          type="text"
-                          placeholder="Transaction ID / Reference"
-                          value={paymentReference}
-                          onChange={(e) => setPaymentReference(e.target.value)}
-                          required
-                        />
-                        <div>
-                          <label className="block text-[13px] text-[#4b4b4b] mb-1">
-                            Upload a screenshot of your payment
-                          </label>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleProofUpload}
-                            className="w-full text-[13px] text-[#4b4b4b]"
-                          />
-                          {uploadingProof && <p className="text-[12px] text-[#9ca3af] mt-1">Uploading...</p>}
-                          {paymentProofImage && !uploadingProof && (
-                            <p className="text-[12px] text-green-700 mt-1">Screenshot uploaded ✓</p>
-                          )}
-                          {proofError && <p className="text-[12px] text-red-600 mt-1">{proofError}</p>}
-                        </div>
-                        {(helplinePhone || helplineEmail) && (
-                          <div className="rounded-md border border-[#d1d5db] bg-[#f9fafb] text-[12px] text-[#4b4b4b] px-4 py-3">
-                            Facing an issue while transferring your payment? Contact our helpline
-                            {helplinePhone && <> at <a href={`tel:${helplinePhone}`} className="text-cz-primary underline">{helplinePhone}</a></>}
-                            {helplinePhone && helplineEmail && ' or'}
-                            {helplineEmail && <> email us at <a href={`mailto:${helplineEmail}`} className="text-cz-primary underline">{helplineEmail}</a></>}
-                            {' '}and we'll help you sort it out.
-                          </div>
-                        )}
-                      </>
-                    )}
-                    <p className="text-[12px] text-[#9ca3af]">
-                      By placing an order, you acknowledge and agree to our store policies and terms.
-                      We'll confirm your order once payment is received.
-                    </p>
-                  </div>
-                )}
-
-                <h2 className="text-[18px] font-semibold text-[#212121] mt-4">Additional Information</h2>
-                <textarea
-                  name="notes"
-                  placeholder="Special Instructions / Notes"
-                  rows={3}
-                  value={form.notes}
-                  onChange={handleChange}
-                  className="w-full rounded-md border border-[#d1d5db] bg-white text-[14px] text-[#212121] placeholder-[#9ca3af] px-4 py-3 outline-none focus:border-cz-primary resize-none"
-                />
+                  </datalist>
+                </div>
               </div>
             </div>
 
-            <div className="px-5 lg:px-16 pb-10 pt-[30px] bg-cz-gold-light lg:bg-transparent">
-              {isFirstOrder && (
-                <div className="mb-4 rounded-xl bg-emerald-50 border border-emerald-300 p-3.5 flex items-center gap-3 text-emerald-900 text-[13px] font-medium shadow-sm">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-white shrink-0 text-[15px]">
-                    🎉
-                  </span>
-                  <div>
-                    <p className="font-bold text-emerald-900 text-[14px]">First Order Special Offer!</p>
-                    <p className="text-[12px] text-emerald-700 leading-tight">
-                      Free nationwide delivery has been automatically applied to your order.
-                    </p>
-                  </div>
+            <div>
+              <h2 className="text-[17px] sm:text-[18px] font-bold text-slate-800 font-heading mb-3 pb-2 border-b border-slate-100">
+                Shipping Method
+              </h2>
+              {shippingMethods.length === 0 ? (
+                <p className="text-[13px] text-slate-500">Standard Delivery</p>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {shippingMethods.map((method) => (
+                    <RadioCard
+                      key={method.id}
+                      active={selectedShippingId === method.id}
+                      name={method.name}
+                      price={isFirstOrder ? 'FREE' : format(Number(method.fee))}
+                      groupName="shipping-method"
+                      value={method.id}
+                      onClick={() => setSelectedShippingId(method.id)}
+                    >
+                      {method.description}
+                    </RadioCard>
+                  ))}
                 </div>
               )}
-              <div className="grid gap-y-4 mt-2">
-                {items.map((item, index) => (
-                  <div key={`${item.id}-${item.variantId ?? ''}`} className="flex items-center bg-white rounded-md p-3">
-                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-cz-primary text-white text-[11px] shrink-0">
-                      {index + 1}
-                    </span>
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      width={90}
-                      height={90}
-                      className="aspect-square object-cover border rounded-lg w-[90px] h-[90px] ml-3"
-                    />
-                    <div className="flex flex-col ps-4 flex-1">
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="font-medium text-[14px] text-[#212121] line-clamp-2">
-                          {item.title}
-                          {item.variantLabel && <span className="text-[#6b7280]"> ({item.variantLabel})</span>} × {item.qty}
-                        </span>
-                        <span className="text-[14px] text-[#212121] shrink-0">{format(item.price * item.qty)}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+            </div>
 
-                {appliedDiscount ? (
-                  <div className="w-full flex items-center justify-between rounded-md border border-green-600 bg-green-50 px-4 py-3">
-                    <span className="text-[14px] text-green-700">
-                      Code <strong>{appliedDiscount.code}</strong> applied (-{format(discountAmount)})
-                    </span>
-                    <button type="button" onClick={handleRemoveDiscount} className="text-[13px] text-green-700 underline">
-                      Remove
-                    </button>
-                  </div>
-                ) : (
-                  <div className="w-full flex flex-col gap-1">
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="text"
-                        name="discount"
-                        placeholder="Discount / Promo code"
-                        value={discountInput}
-                        onChange={(e) => setDiscountInput(e.target.value)}
-                        className="flex-1 rounded-md border border-[#d1d5db] bg-white text-[14px] text-[#212121] placeholder-[#9ca3af] px-4 py-3 outline-none"
-                      />
-                      <button
-                        type="button"
-                        disabled={applyingDiscount || !discountInput.trim()}
-                        onClick={handleApplyDiscount}
-                        className="w-[100px] rounded-md bg-cz-primary text-white text-[14px] font-medium py-3 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {applyingDiscount ? '...' : 'Apply'}
-                      </button>
-                    </div>
-                    {discountError && <span className="text-[13px] text-red-600">{discountError}</span>}
-                  </div>
-                )}
-
-                <div className="flex flex-col space-y-2">
-                  <div className="flex items-center justify-between text-[14px] text-[#212121]">
-                    <span>Sub Total</span>
-                    <span>{format(subTotal)}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-[14px] text-[#212121]">
-                    <span>Shipping</span>
-                    <span>
-                      {isFirstOrder ? (
-                        <span className="flex items-center gap-1.5 font-bold text-emerald-600">
-                          <span className="line-through text-slate-400 font-normal text-[12px]">{format(shippingFee)}</span>
-                          <span>FREE</span>
-                        </span>
-                      ) : (
-                        format(shipping)
+            <div>
+              <h2 className="text-[17px] sm:text-[18px] font-bold text-slate-800 font-heading mb-3 pb-2 border-b border-slate-100">
+                Payment Method
+              </h2>
+              {enabledPaymentMethods.length === 0 ? (
+                <p className="text-[13px] text-rose-600">No payment methods are currently available. Please contact store support.</p>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  {enabledPaymentMethods.map(([key, method]) => (
+                    <RadioCard
+                      key={key}
+                      active={selectedPaymentMethod === key}
+                      name={method.label}
+                      groupName="payment-method"
+                      value={key}
+                      onClick={() => setSelectedPaymentMethod(key)}
+                    >
+                      {selectedPaymentMethod === key && (
+                        <PaymentMethodDetails methodKey={key} method={method} />
                       )}
-                    </span>
-                  </div>
-                  {discountAmount > 0 && (
-                    <div className="flex items-center justify-between text-[14px] text-green-700">
-                      <span>Discount</span>
-                      <span>-{format(discountAmount)}</span>
+                    </RadioCard>
+                  ))}
+                  {selectedPaymentMethod && selectedPaymentMethod !== 'cod' && (
+                    <div className="flex flex-col gap-3 pt-2">
+                      <Input
+                        name="paymentReference"
+                        type="text"
+                        placeholder="Transaction ID / Reference"
+                        value={paymentReference}
+                        onChange={(e) => setPaymentReference(e.target.value)}
+                        required
+                      />
+                      <div>
+                        <label className="block text-[13px] font-semibold text-slate-700 mb-1">
+                          Upload Payment Screenshot *
+                        </label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleProofUpload}
+                          className="w-full text-[13px] text-slate-600 cursor-pointer"
+                        />
+                        {uploadingProof && <p className="text-[12px] text-slate-400 mt-1">Uploading screenshot...</p>}
+                        {paymentProofImage && !uploadingProof && (
+                          <p className="text-[12px] text-emerald-700 font-semibold mt-1">Screenshot uploaded ✓</p>
+                        )}
+                        {proofError && <p className="text-[12px] text-rose-600 mt-1">{proofError}</p>}
+                      </div>
+                      {(helplinePhone || helplineEmail) && (
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 text-[12px] text-slate-600 p-3.5">
+                          Facing an issue while transferring your payment? Contact helpline
+                          {helplinePhone && <> at <a href={`tel:${helplinePhone}`} className="text-cz-primary font-bold hover:underline">{helplinePhone}</a></>}
+                          {helplinePhone && helplineEmail && ' or'}
+                          {helplineEmail && <> email <a href={`mailto:${helplineEmail}`} className="text-cz-primary font-bold hover:underline">{helplineEmail}</a></>}
+                          .
+                        </div>
+                      )}
                     </div>
                   )}
-                  <div className="flex items-center justify-between text-[16px] font-semibold text-[#212121] pt-2 border-t border-[#d1d5db]">
-                    <span>Total</span>
-                    <span>{format(total)}</span>
-                  </div>
                 </div>
-
-                <button
-                  type="submit"
-                  disabled={submitting || uploadingProof || enabledPaymentMethods.length === 0 || !isFormComplete}
-                  className="w-full rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[15px] font-bold tracking-wide py-4 mt-6 transition-colors disabled:opacity-60 disabled:cursor-not-allowed shadow-md"
-                >
-                  {submitting ? 'Placing Order...' : 'Complete Order'}
-                </button>
-              </div>
+              )}
             </div>
-          </form>
-        </div>
-      </div>
+
+            <div>
+              <h2 className="text-[17px] sm:text-[18px] font-bold text-slate-800 font-heading mb-2 pb-2 border-b border-slate-100">
+                Additional Notes
+              </h2>
+              <textarea
+                name="notes"
+                placeholder="Special Instructions / Notes"
+                rows={3}
+                value={form.notes}
+                onChange={handleChange}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 text-[14px] text-slate-800 placeholder-slate-400 p-3 outline-none focus:border-cz-primary focus:bg-white transition-all resize-none"
+              />
+            </div>
+          </div>
+
+          {/* Right Column: Order Summary Card */}
+          <div className="lg:col-span-5 col-span-12 sticky top-4 bg-white border border-slate-100 rounded-xl p-5 sm:p-6 shadow-sm">
+            <h3 className="text-[17px] font-bold text-slate-800 font-heading pb-3 mb-3 border-b border-slate-100">
+              Order Items ({items.length})
+            </h3>
+
+            {isFirstOrder && (
+              <div className="mb-4 rounded-xl bg-emerald-50 border border-emerald-200 p-3 flex items-center gap-2.5 text-emerald-800 text-[12px] font-medium">
+                <span className="text-base">🎉</span>
+                <div>
+                  <p className="font-bold text-[13px]">First Order Special Offer!</p>
+                  <p className="text-[11px] text-emerald-700">Free nationwide delivery applied.</p>
+                </div>
+              </div>
+            )}
+
+            {/* Item List */}
+            <div className="flex flex-col gap-3 max-h-[320px] overflow-y-auto pr-1 mb-4 border-b border-slate-100 pb-3">
+              {items.map((item, index) => (
+                <div key={`${item.id}-${item.variantId ?? ''}`} className="flex items-center gap-3">
+                  <div className="w-[52px] h-[52px] rounded-lg border border-slate-100 bg-slate-50 overflow-hidden shrink-0">
+                    <img src={item.image} alt={item.title} width={52} height={52} className="w-full h-full object-contain p-1" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[13px] font-semibold text-slate-800 line-clamp-1">{item.title}</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      {item.variantLabel && `${item.variantLabel} • `}Qty: {item.qty}
+                    </p>
+                  </div>
+                  <span className="text-[13px] font-bold text-slate-800 shrink-0">{format(item.price * item.qty)}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Discount Code Input */}
+            <div className="mb-4 pb-4 border-b border-slate-100">
+              {appliedDiscount ? (
+                <div className="flex items-center justify-between rounded-xl border border-emerald-300 bg-emerald-50 p-3 text-[13px]">
+                  <span className="text-emerald-800 font-semibold">
+                    Code <strong>{appliedDiscount.code}</strong> applied (-{format(discountAmount)})
+                  </span>
+                  <button type="button" onClick={handleRemoveDiscount} className="text-[12px] font-bold text-emerald-800 hover:underline">
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      name="discount"
+                      placeholder="Discount / Promo code"
+                      value={discountInput}
+                      onChange={(e) => setDiscountInput(e.target.value)}
+                      className="flex-1 rounded-xl border border-slate-200 bg-slate-50/50 text-[13px] text-slate-800 placeholder-slate-400 px-3.5 py-2.5 outline-none focus:border-cz-primary focus:bg-white transition-all"
+                    />
+                    <button
+                      type="button"
+                      disabled={applyingDiscount || !discountInput.trim()}
+                      onClick={handleApplyDiscount}
+                      className="rounded-xl bg-cz-primary hover:bg-cz-primary-hover text-white text-[13px] font-semibold px-4 py-2.5 disabled:opacity-50 transition-all cursor-pointer"
+                    >
+                      {applyingDiscount ? '...' : 'Apply'}
+                    </button>
+                  </div>
+                  {discountError && <span className="text-[12px] text-rose-600 font-medium">{discountError}</span>}
+                </div>
+              )}
+            </div>
+
+            {/* Subtotal, Shipping, Total */}
+            <div className="flex flex-col gap-2 text-[13px] text-slate-600 mb-4 pb-4 border-b border-slate-100">
+              <div className="flex items-center justify-between">
+                <span>Sub Total</span>
+                <span className="font-semibold text-slate-800">{format(subTotal)}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Shipping</span>
+                <span>
+                  {isFirstOrder ? (
+                    <span className="flex items-center gap-1.5 font-bold text-emerald-600">
+                      <span className="line-through text-slate-400 font-normal text-[12px]">{format(shippingFee)}</span>
+                      <span>FREE</span>
+                    </span>
+                  ) : (
+                    <span className="font-semibold text-slate-800">{format(shipping)}</span>
+                  )}
+                </span>
+              </div>
+              {discountAmount > 0 && (
+                <div className="flex items-center justify-between text-emerald-700 font-semibold">
+                  <span>Discount</span>
+                  <span>-{format(discountAmount)}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between text-[16px] font-bold text-slate-800 mb-5 font-heading">
+              <span>Total</span>
+              <span className="text-cz-primary text-[19px]">{format(total)}</span>
+            </div>
+
+            <button
+              type="submit"
+              disabled={submitting || uploadingProof || enabledPaymentMethods.length === 0 || !isFormComplete}
+              className="w-full rounded-xl bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-bold py-3.5 transition-all shadow hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            >
+              {submitting ? 'Placing Order...' : 'Complete Order'}
+            </button>
+          </div>
+        </form>
+      </main>
+
+      <Footer />
     </div>
   )
 }

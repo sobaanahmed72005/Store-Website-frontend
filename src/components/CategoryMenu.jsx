@@ -128,7 +128,7 @@ export default function CategoryMenu() {
   const activeItem = navItems.find((i) => i.label === openDropdown && i.hasDropdown)
 
   return (
-    <nav ref={menuRef} className="hidden lg:block bg-cz-nav sticky top-0 z-[100] shadow-md group/nav">
+    <nav ref={menuRef} onMouseLeave={handleClose} className="hidden lg:block bg-cz-nav sticky top-0 z-[100] shadow-md group/nav">
       <div className="mx-auto px-5 relative flex items-center">
         {/* Left Arrow Button */}
         <button
