@@ -28,11 +28,18 @@ export default function PrivacyPolicy() {
   useEffect(() => {
     api
       .get(ENDPOINTS.CONTENT.PRIVACY_POLICY)
-      .then(setContent)
+      .then((data) => {
+        if (!data || typeof data !== 'object') return
+        setContent({
+          pageTitle: data.pageTitle || 'Privacy Policy',
+          sections: Array.isArray(data.sections) ? data.sections : [],
+        })
+      })
       .catch((err) => console.error('Failed to load /content/privacy-policy content:', err))
   }, [])
 
-  const title = content.pageTitle || 'Privacy Policy'
+  const title = content?.pageTitle || 'Privacy Policy'
+  const safeSections = Array.isArray(content?.sections) ? content.sections : []
 
   useSeo({
     title: `${title} — How We Protect Your Data | ${siteName || 'IT Solutions'}`,
@@ -81,7 +88,7 @@ export default function PrivacyPolicy() {
 
         {/* Policy Cards Stream - Symmetrically Aligned */}
         <section className="grid grid-cols-1 gap-4 mb-8">
-          {content.sections.map((section, i) => (
+          {safeSections.map((section, i) => (
             <div
               key={i}
               className="bg-white rounded-xl p-4 sm:p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all group relative overflow-hidden"
@@ -96,10 +103,10 @@ export default function PrivacyPolicy() {
 
                 <div className="flex-1 min-w-0">
                   <h2 className="text-[15px] sm:text-[16px] font-bold text-slate-800 font-heading mb-1.5 pt-0.5">
-                    {section.heading}
+                    {section?.heading || ''}
                   </h2>
                   <p className="text-[13px] sm:text-[14px] text-slate-600 leading-relaxed font-normal whitespace-pre-line">
-                    {section.body}
+                    {section?.body || ''}
                   </p>
                 </div>
               </div>

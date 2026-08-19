@@ -31,9 +31,10 @@ const SOCIAL_ICONS = [
 ]
 
 function MarqueeGroup({ messages }) {
+  const safeMessages = Array.isArray(messages) ? messages : []
   return (
     <div className="flex items-center shrink-0">
-      {messages.map((message, i) => (
+      {safeMessages.map((message, i) => (
         <div key={i} className="flex items-center shrink-0 gap-[31px] mx-3">
           <span className="w-[10px] h-[10px] rounded-full bg-slate-900 shrink-0" />
           <div className="uppercase text-[14px] font-semibold text-slate-900 tracking-wider whitespace-nowrap">
@@ -46,7 +47,7 @@ function MarqueeGroup({ messages }) {
 }
 
 function MarqueeBar({ messages }) {
-  if (!messages?.length) return null
+  if (!Array.isArray(messages) || messages.length === 0) return null
   return (
     <div className="overflow-hidden py-[7px] border-b border-slate-200" style={{ backgroundColor: '#e0f2fe' }}>
       <div className="marquee-track flex w-max">
@@ -71,7 +72,7 @@ function Newsletter() {
     api
       .get(ENDPOINTS.NEWSLETTER.STATUS(emailToCheck))
       .then((data) => {
-        if (data.subscribed) setAlreadySubscribed(true)
+        if (data?.subscribed) setAlreadySubscribed(true)
       })
       .catch((err) => console.error('Failed to check newsletter subscription status:', err))
   }, [user])
@@ -84,7 +85,7 @@ function Newsletter() {
       const data = await api.post(ENDPOINTS.NEWSLETTER.SUBSCRIBE, { email })
       localStorage.setItem(SUBSCRIBED_STORAGE_KEY, email)
       setStatus('success')
-      setAlreadySubscribed(Boolean(data.alreadySubscribed))
+      setAlreadySubscribed(Boolean(data?.alreadySubscribed))
       setEmail('')
     } catch (err) {
       setStatus('error')
@@ -141,6 +142,7 @@ function Newsletter() {
 
 function FooterColumn({ col }) {
   const [open, setOpen] = useState(false)
+  const safeLinks = Array.isArray(col?.links) ? col.links : []
 
   return (
     <div className="flex flex-col w-full border-b border-slate-200 sm:border-none">
@@ -149,14 +151,14 @@ function FooterColumn({ col }) {
         onClick={() => setOpen((prev) => !prev)}
         className="flex items-center justify-between w-full py-[15px] sm:py-0 sm:pointer-events-none sm:mb-5"
       >
-        <span className="text-[17px] font-extrabold text-slate-900 tracking-tight">{col.heading}</span>
+        <span className="text-[17px] font-extrabold text-slate-900 tracking-tight">{col?.heading}</span>
         <ChevronDownIcon
           size={14}
           className={`text-slate-800 transition-transform sm:hidden ${open ? 'rotate-180' : ''}`}
         />
       </button>
       <div className={`flex-col ${open ? 'flex' : 'hidden'} sm:flex pb-[15px] sm:pb-0`}>
-        {col.links.map((link) => (
+        {safeLinks.map((link) => (
           <SiteLink
             key={link.label}
             href={link.href}
@@ -173,66 +175,67 @@ function FooterColumn({ col }) {
 export default function Footer() {
   const { siteName, brand } = useSiteSettings()
 
-  const firstPhone = brand.phone.split('|')[0].trim()
-  const marqueeMessages = brand.marqueeMessages
-  const columns = brand.columns
+  const firstPhone = brand?.phone ? brand.phone.split('|')[0].trim() : ''
+  const marqueeMessages = Array.isArray(brand?.marqueeMessages) ? brand.marqueeMessages : []
+  const columns = Array.isArray(brand?.columns) ? brand.columns : []
 
   return (
-    <footer className="mt-auto border-t border-slate-200">
+    <footer className="w-full bg-[#f8fafc] text-slate-900 border-t border-slate-200 mt-auto">
       <MarqueeBar messages={marqueeMessages} />
       <Newsletter />
 
-      <div className="bg-white mx-auto px-6 py-[45px] lg:py-14">
-        <div className="flex flex-col lg:flex-row gap-[45px]">
-          <div className="w-full lg:w-[42%] flex flex-col items-center lg:items-start text-center lg:text-left">
-            <Logo variant="navy" textClassName="text-[20px] font-extrabold mb-4" hideIcon />
-            <p className="text-[14px] text-slate-800 font-semibold leading-relaxed max-w-md">{brand.description}</p>
+      <div className="max-w-[1340px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-10 pb-10 border-b border-slate-200">
+          <div className="lg:col-span-2 flex flex-col gap-4">
+            <Logo />
+            <p className="text-[13px] sm:text-[14px] text-slate-600 leading-relaxed max-w-[380px] font-medium">
+              {brand?.description || 'Your premier destination for high-performance laptops, desktops, components, networking gear, and tech accessories in Pakistan.'}
+            </p>
 
-            <div className="flex flex-col gap-3.5 mt-6 w-full">
-              <a
-                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(brand.address)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex items-center gap-3 text-[14px] font-bold text-slate-900 hover:text-cz-primary transition-colors text-left"
-              >
-                <span className="p-2 rounded-lg bg-[#0C4A6E] text-white shrink-0 shadow-sm group-hover:bg-cz-primary transition-colors">
-                  <LocationIcon size={18} />
-                </span>
-                <span className="group-hover:underline">{brand.address}</span>
-              </a>
+            <div className="flex flex-col gap-3 mt-2">
+              {brand?.address && (
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(brand.address)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center gap-3 text-[13px] sm:text-[14px] text-slate-700 hover:text-cz-primary font-medium"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-cyan-50 text-cyan-600 flex items-center justify-center shrink-0 border border-cyan-100 group-hover:bg-cz-primary group-hover:text-white transition-all">
+                    <LocationIcon size={16} />
+                  </div>
+                  <span className="group-hover:underline">{brand.address}</span>
+                </a>
+              )}
 
-              <a
-                href={`tel:${firstPhone}`}
-                className="group flex items-center gap-3 text-[14px] font-bold text-slate-900 hover:text-cz-primary transition-colors"
-              >
-                <span className="p-2 rounded-lg bg-[#0C4A6E] text-white shrink-0 shadow-sm group-hover:bg-cz-primary transition-colors">
-                  <PhoneIcon size={18} />
-                </span>
-                <span className="group-hover:underline">{brand.phone}</span>
-              </a>
+              {brand?.phone && (
+                <a
+                  href={`tel:${firstPhone}`}
+                  className="group flex items-center gap-3 text-[13px] sm:text-[14px] text-slate-700 hover:text-cz-primary font-medium"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-cyan-50 text-cyan-600 flex items-center justify-center shrink-0 border border-cyan-100 group-hover:bg-cz-primary group-hover:text-white transition-all">
+                    <PhoneIcon size={16} />
+                  </div>
+                  <span className="group-hover:underline">{brand.phone}</span>
+                </a>
+              )}
 
-              <a
-                href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(brand.email)}&su=${encodeURIComponent('Inquiry from Website')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex items-center gap-3 text-[14px] font-bold text-slate-900 hover:text-cz-primary transition-colors"
-              >
-                <span className="p-2 rounded-lg bg-[#0C4A6E] text-white shrink-0 shadow-sm group-hover:bg-cz-primary transition-colors">
-                  <MailIcon size={18} />
-                </span>
-                <span className="group-hover:underline">{brand.email}</span>
-              </a>
+              {brand?.email && (
+                <a
+                  href={`mailto:${brand.email}`}
+                  className="group flex items-center gap-3 text-[13px] sm:text-[14px] text-slate-700 hover:text-cz-primary font-medium"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-cyan-50 text-cyan-600 flex items-center justify-center shrink-0 border border-cyan-100 group-hover:bg-cz-primary group-hover:text-white transition-all">
+                    <MailIcon size={16} />
+                  </div>
+                  <span className="group-hover:underline">{brand.email}</span>
+                </a>
+              )}
             </div>
 
-            <div className="flex flex-wrap gap-2.5 mt-7">
+            {/* Social Media Pills */}
+            <div className="flex flex-wrap items-center gap-2.5 mt-3">
               {SOCIAL_ICONS.map(({ key, label, Icon, bgClass }) => {
-                let href = brand.social[key]
-                if (href && key === 'whatsapp') {
-                  if (!href.startsWith('http')) {
-                    const digits = href.replace(/\D/g, '')
-                    href = digits ? `https://wa.me/${digits}?text=Hi%21%20I%27d%20like%20to%20inquire%20about%20a%20product.` : null
-                  }
-                }
+                const href = brand?.social?.[key]
                 return href ? (
                   <a
                     key={key}
@@ -240,36 +243,29 @@ export default function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={label}
-                    className={`inline-flex p-2.5 rounded-xl ${bgClass} shadow-sm hover:scale-110 transition-all duration-200 cursor-pointer`}
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 transform hover:-translate-y-1 ${bgClass}`}
                   >
                     <Icon size={18} />
-                    <span className="sr-only">{label}</span>
                   </a>
-                ) : (
-                  <span key={key} aria-label={label} className={`inline-flex p-2.5 rounded-xl ${bgClass} opacity-80 cursor-default`}>
-                    <Icon size={18} />
-                  </span>
-                )
+                ) : null
               })}
             </div>
           </div>
 
-          <div className="w-full lg:flex-1 grid grid-cols-1 sm:grid-cols-3 gap-[30px]">
-            {columns.map((col) => (
-              <FooterColumn key={col.heading} col={col} />
-            ))}
+          {/* Dynamic Footer Columns */}
+          {columns.map((col, idx) => (
+            <FooterColumn key={idx} col={col} />
+          ))}
+        </div>
+
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left text-[13px] text-slate-500 font-medium">
+          <p>© {new Date().getFullYear()} {siteName || 'IT Solutions'}. All rights reserved.</p>
+          <div className="flex items-center gap-6">
+            <Link to="/privacy-policy" className="hover:text-cz-primary hover:underline">Privacy Policy</Link>
+            <Link to="/return-exchange" className="hover:text-cz-primary hover:underline">Return Policy</Link>
+            <Link to="/contact" className="hover:text-cz-primary hover:underline">Contact Support</Link>
           </div>
         </div>
-      </div>
-
-      <div className="bg-cz-header text-white mx-auto px-5 py-4 border-t border-cyan-600/30">
-        <p className="text-center text-[13px] font-bold tracking-wide">© {new Date().getFullYear()} {siteName}. All Rights Reserved</p>
-        <p className="text-center text-[13px] tracking-wide mt-1">
-          <span className="text-cyan-100/90 font-medium">Powered by </span>
-          <span className="text-[#38BDF8] font-black">IT </span>
-          <span className="text-white font-extrabold">SOLUTIONS </span>
-          <span className="text-cyan-100/90 font-medium">Trade & Service Pvt. Ltd.</span>
-        </p>
       </div>
     </footer>
   )

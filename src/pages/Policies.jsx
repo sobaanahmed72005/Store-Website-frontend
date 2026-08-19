@@ -28,11 +28,18 @@ export default function Policies() {
   useEffect(() => {
     api
       .get(ENDPOINTS.CONTENT.POLICIES)
-      .then(setContent)
+      .then((data) => {
+        if (!data || typeof data !== 'object') return
+        setContent({
+          pageTitle: data.pageTitle || 'Return & Exchange Policy',
+          sections: Array.isArray(data.sections) ? data.sections : [],
+        })
+      })
       .catch((err) => console.error('Failed to load /content/policies content:', err))
   }, [])
 
-  const title = content.pageTitle || 'Return & Exchange Policy'
+  const title = content?.pageTitle || 'Return & Exchange Policy'
+  const safeSections = Array.isArray(content?.sections) ? content.sections : []
 
   useSeo({
     title: `${title} — How It Works | ${siteName || 'IT Solutions'}`,
@@ -79,9 +86,9 @@ export default function Policies() {
           ))}
         </div>
 
-        {/* Policy Cards Stream - Symmetrically Aligned to Same Width */}
+        {/* Policy Cards Stream - Symmetrically Aligned */}
         <section className="grid grid-cols-1 gap-4 mb-8">
-          {content.sections.map((section, i) => (
+          {safeSections.map((section, i) => (
             <div
               key={i}
               className="bg-white rounded-xl p-4 sm:p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all group relative overflow-hidden"
@@ -96,10 +103,10 @@ export default function Policies() {
 
                 <div className="flex-1 min-w-0">
                   <h2 className="text-[15px] sm:text-[16px] font-bold text-slate-800 font-heading mb-1.5 pt-0.5">
-                    {section.heading}
+                    {section?.heading || ''}
                   </h2>
                   <p className="text-[13px] sm:text-[14px] text-slate-600 leading-relaxed font-normal whitespace-pre-line">
-                    {section.body}
+                    {section?.body || ''}
                   </p>
                 </div>
               </div>

@@ -23,20 +23,31 @@ export default function AboutUs() {
   useEffect(() => {
     api
       .get(ENDPOINTS.CONTENT.ABOUT_US)
-      .then(setContent)
+      .then((data) => {
+        if (!data || typeof data !== 'object') return
+        setContent({
+          paragraphs: Array.isArray(data.paragraphs) ? data.paragraphs : [],
+          highlights: Array.isArray(data.highlights) ? data.highlights : [],
+          storeAddress: typeof data.storeAddress === 'string' ? data.storeAddress : '',
+          storeTimings: typeof data.storeTimings === 'string' ? data.storeTimings : '',
+        })
+      })
       .catch((err) => console.error('Failed to load /content/about-us content:', err))
   }, [])
 
   // Clean fallback for store operating hours
-  const rawTimings = content.storeTimings?.trim()
+  const rawTimings = typeof content?.storeTimings === 'string' ? content.storeTimings.trim() : ''
   const storeTimings =
     rawTimings && !rawTimings.toLowerCase().includes('add your store')
       ? rawTimings
       : brand?.hours || 'Monday – Saturday: 11:00 AM – 8:00 PM | Sunday: Closed'
 
+  const safeParagraphs = Array.isArray(content?.paragraphs) ? content.paragraphs : []
+  const safeHighlights = Array.isArray(content?.highlights) ? content.highlights : []
+
   useSeo({
     title: `About ${siteName || 'IT Solutions'} — Our Story & Store Details`,
-    description: content.paragraphs?.[0]?.slice(0, 155) || `Learn more about ${siteName || 'IT Solutions'}.`,
+    description: safeParagraphs[0]?.slice(0, 155) || `Learn more about ${siteName || 'IT Solutions'}.`,
     canonical: `${window.location.origin}/about-us`,
     keywords: `about ${siteName || 'IT Solutions'}, computer store Pakistan, laptop store Pakistan`,
     publisher: siteName || 'IT Solutions',
@@ -58,18 +69,18 @@ export default function AboutUs() {
         </div>
 
         {/* Intro Paragraphs Card */}
-        {content.paragraphs?.length > 0 && (
+        {safeParagraphs.length > 0 && (
           <section className="w-full bg-white rounded-xl p-5 sm:p-7 border border-slate-100 shadow-sm mb-6 flex flex-col gap-4 text-[14px] sm:text-[15px] text-slate-700 leading-relaxed font-normal">
-            {content.paragraphs.map((para, i) => (
+            {safeParagraphs.map((para, i) => (
               <p key={i}>{para}</p>
             ))}
           </section>
         )}
 
         {/* Highlights Cards (2x2 Grid on Mobile, 4 Columns on Desktop) */}
-        {content.highlights?.length > 0 && (
+        {safeHighlights.length > 0 && (
           <section className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 mb-6">
-            {content.highlights.map((item, idx) => (
+            {safeHighlights.map((item, idx) => (
               <div
                 key={idx}
                 className="bg-white rounded-xl p-3.5 sm:p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all relative overflow-hidden group min-w-0 flex flex-col justify-between"
@@ -77,9 +88,9 @@ export default function AboutUs() {
                 <div className="absolute top-0 left-0 bottom-0 w-1 bg-gradient-to-b from-[#0891b2] to-[#38bdf8] opacity-80 group-hover:w-1.5 transition-all" />
                 <div className="pl-1">
                   <h3 className="text-[12px] sm:text-[15px] font-bold text-slate-800 font-heading mb-1 sm:mb-1.5 leading-snug">
-                    {item.title}
+                    {item?.title || ''}
                   </h3>
-                  <p className="text-[11px] sm:text-[13px] text-slate-500 leading-relaxed">{item.description}</p>
+                  <p className="text-[11px] sm:text-[13px] text-slate-500 leading-relaxed">{item?.description || ''}</p>
                 </div>
               </div>
             ))}
