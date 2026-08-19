@@ -19,12 +19,13 @@ import SeoHeadingFiller from '../components/SeoHeadingFiller'
 
 function ShopSidebar({ brands, selectedBrands, onToggleBrand }) {
   const { navCategories } = useCategories()
+  const safeCategories = Array.isArray(navCategories) ? navCategories : []
   return (
     <aside className="w-full lg:w-1/4 lg:shrink-0">
       <div className="flex flex-col bg-cz-gold-light p-5">
         <FilterAccordion title="Categories" separator={false}>
-          {[...navCategories]
-            .sort((a, b) => a.sort_order - b.sort_order || a.name.localeCompare(b.name))
+          {[...safeCategories]
+            .sort((a, b) => (a?.sort_order || 0) - (b?.sort_order || 0) || (a?.name || '').localeCompare(b?.name || ''))
             .map((cat) => (
               <Link
                 key={cat.slug}

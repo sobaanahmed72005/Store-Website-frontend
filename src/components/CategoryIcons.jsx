@@ -11,9 +11,10 @@ function categorySlugToPath(slug) {
 
 export default function CategoryIcons() {
   const { iconCategories } = useCategories()
-  const categories = iconCategories
+  const safeCategories = Array.isArray(iconCategories) ? iconCategories : []
+  const categories = safeCategories
     .slice()
-    .sort((a, b) => a.sort_order - b.sort_order || a.name.localeCompare(b.name))
+    .sort((a, b) => (a?.sort_order || 0) - (b?.sort_order || 0) || (a?.name || '').localeCompare(b?.name || ''))
 
   const trackRef = useRef(null)
   const [active, setActive] = useState(0)
