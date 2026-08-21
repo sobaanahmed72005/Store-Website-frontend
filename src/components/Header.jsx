@@ -39,7 +39,7 @@ function NavDrawer({ open, onClose }) {
 
   return createPortal(
     <div
-      className={`fixed inset-0 z-[99999] flex justify-start items-center bg-black/60 backdrop-blur-xs transition-opacity duration-300 ${
+      className={`fixed inset-0 z-[99999] flex justify-start items-center bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${
         open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
       }`}
       onClick={onClose}
@@ -48,83 +48,137 @@ function NavDrawer({ open, onClose }) {
         role="complementary"
         aria-modal="true"
         onClick={(e) => e.stopPropagation()}
-        className={`flex flex-col relative h-full w-full max-w-[20rem] shadow-2xl bg-white text-[#374151] transition-transform duration-300 ${
+        className={`flex flex-col relative h-full w-full max-w-[22rem] shadow-2xl bg-white text-[#374151] transition-transform duration-300 ease-in-out ${
           open ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="p-6 border-b border-[#dedede] flex items-center justify-between">
-          <div className="font-semibold text-xl text-[#212121]">Menu</div>
-          <button type="button" aria-label="Close" onClick={onClose} className="focus:outline-none cursor-pointer">
-            <CloseIcon size={20} className="text-[#64748b]" />
+        {/* Drawer Header */}
+        <div className="p-5 bg-[#0b658a] text-white flex items-center justify-between shadow-md">
+          <div className="flex items-center gap-2">
+            <Logo iconOnly variant="light" size={34} textScale={0.3} />
+            <span className="font-bold text-lg text-white tracking-wide">Navigation</span>
+          </div>
+          <button
+            type="button"
+            aria-label="Close menu"
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition cursor-pointer"
+          >
+            <CloseIcon size={18} />
           </button>
         </div>
 
-        <ul className="flex flex-col px-6 py-4 gap-2 overflow-y-auto">
-          {categoryItems.map((item) => {
-            let subLinks = []
-            if (item.label === 'Products') {
-              subLinks = [...navCategories]
-                .sort((a, b) => a.sort_order - b.sort_order || a.name.localeCompare(b.name))
-                .map((cat) => ({ label: cat.name, to: categorySlugToPath(cat.slug) }))
-            } else if (item.subcategories) {
-              subLinks = item.subcategories.map((sub) => ({ label: sub.name, to: categorySlugToPath(sub.slug) }))
-            }
+        {/* Categories & Subcategories Navigation Tree */}
+        <div className="flex-1 overflow-y-auto px-5 py-4 divide-y divide-slate-100">
+          <div className="pb-3">
+            <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Categories</h3>
+            <ul className="flex flex-col gap-1">
+              {categoryItems.map((item) => {
+                let subLinks = []
+                if (item.label === 'Products') {
+                  subLinks = [...navCategories]
+                    .sort((a, b) => a.sort_order - b.sort_order || a.name.localeCompare(b.name))
+                    .map((cat) => ({ label: cat.name, to: categorySlugToPath(cat.slug) }))
+                } else if (item.subcategories) {
+                  subLinks = item.subcategories.map((sub) => ({ label: sub.name, to: categorySlugToPath(sub.slug) }))
+                }
 
-            const isExpanded = expandedItem === item.label
+                const isExpanded = expandedItem === item.label
 
-            return (
-              <li key={item.label} className="border-b border-[#f1f5f9] last:border-none pb-2">
-                <div className="flex items-center justify-between py-1.5">
-                  {item.to ? (
-                    <Link
-                      to={item.to}
-                      onClick={onClose}
-                      className="text-[15px] font-semibold text-[#1e293b] hover:text-cz-primary transition-colors flex-1"
-                    >
-                      {item.label}
-                    </Link>
-                  ) : (
-                    <span
-                      onClick={(e) => item.hasDropdown && toggleExpand(item.label, e)}
-                      className="text-[15px] font-semibold text-[#1e293b] flex-1 cursor-pointer"
-                    >
-                      {item.label}
-                    </span>
-                  )}
+                return (
+                  <li key={item.label} className="py-1">
+                    <div className="flex items-center justify-between rounded-lg hover:bg-sky-50 px-2 py-1.5 transition-colors">
+                      {item.to ? (
+                        <Link
+                          to={item.to}
+                          onClick={onClose}
+                          className="text-[14px] font-semibold text-slate-800 hover:text-cz-primary transition-colors flex-1"
+                        >
+                          {item.label}
+                        </Link>
+                      ) : (
+                        <span
+                          onClick={(e) => item.hasDropdown && toggleExpand(item.label, e)}
+                          className="text-[14px] font-semibold text-slate-800 flex-1 cursor-pointer"
+                        >
+                          {item.label}
+                        </span>
+                      )}
 
-                  {item.hasDropdown && (
-                    <button
-                      type="button"
-                      onClick={(e) => toggleExpand(item.label, e)}
-                      aria-label={`Toggle ${item.label} subcategories`}
-                      className="p-2 text-[#64748b] hover:text-[#0ea5e9] transition-colors"
-                    >
-                      <ChevronDownIcon
-                        size={16}
-                        className={`transition-transform duration-200 ${isExpanded ? 'rotate-180 text-cz-sky' : ''}`}
-                      />
-                    </button>
-                  )}
-                </div>
+                      {item.hasDropdown && (
+                        <button
+                          type="button"
+                          onClick={(e) => toggleExpand(item.label, e)}
+                          aria-label={`Toggle ${item.label} subcategories`}
+                          className="p-1 text-slate-400 hover:text-cz-primary transition-colors"
+                        >
+                          <ChevronDownIcon
+                            size={16}
+                            className={`transition-transform duration-200 ${isExpanded ? 'rotate-180 text-cz-sky' : ''}`}
+                          />
+                        </button>
+                      )}
+                    </div>
 
-                {item.hasDropdown && isExpanded && subLinks.length > 0 && (
-                  <div className="flex flex-col gap-1 pl-4 pt-1 pb-2 border-l-2 border-[#0ea5e9]/40 my-1 bg-[#f8fafc] rounded-r-lg">
-                    {subLinks.map((sub) => (
-                      <Link
-                        key={sub.label}
-                        to={sub.to}
-                        onClick={onClose}
-                        className="text-[13px] font-medium text-[#475569] hover:text-cz-primary py-1 px-2 rounded hover:bg-[#e0f2fe] transition-colors"
-                      >
-                        {sub.label}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </li>
-            )
-          })}
-        </ul>
+                    {item.hasDropdown && isExpanded && subLinks.length > 0 && (
+                      <div className="flex flex-col gap-1 pl-4 pt-1.5 pb-2 border-l-2 border-cz-primary/40 my-1 ml-2 bg-slate-50/80 rounded-r-lg">
+                        {subLinks.map((sub) => (
+                          <Link
+                            key={sub.label}
+                            to={sub.to}
+                            onClick={onClose}
+                            className="text-[13px] font-medium text-slate-600 hover:text-cz-primary py-1 px-2.5 rounded hover:bg-sky-100/60 transition-colors"
+                          >
+                            {sub.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+
+          {/* Quick Pages & Account Links */}
+          <div className="pt-4 pb-2">
+            <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Store Info</h3>
+            <div className="flex flex-col gap-1.5">
+              <Link
+                to="/about-us"
+                onClick={onClose}
+                className="text-[13px] font-medium text-slate-700 hover:text-cz-primary py-1.5 px-2 rounded hover:bg-slate-50 flex items-center justify-between"
+              >
+                <span>About Us</span>
+                <span className="text-slate-400">→</span>
+              </Link>
+              <Link
+                to="/contact"
+                onClick={onClose}
+                className="text-[13px] font-medium text-slate-700 hover:text-cz-primary py-1.5 px-2 rounded hover:bg-slate-50 flex items-center justify-between"
+              >
+                <span>Contact Us</span>
+                <span className="text-slate-400">→</span>
+              </Link>
+              <Link
+                to="/return-exchange"
+                onClick={onClose}
+                className="text-[13px] font-medium text-slate-700 hover:text-cz-primary py-1.5 px-2 rounded hover:bg-slate-50 flex items-center justify-between"
+              >
+                <span>Policies</span>
+                <span className="text-slate-400">→</span>
+              </Link>
+              <Link
+                to="/order-tracking"
+                onClick={onClose}
+                className="text-[13px] font-medium text-slate-700 hover:text-cz-primary py-1.5 px-2 rounded hover:bg-slate-50 flex items-center justify-between"
+              >
+                <span>Order Tracking</span>
+                <span className="text-slate-400">→</span>
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
     </div>,
     document.body
@@ -396,11 +450,21 @@ export default function Header() {
   return (
     <div className="bg-cz-header text-[var(--cz-header-text)] py-2.5 sticky top-0 z-[100] shadow-md border-b border-cyan-900/30 backdrop-blur-md">
       <div className="mx-auto px-5">
-        {/* Desktop Header Layout */}
+        {/* Desktop & Tablet Header Layout */}
         <div className="hidden md:flex items-center justify-between gap-4 py-2">
-          <Link to="/" className="flex items-center gap-3 shrink-0 py-2">
-            <Logo iconOnly variant="light" size={52} textScale={0.35} />
-          </Link>
+          <div className="flex items-center gap-3 shrink-0">
+            <button
+              type="button"
+              aria-label="Menu"
+              onClick={() => setNavOpen(true)}
+              className="text-white hover:text-cz-sky transition p-1.5 rounded-lg hover:bg-white/10 flex items-center cursor-pointer"
+            >
+              <HamburgerIcon size={26} />
+            </button>
+            <Link to="/" className="flex items-center gap-3 py-2">
+              <Logo iconOnly variant="light" size={52} textScale={0.35} />
+            </Link>
+          </div>
 
           <div className="flex-1 max-w-xl mx-4">
             <SearchBar />

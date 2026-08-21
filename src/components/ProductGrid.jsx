@@ -23,24 +23,42 @@ export default function ProductGrid({
     const cards = containerRef.current.querySelectorAll('.masonry-product-card')
     if (cards.length === 0) return
 
-    // React Bits Masonry: animateFrom="bottom" GSAP Stagger Effect
-    gsap.fromTo(
-      cards,
-      {
-        opacity: 0,
-        y: 120,
-        filter: 'blur(10px)',
+    // Set initial hidden state so cards are preloaded in DOM ready to animate on scroll
+    gsap.set(cards, {
+      opacity: 0,
+      y: 60,
+      filter: 'blur(6px)',
+    })
+
+    // Scroll-Triggered IntersectionObserver: Animates cards up as you scroll to them
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            gsap.to(entry.target, {
+              opacity: 1,
+              y: 0,
+              filter: 'blur(0px)',
+              duration: 0.65,
+              ease: 'power3.out',
+              overwrite: 'auto',
+            })
+            observer.unobserve(entry.target)
+          }
+        })
       },
       {
-        opacity: 1,
-        y: 0,
-        filter: 'blur(0px)',
-        duration: 0.8,
-        ease: 'power3.out',
-        stagger: 0.05,
-        overwrite: 'auto',
+        root: null,
+        threshold: 0.08,
+        rootMargin: '0px 0px -40px 0px',
       }
     )
+
+    cards.forEach((card) => observer.observe(card))
+
+    return () => {
+      observer.disconnect()
+    }
   }, [products, loading])
 
   if (loading) {
@@ -54,7 +72,7 @@ export default function ProductGrid({
   return (
     <div ref={containerRef} className={className}>
       {products.map((p) => (
-        <div key={p.id} className="masonry-product-card w-full h-full">
+        <div key={p.id} className="masonry-product-card w-full h-full will-change-transform">
           <ProductCard
             id={p.id}
             slug={p.slug}
@@ -70,7 +88,7 @@ export default function ProductGrid({
         </div>
       ))}
       {seeAllHref && (
-        <div className="masonry-product-card w-full h-full">
+        <div className="masonry-product-card w-full h-full will-change-transform">
           <Link
             to={seeAllHref}
             className="group relative flex flex-col items-center justify-center p-6 rounded-[10px] border border-dashed border-[#0ea5e9]/40 bg-gradient-to-b from-white via-[#f0f9ff] to-[#e0f2fe] hover:from-[#e0f2fe] hover:to-[#bae6fd] transition-all duration-300 shadow-sm hover:shadow-md text-center h-full min-h-[260px] cursor-pointer"

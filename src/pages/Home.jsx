@@ -20,7 +20,7 @@ import SeoHeadingFiller from '../components/SeoHeadingFiller'
 function SectionHeading({ heading, seeAllHref }) {
   return (
     <div className="flex items-center justify-between mb-[30px]">
-      <h2 className="text-[24px] font-semibold font-heading" style={{ color: '#353535' }}>
+      <h2 className="text-[24px] font-bold text-[#0c4a6e] font-heading tracking-tight">
         {heading}
       </h2>
       {seeAllHref && (
@@ -176,10 +176,10 @@ export default function Home() {
       <h1 className="sr-only">{siteName || 'IT Solutions'} — Laptops, Gaming Gear & PC Components in Pakistan</h1>
       <SeoHeadingFiller h3="Shop by category" h4="Popular categories" h5="Store highlights" h6="Quick links" />
       <AnnouncementBar />
-      <Navbar />
       <Header />
       <CategoryMenu />
       <Hero />
+      <Navbar />
       <CategoryIcons />
       <BrandsOrbitalTimeline />
       <ProductSection heading="Products" seeAllHref="/products?featured=1" products={featured} loading={loading} onQuickView={setQuickViewProduct} />

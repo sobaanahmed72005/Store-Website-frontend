@@ -1,13 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { useSiteSettings } from '../store/siteSettingsStore'
-
-const NAV_LINKS = [
-  { label: 'About us',      href: '/about-us' },
-  { label: 'Contact us',    href: '/contact' },
-  { label: 'Policies',      href: '/return-exchange' },
-  { label: 'Order tracking', href: '/order-tracking' },
-]
 
 const DEFAULT_MESSAGES = [
   'We operate only one official store.',
@@ -27,35 +19,20 @@ export default function Navbar() {
   }, [messages])
 
   return (
-    <div className="bg-cz-topbar text-[var(--cz-topbar-text)] text-[13px] py-2.5">
-      <div className="mx-auto px-5 flex flex-col gap-1.5 lg:grid lg:grid-cols-3 lg:items-center lg:gap-2">
-
-        {/* Rotating messages — edit from Admin → Footer / Store Info → Marquee Messages */}
-        <div className="lg:col-span-1 text-center lg:text-left overflow-hidden relative h-[18px]">
+    <div className="bg-cz-topbar text-[var(--cz-topbar-text)] text-[13px] py-2">
+      <div className="mx-auto px-5 flex items-center justify-center">
+        {/* Rotating marquee messages centered cleanly */}
+        <div className="w-full text-center overflow-hidden relative h-[18px]">
           {messages.map((msg, i) => (
             <div
               key={i}
-              className="absolute inset-0 transition-transform duration-500 ease-in-out"
+              className="absolute inset-0 transition-transform duration-500 ease-in-out flex items-center justify-center"
               style={{ transform: `translateX(${(i - active) * 100}%)` }}
             >
-              <p>{msg}</p>
+              <p className="font-medium tracking-wide">{msg}</p>
             </div>
           ))}
         </div>
-
-        {/* Top nav links — wraps and stays right-aligned on narrow screens instead of disappearing */}
-        <div className="flex flex-wrap justify-end lg:col-span-2 items-center gap-x-[10px] gap-y-1">
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.label}
-              to={link.href}
-              className="hover:text-cz-sky transition-colors"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
-
       </div>
     </div>
   )

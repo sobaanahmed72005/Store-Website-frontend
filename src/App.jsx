@@ -62,6 +62,7 @@ const AdminPrivacyPolicy = lazy(() => import('./pages/admin/AdminPrivacyPolicy')
 const AdminNewsletter = lazy(() => import('./pages/admin/AdminNewsletter'))
 const AdminBulkSale = lazy(() => import('./pages/admin/AdminBulkSale'))
 const AdminBanners = lazy(() => import('./pages/admin/AdminBanners'))
+const AdminBrands = lazy(() => import('./pages/admin/AdminBrands'))
 const AdminAnnouncement = lazy(() => import('./pages/admin/AdminAnnouncement'))
 const AdminEmailTemplates = lazy(() => import('./pages/admin/AdminEmailTemplates'))
 const AdminPromotionalEmails = lazy(() => import('./pages/admin/AdminPromotionalEmails'))
@@ -158,6 +159,7 @@ function App() {
         <Route path="products/:id/edit" element={<AdminProductForm />} />
         <Route path="announcement" element={<AdminAnnouncement />} />
         <Route path="banners" element={<AdminBanners />} />
+        <Route path="brands" element={<AdminBrands />} />
         <Route path="bulk-sale" element={<AdminBulkSale />} />
         <Route path="categories" element={<AdminCategories />} />
         <Route path="categories/:id/filters" element={<AdminCategoryAttributes />} />
