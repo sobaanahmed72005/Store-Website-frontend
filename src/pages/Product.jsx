@@ -18,6 +18,7 @@ import { extractYoutubeId, getYoutubeThumbnail, getYoutubeWatchUrl } from '../ut
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../store/siteSettingsStore'
 import SeoHeadingFiller from '../components/SeoHeadingFiller'
+import Product3DCanvas from '../components/3d/Product3DCanvas'
 
 function ProductNotFound() {
   return (
@@ -44,9 +45,11 @@ function ProductNotFound() {
 
 function Gallery({ items, title }) {
   const [activeIndex, setActiveIndex] = useState(0)
+  const [viewMode, setViewMode] = useState('photo') // 'photo' or '3d'
 
   useEffect(() => {
     setActiveIndex(0)
+    setViewMode('photo')
   }, [items])
 
   if (items.length === 0) {
@@ -63,34 +66,69 @@ function Gallery({ items, title }) {
 
   return (
     <div className="flex flex-col gap-3">
+      {/* Inline Mode Switcher Tabs */}
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setViewMode('photo')}
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+            viewMode === 'photo'
+              ? 'bg-cz-primary text-white shadow-sm'
+              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+          }`}
+        >
+          🖼 Photo Gallery
+        </button>
+        <button
+          type="button"
+          onClick={() => setViewMode('3d')}
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+            viewMode === '3d'
+              ? 'bg-cz-primary text-white shadow-sm'
+              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+          }`}
+        >
+          🧊 Interactive 3D View
+        </button>
+      </div>
+
+      {/* Main Product Display Box */}
       <div className="relative w-full aspect-square rounded-[10px] bg-white border border-[#dedede] overflow-hidden">
-        {active.type === 'video' ? (
-          <video src={active.src} controls width={400} height={400} className="w-full h-full object-contain bg-black" />
-        ) : (
-          <img src={active.src} alt={title} width={400} height={400} fetchPriority="high" className="w-full h-full object-contain" />
-        )}
-        {items.length > 1 && (
+        {viewMode === 'photo' ? (
           <>
-            <button
-              type="button"
-              aria-label="Previous"
-              onClick={showPrev}
-              className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-white/90 shadow-sm text-[#212121] hover:text-cz-primary"
-            >
-              <ChevronLeftIcon size={18} />
-            </button>
-            <button
-              type="button"
-              aria-label="Next"
-              onClick={showNext}
-              className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-white/90 shadow-sm text-[#212121] hover:text-cz-primary"
-            >
-              <ChevronRightIcon size={18} />
-            </button>
+            {active.type === 'video' ? (
+              <video src={active.src} controls width={400} height={400} className="w-full h-full object-contain bg-black" />
+            ) : (
+              <img src={active.src} alt={title} width={400} height={400} fetchPriority="high" className="w-full h-full object-contain" />
+            )}
+            {items.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  aria-label="Previous"
+                  onClick={showPrev}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-white/90 shadow-sm text-[#212121] hover:text-cz-primary"
+                >
+                  <ChevronLeftIcon size={18} />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Next"
+                  onClick={showNext}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-white/90 shadow-sm text-[#212121] hover:text-cz-primary"
+                >
+                  <ChevronRightIcon size={18} />
+                </button>
+              </>
+            )}
           </>
+        ) : (
+          <Product3DCanvas title={title} className="w-full h-full aspect-square bg-white" />
         )}
       </div>
-      {items.length > 1 && (
+
+      {/* Thumbnail Bar (Only in Photo Mode) */}
+      {viewMode === 'photo' && items.length > 1 && (
         <div className="flex items-center gap-2 overflow-x-auto">
           {items.map((item, i) => (
             <button

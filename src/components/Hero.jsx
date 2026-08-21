@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api, resolveImageUrl } from '../api/client'
 import { ENDPOINTS } from '../api/endpoints'
+import Hero3DCanvas from './3d/Hero3DCanvas'
 
 const SLIDE_THEMES = [
   { tagline: '#0ea5e9', ctaBg: '#0ea5e9' }, // Cyan / Sky Blue
@@ -70,7 +71,10 @@ export default function Hero() {
 
   return (
     <section className="mx-auto px-5 py-5">
-      <div className="relative w-full">
+      <div className="relative w-full overflow-hidden rounded-2xl">
+        {/* Interactive 3D Particles & Floating Hardware Model Canvas */}
+        <Hero3DCanvas />
+
         {/* Swipeable & Scrollable Horizontal Track */}
         <div
           ref={trackRef}

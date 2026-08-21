@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
 import Logo from './Logo'
 import SearchBar from './SearchBar'
@@ -34,9 +35,11 @@ function NavDrawer({ open, onClose }) {
     setExpandedItem((prev) => (prev === label ? null : label))
   }
 
-  return (
+  if (typeof document === 'undefined') return null
+
+  return createPortal(
     <div
-      className={`fixed inset-0 z-[1101] flex justify-start items-center bg-[#6b7280]/70 backdrop-blur-sm transition-opacity duration-300 ${
+      className={`fixed inset-0 z-[99999] flex justify-start items-center bg-black/60 backdrop-blur-xs transition-opacity duration-300 ${
         open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
       }`}
       onClick={onClose}
@@ -45,13 +48,13 @@ function NavDrawer({ open, onClose }) {
         role="complementary"
         aria-modal="true"
         onClick={(e) => e.stopPropagation()}
-        className={`flex flex-col relative h-full w-full max-w-[20rem] shadow-xl bg-white text-[#374151] transition-transform duration-300 ${
+        className={`flex flex-col relative h-full w-full max-w-[20rem] shadow-2xl bg-white text-[#374151] transition-transform duration-300 ${
           open ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="p-6 border-b border-[#dedede] flex items-center justify-between">
           <div className="font-semibold text-xl text-[#212121]">Menu</div>
-          <button type="button" aria-label="Close" onClick={onClose} className="focus:outline-none">
+          <button type="button" aria-label="Close" onClick={onClose} className="focus:outline-none cursor-pointer">
             <CloseIcon size={20} className="text-[#64748b]" />
           </button>
         </div>
@@ -123,7 +126,8 @@ function NavDrawer({ open, onClose }) {
           })}
         </ul>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 
@@ -132,9 +136,11 @@ function CartDrawer({ open, onClose, items, onUpdateQty, onRemove }) {
   const user = useAuthStore((s) => s.user)
   const subTotal = items.reduce((sum, item) => sum + item.price * item.qty, 0)
 
-  return (
+  if (typeof document === 'undefined') return null
+
+  return createPortal(
     <div
-      className={`fixed inset-0 z-[1101] flex justify-end items-center bg-[#6b7280]/70 backdrop-blur-sm transition-opacity duration-300 ${
+      className={`fixed inset-0 z-[99999] flex justify-end items-center bg-black/60 backdrop-blur-xs transition-opacity duration-300 ${
         open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
       }`}
       onClick={onClose}
@@ -143,18 +149,18 @@ function CartDrawer({ open, onClose, items, onUpdateQty, onRemove }) {
         role="complementary"
         aria-modal="true"
         onClick={(e) => e.stopPropagation()}
-        className={`flex flex-col relative h-full w-full max-w-[28rem] shadow-xl bg-white text-[#374151] transition-transform duration-300 ${
+        className={`flex flex-col relative h-full w-full max-w-[28rem] shadow-2xl bg-white text-[#374151] transition-transform duration-300 ${
           open ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <div className="p-6 border-b border-[#dedede] flex items-center justify-between">
+        <div className="p-6 border-b border-[#dedede] flex items-center justify-between shrink-0 bg-white">
           <div className="font-semibold text-xl text-[#212121]">Shopping Cart</div>
-          <button type="button" aria-label="Close" onClick={onClose} className="focus:outline-none">
+          <button type="button" aria-label="Close" onClick={onClose} className="focus:outline-none cursor-pointer">
             <CloseIcon size={20} className="text-[#64748b]" />
           </button>
         </div>
 
-        <div className="px-6 pb-6 mt-6 h-full w-full grow overflow-y-auto">
+        <div className="px-6 py-6 h-full w-full grow overflow-y-auto">
           {items.length === 0 ? (
             <div className="flex flex-col items-center h-full justify-center">
               <CartIcon size={80} className="text-[#64748b] mb-4" />
@@ -162,52 +168,52 @@ function CartDrawer({ open, onClose, items, onUpdateQty, onRemove }) {
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-medium px-8 py-3 w-2/3 flex justify-center items-center transition-colors"
+                className="rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-medium px-8 py-3 w-2/3 flex justify-center items-center transition-colors cursor-pointer"
               >
                 Continue Shopping
               </button>
             </div>
           ) : (
-            <div className="cart-products flex flex-col gap-4 pb-[113px]">
+            <div className="cart-products flex flex-col gap-4 pb-4">
               {items.map((item) => (
-                <div key={`${item.id}-${item.variantId ?? ''}`} className="relative flex items-center justify-between gap-3">
-                  <div className="relative flex items-center justify-center w-[60px] h-[60px] rounded-md overflow-hidden shrink-0">
-                    <span className="absolute -left-[5px] -top-[5px] z-[1] flex items-center justify-center w-[18px] h-[18px] rounded-full bg-cz-primary text-white text-[11px]">
+                <div key={`${item.id}-${item.variantId ?? ''}`} className="relative flex items-center justify-between gap-3 p-2 rounded-xl border border-slate-100 hover:border-slate-200">
+                  <div className="relative flex items-center justify-center w-[60px] h-[60px] rounded-md overflow-hidden shrink-0 bg-slate-50">
+                    <span className="absolute -left-[2px] -top-[2px] z-[1] flex items-center justify-center w-[18px] h-[18px] rounded-full bg-cz-primary text-white text-[11px] font-bold">
                       {item.qty}
                     </span>
-                    <img src={item.image} alt={item.title} width={60} height={60} className="h-full w-auto" />
+                    <img src={item.image} alt={item.title} width={60} height={60} className="h-full w-auto object-contain" />
                   </div>
                   <div className="flex-1">
                     <div className="font-semibold text-[14px] text-[#212121] line-clamp-2">{item.title}</div>
                     {item.variantLabel && <div className="text-[12px] text-[#6b7280] mt-0.5">{item.variantLabel}</div>}
                     <div className="flex items-center mt-2">
-                      <div className="flex items-center border border-[#dedede] rounded-full">
+                      <div className="flex items-center border border-[#dedede] rounded-full bg-white">
                         <button
                           type="button"
                           aria-label="Decrease quantity"
                           onClick={() => onUpdateQty(item.id, item.variantId, -1)}
-                          className="px-2 py-1 text-[#212121]"
+                          className="px-2 py-1 text-[#212121] cursor-pointer"
                         >
                           <MinusIcon size={14} />
                         </button>
-                        <span className="px-2 text-[13px]">{item.qty}</span>
+                        <span className="px-2 text-[13px] font-bold">{item.qty}</span>
                         <button
                           type="button"
                           aria-label="Increase quantity"
                           onClick={() => onUpdateQty(item.id, item.variantId, 1)}
-                          className="px-2 py-1 text-[#212121]"
+                          className="px-2 py-1 text-[#212121] cursor-pointer"
                         >
                           <PlusIcon size={14} />
                         </button>
                       </div>
-                      <span className="font-medium pl-2 text-[14px] text-[#212121]">{format(item.price)}</span>
+                      <span className="font-bold pl-3 text-[14px] text-cz-primary">{format(item.price * item.qty)}</span>
                     </div>
                   </div>
                   <button
                     type="button"
                     aria-label="Remove item"
                     onClick={() => onRemove(item.id, item.variantId)}
-                    className="text-gray-400 hover:text-red-500 shrink-0"
+                    className="text-gray-400 hover:text-red-500 shrink-0 cursor-pointer p-1"
                   >
                     <TrashIcon size={18} />
                   </button>
@@ -218,16 +224,16 @@ function CartDrawer({ open, onClose, items, onUpdateQty, onRemove }) {
         </div>
 
         {items.length > 0 && (
-          <div className="cart-button-area absolute bottom-0 left-0 w-full min-h-[100px] flex flex-col justify-end p-5 bg-gradient-to-t from-white via-white to-transparent">
+          <div className="cart-button-area shrink-0 p-5 bg-white border-t border-[#dedede] shadow-lg">
             <div className="flex items-center justify-between mb-3">
-              <span className="font-semibold text-[#212121]">SubTotal</span>
-              <span className="text-[16px] font-bold text-[#212121]">{format(subTotal)}</span>
+              <span className="font-bold text-[16px] text-[#212121]">SubTotal</span>
+              <span className="text-[18px] font-black text-cz-primary">{format(subTotal)}</span>
             </div>
             <div className="flex gap-2">
               <Link
                 to="/cart"
                 onClick={onClose}
-                className="flex-1 flex justify-center items-center rounded-full border-2 border-cz-primary text-cz-primary hover:bg-cz-primary hover:text-white text-[14px] font-medium py-2.5 transition-colors"
+                className="flex-1 flex justify-center items-center rounded-full border-2 border-cz-primary text-cz-primary hover:bg-cz-primary hover:text-white text-[14px] font-bold py-2.5 transition-colors"
               >
                 View Cart
               </Link>
@@ -235,7 +241,7 @@ function CartDrawer({ open, onClose, items, onUpdateQty, onRemove }) {
                 to={user ? '/checkout' : '/signin'}
                 state={!user ? { from: '/checkout' } : undefined}
                 onClick={onClose}
-                className="flex-1 flex justify-center items-center rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-medium py-2.5 transition-colors"
+                className="flex-1 flex justify-center items-center rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-bold py-2.5 transition-colors shadow-md"
               >
                 Checkout
               </Link>
@@ -243,15 +249,19 @@ function CartDrawer({ open, onClose, items, onUpdateQty, onRemove }) {
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 
 function WishlistDrawer({ open, onClose, items, onRemove, onMoveToCart }) {
   const { format } = useCurrency()
-  return (
+
+  if (typeof document === 'undefined') return null
+
+  return createPortal(
     <div
-      className={`fixed inset-0 z-[1101] flex justify-end items-center bg-[#6b7280]/70 backdrop-blur-sm transition-opacity duration-300 ${
+      className={`fixed inset-0 z-[99999] flex justify-end items-center bg-black/60 backdrop-blur-xs transition-opacity duration-300 ${
         open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
       }`}
       onClick={onClose}
@@ -260,18 +270,18 @@ function WishlistDrawer({ open, onClose, items, onRemove, onMoveToCart }) {
         role="complementary"
         aria-modal="true"
         onClick={(e) => e.stopPropagation()}
-        className={`flex flex-col relative h-full w-full max-w-[28rem] shadow-xl bg-white text-[#374151] transition-transform duration-300 ${
+        className={`flex flex-col relative h-full w-full max-w-[28rem] shadow-2xl bg-white text-[#374151] transition-transform duration-300 ${
           open ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <div className="p-6 border-b border-[#dedede] flex items-center justify-between">
+        <div className="p-6 border-b border-[#dedede] flex items-center justify-between shrink-0 bg-white">
           <div className="font-semibold text-xl text-[#212121]">Wishlist</div>
-          <button type="button" aria-label="Close" onClick={onClose} className="focus:outline-none">
+          <button type="button" aria-label="Close" onClick={onClose} className="focus:outline-none cursor-pointer">
             <CloseIcon size={20} className="text-[#64748b]" />
           </button>
         </div>
 
-        <div className="px-6 pb-6 mt-6 h-full w-full grow overflow-y-auto">
+        <div className="px-6 py-6 h-full w-full grow overflow-y-auto">
           {items.length === 0 ? (
             <div className="flex flex-col items-center h-full justify-center">
               <HeartIcon size={80} className="text-[#64748b] mb-4" />
@@ -279,17 +289,17 @@ function WishlistDrawer({ open, onClose, items, onRemove, onMoveToCart }) {
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-medium px-8 py-3 w-2/3 flex justify-center items-center transition-colors"
+                className="rounded-full bg-cz-primary hover:bg-cz-primary-hover text-white text-[14px] font-medium px-8 py-3 w-2/3 flex justify-center items-center transition-colors cursor-pointer"
               >
                 Continue Shopping
               </button>
             </div>
           ) : (
-            <div className="flex flex-col gap-4">
+            <div className="wishlist-products flex flex-col gap-4">
               {items.map((item) => (
-                <div key={item.id} className="relative flex items-center justify-between gap-3">
-                  <div className="relative flex items-center justify-center w-[60px] h-[60px] rounded-md overflow-hidden shrink-0">
-                    <img src={item.image} alt={item.title} width={60} height={60} className="h-full w-auto" />
+                <div key={item.id} className="relative flex items-center justify-between gap-3 p-2 rounded-xl border border-slate-100 hover:border-slate-200">
+                  <div className="relative flex items-center justify-center w-[60px] h-[60px] rounded-md overflow-hidden shrink-0 bg-slate-50">
+                    <img src={item.image} alt={item.title} width={60} height={60} className="h-full w-auto object-contain" />
                   </div>
                   <div className="flex-1">
                     <Link
@@ -300,13 +310,13 @@ function WishlistDrawer({ open, onClose, items, onRemove, onMoveToCart }) {
                       {item.title}
                     </Link>
                     {item.price != null && (
-                      <span className="block font-medium text-[14px] text-[#212121] mt-2">{format(item.price)}</span>
+                      <span className="block font-bold text-[14px] text-cz-primary mt-1">{format(item.price)}</span>
                     )}
                     <button
                       type="button"
                       onClick={() => onMoveToCart(item)}
                       disabled={item.stock != null && item.stock <= 0}
-                      className="mt-2 text-[12px] font-medium text-cz-primary hover:underline disabled:text-gray-400 disabled:no-underline disabled:cursor-not-allowed"
+                      className="mt-2 text-[12px] font-bold text-cz-primary hover:underline disabled:text-gray-400 disabled:no-underline disabled:cursor-not-allowed cursor-pointer"
                     >
                       {item.stock != null && item.stock <= 0 ? 'Out of stock' : 'Move to Cart'}
                     </button>
@@ -315,7 +325,7 @@ function WishlistDrawer({ open, onClose, items, onRemove, onMoveToCart }) {
                     type="button"
                     aria-label="Remove from wishlist"
                     onClick={() => onRemove(item.id)}
-                    className="text-gray-400 hover:text-red-500 shrink-0"
+                    className="text-gray-400 hover:text-red-500 shrink-0 cursor-pointer p-1"
                   >
                     <TrashIcon size={18} />
                   </button>
@@ -325,7 +335,8 @@ function WishlistDrawer({ open, onClose, items, onRemove, onMoveToCart }) {
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 
@@ -383,7 +394,7 @@ export default function Header() {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
 
   return (
-    <div className="bg-cz-header text-[var(--cz-header-text)] py-2.5 relative z-[200]">
+    <div className="bg-cz-header text-[var(--cz-header-text)] py-2.5 sticky top-0 z-[100] shadow-md border-b border-cyan-900/30 backdrop-blur-md">
       <div className="mx-auto px-5">
         {/* Desktop Header Layout */}
         <div className="hidden md:flex items-center justify-between gap-4 py-2">
@@ -419,9 +430,10 @@ export default function Header() {
 
             <button
               type="button"
+              id="header-cart-icon"
               aria-label="Cart"
               onClick={openCart}
-              className="relative flex items-center text-[var(--cz-header-text)] cursor-pointer hover:opacity-80 transition"
+              className="header-cart-target relative flex items-center text-[var(--cz-header-text)] cursor-pointer hover:opacity-80 transition"
             >
               <CartIcon size={26} />
               <span className="absolute -top-[5px] -right-[5px] min-w-[17px] h-[17px] flex items-center justify-center rounded-full bg-cz-primary text-white text-[11px] font-bold leading-none">
@@ -473,9 +485,10 @@ export default function Header() {
 
             <button
               type="button"
+              id="header-cart-icon-mobile"
               aria-label="Cart"
               onClick={openCart}
-              className="relative flex items-center text-[var(--cz-header-text)] p-1"
+              className="header-cart-target relative flex items-center text-[var(--cz-header-text)] p-1"
             >
               <CartIcon size={24} />
               <span className="absolute -top-[3px] -right-[3px] min-w-[16px] h-[16px] flex items-center justify-center rounded-full bg-cz-primary text-white text-[10px] font-bold leading-none">

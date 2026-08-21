@@ -31,6 +31,10 @@ import Shop from './pages/Shop'
 import AdminRoute from './components/admin/AdminRoute'
 import AdminLayout from './components/admin/AdminLayout'
 
+import FlyingCartAnimation from './components/cart/FlyingCartAnimation'
+import CompareDrawer from './components/compare/CompareDrawer'
+import CompareModal from './components/compare/CompareModal'
+
 // The entire admin panel (including recharts, which only AdminReports uses) is lazy-loaded —
 // a storefront visitor never touches any of this, so none of it belongs in the bundle they pay
 // for on first load. Only imports actually used elsewhere (e.g. AdminRoute/AdminLayout, the
@@ -104,6 +108,9 @@ function App() {
       <SplashScreen />
       <ScrollToTop />
       <PwaInstallPrompt />
+      <FlyingCartAnimation />
+      <CompareDrawer />
+      <CompareModal />
       <Suspense fallback={<PageLoading />}>
       <Routes>
       <Route path="/" element={<Home />} />

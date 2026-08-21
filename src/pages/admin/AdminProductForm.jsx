@@ -20,6 +20,7 @@ const emptyForm = {
   stock: '0',
   image: '',
   video: '',
+  model_3d: '',
   dataset: '',
   content_image: '',
   content_image_caption: '',
@@ -128,6 +129,7 @@ export default function AdminProductForm() {
           stock: p.stock,
           image: p.image ?? '',
           video: p.video ?? '',
+          model_3d: p.model_3d ?? '',
           dataset: p.dataset ?? '',
           content_image: p.content_image ?? '',
           content_image_caption: p.content_image_caption ?? '',
@@ -834,6 +836,37 @@ export default function AdminProductForm() {
             <input type="file" accept="video/mp4,video/webm" onChange={handleVideoFileChange} className="text-[13px]" />
           </div>
           {videoUploading && <div className="text-[13px] text-[#4b4b4b] mt-1">Uploading...</div>}
+        </div>
+
+        <div>
+          <label className="block text-[13px] font-medium text-[#212121] mb-1">🧊 3D Interactive Model File (optional, .glb or .gltf)</label>
+          <div className="flex items-center gap-4">
+            {form.model_3d && (
+              <div className="relative flex items-center gap-2 rounded-md border border-cyan-200 bg-cyan-50 px-3 py-1.5">
+                <span className="text-[13px] font-semibold text-cyan-700">🧊 {form.model_3d.split('/').pop()}</span>
+                <button
+                  type="button"
+                  aria-label="Remove 3D model file"
+                  onClick={() => setForm((f) => ({ ...f, model_3d: '' }))}
+                  className="w-5 h-5 rounded-full bg-white border border-[#dedede] text-[12px] text-red-600 flex items-center justify-center cursor-pointer"
+                >
+                  ×
+                </button>
+              </div>
+            )}
+            <input
+              type="file"
+              accept=".glb,.gltf"
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) setForm((f) => ({ ...f, model_3d: file.name }))
+              }}
+              className="text-[13px]"
+            />
+          </div>
+          <p className="text-[11px] text-[#9ca3af] mt-1">
+            Upload a .glb / .gltf 3D hardware file. If left blank, an interactive 3D model is automatically generated.
+          </p>
         </div>
 
         <div>

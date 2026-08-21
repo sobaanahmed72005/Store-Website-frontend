@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useWishlistStore, useIsWishlisted } from '../store/wishlistStore'
 import { useCartStore } from '../store/cartStore'
 import { useAuthStore } from '../store/authStore'
 import { useCurrencyStore, parsePkr } from '../store/currencyStore'
+import { useCompareStore } from '../store/compareStore'
+import { triggerFlyToCart } from './cart/FlyingCartAnimation'
 import { HeartIcon } from './icons'
 
 const STAR_PATH =
@@ -48,19 +50,21 @@ export default function ProductCard({
   stock,
   inStock = true,
   hasVariants = false,
+  onQuickView,
 }) {
   const [hovered, setHovered] = useState(false)
+  const [tilt, setTilt] = useState({ rx: 0, ry: 0, spotX: 50, spotY: 50 })
+  const cardRef = useRef(null)
+
   const gallery = [...new Set([image, ...(images || [])].filter(Boolean))]
   const activeIndex = hovered && gallery.length > 1 ? 1 : 0
-  // Selectors, not whole-store subscriptions — this card is rendered many times per page (grids
-  // of 12-24), so it should only re-render when something it actually displays changes: whether
-  // THIS product is wishlisted (not the whole wishlist), never on unrelated cart/wishlist
-  // mutations elsewhere on the page (e.g. someone changing quantity in the header's mini-cart).
+
   const wishlistId = id ?? href ?? title
   const user = useAuthStore((s) => s.user)
   const wishlisted = useIsWishlisted(wishlistId)
   const toggleWishlist = useWishlistStore((s) => s.toggleWishlist)
   const addToCart = useCartStore((s) => s.addToCart)
+  const addToCompare = useCompareStore((s) => s.addToCompare)
   const { format } = useCurrencyStore()
   const navigate = useNavigate()
   const pkrPrice = parsePkr(price)
@@ -69,9 +73,38 @@ export default function ProductCard({
 
   const [isAdding, setIsAdding] = useState(false)
 
-  const handleAddToCart = async () => {
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return
+    const rect = cardRef.current.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+
+    const centerX = rect.width / 2
+    const centerY = rect.height / 2
+
+    const ry = ((x - centerX) / centerX) * 8
+    const rx = -((y - centerY) / centerY) * 8
+
+    const spotX = (x / rect.width) * 100
+    const spotY = (y / rect.height) * 100
+
+    setTilt({ rx, ry, spotX, spotY })
+  }
+
+  const handleMouseEnter = () => setHovered(true)
+  const handleMouseLeave = () => {
+    setHovered(false)
+    setTilt({ rx: 0, ry: 0, spotX: 50, spotY: 50 })
+  }
+
+  const handleAddToCart = async (e) => {
     if (isAdding || !actuallyInStock) return
     setIsAdding(true)
+
+    if (e?.currentTarget) {
+      triggerFlyToCart(e.currentTarget.getBoundingClientRect(), image)
+    }
+
     try {
       addToCart({ id: wishlistId, title, image, price: pkrPrice, slug })
     } finally {
@@ -87,19 +120,47 @@ export default function ProductCard({
     await toggleWishlist({ id: wishlistId, name: title, image, price: pkrPrice, stock, slug })
   }
 
-  const handleMouseLeave = () => {
-    setHovered(false)
+  const handleCompareClick = () => {
+    addToCompare({
+      id: wishlistId,
+      title,
+      image,
+      price: pkrPrice,
+      slug,
+      stock: stock != null ? stock : inStock,
+    })
   }
 
   return (
     <div
-      className="group w-full h-full flex flex-col bg-white rounded-[10px] overflow-hidden border border-gray-100/80 shadow-sm hover:-translate-y-1.5 hover:shadow-xl hover:shadow-cyan-500/10 transition-all duration-300"
-      onMouseEnter={() => setHovered(true)}
+      ref={cardRef}
+      onMouseEnter={handleMouseEnter}
+      onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      style={{
+        transform: hovered
+          ? `perspective(1000px) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg) translateZ(10px)`
+          : 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)',
+        transition: hovered ? 'transform 0.1s ease-out' : 'transform 0.5s ease-out',
+        willChange: 'transform',
+      }}
+      className="group relative w-full h-full flex flex-col bg-white rounded-[14px] overflow-hidden border border-gray-100/90 shadow-sm hover:shadow-2xl hover:shadow-cyan-500/15"
     >
-      <div className="relative w-full aspect-square bg-white overflow-hidden rounded-[10px]">
+      {/* Dynamic Mouse Spotlight Glow Border */}
+      {hovered && (
+        <div
+          aria-hidden="true"
+          style={{
+            background: `radial-gradient(400px circle at ${tilt.spotX}% ${tilt.spotY}%, rgba(14, 165, 233, 0.12), transparent 80%)`,
+          }}
+          className="absolute inset-0 pointer-events-none z-20 transition-opacity duration-300"
+        />
+      )}
+
+      {/* Product Image Stage with 3D Levitation translateZ */}
+      <div className="relative w-full aspect-square bg-white overflow-hidden rounded-[14px] [transform-style:preserve-3d]">
         {(discountPercent || isNew || actuallyInStock) && (
-          <div className="absolute left-[12px] top-[12px] z-10 flex flex-col items-start gap-1">
+          <div className="absolute left-[12px] top-[12px] z-10 flex flex-col items-start gap-1 pointer-events-none">
             {discountPercent ? (
               <span className="rounded-full bg-emerald-500 text-white text-[11px] font-bold px-2.5 py-[3px] shadow-sm tracking-wide">
                 {discountPercent}% OFF
@@ -119,18 +180,41 @@ export default function ProductCard({
           </div>
         )}
 
-        <button
-          type="button"
-          aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-          onClick={handleWishlistClick}
-          className={`absolute right-[12px] top-[12px] z-10 flex items-center justify-center w-8 h-8 rounded-full shadow-md transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer ${
-            wishlisted
-              ? 'bg-rose-50 text-rose-500 border border-rose-200'
-              : 'bg-white/95 text-slate-400 hover:text-rose-500 hover:bg-rose-50 border border-slate-100'
-          }`}
-        >
-          <HeartIcon size={16} filled={wishlisted} />
-        </button>
+        {/* Action Icon Buttons Overlay */}
+        <div className="absolute right-[12px] top-[12px] z-20 flex flex-col gap-1.5">
+          <button
+            type="button"
+            aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+            onClick={handleWishlistClick}
+            className={`flex items-center justify-center w-8 h-8 rounded-full shadow-md transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer ${
+              wishlisted
+                ? 'bg-rose-50 text-rose-500 border border-rose-200'
+                : 'bg-white/95 text-slate-400 hover:text-rose-500 hover:bg-rose-50 border border-slate-100'
+            }`}
+          >
+            <HeartIcon size={16} filled={wishlisted} />
+          </button>
+
+          <button
+            type="button"
+            title="Quick View"
+            aria-label="Quick View"
+            onClick={() => onQuickView && onQuickView({ id: wishlistId, title, image, images, price, oldPrice, rating, stock, inStock, slug })}
+            className="flex items-center justify-center w-8 h-8 rounded-full bg-white/95 text-slate-500 hover:text-cyan-600 hover:bg-cyan-50 border border-slate-100 shadow-md transition-all hover:scale-110 active:scale-95 cursor-pointer"
+          >
+            👁️
+          </button>
+
+          <button
+            type="button"
+            title="Add to Compare"
+            aria-label="Add to Compare"
+            onClick={handleCompareClick}
+            className="flex items-center justify-center w-8 h-8 rounded-full bg-white/95 text-slate-500 hover:text-cyan-600 hover:bg-cyan-50 border border-slate-100 shadow-md transition-all hover:scale-110 active:scale-95 cursor-pointer text-xs"
+          >
+            ⚖️
+          </button>
+        </div>
 
         <Link to={productHref} className="absolute inset-0 overflow-hidden">
           {gallery.length > 0 ? (
@@ -143,7 +227,11 @@ export default function ProductCard({
                 height={400}
                 loading="lazy"
                 decoding="async"
-                className={`absolute inset-0 w-full h-full object-contain transition-all duration-500 group-hover:scale-105 ${
+                style={{
+                  transform: hovered ? 'translateZ(25px) scale(1.06)' : 'translateZ(0px) scale(1)',
+                  transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease',
+                }}
+                className={`absolute inset-0 w-full h-full object-contain ${
                   i === activeIndex ? 'opacity-100' : 'opacity-0'
                 }`}
               />
@@ -155,7 +243,8 @@ export default function ProductCard({
         </Link>
       </div>
 
-      <div className="flex flex-1 flex-col justify-between gap-3 p-4">
+      {/* Content Section */}
+      <div className="flex flex-1 flex-col justify-between gap-3 p-4 z-10 bg-white">
         <div className="flex flex-col gap-1.5">
           <Link
             to={productHref}

@@ -52,12 +52,22 @@
 }
 
 /* Hide scrollbar utility */
+html, body, * {
+  -ms-overflow-style: none !important;  /* IE and Edge */
+  scrollbar-width: none !important;  /* Firefox */
+}
+*::-webkit-scrollbar {
+  display: none !important;
+  width: 0px !important;
+  height: 0px !important;
+  background: transparent !important;
+}
 .no-scrollbar::-webkit-scrollbar {
-  display: none;
+  display: none !important;
 }
 .no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
 }
 
 body {
@@ -67,3 +77,219 @@ body {
   background-color: var(--color-cz-page);
   -webkit-font-smoothing: antialiased;
 }
+
+@keyframes flyArc {
+  0% {
+    transform: translate(var(--start-x), var(--start-y)) scale(1) rotate(0deg);
+    opacity: 1;
+    box-shadow: 0 10px 25px rgba(14, 165, 233, 0.4);
+  }
+  50% {
+    transform: translate(calc(var(--start-x) + (var(--target-x) - var(--start-x)) * 0.5), calc(var(--start-y) + (var(--target-y) - var(--start-y)) * 0.5 - 90px)) scale(1.3) rotate(180deg);
+    opacity: 1;
+    box-shadow: 0 20px 35px rgba(14, 165, 233, 0.7);
+  }
+  100% {
+    transform: translate(var(--target-x), var(--target-y)) scale(0.18) rotate(360deg);
+    opacity: 0.1;
+    box-shadow: 0 0 10px rgba(14, 165, 233, 0);
+  }
+}
+
+.animate-fly-arc {
+  animation: flyArc 1.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes toastPop {
+  0% {
+    transform: translate(-50%, -10px) scale(0.85);
+    opacity: 0;
+  }
+  15% {
+    transform: translate(-50%, 0) scale(1);
+    opacity: 1;
+  }
+  85% {
+    transform: translate(-50%, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -10px) scale(0.9);
+    opacity: 0;
+  }
+}
+
+.animate-toastPop {
+  animation: toastPop 2.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes bounceShort {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.3) rotate(-8deg); }
+}
+
+.animate-bounce-short {
+  animation: bounceShort 0.5s ease-in-out;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee-slow {
+  animation: marquee 50s linear infinite;
+}
+
+/* --- Crazy Animated Character Walk Cycle --- */
+@keyframes appleSwagger {
+  0% { transform: translateY(0) rotate(-3deg) scaleY(1); }
+  25% { transform: translateY(-7px) rotate(0deg) scaleY(1.03); }
+  50% { transform: translateY(0) rotate(3deg) scaleY(1); }
+  75% { transform: translateY(-7px) rotate(0deg) scaleY(1.03); }
+  100% { transform: translateY(0) rotate(-3deg) scaleY(1); }
+}
+
+@keyframes leafWiggle {
+  0%, 100% { transform: rotate(-15deg); }
+  50% { transform: rotate(15deg); }
+}
+
+@keyframes crazyLegLeft {
+  0% { transform: rotate(-35deg) skewX(-5deg); }
+  25% { transform: rotate(0deg) translateY(-4px); }
+  50% { transform: rotate(35deg) skewX(5deg); }
+  75% { transform: rotate(10deg) translateY(0); }
+  100% { transform: rotate(-35deg) skewX(-5deg); }
+}
+
+@keyframes crazyLegRight {
+  0% { transform: rotate(35deg) skewX(5deg); }
+  25% { transform: rotate(10deg) translateY(0); }
+  50% { transform: rotate(-35deg) skewX(-5deg); }
+  75% { transform: rotate(0deg) translateY(-4px); }
+  100% { transform: rotate(35deg) skewX(5deg); }
+}
+
+@keyframes crazyArmLeft {
+  0% { transform: rotate(30deg); }
+  50% { transform: rotate(-30deg); }
+  100% { transform: rotate(30deg); }
+}
+
+@keyframes crazyArmRight {
+  0% { transform: rotate(-30deg); }
+  50% { transform: rotate(30deg); }
+  100% { transform: rotate(-30deg); }
+}
+
+@keyframes stepSpark {
+  0% { transform: scale(0) opacity(0); }
+  50% { transform: scale(1.4) opacity(0.8); }
+  100% { transform: scale(2) opacity(0); }
+}
+
+.animate-apple-swagger {
+  animation: appleSwagger 0.6s ease-in-out infinite;
+}
+
+.animate-leaf-wiggle {
+  animation: leafWiggle 0.6s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+.animate-crazy-leg-left {
+  animation: crazyLegLeft 0.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  transform-origin: top center;
+}
+
+.animate-crazy-leg-right {
+  animation: crazyLegRight 0.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  transform-origin: top center;
+}
+
+.animate-crazy-arm-left {
+  animation: crazyArmLeft 0.6s ease-in-out infinite;
+  transform-origin: top center;
+}
+
+@keyframes appleTreeFall {
+  0% { transform: translateY(-55px) rotate(-45deg) scale(0.4); opacity: 0; }
+  35% { transform: translateY(0) rotate(15deg) scale(1.1); opacity: 1; }
+  50% { transform: translateY(-6px) rotate(-5deg) scale(0.98); }
+  65% { transform: translateY(0) rotate(0deg) scale(1); }
+  85% { transform: scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translateX(40px) scale(0.8) rotate(20deg); opacity: 0; }
+}
+
+@keyframes liquidFlowMorph {
+  0% { transform: translateX(-40px) scale(0.7) rotate(-20deg); opacity: 0; filter: blur(4px); }
+  20% { transform: translateX(0) scale(1) rotate(0deg); opacity: 1; filter: blur(0); }
+  50% { transform: translateY(-5px) scale(1.05); }
+  80% { transform: translateX(0) scale(1); opacity: 1; filter: blur(0); }
+  100% { transform: translateX(40px) scale(0.7) rotate(20deg); opacity: 0; filter: blur(4px); }
+}
+
+@keyframes cameraPulseZoom {
+  0% { transform: scale(0.3) rotate(90deg); opacity: 0; }
+  25% { transform: scale(1.2) rotate(-10deg); opacity: 1; }
+  45% { transform: scale(1) rotate(0deg); }
+  75% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.3) rotate(-90deg); opacity: 0; }
+}
+
+.animate-tree-fall {
+  animation: appleTreeFall 3.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.animate-liquid-flow {
+  animation: liquidFlowMorph 3.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.animate-camera-pulse {
+  animation: cameraPulseZoom 3.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+@keyframes legWalkLeft {
+  0%, 100% {
+    transform: rotate(-28deg) translateY(0);
+  }
+  50% {
+    transform: rotate(28deg) translateY(-3px);
+  }
+}
+
+@keyframes legWalkRight {
+  0%, 100% {
+    transform: rotate(28deg) translateY(-3px);
+  }
+  50% {
+    transform: rotate(-28deg) translateY(0);
+  }
+}
+
+@keyframes bodyBob {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-walk-left {
+  animation: legWalkLeft 0.45s ease-in-out infinite;
+  transform-origin: top center;
+}
+
+.animate-walk-right {
+  animation: legWalkRight 0.45s ease-in-out infinite;
+  transform-origin: top center;
+}
+
+.animate-body-bob {
+  animation: bodyBob 0.45s ease-in-out infinite;
+}
+
+
+

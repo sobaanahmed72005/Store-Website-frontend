@@ -8,6 +8,8 @@ import CategoryIcons from '../components/CategoryIcons'
 import Hero from '../components/Hero'
 import ProductGrid from '../components/ProductGrid'
 import Footer from '../components/Footer'
+import BrandsOrbitalTimeline from '../components/BrandsOrbitalTimeline'
+import QuickViewModal from '../components/modals/QuickViewModal'
 import { api } from '../api/client'
 import { ENDPOINTS } from '../api/endpoints'
 import { useSeo } from '../hooks/useSeo'
@@ -33,7 +35,7 @@ function SectionHeading({ heading, seeAllHref }) {
   )
 }
 
-function ProductSection({ heading, seeAllHref, products, loading }) {
+function ProductSection({ heading, seeAllHref, products, loading, onQuickView }) {
   if (!loading && products.length === 0) return null
   return (
     <section className="mx-auto px-5 pt-[30px] pb-0 md:pb-[30px]">
@@ -44,6 +46,7 @@ function ProductSection({ heading, seeAllHref, products, loading }) {
         skeletonCount={5}
         seeAllHref={seeAllHref}
         seeAllTitle={heading}
+        onQuickView={onQuickView}
         className="grid grid-cols-2 md:grid-cols-5 gap-6"
       />
     </section>
@@ -112,11 +115,10 @@ export default function Home() {
   const [newArrivals, setNewArrivals] = useState(() => homeCache.newArrivals || [])
   const [onSale, setOnSale] = useState(() => homeCache.onSale || [])
   const [loading, setLoading] = useState(!homeCache.featured)
+  const [quickViewProduct, setQuickViewProduct] = useState(null)
   const { siteName, logoUrl } = useSiteSettings()
 
   useEffect(() => {
-    // Fetch limit=100 to get products across all subcategories, then interleave
-    // round-robin so at least one product from EVERY subcategory appears at the top.
     api.get(ENDPOINTS.PRODUCTS.LIST('?limit=100'))
       .then((data) => {
         const res = diversifyProductsBySubCategory(data.products || [])
@@ -171,9 +173,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-cz-page">
-      {/* Real, crawlable page heading — the visual hero below is a rotating admin-editable
-          carousel (multiple slides in the DOM at once), so it can't reliably serve as the
-          page's single h1 without risking more than one on the page. */}
       <h1 className="sr-only">{siteName || 'IT Solutions'} — Laptops, Gaming Gear & PC Components in Pakistan</h1>
       <SeoHeadingFiller h3="Shop by category" h4="Popular categories" h5="Store highlights" h6="Quick links" />
       <AnnouncementBar />
@@ -182,10 +181,15 @@ export default function Home() {
       <CategoryMenu />
       <Hero />
       <CategoryIcons />
-      <ProductSection heading="Products" seeAllHref="/products?featured=1" products={featured} loading={loading} />
-      <ProductSection heading="On Sale" seeAllHref="/products?on_sale=1" products={onSale} loading={loading} />
-      <ProductSection heading="New Arrivals" seeAllHref="/products?new_arrival=1" products={newArrivals} loading={loading} />
+      <BrandsOrbitalTimeline />
+      <ProductSection heading="Products" seeAllHref="/products?featured=1" products={featured} loading={loading} onQuickView={setQuickViewProduct} />
+      <ProductSection heading="On Sale" seeAllHref="/products?on_sale=1" products={onSale} loading={loading} onQuickView={setQuickViewProduct} />
+      <ProductSection heading="New Arrivals" seeAllHref="/products?new_arrival=1" products={newArrivals} loading={loading} onQuickView={setQuickViewProduct} />
       <Footer />
+
+      {quickViewProduct && (
+        <QuickViewModal product={quickViewProduct} onClose={() => setQuickViewProduct(null)} />
+      )}
     </div>
   )
 }

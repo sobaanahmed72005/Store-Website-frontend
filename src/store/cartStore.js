@@ -32,7 +32,7 @@ export const useCartStore = create(subscribeWithSelector((set, get) => ({
       const items = existing
         ? state.items.map((item) => (sameLine(item, product.id, product.variantId) ? { ...item, qty: item.qty + qty } : item))
         : [...state.items, { ...product, qty }]
-      return { items, cartOpen: true }
+      return { items }
     })
   },
 
