@@ -1,11 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import Logo from './Logo'
 import SearchBar from './SearchBar'
 import { useNavItems } from '../hooks/useNavItems'
 import { useCategories } from '../store/categoryStore'
-import { categorySlugToPath } from '../utils/categoryPath'
 import { useWishlist } from '../store/wishlistStore'
 import { useCart } from '../store/cartStore'
 import { useAuthStore } from '../store/authStore'
@@ -22,7 +21,6 @@ import {
   HamburgerIcon,
   SearchIcon,
 } from './icons'
-
 
 function NavDrawer({ open, onClose }) {
   const categoryItems = useNavItems()
@@ -62,122 +60,122 @@ function NavDrawer({ open, onClose }) {
             type="button"
             aria-label="Close menu"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition cursor-pointer"
+            className="text-white/80 hover:text-white transition p-1 cursor-pointer"
           >
-            <CloseIcon size={18} />
+            <CloseIcon size={20} />
           </button>
         </div>
 
-        {/* Categories & Subcategories Navigation Tree */}
-        <div className="flex-1 overflow-y-auto px-5 py-4 divide-y divide-slate-100">
-          <div className="pb-3">
-            <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Categories</h3>
-            <ul className="flex flex-col gap-1">
-              {categoryItems.map((item) => {
-                let subLinks = []
-                if (item.label === 'Products') {
-                  subLinks = [...navCategories]
-                    .sort((a, b) => a.sort_order - b.sort_order || a.name.localeCompare(b.name))
-                    .map((cat) => ({ label: cat.name, to: categorySlugToPath(cat.slug) }))
-                } else if (item.subcategories) {
-                  subLinks = item.subcategories.map((sub) => ({ label: sub.name, to: categorySlugToPath(sub.slug) }))
-                }
+        {/* Drawer Body - Category Menu Tree & Links */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-6">
+          {/* Main Navigation Links */}
+          <div>
+            <div className="text-[12px] font-extrabold uppercase tracking-wider text-slate-400 mb-2 px-3">
+              Store Navigation
+            </div>
+            <div className="space-y-1">
+              <Link
+                to="/"
+                onClick={onClose}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100 hover:text-[#0c4a6e] transition"
+              >
+                Home
+              </Link>
+              <Link
+                to="/shop"
+                onClick={onClose}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100 hover:text-[#0c4a6e] transition"
+              >
+                All Products
+              </Link>
 
+              {/* Expandable Category Tree */}
+              {categoryItems.map((item) => {
+                const hasChildren = item.children && item.children.length > 0
                 const isExpanded = expandedItem === item.label
 
                 return (
-                  <li key={item.label} className="py-1">
-                    <div className="flex items-center justify-between rounded-lg hover:bg-sky-50 px-2 py-1.5 transition-colors">
-                      {item.to ? (
-                        <Link
-                          to={item.to}
-                          onClick={onClose}
-                          className="text-[14px] font-semibold text-slate-800 hover:text-cz-primary transition-colors flex-1"
-                        >
-                          {item.label}
-                        </Link>
-                      ) : (
-                        <span
-                          onClick={(e) => item.hasDropdown && toggleExpand(item.label, e)}
-                          className="text-[14px] font-semibold text-slate-800 flex-1 cursor-pointer"
-                        >
-                          {item.label}
-                        </span>
-                      )}
-
-                      {item.hasDropdown && (
+                  <div key={item.label} className="flex flex-col">
+                    <div className="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100 hover:text-[#0c4a6e] transition cursor-pointer">
+                      <Link to={item.to} onClick={onClose} className="flex-1 truncate">
+                        {item.label}
+                      </Link>
+                      {hasChildren && (
                         <button
                           type="button"
                           onClick={(e) => toggleExpand(item.label, e)}
-                          aria-label={`Toggle ${item.label} subcategories`}
-                          className="p-1 text-slate-400 hover:text-cz-primary transition-colors"
+                          className="p-1 text-slate-400 hover:text-[#0c4a6e] cursor-pointer"
                         >
                           <ChevronDownIcon
                             size={16}
-                            className={`transition-transform duration-200 ${isExpanded ? 'rotate-180 text-cz-sky' : ''}`}
+                            className={`transition-transform duration-200 ${isExpanded ? 'rotate-180 text-[#0c4a6e]' : ''}`}
                           />
                         </button>
                       )}
                     </div>
 
-                    {item.hasDropdown && isExpanded && subLinks.length > 0 && (
-                      <div className="flex flex-col gap-1 pl-4 pt-1.5 pb-2 border-l-2 border-cz-primary/40 my-1 ml-2 bg-slate-50/80 rounded-r-lg">
-                        {subLinks.map((sub) => (
+                    {/* Subcategories Dropdown */}
+                    {hasChildren && isExpanded && (
+                      <div className="ml-4 pl-3 border-l-2 border-slate-200 py-1 space-y-1">
+                        {item.children.map((child) => (
                           <Link
-                            key={sub.label}
-                            to={sub.to}
+                            key={child.label}
+                            to={child.to}
                             onClick={onClose}
-                            className="text-[13px] font-medium text-slate-600 hover:text-cz-primary py-1 px-2.5 rounded hover:bg-sky-100/60 transition-colors"
+                            className="block px-3 py-1.5 rounded text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-[#0c4a6e] transition truncate"
                           >
-                            {sub.label}
+                            {child.label}
                           </Link>
                         ))}
                       </div>
                     )}
-                  </li>
+                  </div>
                 )
               })}
-            </ul>
+            </div>
           </div>
 
-          {/* Quick Pages & Account Links */}
-          <div className="pt-4 pb-2">
-            <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Store Info</h3>
-            <div className="flex flex-col gap-1.5">
+          {/* Quick Support & Information Links */}
+          <div className="pt-4 border-t border-slate-200">
+            <div className="text-[12px] font-extrabold uppercase tracking-wider text-slate-400 mb-2 px-3">
+              Customer Support
+            </div>
+            <div className="space-y-1">
               <Link
                 to="/about-us"
                 onClick={onClose}
-                className="text-[13px] font-medium text-slate-700 hover:text-cz-primary py-1.5 px-2 rounded hover:bg-slate-50 flex items-center justify-between"
+                className="block px-3 py-2 text-xs font-semibold text-slate-600 hover:text-[#0c4a6e] hover:bg-slate-100 rounded transition"
               >
-                <span>About Us</span>
-                <span className="text-slate-400">→</span>
+                About Us
               </Link>
               <Link
-                to="/contact"
+                to="/contact-us"
                 onClick={onClose}
-                className="text-[13px] font-medium text-slate-700 hover:text-cz-primary py-1.5 px-2 rounded hover:bg-slate-50 flex items-center justify-between"
+                className="block px-3 py-2 text-xs font-semibold text-slate-600 hover:text-[#0c4a6e] hover:bg-slate-100 rounded transition"
               >
-                <span>Contact Us</span>
-                <span className="text-slate-400">→</span>
+                Contact Us
               </Link>
               <Link
-                to="/return-exchange"
+                to="/policies"
                 onClick={onClose}
-                className="text-[13px] font-medium text-slate-700 hover:text-cz-primary py-1.5 px-2 rounded hover:bg-slate-50 flex items-center justify-between"
+                className="block px-3 py-2 text-xs font-semibold text-slate-600 hover:text-[#0c4a6e] hover:bg-slate-100 rounded transition"
               >
-                <span>Policies</span>
-                <span className="text-slate-400">→</span>
+                Store Policies
               </Link>
               <Link
                 to="/order-tracking"
                 onClick={onClose}
-                className="text-[13px] font-medium text-slate-700 hover:text-cz-primary py-1.5 px-2 rounded hover:bg-slate-50 flex items-center justify-between"
+                className="block px-3 py-2 text-xs font-semibold text-slate-600 hover:text-[#0c4a6e] hover:bg-slate-100 rounded transition"
               >
-                <span>Order Tracking</span>
-                <span className="text-slate-400">→</span>
+                Order Tracking
               </Link>
             </div>
           </div>
+        </div>
+
+        {/* Drawer Footer */}
+        <div className="p-4 bg-slate-50 border-t border-slate-200 text-center">
+          <p className="text-xs text-slate-500 font-medium">IT Solutions Trade & Service Pvt. Ltd.</p>
         </div>
       </div>
     </div>,
@@ -440,7 +438,10 @@ function CurrencySwitcher({ size = 20, showLabel = true }) {
   )
 }
 
-export default function Header() {
+export default function Header({ transparent = false }) {
+  const location = useLocation()
+  const isHomepage = transparent || location.pathname === '/'
+
   const { items: wishlistItems, count: wishlistCount, removeFromWishlist, wishlistOpen, openWishlist, closeWishlist } = useWishlist()
   const { items: cartItems, count: cartCount, updateQty, removeFromCart, addToCart, cartOpen, openCart, closeCart } = useCart()
   const user = useAuthStore((s) => s.user)
@@ -448,7 +449,11 @@ export default function Header() {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
 
   return (
-    <div className="bg-cz-header text-[var(--cz-header-text)] py-2.5 sticky top-0 z-[100] shadow-md border-b border-cyan-900/30 backdrop-blur-md">
+    <div className={`py-2.5 sticky top-0 z-[100] transition-all duration-300 ${
+      isHomepage 
+        ? 'bg-transparent text-white border-none shadow-none' 
+        : 'bg-cz-header text-[var(--cz-header-text)] shadow-md border-b border-cyan-900/30'
+    }`}>
       <div className="mx-auto px-5">
         {/* Desktop & Tablet Header Layout */}
         <div className="hidden md:flex items-center justify-between gap-4 py-2">
