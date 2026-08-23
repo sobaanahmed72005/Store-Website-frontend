@@ -448,6 +448,17 @@ export default function Header({ transparent = false }) {
   const [navOpen, setNavOpen] = useState(false)
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
 
+  // Search Bar Style State: 'full' (always visible white search bar)
+  const [desktopSearchMode] = useState('full')
+  const [desktopSearchOpen, setDesktopSearchOpen] = useState(false)
+
+  const toggleSearchStyle = () => {
+    const next = desktopSearchMode === 'icon' ? 'full' : 'icon'
+    setDesktopSearchMode(next)
+    localStorage.setItem('desktop_search_mode', next)
+    setDesktopSearchOpen(false)
+  }
+
   return (
     <div className={`py-2.5 sticky top-0 z-[100] transition-all duration-300 ${
       isHomepage 
@@ -471,11 +482,31 @@ export default function Header({ transparent = false }) {
             </Link>
           </div>
 
-          <div className="flex-1 max-w-xl mx-4">
-            <SearchBar />
-          </div>
+          {/* Search Area: Full Bar vs Icon-Only */}
+          {desktopSearchMode === 'full' ? (
+            <div className="flex-1 max-w-xl mx-4">
+              <SearchBar />
+            </div>
+          ) : (
+            <div className="flex-1" />
+          )}
 
           <div className="flex items-center justify-end gap-4 shrink-0">
+            {/* Click-to-Open Search Icon for Desktop */}
+            {desktopSearchMode === 'icon' && (
+              <button
+                type="button"
+                aria-label="Search"
+                onClick={() => setDesktopSearchOpen((v) => !v)}
+                className={`flex items-center text-[var(--cz-header-text)] cursor-pointer hover:opacity-80 transition p-1.5 rounded-full ${
+                  desktopSearchOpen ? 'bg-white/20 ring-2 ring-cyan-400' : ''
+                }`}
+              >
+                <SearchIcon size={26} />
+                <span className="sr-only">Search</span>
+              </button>
+            )}
+
             <Link
               to={user ? '/account' : '/signin'}
               aria-label="Account"
@@ -513,6 +544,13 @@ export default function Header({ transparent = false }) {
             <CurrencySwitcher />
           </div>
         </div>
+
+        {/* Desktop Expandable Click-to-Open Search Bar */}
+        {desktopSearchMode === 'icon' && desktopSearchOpen && (
+          <div className="hidden md:block pt-3 pb-2 max-w-2xl mx-auto transition-all duration-300 animate-in fade-in slide-in-from-top-2">
+            <SearchBar placeholder="Type product name, category, or model..." />
+          </div>
+        )}
 
         {/* Mobile / Tablet Header Layout */}
         <div className="flex md:hidden items-center justify-between gap-2 py-1">

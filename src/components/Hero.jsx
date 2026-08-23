@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import MirageHeroCanvas from './3d/MirageHeroCanvas'
+import HeroBannerCarousel from './HeroBannerCarousel'
 import Header from './Header'
 
 export default function Hero() {
@@ -23,13 +24,15 @@ export default function Hero() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const textOpacity = Math.max(1 - scrollProgress * 3.0, 0)
+  const textOpacity = Math.max(1 - scrollProgress * 3.3, 0)
   const textScale = 1 - scrollProgress * 0.15
   const textTranslateY = scrollProgress * 60
 
+  const showBanners = scrollProgress >= 0.60
+
   return (
-    <section ref={containerRef} className="relative w-full h-[300vh] bg-[#03070A] text-white selection:bg-[#0891B2] selection:text-white">
-      {/* Sticky Viewport Pinned in Place during 3D video scroll */}
+    <section ref={containerRef} className="relative w-full h-[320vh] bg-[#03070A] text-white selection:bg-[#0891B2] selection:text-white">
+      {/* Sticky Viewport Pinned in Place during 3D video scroll & banner showcase */}
       <div className="sticky top-0 w-full h-screen overflow-hidden flex flex-col justify-between">
         {/* Fast & Smooth Scroll-Scrubbed Video Background */}
         <MirageHeroCanvas progress={scrollProgress} />
@@ -44,21 +47,27 @@ export default function Hero() {
         <div className="absolute -bottom-20 left-10 w-96 h-96 bg-[#22D3EE]/10 rounded-full blur-3xl pointer-events-none z-0" />
 
         {/* Main Content Container */}
-        <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-8 pt-12 sm:pt-16 pb-12 flex-1 flex flex-col justify-center w-full pointer-events-none">
-          <div
-            className="max-w-2xl text-left transition-all duration-75 ease-out pointer-events-auto"
-            style={{
-              opacity: textOpacity,
-              transform: `scale(${textScale}) translateY(${textTranslateY}px)`,
-            }}
-          >
-            <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold font-heading tracking-tight leading-[1.08] text-white drop-shadow-sm">
-              POWERING YOUR <br />
-              <span className="bg-gradient-to-r from-white via-[#22D3EE] to-[#0891B2] bg-clip-text text-transparent">
-                DIGITAL WORLD
-              </span>
-            </h1>
-          </div>
+        <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-8 pt-6 pb-12 flex-1 flex flex-col justify-center w-full pointer-events-none">
+          {/* Phase 1: Intro Headline */}
+          {textOpacity > 0.01 && (
+            <div
+              className="max-w-2xl text-left transition-all duration-75 ease-out pointer-events-auto"
+              style={{
+                opacity: textOpacity,
+                transform: `scale(${textScale}) translateY(${textTranslateY}px)`,
+              }}
+            >
+              <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold font-heading tracking-tight leading-[1.08] text-white drop-shadow-sm">
+                POWERING YOUR <br />
+                <span className="bg-gradient-to-r from-white via-[#22D3EE] to-[#0891B2] bg-clip-text text-transparent">
+                  DIGITAL WORLD
+                </span>
+              </h1>
+            </div>
+          )}
+
+          {/* Phase 2: Hero Banners Showcase */}
+          <HeroBannerCarousel visible={showBanners} />
         </div>
       </div>
     </section>
