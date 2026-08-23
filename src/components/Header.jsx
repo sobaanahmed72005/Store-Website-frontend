@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Link, useLocation } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import Logo from './Logo'
 import SearchBar from './SearchBar'
 import { useNavItems } from '../hooks/useNavItems'
 import { useCategories } from '../store/categoryStore'
+import { categorySlugToPath } from '../utils/categoryPath'
 import { useWishlist } from '../store/wishlistStore'
 import { useCart } from '../store/cartStore'
 import { useAuthStore } from '../store/authStore'
@@ -21,6 +22,7 @@ import {
   HamburgerIcon,
   SearchIcon,
 } from './icons'
+
 
 function NavDrawer({ open, onClose }) {
   const categoryItems = useNavItems()
@@ -60,122 +62,122 @@ function NavDrawer({ open, onClose }) {
             type="button"
             aria-label="Close menu"
             onClick={onClose}
-            className="text-white/80 hover:text-white transition p-1 cursor-pointer"
+            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition cursor-pointer"
           >
-            <CloseIcon size={20} />
+            <CloseIcon size={18} />
           </button>
         </div>
 
-        {/* Drawer Body - Category Menu Tree & Links */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-6">
-          {/* Main Navigation Links */}
-          <div>
-            <div className="text-[12px] font-extrabold uppercase tracking-wider text-slate-400 mb-2 px-3">
-              Store Navigation
-            </div>
-            <div className="space-y-1">
-              <Link
-                to="/"
-                onClick={onClose}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100 hover:text-[#0c4a6e] transition"
-              >
-                Home
-              </Link>
-              <Link
-                to="/shop"
-                onClick={onClose}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100 hover:text-[#0c4a6e] transition"
-              >
-                All Products
-              </Link>
-
-              {/* Expandable Category Tree */}
+        {/* Categories & Subcategories Navigation Tree */}
+        <div className="flex-1 overflow-y-auto px-5 py-4 divide-y divide-slate-100">
+          <div className="pb-3">
+            <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Categories</h3>
+            <ul className="flex flex-col gap-1">
               {categoryItems.map((item) => {
-                const hasChildren = item.children && item.children.length > 0
+                let subLinks = []
+                if (item.label === 'Products') {
+                  subLinks = [...navCategories]
+                    .sort((a, b) => a.sort_order - b.sort_order || a.name.localeCompare(b.name))
+                    .map((cat) => ({ label: cat.name, to: categorySlugToPath(cat.slug) }))
+                } else if (item.subcategories) {
+                  subLinks = item.subcategories.map((sub) => ({ label: sub.name, to: categorySlugToPath(sub.slug) }))
+                }
+
                 const isExpanded = expandedItem === item.label
 
                 return (
-                  <div key={item.label} className="flex flex-col">
-                    <div className="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100 hover:text-[#0c4a6e] transition cursor-pointer">
-                      <Link to={item.to} onClick={onClose} className="flex-1 truncate">
-                        {item.label}
-                      </Link>
-                      {hasChildren && (
+                  <li key={item.label} className="py-1">
+                    <div className="flex items-center justify-between rounded-lg hover:bg-sky-50 px-2 py-1.5 transition-colors">
+                      {item.to ? (
+                        <Link
+                          to={item.to}
+                          onClick={onClose}
+                          className="text-[14px] font-semibold text-slate-800 hover:text-cz-primary transition-colors flex-1"
+                        >
+                          {item.label}
+                        </Link>
+                      ) : (
+                        <span
+                          onClick={(e) => item.hasDropdown && toggleExpand(item.label, e)}
+                          className="text-[14px] font-semibold text-slate-800 flex-1 cursor-pointer"
+                        >
+                          {item.label}
+                        </span>
+                      )}
+
+                      {item.hasDropdown && (
                         <button
                           type="button"
                           onClick={(e) => toggleExpand(item.label, e)}
-                          className="p-1 text-slate-400 hover:text-[#0c4a6e] cursor-pointer"
+                          aria-label={`Toggle ${item.label} subcategories`}
+                          className="p-1 text-slate-400 hover:text-cz-primary transition-colors"
                         >
                           <ChevronDownIcon
                             size={16}
-                            className={`transition-transform duration-200 ${isExpanded ? 'rotate-180 text-[#0c4a6e]' : ''}`}
+                            className={`transition-transform duration-200 ${isExpanded ? 'rotate-180 text-cz-sky' : ''}`}
                           />
                         </button>
                       )}
                     </div>
 
-                    {/* Subcategories Dropdown */}
-                    {hasChildren && isExpanded && (
-                      <div className="ml-4 pl-3 border-l-2 border-slate-200 py-1 space-y-1">
-                        {item.children.map((child) => (
+                    {item.hasDropdown && isExpanded && subLinks.length > 0 && (
+                      <div className="flex flex-col gap-1 pl-4 pt-1.5 pb-2 border-l-2 border-cz-primary/40 my-1 ml-2 bg-slate-50/80 rounded-r-lg">
+                        {subLinks.map((sub) => (
                           <Link
-                            key={child.label}
-                            to={child.to}
+                            key={sub.label}
+                            to={sub.to}
                             onClick={onClose}
-                            className="block px-3 py-1.5 rounded text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-[#0c4a6e] transition truncate"
+                            className="text-[13px] font-medium text-slate-600 hover:text-cz-primary py-1 px-2.5 rounded hover:bg-sky-100/60 transition-colors"
                           >
-                            {child.label}
+                            {sub.label}
                           </Link>
                         ))}
                       </div>
                     )}
-                  </div>
+                  </li>
                 )
               })}
-            </div>
+            </ul>
           </div>
 
-          {/* Quick Support & Information Links */}
-          <div className="pt-4 border-t border-slate-200">
-            <div className="text-[12px] font-extrabold uppercase tracking-wider text-slate-400 mb-2 px-3">
-              Customer Support
-            </div>
-            <div className="space-y-1">
+          {/* Quick Pages & Account Links */}
+          <div className="pt-4 pb-2">
+            <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Store Info</h3>
+            <div className="flex flex-col gap-1.5">
               <Link
                 to="/about-us"
                 onClick={onClose}
-                className="block px-3 py-2 text-xs font-semibold text-slate-600 hover:text-[#0c4a6e] hover:bg-slate-100 rounded transition"
+                className="text-[13px] font-medium text-slate-700 hover:text-cz-primary py-1.5 px-2 rounded hover:bg-slate-50 flex items-center justify-between"
               >
-                About Us
+                <span>About Us</span>
+                <span className="text-slate-400">→</span>
               </Link>
               <Link
-                to="/contact-us"
+                to="/contact"
                 onClick={onClose}
-                className="block px-3 py-2 text-xs font-semibold text-slate-600 hover:text-[#0c4a6e] hover:bg-slate-100 rounded transition"
+                className="text-[13px] font-medium text-slate-700 hover:text-cz-primary py-1.5 px-2 rounded hover:bg-slate-50 flex items-center justify-between"
               >
-                Contact Us
+                <span>Contact Us</span>
+                <span className="text-slate-400">→</span>
               </Link>
               <Link
-                to="/policies"
+                to="/return-exchange"
                 onClick={onClose}
-                className="block px-3 py-2 text-xs font-semibold text-slate-600 hover:text-[#0c4a6e] hover:bg-slate-100 rounded transition"
+                className="text-[13px] font-medium text-slate-700 hover:text-cz-primary py-1.5 px-2 rounded hover:bg-slate-50 flex items-center justify-between"
               >
-                Store Policies
+                <span>Policies</span>
+                <span className="text-slate-400">→</span>
               </Link>
               <Link
                 to="/order-tracking"
                 onClick={onClose}
-                className="block px-3 py-2 text-xs font-semibold text-slate-600 hover:text-[#0c4a6e] hover:bg-slate-100 rounded transition"
+                className="text-[13px] font-medium text-slate-700 hover:text-cz-primary py-1.5 px-2 rounded hover:bg-slate-50 flex items-center justify-between"
               >
-                Order Tracking
+                <span>Order Tracking</span>
+                <span className="text-slate-400">→</span>
               </Link>
             </div>
           </div>
-        </div>
-
-        {/* Drawer Footer */}
-        <div className="p-4 bg-slate-50 border-t border-slate-200 text-center">
-          <p className="text-xs text-slate-500 font-medium">IT Solutions Trade & Service Pvt. Ltd.</p>
         </div>
       </div>
     </div>,
@@ -438,33 +440,15 @@ function CurrencySwitcher({ size = 20, showLabel = true }) {
   )
 }
 
-export default function Header({ transparent = false }) {
-  const location = useLocation()
-  const isHomepage = transparent || location.pathname === '/'
-
+export default function Header() {
   const { items: wishlistItems, count: wishlistCount, removeFromWishlist, wishlistOpen, openWishlist, closeWishlist } = useWishlist()
   const { items: cartItems, count: cartCount, updateQty, removeFromCart, addToCart, cartOpen, openCart, closeCart } = useCart()
   const user = useAuthStore((s) => s.user)
   const [navOpen, setNavOpen] = useState(false)
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
 
-  // Search Bar Style State: 'full' (always visible white search bar)
-  const [desktopSearchMode] = useState('full')
-  const [desktopSearchOpen, setDesktopSearchOpen] = useState(false)
-
-  const toggleSearchStyle = () => {
-    const next = desktopSearchMode === 'icon' ? 'full' : 'icon'
-    setDesktopSearchMode(next)
-    localStorage.setItem('desktop_search_mode', next)
-    setDesktopSearchOpen(false)
-  }
-
   return (
-    <div className={`py-2.5 sticky top-0 z-[100] transition-all duration-300 ${
-      isHomepage 
-        ? 'bg-transparent text-white border-none shadow-none' 
-        : 'bg-cz-header text-[var(--cz-header-text)] shadow-md border-b border-cyan-900/30'
-    }`}>
+    <div className="bg-cz-header text-[var(--cz-header-text)] py-2.5 sticky top-0 z-[100] shadow-md border-b border-cyan-900/30 backdrop-blur-md">
       <div className="mx-auto px-5">
         {/* Desktop & Tablet Header Layout */}
         <div className="hidden md:flex items-center justify-between gap-4 py-2">
@@ -482,31 +466,11 @@ export default function Header({ transparent = false }) {
             </Link>
           </div>
 
-          {/* Search Area: Full Bar vs Icon-Only */}
-          {desktopSearchMode === 'full' ? (
-            <div className="flex-1 max-w-xl mx-4">
-              <SearchBar />
-            </div>
-          ) : (
-            <div className="flex-1" />
-          )}
+          <div className="flex-1 max-w-xl mx-4">
+            <SearchBar />
+          </div>
 
           <div className="flex items-center justify-end gap-4 shrink-0">
-            {/* Click-to-Open Search Icon for Desktop */}
-            {desktopSearchMode === 'icon' && (
-              <button
-                type="button"
-                aria-label="Search"
-                onClick={() => setDesktopSearchOpen((v) => !v)}
-                className={`flex items-center text-[var(--cz-header-text)] cursor-pointer hover:opacity-80 transition p-1.5 rounded-full ${
-                  desktopSearchOpen ? 'bg-white/20 ring-2 ring-cyan-400' : ''
-                }`}
-              >
-                <SearchIcon size={26} />
-                <span className="sr-only">Search</span>
-              </button>
-            )}
-
             <Link
               to={user ? '/account' : '/signin'}
               aria-label="Account"
@@ -544,13 +508,6 @@ export default function Header({ transparent = false }) {
             <CurrencySwitcher />
           </div>
         </div>
-
-        {/* Desktop Expandable Click-to-Open Search Bar */}
-        {desktopSearchMode === 'icon' && desktopSearchOpen && (
-          <div className="hidden md:block pt-3 pb-2 max-w-2xl mx-auto transition-all duration-300 animate-in fade-in slide-in-from-top-2">
-            <SearchBar placeholder="Type product name, category, or model..." />
-          </div>
-        )}
 
         {/* Mobile / Tablet Header Layout */}
         <div className="flex md:hidden items-center justify-between gap-2 py-1">

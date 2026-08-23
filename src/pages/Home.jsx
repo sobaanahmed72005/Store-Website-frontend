@@ -176,8 +176,10 @@ export default function Home() {
       <h1 className="sr-only">{siteName || 'IT Solutions'} — Laptops, Gaming Gear & PC Components in Pakistan</h1>
       <SeoHeadingFiller h3="Shop by category" h4="Popular categories" h5="Store highlights" h6="Quick links" />
       <AnnouncementBar />
-      <Hero />
       <Navbar />
+      <Header />
+      <CategoryMenu />
+      <Hero />
       <CategoryIcons />
       <BrandsOrbitalTimeline />
       <ProductSection heading="Products" seeAllHref="/products?featured=1" products={featured} loading={loading} onQuickView={setQuickViewProduct} />
