@@ -142,22 +142,32 @@ function HomeSeoContentSection() {
   }, [])
 
   return (
-    <section className="bg-white border-t border-b border-slate-200/80 py-8 sm:py-10 my-8">
-      <div className="mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-[20px] sm:text-[24px] font-bold text-[#0c4a6e] font-heading tracking-tight mb-3">
+    <section className="mx-auto px-5 py-6 sm:py-8 my-4">
+      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 sm:p-8">
+        <h2 className="text-[22px] sm:text-[26px] font-bold text-[#0c4a6e] font-heading tracking-tight mb-3 w-full">
           {seoContent.title}
         </h2>
-        <p className="text-[13px] sm:text-[14px] text-slate-600 leading-relaxed mb-6 max-w-4xl">
+        <p className="text-[14px] text-slate-600 leading-relaxed mb-8 w-full">
           {seoContent.intro}
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-slate-100 text-[13px] text-slate-600">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {(seoContent.columns || []).map((col, idx) => (
-            <div key={idx}>
-              <h3 className="font-bold text-[#0c4a6e] text-[15px] font-heading mb-1.5">
-                {col.heading}
-              </h3>
-              <p className="leading-relaxed">{col.description}</p>
+            <div
+              key={idx}
+              className="bg-slate-50/80 border border-slate-200/80 rounded-xl p-5 hover:border-[#0c4a6e]/40 hover:bg-white hover:shadow-md transition-all duration-200 flex flex-col justify-between"
+            >
+              <div>
+                <div className="w-8 h-8 rounded-lg bg-cyan-50 border border-cyan-200 text-[#0c4a6e] text-xs font-bold font-heading flex items-center justify-center mb-3">
+                  0{idx + 1}
+                </div>
+                <h3 className="font-bold text-[#0c4a6e] text-[16px] font-heading mb-2">
+                  {col.heading}
+                </h3>
+                <p className="text-[13px] text-slate-600 leading-relaxed">
+                  {col.description}
+                </p>
+              </div>
             </div>
           ))}
         </div>
