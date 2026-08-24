@@ -110,13 +110,56 @@ let homeCache = {
   onSale: null,
 }
 
+function HomeSeoContentSection() {
+  const { siteName } = useSiteSettings()
+  return (
+    <section className="bg-white border-t border-b border-slate-200/80 py-8 sm:py-10 my-8">
+      <div className="mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 className="text-[20px] sm:text-[24px] font-bold text-[#0c4a6e] font-heading tracking-tight mb-3">
+          Pakistan's Premier IT Hardware & Technology Store
+        </h2>
+        <p className="text-[13px] sm:text-[14px] text-slate-600 leading-relaxed mb-6 max-w-4xl">
+          Welcome to <strong className="text-slate-800">{siteName || 'IT Solutions'}</strong> — your authorized supplier of genuine IT equipment, office networking solutions, surveillance systems, and high-performance computing hardware in Pakistan. Whether you are setting up home security or equipping a modern corporate office, we offer competitive pricing, official brand warranty, and fast nationwide Cash on Delivery.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-slate-100 text-[13px] text-slate-600">
+          <div>
+            <h3 className="font-bold text-[#0c4a6e] text-[15px] font-heading mb-1.5">
+              Laptops & Computing
+            </h3>
+            <p className="leading-relaxed">
+              Explore Apple MacBook, Dell XPS, HP ProBook, Lenovo ThinkPad, and ASUS ROG gaming laptops with official international warranty and authentic power adapters.
+            </p>
+          </div>
+          <div>
+            <h3 className="font-bold text-[#0c4a6e] text-[15px] font-heading mb-1.5">
+              4K Security & Surveillance
+            </h3>
+            <p className="leading-relaxed">
+              Secure your home and business with Hikvision, EZVIZ, and IMOU 4K security cameras, wireless PTZ dome cameras, NVR recording units, and smart night-vision sensors.
+            </p>
+          </div>
+          <div>
+            <h3 className="font-bold text-[#0c4a6e] text-[15px] font-heading mb-1.5">
+              Networking & Solar Energy
+            </h3>
+            <p className="leading-relaxed">
+              Upgrade your connectivity with Wi-Fi 6 Gigabit routers, enterprise switches, and hybrid solar inverters for continuous uninterrupted power supply.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 export default function Home() {
-  const [featured, setFeatured] = useState(() => homeCache.featured || [])
-  const [newArrivals, setNewArrivals] = useState(() => homeCache.newArrivals || [])
-  const [onSale, setOnSale] = useState(() => homeCache.onSale || [])
+  const { siteName, logoUrl } = useSiteSettings()
+  const [featured, setFeatured] = useState(homeCache.featured || [])
+  const [newArrivals, setNewArrivals] = useState(homeCache.newArrivals || [])
+  const [onSale, setOnSale] = useState(homeCache.onSale || [])
   const [loading, setLoading] = useState(!homeCache.featured)
   const [quickViewProduct, setQuickViewProduct] = useState(null)
-  const { siteName, logoUrl } = useSiteSettings()
 
   useEffect(() => {
     api.get(ENDPOINTS.PRODUCTS.LIST('?limit=100'))
@@ -148,7 +191,7 @@ export default function Home() {
   const origin = window.location.origin
   useSeo({
     title: `${siteName || 'IT Solutions'} — 4K CCTV Cameras, Wi-Fi Routers, Solar Systems & Laptops in Pakistan`,
-    description: `Shop original 4K CCTV security cameras, enterprise Wi-Fi 6 routers, solar panels, and laptops in Pakistan at ${siteName || 'IT Solutions'}. Official warranty & free nationwide delivery on your 1st order!`,
+    description: `Shop original 4K CCTV security cameras, enterprise Wi-Fi 6 routers, solar panels, and laptops in Pakistan at ${siteName || 'IT Solutions'}. Official warranty & fast nationwide delivery on your order!`,
     canonical: `${origin}/`,
     image: logoUrl,
     keywords: 'cctv camera pakistan, 4k cctv camera price lahore, wifi 6 router pakistan, solar panel price pakistan, laptops online store pakistan, it solutions lahore',
@@ -156,17 +199,55 @@ export default function Home() {
     jsonLd: [
       {
         '@context': 'https://schema.org',
-        '@type': 'Organization',
+        '@type': 'LocalBusiness',
         name: siteName || 'IT Solutions Trade & Service Pvt. Ltd.',
         url: origin,
         logo: logoUrl || undefined,
-        description: SITE_TAGLINE,
+        description: 'Pakistan\'s trusted online IT store for laptops, 4K CCTV security cameras, Wi-Fi 6 routers, and solar power inverters.',
+        priceRange: 'PKR',
+        address: {
+          '@type': 'PostalAddress',
+          addressLocality: 'Lahore',
+          addressRegion: 'Punjab',
+          addressCountry: 'PK',
+        },
+        paymentAccepted: 'Cash on Delivery, Bank Transfer, Credit Card',
       },
       {
         '@context': 'https://schema.org',
         '@type': 'WebSite',
         name: siteName || 'IT Solutions',
         url: origin,
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: [
+          {
+            '@type': 'Question',
+            name: 'Does IT Solutions deliver laptops & CCTV cameras all over Pakistan?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Yes! IT Solutions offers nationwide Cash on Delivery (COD) and fast shipping to Lahore, Karachi, Islamabad, Rawalpindi, Faisalabad, Multan, Peshawar, and all cities across Pakistan.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: 'Are all products at IT Solutions 100% original with official warranty?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'All products sold at IT Solutions are 100% genuine brand-new items backed by official brand manufacturer warranty and a 7-day replacement guarantee.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: 'What tech products and brands can I buy at IT Solutions?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'IT Solutions offers laptops, 4K CCTV security cameras (Hikvision, EZVIZ, IMOU), enterprise Wi-Fi 6 routers (TP-Link, Asus, Netgear), solar inverters, and PC components from Apple, Dell, HP, Lenovo, ASUS, and Samsung.',
+            },
+          },
+        ],
       },
     ],
   })
@@ -185,6 +266,7 @@ export default function Home() {
       <ProductSection heading="Products" seeAllHref="/products?featured=1" products={featured} loading={loading} onQuickView={setQuickViewProduct} />
       <ProductSection heading="On Sale" seeAllHref="/products?on_sale=1" products={onSale} loading={loading} onQuickView={setQuickViewProduct} />
       <ProductSection heading="New Arrivals" seeAllHref="/products?new_arrival=1" products={newArrivals} loading={loading} onQuickView={setQuickViewProduct} />
+      <HomeSeoContentSection />
       <Footer />
 
       {quickViewProduct && (
