@@ -171,10 +171,10 @@ export default function AdminHomepageSeo() {
       <div className="mt-10 pt-6 border-t border-slate-200">
         <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Live Homepage Footer Preview</h2>
         <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 sm:p-8">
-          <h2 className="text-[22px] font-bold text-[#0c4a6e] font-heading tracking-tight mb-3 w-full">
+          <h2 className="text-[22px] font-bold text-slate-900 font-heading tracking-tight mb-3 w-full">
             {content.title}
           </h2>
-          <p className="text-[14px] text-slate-600 leading-relaxed mb-6 w-full">
+          <p className="text-[14px] font-medium text-slate-900 leading-relaxed mb-6 w-full">
             {content.intro}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -184,13 +184,13 @@ export default function AdminHomepageSeo() {
                 className="bg-slate-50/80 border border-slate-200/80 rounded-xl p-4 flex flex-col justify-between"
               >
                 <div>
-                  <div className="w-7 h-7 rounded-lg bg-cyan-50 border border-cyan-200 text-[#0c4a6e] text-xs font-bold font-heading flex items-center justify-center mb-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-slate-900 text-white text-xs font-bold font-heading flex items-center justify-center mb-2.5">
                     0{i + 1}
                   </div>
-                  <h3 className="font-bold text-[#0c4a6e] text-[15px] font-heading mb-1.5">
+                  <h3 className="font-bold text-slate-900 text-[15px] font-heading mb-1.5">
                     {col.heading}
                   </h3>
-                  <p className="text-[13px] text-slate-600 leading-relaxed">{col.description}</p>
+                  <p className="text-[13px] text-slate-900 leading-relaxed">{col.description}</p>
                 </div>
               </div>
             ))}
