@@ -164,19 +164,19 @@ export default function ProductCard({
       {/* Product Image Stage with 3D Levitation translateZ */}
       <div className="relative w-full aspect-square bg-white overflow-hidden rounded-[14px] [transform-style:preserve-3d]">
         {(discountPercent || isNew || actuallyInStock) && (
-          <div className="absolute left-[12px] top-[12px] z-10 flex flex-col items-start gap-1 pointer-events-none">
+          <div className="absolute left-[10px] sm:left-[12px] top-[10px] sm:top-[12px] z-10 flex flex-col items-start gap-1 pointer-events-none">
             {discountPercent ? (
-              <span className="rounded-full bg-emerald-500 text-white text-[11px] font-bold px-2.5 py-[3px] shadow-sm tracking-wide">
+              <span className="rounded-full bg-emerald-500 text-white text-[11px] sm:text-[12px] font-bold px-2.5 py-[3px] shadow-sm tracking-wide">
                 {discountPercent}% OFF
               </span>
             ) : null}
             {isNew && (
-              <span className="rounded-full bg-sky-500 text-white text-[11px] font-bold px-2.5 py-[3px] shadow-sm tracking-wide">
+              <span className="rounded-full bg-sky-500 text-white text-[11px] sm:text-[12px] font-bold px-2.5 py-[3px] shadow-sm tracking-wide">
                 NEW
               </span>
             )}
             {actuallyInStock && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-900/80 backdrop-blur-md text-emerald-400 text-[10px] font-semibold px-2.5 py-[2px] shadow-sm border border-emerald-500/30">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-900/85 backdrop-blur-md text-emerald-400 text-[11px] sm:text-[12px] font-semibold px-2.5 py-[3px] shadow-sm border border-emerald-500/30">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 In Stock
               </span>
@@ -185,18 +185,18 @@ export default function ProductCard({
         )}
 
         {/* Action Icon Buttons Overlay */}
-        <div className="absolute right-[12px] top-[12px] z-20 flex flex-col gap-1.5">
+        <div className="absolute right-[10px] sm:right-[12px] top-[10px] sm:top-[12px] z-20 flex flex-col gap-2">
           <button
             type="button"
             aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
             onClick={handleWishlistClick}
-            className={`flex items-center justify-center w-8 h-8 rounded-full shadow-md transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer ${
+            className={`flex items-center justify-center w-9 h-9 sm:w-8 sm:h-8 rounded-full shadow-md transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer ${
               wishlisted
                 ? 'bg-rose-50 text-rose-500 border border-rose-200'
                 : 'bg-white/95 text-slate-400 hover:text-rose-500 hover:bg-rose-50 border border-slate-100'
             }`}
           >
-            <HeartIcon size={16} filled={wishlisted} />
+            <HeartIcon size={17} filled={wishlisted} />
           </button>
 
           <button
@@ -204,7 +204,7 @@ export default function ProductCard({
             title="Quick View"
             aria-label="Quick View"
             onClick={() => onQuickView && onQuickView({ id: wishlistId, title, image, images, price, oldPrice, rating, stock, inStock, slug })}
-            className="flex items-center justify-center w-8 h-8 rounded-full bg-white/95 text-slate-500 hover:text-cyan-600 hover:bg-cyan-50 border border-slate-100 shadow-md transition-all hover:scale-110 active:scale-95 cursor-pointer"
+            className="flex items-center justify-center w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-white/95 text-slate-600 hover:text-cyan-600 hover:bg-cyan-50 border border-slate-100 shadow-md transition-all hover:scale-110 active:scale-95 cursor-pointer text-sm"
           >
             👁️
           </button>
@@ -214,7 +214,7 @@ export default function ProductCard({
             title="Add to Compare"
             aria-label="Add to Compare"
             onClick={handleCompareClick}
-            className="flex items-center justify-center w-8 h-8 rounded-full bg-white/95 text-slate-500 hover:text-cyan-600 hover:bg-cyan-50 border border-slate-100 shadow-md transition-all hover:scale-110 active:scale-95 cursor-pointer text-xs"
+            className="flex items-center justify-center w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-white/95 text-slate-600 hover:text-cyan-600 hover:bg-cyan-50 border border-slate-100 shadow-md transition-all hover:scale-110 active:scale-95 cursor-pointer text-xs"
           >
             ⚖️
           </button>
@@ -248,11 +248,11 @@ export default function ProductCard({
       </div>
 
       {/* Content Section */}
-      <div className="flex flex-1 flex-col justify-between gap-3 p-4 z-10 bg-white">
+      <div className="flex flex-1 flex-col justify-between gap-3 p-3.5 sm:p-4 z-10 bg-white">
         <div className="flex flex-col gap-1.5">
           <Link
             to={productHref}
-            className="text-[14px] leading-snug font-semibold text-slate-800 line-clamp-2 cursor-pointer hover:text-cz-primary transition-colors"
+            className="text-[13px] sm:text-[14px] leading-snug font-semibold text-slate-800 line-clamp-2 cursor-pointer hover:text-cz-primary transition-colors"
           >
             {title}
           </Link>
@@ -261,9 +261,9 @@ export default function ProductCard({
 
         <div className="flex flex-col gap-2.5 pt-1">
           <div className="flex flex-wrap items-baseline gap-1.5">
-            <span className="text-[20px] font-bold text-slate-900 tracking-tight">{format(pkrPrice)}</span>
+            <span className="text-[18px] sm:text-[20px] font-bold text-slate-900 tracking-tight">{format(pkrPrice)}</span>
             {oldPrice && (
-              <span className="text-[13px] text-slate-400 font-normal line-through">
+              <span className="text-[12px] sm:text-[13px] text-slate-400 font-normal line-through">
                 {format(oldPrice)}
               </span>
             )}
@@ -272,7 +272,7 @@ export default function ProductCard({
           {hasVariants ? (
             <Link
               to={productHref}
-              className="w-full flex items-center justify-center rounded-full text-[13px] font-bold py-2.5 border-2 border-cz-primary text-cz-primary hover:bg-cz-primary hover:text-white transition-all duration-200 hover:-translate-y-[1px] cursor-pointer shadow-sm"
+              className="w-full min-h-[44px] flex items-center justify-center rounded-full text-[13px] sm:text-[14px] font-bold py-2.5 border-2 border-cz-primary text-cz-primary hover:bg-cz-primary hover:text-white transition-all duration-200 hover:-translate-y-[1px] cursor-pointer shadow-sm"
             >
               View Options
             </Link>
@@ -281,7 +281,7 @@ export default function ProductCard({
               type="button"
               disabled={!actuallyInStock || isAdding}
               onClick={handleAddToCart}
-              className={`w-full flex items-center justify-center gap-2 rounded-full text-[13px] font-bold py-2.5 transition-all duration-200 shadow-md ${
+              className={`w-full min-h-[44px] flex items-center justify-center gap-2 rounded-full text-[13px] sm:text-[14px] font-bold py-2.5 transition-all duration-200 shadow-md ${
                 actuallyInStock
                   ? 'bg-cz-primary text-white hover:bg-cz-primary-hover hover:-translate-y-[1px] cursor-pointer hover:shadow-cyan-500/25'
                   : 'bg-slate-200 text-slate-400 cursor-not-allowed'

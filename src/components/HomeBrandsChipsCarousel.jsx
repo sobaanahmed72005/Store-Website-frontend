@@ -81,7 +81,7 @@ export default function HomeBrandsChipsCarousel() {
             <Link
               key={brand.id || brand.title}
               to={`/shop?brand=${encodeURIComponent(brand.title)}`}
-              className="shrink-0 group/chip bg-white border border-slate-200/90 rounded-full px-5 py-2.5 shadow-sm hover:border-[#0c4a6e] hover:shadow-md transition-all hover:scale-105 flex items-center gap-2.5 cursor-pointer"
+              className="shrink-0 group/chip bg-white border border-slate-200/90 rounded-full px-5 py-2.5 min-h-[44px] shadow-sm hover:border-[#0c4a6e] hover:shadow-md transition-all hover:scale-105 flex items-center gap-2.5 cursor-pointer"
             >
               {brand.logoUrl ? (
                 <img
