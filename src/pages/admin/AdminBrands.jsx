@@ -24,6 +24,10 @@ export default function AdminBrands() {
       .finally(() => setSyncing(false))
   }
 
+  useEffect(() => {
+    handleSyncFromCatalog()
+  }, [])
+
   const [formData, setFormData] = useState({
     title: '',
     category: '',
