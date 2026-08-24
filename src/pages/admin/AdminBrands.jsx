@@ -7,7 +7,7 @@ import { ENDPOINTS } from '../../api/endpoints'
 export default function AdminBrands() {
   useSeo({ title: 'Admin - Brands Management', noindex: true })
 
-  const { brands, addBrand, updateBrand, deleteBrand, resetToDefault, syncProductBrands } = useBrandStore()
+  const { brands, addBrand, updateBrand, deleteBrand, syncProductBrands } = useBrandStore()
   const [syncing, setSyncing] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const [editingBrand, setEditingBrand] = useState(null)
@@ -40,7 +40,7 @@ export default function AdminBrands() {
     setEditingBrand(null)
     setFormData({
       title: '',
-      category: 'Computers & Mobile',
+      category: 'Product Brand',
       date: 'EST ' + new Date().getFullYear(),
       logoUrl: '',
       content: '',
@@ -80,9 +80,9 @@ export default function AdminBrands() {
     <div className="p-6 max-w-6xl mx-auto">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Brands Orbit Management</h1>
+          <h1 className="text-2xl font-bold text-slate-900">Brands Management</h1>
           <p className="text-sm text-slate-500 mt-1">
-            Add, edit, or remove brands displaying in the 3D horizontal homepage orbit.
+            Add, edit, or sync brand logos and details displaying across the store.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -94,17 +94,6 @@ export default function AdminBrands() {
             title="Auto-extract brand names from products database"
           >
             <span>{syncing ? 'Syncing...' : '⚡ Sync Catalog Brands'}</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              if (window.confirm('Reset brands list back to original 11 tech brands?')) {
-                resetToDefault()
-              }
-            }}
-            className="px-3.5 py-2 text-xs font-semibold text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 shadow-xs transition"
-          >
-            Reset Defaults
           </button>
           <button
             type="button"
@@ -131,7 +120,14 @@ export default function AdminBrands() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {brands.map((brand) => (
+              {brands.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-slate-400 text-sm">
+                    No brands found. Click <strong>⚡ Sync Catalog Brands</strong> or <strong>+ Add New Brand</strong> to add your first brand.
+                  </td>
+                </tr>
+              ) : (
+                brands.map((brand) => (
                 <tr key={brand.id} className="hover:bg-slate-50/80 transition-colors">
                   <td className="py-3 px-4">
                     <div className="w-10 h-10 rounded-full border border-slate-200 p-1.5 flex items-center justify-center bg-slate-50">
@@ -173,7 +169,8 @@ export default function AdminBrands() {
                     </div>
                   </td>
                 </tr>
-              ))}
+              ))
+              )}
             </tbody>
           </table>
         </div>
