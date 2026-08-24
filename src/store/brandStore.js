@@ -43,9 +43,6 @@ export const useBrandStore = create(
 
             if (!existingTitles.has(key)) {
               existingTitles.add(key)
-              const simpleIconSlug = cleanTitle.toLowerCase().replace(/[^a-z0-9]/g, '')
-              const autoLogoUrl = `https://cdn.simpleicons.org/${simpleIconSlug}`
-
               newBrands.push({
                 id: Date.now() + Math.floor(Math.random() * 10000),
                 title: cleanTitle,
@@ -53,7 +50,7 @@ export const useBrandStore = create(
                 content: `${cleanTitle} Official Products & Accessories.`,
                 category: 'Product Brand',
                 iconName: 'ShieldCheck',
-                logoUrl: autoLogoUrl,
+                logoUrl: '', // Default empty to avoid non-existent CDN 404 network errors
                 status: 'completed',
                 energy: 95,
               })
@@ -68,7 +65,7 @@ export const useBrandStore = create(
       clearAllBrands: () => set({ brands: [] }),
     }),
     {
-      name: 'cz_store_brands_v3',
+      name: 'cz_store_brands_v4',
     }
   )
 )

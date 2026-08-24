@@ -145,7 +145,12 @@ export default function AdminBrands() {
                   <td className="py-3 px-4">
                     <div className="w-10 h-10 rounded-full border border-slate-200 p-1.5 flex items-center justify-center bg-slate-50">
                       {brand.logoUrl ? (
-                        <img src={brand.logoUrl} alt={brand.title} className="w-full h-full object-contain" />
+                        <img
+                          src={brand.logoUrl}
+                          alt={brand.title}
+                          className="w-full h-full object-contain"
+                          onError={(e) => { e.target.style.display = 'none' }}
+                        />
                       ) : (
                         <span className="font-bold text-xs text-slate-400">{brand.title?.substring(0, 2)}</span>
                       )}
