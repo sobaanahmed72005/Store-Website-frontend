@@ -7,7 +7,7 @@ import { ENDPOINTS } from '../../api/endpoints'
 export default function AdminBrands() {
   useSeo({ title: 'Admin - Brands Management', noindex: true })
 
-  const { brands, addBrand, updateBrand, deleteBrand, syncProductBrands } = useBrandStore()
+  const { brands, addBrand, updateBrand, deleteBrand, syncProductBrands, clearAllBrands } = useBrandStore()
   const [syncing, setSyncing] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const [editingBrand, setEditingBrand] = useState(null)
@@ -23,10 +23,6 @@ export default function AdminBrands() {
       .catch((err) => console.error('Failed to sync product brands:', err))
       .finally(() => setSyncing(false))
   }
-
-  useEffect(() => {
-    handleSyncFromCatalog()
-  }, [])
 
   const [formData, setFormData] = useState({
     title: '',
@@ -86,6 +82,19 @@ export default function AdminBrands() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
+          {brands.length > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                if (window.confirm('Clear all stored brands data? You can click "⚡ Sync Catalog Brands" right after to reload fresh brands.')) {
+                  clearAllBrands()
+                }
+              }}
+              className="px-3.5 py-2 text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-200 rounded-lg hover:bg-rose-100 shadow-xs transition cursor-pointer"
+            >
+              🗑️ Clear All Brands
+            </button>
+          )}
           <button
             type="button"
             onClick={handleSyncFromCatalog}

@@ -68,7 +68,7 @@ export const useBrandStore = create(
       clearAllBrands: () => set({ brands: [] }),
     }),
     {
-      name: 'cz_store_brands_orbit',
+      name: 'cz_store_brands_v3',
     }
   )
 )
