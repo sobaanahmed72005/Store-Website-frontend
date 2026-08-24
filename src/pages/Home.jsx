@@ -14,7 +14,6 @@ import { api } from '../api/client'
 import { ENDPOINTS } from '../api/endpoints'
 import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../store/siteSettingsStore'
-import { SITE_TAGLINE } from '../config/seoDefaults'
 import SeoHeadingFiller from '../components/SeoHeadingFiller'
 
 function SectionHeading({ heading, seeAllHref }) {
@@ -53,14 +52,9 @@ function ProductSection({ heading, seeAllHref, products, loading, onQuickView })
   )
 }
 
-/**
- * Reorganizes products so that EXACTLY ONE product per sub-category appears on the homepage grid,
- * alternating across parent categories to showcase maximum variety without clutter.
- */
 function diversifyProductsBySubCategory(products) {
   if (!Array.isArray(products) || products.length === 0) return []
 
-  // 1. Pick the first product from each subcategory
   const subCatMap = new Map()
   for (const product of products) {
     const subKey = product.category_id || product.category_name || 'uncategorized'
@@ -73,7 +67,6 @@ function diversifyProductsBySubCategory(products) {
     }
   }
 
-  // 2. Group subcategories by their parent category
   const parentMap = new Map()
   for (const subGroup of subCatMap.values()) {
     const pId = subGroup.parentId
@@ -83,7 +76,6 @@ function diversifyProductsBySubCategory(products) {
     parentMap.get(pId).push(subGroup)
   }
 
-  // 3. Interleave 1 product per subcategory round-robin across parent categories
   const parentGroups = Array.from(parentMap.values())
   const result = []
 
@@ -103,50 +95,71 @@ function diversifyProductsBySubCategory(products) {
   return result
 }
 
-// Module-level in-memory cache for instant zero-delay render on Back button navigation
 let homeCache = {
   featured: null,
   newArrivals: null,
   onSale: null,
 }
 
+const DEFAULT_SEO_CONTENT = {
+  title: "Pakistan's Premier IT Hardware & Technology Store",
+  intro:
+    "Welcome to IT Solutions — your authorized supplier of genuine IT equipment, office networking solutions, surveillance systems, and high-performance computing hardware in Pakistan. Whether you are setting up home security or equipping a modern corporate office, we offer competitive pricing, official brand warranty, and fast nationwide Cash on Delivery.",
+  columns: [
+    {
+      heading: 'Laptops & Computing',
+      description:
+        'Explore Apple MacBook, Dell XPS, HP ProBook, Lenovo ThinkPad, and ASUS ROG gaming laptops with official international warranty and authentic power adapters.',
+    },
+    {
+      heading: '4K Security & Surveillance',
+      description:
+        'Secure your home and business with Hikvision, EZVIZ, and IMOU 4K security cameras, wireless PTZ dome cameras, NVR recording units, and smart night-vision sensors.',
+    },
+    {
+      heading: 'Networking & Solar Energy',
+      description:
+        'Upgrade your connectivity with Wi-Fi 6 Gigabit routers, enterprise switches, and hybrid solar inverters for continuous uninterrupted power supply.',
+    },
+  ],
+}
+
 function HomeSeoContentSection() {
-  const { siteName } = useSiteSettings()
+  const [seoContent, setSeoContent] = useState(DEFAULT_SEO_CONTENT)
+
+  useEffect(() => {
+    api
+      .get(ENDPOINTS.CONTENT.HOMEPAGE_SEO)
+      .then((data) => {
+        if (!data || typeof data !== 'object') return
+        setSeoContent({
+          title: data.title || DEFAULT_SEO_CONTENT.title,
+          intro: data.intro || DEFAULT_SEO_CONTENT.intro,
+          columns: Array.isArray(data.columns) && data.columns.length > 0 ? data.columns : DEFAULT_SEO_CONTENT.columns,
+        })
+      })
+      .catch(() => {})
+  }, [])
+
   return (
     <section className="bg-white border-t border-b border-slate-200/80 py-8 sm:py-10 my-8">
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-[20px] sm:text-[24px] font-bold text-[#0c4a6e] font-heading tracking-tight mb-3">
-          Pakistan's Premier IT Hardware & Technology Store
+          {seoContent.title}
         </h2>
         <p className="text-[13px] sm:text-[14px] text-slate-600 leading-relaxed mb-6 max-w-4xl">
-          Welcome to <strong className="text-slate-800">{siteName || 'IT Solutions'}</strong> — your authorized supplier of genuine IT equipment, office networking solutions, surveillance systems, and high-performance computing hardware in Pakistan. Whether you are setting up home security or equipping a modern corporate office, we offer competitive pricing, official brand warranty, and fast nationwide Cash on Delivery.
+          {seoContent.intro}
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-slate-100 text-[13px] text-slate-600">
-          <div>
-            <h3 className="font-bold text-[#0c4a6e] text-[15px] font-heading mb-1.5">
-              Laptops & Computing
-            </h3>
-            <p className="leading-relaxed">
-              Explore Apple MacBook, Dell XPS, HP ProBook, Lenovo ThinkPad, and ASUS ROG gaming laptops with official international warranty and authentic power adapters.
-            </p>
-          </div>
-          <div>
-            <h3 className="font-bold text-[#0c4a6e] text-[15px] font-heading mb-1.5">
-              4K Security & Surveillance
-            </h3>
-            <p className="leading-relaxed">
-              Secure your home and business with Hikvision, EZVIZ, and IMOU 4K security cameras, wireless PTZ dome cameras, NVR recording units, and smart night-vision sensors.
-            </p>
-          </div>
-          <div>
-            <h3 className="font-bold text-[#0c4a6e] text-[15px] font-heading mb-1.5">
-              Networking & Solar Energy
-            </h3>
-            <p className="leading-relaxed">
-              Upgrade your connectivity with Wi-Fi 6 Gigabit routers, enterprise switches, and hybrid solar inverters for continuous uninterrupted power supply.
-            </p>
-          </div>
+          {(seoContent.columns || []).map((col, idx) => (
+            <div key={idx}>
+              <h3 className="font-bold text-[#0c4a6e] text-[15px] font-heading mb-1.5">
+                {col.heading}
+              </h3>
+              <p className="leading-relaxed">{col.description}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>

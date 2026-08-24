@@ -18,6 +18,7 @@ const navItems = [
   { to: `${ADMIN_PATH}/discount-codes`, label: 'Discount Codes' },
   { to: `${ADMIN_PATH}/announcement`, label: 'Announcement Bar' },
   { to: `${ADMIN_PATH}/banners`, label: 'Hero Banners' },
+  { to: `${ADMIN_PATH}/homepage-seo`, label: 'Homepage SEO Content' },
   { to: `${ADMIN_PATH}/brands`, label: 'Brands Orbit' },
   { to: `${ADMIN_PATH}/products`, label: 'Products' },
   { to: `${ADMIN_PATH}/bulk-sale`, label: 'Bulk Sale' },
