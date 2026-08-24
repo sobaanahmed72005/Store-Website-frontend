@@ -137,7 +137,7 @@ export default function QuickViewModal({ product, onClose }) {
             <div className="flex items-baseline gap-2 pt-1">
               <span className="text-xl sm:text-2xl font-extrabold text-slate-900">{format(pkrPrice)}</span>
               {product.oldPrice && (
-                <span className="text-xs sm:text-sm text-slate-400 line-through">{format(product.oldPrice)}</span>
+                <span className="text-xs sm:text-sm text-[#0c4a6e] font-semibold line-through decoration-slate-400 opacity-90">{format(product.oldPrice)}</span>
               )}
             </div>
 

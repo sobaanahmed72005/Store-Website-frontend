@@ -11,26 +11,37 @@ import { HeartIcon } from './icons'
 const STAR_PATH =
   'M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z'
 
-export function StarRating({ rating = 0, count = 5, size = 13 }) {
+export function StarRating({ rating = 0, reviewCount = 0, count = 5, size = 13, showBadge = true }) {
+  const hasRating = rating > 0
+  const effectiveRating = hasRating ? rating : 0
+  const totalCount = Number(reviewCount || 0)
+
   return (
-    <div className="flex items-center gap-0.5">
-      {Array.from({ length: count }, (_, i) => {
-        const filled = i < rating
-        return (
-          <svg
-            key={i}
-            xmlns="http://www.w3.org/2000/svg"
-            width={size}
-            height={size}
-            viewBox="0 0 24 24"
-            strokeWidth="1.5"
-            stroke="#FF9C05"
-            fill={filled ? '#FF9C05' : 'none'}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d={STAR_PATH} />
-          </svg>
-        )
-      })}
+    <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-0.5">
+        {Array.from({ length: count }, (_, i) => {
+          const filled = hasRating && i < Math.floor(effectiveRating)
+          return (
+            <svg
+              key={i}
+              xmlns="http://www.w3.org/2000/svg"
+              width={size}
+              height={size}
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="#FF9C05"
+              fill={filled ? '#FF9C05' : 'none'}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d={STAR_PATH} />
+            </svg>
+          )
+        })}
+      </div>
+      {showBadge && (
+        <span className="text-[11px] font-semibold text-slate-500 font-heading">
+          {hasRating ? `${effectiveRating.toFixed(1)} (${totalCount})` : '0.0 (0)'}
+        </span>
+      )}
     </div>
   )
 }
@@ -43,6 +54,8 @@ export default function ProductCard({
   images,
   title,
   rating = 0,
+  reviewCount = 0,
+  rating_count = 0,
   price,
   oldPrice,
   discountPercent,
@@ -256,14 +269,14 @@ export default function ProductCard({
           >
             {title}
           </Link>
-          <StarRating rating={rating} />
+          <StarRating rating={rating} reviewCount={reviewCount || rating_count || 0} />
         </div>
 
         <div className="flex flex-col gap-2.5 pt-1">
           <div className="flex flex-wrap items-baseline gap-1.5">
             <span className="text-[18px] sm:text-[20px] font-bold text-slate-900 tracking-tight">{format(pkrPrice)}</span>
             {oldPrice && (
-              <span className="text-[12px] sm:text-[13px] text-slate-400 font-normal line-through">
+              <span className="text-[12px] sm:text-[13px] text-[#0c4a6e] font-semibold line-through decoration-slate-400 opacity-90">
                 {format(oldPrice)}
               </span>
             )}

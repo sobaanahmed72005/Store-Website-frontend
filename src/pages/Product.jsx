@@ -447,7 +447,7 @@ export default function Product() {
 
             <div className="flex items-baseline gap-3 flex-wrap pt-1">
               <span className="text-[28px] sm:text-[34px] font-bold text-[#0c4a6e] font-heading tracking-tight">{format(pkrPrice)}</span>
-              {oldPrice && <span className="text-[16px] text-slate-400 font-medium line-through">{format(oldPrice)}</span>}
+              {oldPrice && <span className="text-[16px] text-[#0c4a6e] font-semibold line-through decoration-slate-400 opacity-90">{format(oldPrice)}</span>}
               {discountPercent && (
                 <span className="rounded-full bg-cyan-50 border border-cyan-200 text-[#0c4a6e] text-[12px] font-bold px-3 py-1 shadow-sm">
                   {discountPercent}% Off
