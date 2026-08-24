@@ -1,13 +1,32 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useBrandStore } from '../../store/brandStore'
 import { useSeo } from '../../hooks/useSeo'
+import { api } from '../../api/client'
+import { ENDPOINTS } from '../../api/endpoints'
 
 export default function AdminBrands() {
-  useSeo({ title: 'Admin - Brands Orbit', noindex: true })
+  useSeo({ title: 'Admin - Brands Management', noindex: true })
 
-  const { brands, addBrand, updateBrand, deleteBrand, resetToDefault } = useBrandStore()
+  const { brands, addBrand, updateBrand, deleteBrand, resetToDefault, syncProductBrands } = useBrandStore()
+  const [syncing, setSyncing] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const [editingBrand, setEditingBrand] = useState(null)
+
+  const handleSyncFromCatalog = () => {
+    setSyncing(true)
+    api.get(ENDPOINTS.PRODUCTS.BRANDS)
+      .then((dbBrands) => {
+        if (Array.isArray(dbBrands) && dbBrands.length > 0) {
+          syncProductBrands(dbBrands)
+        }
+      })
+      .catch((err) => console.error('Failed to sync product brands:', err))
+      .finally(() => setSyncing(false))
+  }
+
+  useEffect(() => {
+    handleSyncFromCatalog()
+  }, [])
 
   const [formData, setFormData] = useState({
     title: '',
@@ -66,7 +85,16 @@ export default function AdminBrands() {
             Add, edit, or remove brands displaying in the 3D horizontal homepage orbit.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={handleSyncFromCatalog}
+            disabled={syncing}
+            className="px-3.5 py-2 text-xs font-semibold text-cyan-800 bg-cyan-50 border border-cyan-200 rounded-lg hover:bg-cyan-100 shadow-xs transition cursor-pointer flex items-center gap-1.5"
+            title="Auto-extract brand names from products database"
+          >
+            <span>{syncing ? 'Syncing...' : '⚡ Sync Catalog Brands'}</span>
+          </button>
           <button
             type="button"
             onClick={() => {

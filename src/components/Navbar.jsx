@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useSiteSettings } from '../store/siteSettingsStore'
 
 const DEFAULT_MESSAGES = [
@@ -19,20 +20,28 @@ export default function Navbar() {
   }, [messages])
 
   return (
-    <div className="bg-cz-topbar text-[var(--cz-topbar-text)] text-[13px] py-2">
-      <div className="mx-auto px-5 flex items-center justify-center">
+    <div className="bg-cz-topbar text-[var(--cz-topbar-text)] text-[12px] sm:text-[13px] py-1.5 border-b border-slate-700/20">
+      <div className="mx-auto px-5 flex items-center justify-between gap-4">
         {/* Rotating marquee messages centered cleanly */}
-        <div className="w-full text-center overflow-hidden relative h-[18px]">
+        <div className="flex-1 text-center overflow-hidden relative h-[18px] min-w-0">
           {messages.map((msg, i) => (
             <div
               key={i}
               className="absolute inset-0 transition-transform duration-500 ease-in-out flex items-center justify-center"
               style={{ transform: `translateX(${(i - active) * 100}%)` }}
             >
-              <p className="font-medium tracking-wide">{msg}</p>
+              <p className="font-medium tracking-wide truncate px-2">{msg}</p>
             </div>
           ))}
         </div>
+
+        {/* Most Right side: Order Tracking Link */}
+        <Link
+          to="/order-tracking"
+          className="shrink-0 text-[13px] font-medium text-[var(--cz-topbar-text)] hover:text-cz-gold transition-colors cursor-pointer"
+        >
+          Order Tracking
+        </Link>
       </div>
     </div>
   )

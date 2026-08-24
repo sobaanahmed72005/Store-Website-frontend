@@ -8,7 +8,7 @@ import CategoryIcons from '../components/CategoryIcons'
 import Hero from '../components/Hero'
 import ProductGrid from '../components/ProductGrid'
 import Footer from '../components/Footer'
-import BrandsOrbitalTimeline from '../components/BrandsOrbitalTimeline'
+import HomeBrandsChipsCarousel from '../components/HomeBrandsChipsCarousel'
 import QuickViewModal from '../components/modals/QuickViewModal'
 import { api } from '../api/client'
 import { ENDPOINTS } from '../api/endpoints'
@@ -181,7 +181,7 @@ export default function Home() {
       <CategoryMenu />
       <Hero />
       <CategoryIcons />
-      <BrandsOrbitalTimeline />
+      <HomeBrandsChipsCarousel />
       <ProductSection heading="Products" seeAllHref="/products?featured=1" products={featured} loading={loading} onQuickView={setQuickViewProduct} />
       <ProductSection heading="On Sale" seeAllHref="/products?on_sale=1" products={onSale} loading={loading} onQuickView={setQuickViewProduct} />
       <ProductSection heading="New Arrivals" seeAllHref="/products?new_arrival=1" products={newArrivals} loading={loading} onQuickView={setQuickViewProduct} />

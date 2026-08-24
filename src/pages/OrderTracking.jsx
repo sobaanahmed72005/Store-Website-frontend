@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
@@ -126,6 +126,32 @@ function UltraOrderJourneyCanvas({ order }) {
   const vanStep = activeIndex === 0 ? 0 : activeIndex === 5 ? 5 : activeIndex - 0.5
   const vanProgressPercent = (vanStep / (STAGES.length - 1)) * 100
 
+  const trackContainerRef = useRef(null)
+
+  // Auto-center the track scroll onto the active van location on mobile screens
+  useEffect(() => {
+    if (!trackContainerRef.current) return
+    // Only auto-scroll on mobile screens where scroll container is active
+    if (window.innerWidth >= 640) return
+
+    const timer = setTimeout(() => {
+      const container = trackContainerRef.current
+      if (!container) return
+      const targetScroll = (container.scrollWidth * (vanProgressPercent / 100)) - (container.clientWidth / 2)
+      container.scrollTo({
+        left: Math.max(0, targetScroll),
+        behavior: 'smooth',
+      })
+    }, 150)
+    return () => clearTimeout(timer)
+  }, [order?.id, status, vanProgressPercent])
+
+  const scrollTrack = (direction) => {
+    if (!trackContainerRef.current) return
+    const amount = direction === 'left' ? -220 : 220
+    trackContainerRef.current.scrollBy({ left: amount, behavior: 'smooth' })
+  }
+
   return (
     <div className="w-full bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-6 shadow-md shadow-slate-200/50 mb-6 relative overflow-hidden">
       {/* Compact Header Info */}
@@ -156,90 +182,96 @@ function UltraOrderJourneyCanvas({ order }) {
         </div>
       </div>
 
-      {/* Compact Motion Journey Track Line */}
-      <div className="overflow-x-auto pt-4 pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
-        <div className="relative my-4 px-0 min-w-[620px] sm:min-w-0">
-          {/* Background Grey Rail (Runs from center of 1st node to center of last node) */}
-          <div className="absolute top-5 left-5 right-5 h-1.5 bg-slate-100 rounded-full" />
-
-          {/* Animated Gradient Fluid Progress Line (Fills behind the traveling van) */}
-          <motion.div
-            initial={{ width: '0%' }}
-            animate={{ width: `calc((100% - 40px) * ${vanProgressPercent / 100})` }}
-            transition={{ type: 'spring', stiffness: 90, damping: 18 }}
-            className="absolute top-5 left-5 h-1.5 bg-gradient-to-r from-cyan-500 via-blue-500 to-emerald-500 rounded-full shadow-xs"
-          />
-
-        {/* Traveling Courier Van - Riding on the segment line between Dispatched & In Transit */}
-        <motion.div
-          initial={{ left: '20px' }}
-          animate={{ left: `calc(20px + (100% - 40px) * ${vanProgressPercent / 100})` }}
-          transition={{ type: 'spring', stiffness: 90, damping: 18 }}
-          style={{ transform: 'translateX(-50%)' }}
-          className="absolute -top-2.5 z-30 pointer-events-none flex flex-col items-center"
+      {/* Horizontal Scroll Track Wrapper (Mobile Swipable & Auto-Centered, Full-width Desktop) */}
+      <div className="relative pt-4 pb-2 group">
+        <div
+          ref={trackContainerRef}
+          className="overflow-x-auto sm:overflow-x-visible scrollbar-none py-4 px-1 sm:px-0 w-full scroll-smooth"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          <div className="w-10 h-10 rounded-xl bg-slate-900 border-2 border-cyan-400 flex items-center justify-center text-cyan-300 shadow-md relative">
-            <Truck className="w-5 h-5 animate-bounce" />
-            <span className="absolute -bottom-1 w-5 h-1 bg-cyan-400 rounded-full blur-2xs animate-pulse" />
-          </div>
-        </motion.div>
+          <div className="relative my-2 px-4 sm:px-6 min-w-[620px] sm:min-w-0">
+            {/* Background Grey Rail (Runs from center of 1st node to center of last node) */}
+            <div className="absolute top-5 left-6 right-6 h-1.5 bg-slate-100 rounded-full" />
 
-        {/* Step Nodes */}
-        <div className="relative z-10 flex items-center justify-between">
-          {STAGES.map((stage, idx) => {
-            const Icon = stage.icon
-            const isCompleted = idx < activeIndex
-            const isTarget = idx === activeIndex
+            {/* Animated Gradient Fluid Progress Line (Fills behind the traveling van) */}
+            <motion.div
+              initial={{ width: '0%' }}
+              animate={{ width: `calc((100% - 48px) * ${vanProgressPercent / 100})` }}
+              transition={{ type: 'spring', stiffness: 90, damping: 18 }}
+              className="absolute top-5 left-6 h-1.5 bg-gradient-to-r from-cyan-500 via-blue-500 to-emerald-500 rounded-full shadow-xs"
+            />
 
-            return (
-              <div key={stage.id} className="flex flex-col items-center group relative">
-                {/* Compact Node Box */}
-                <motion.div
-                  animate={{
-                    scale: isTarget ? 1.15 : isCompleted ? 1.02 : 1,
-                    y: isTarget ? -2 : 0,
-                  }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center border-2 transition-all cursor-pointer relative ${
-                    isTarget
-                      ? 'bg-cyan-50 border-cyan-400 text-cyan-600 shadow-md ring-3 ring-cyan-200/80'
-                      : isCompleted
-                      ? 'bg-emerald-600 border-emerald-400 text-white shadow-2xs'
-                      : 'bg-white border-slate-200 text-slate-400'
-                  }`}
-                >
-                  {isCompleted ? (
-                    <Check className="w-4 h-4 stroke-[3]" />
-                  ) : (
-                    <Icon className="w-4 h-4" />
-                  )}
-
-                  {/* Pulsing ring on upcoming target node */}
-                  {isTarget && (
-                    <span className="absolute inset-0 rounded-xl border-2 border-cyan-400 animate-ping opacity-60" />
-                  )}
-                </motion.div>
-
-                {/* Stage Title */}
-                <span
-                  className={`text-[10px] font-bold mt-2 text-center max-w-[60px] sm:max-w-[80px] leading-tight ${
-                    isTarget
-                      ? 'text-cyan-700 font-black'
-                      : isCompleted
-                      ? 'text-emerald-700 font-extrabold'
-                      : 'text-slate-400'
-                  }`}
-                >
-                  {stage.label}
-                </span>
+            {/* Traveling Courier Van */}
+            <motion.div
+              initial={{ left: '24px' }}
+              animate={{ left: `calc(24px + (100% - 48px) * ${vanProgressPercent / 100})` }}
+              transition={{ type: 'spring', stiffness: 90, damping: 18 }}
+              style={{ transform: 'translateX(-50%)' }}
+              className="absolute -top-2.5 z-30 pointer-events-none flex flex-col items-center"
+            >
+              <div className="w-10 h-10 rounded-xl bg-slate-900 border-2 border-cyan-400 flex items-center justify-center text-cyan-300 shadow-md relative">
+                <Truck className="w-5 h-5 animate-bounce" />
+                <span className="absolute -bottom-1 w-5 h-1 bg-cyan-400 rounded-full blur-2xs animate-pulse" />
               </div>
-            )
-          })}
+            </motion.div>
+
+            {/* Step Nodes */}
+            <div className="relative z-10 flex items-center justify-between">
+              {STAGES.map((stage, idx) => {
+                const Icon = stage.icon
+                const isCompleted = idx < activeIndex
+                const isTarget = idx === activeIndex
+
+                return (
+                  <div key={stage.id} className="flex flex-col items-center group relative">
+                    {/* Compact Node Box */}
+                    <motion.div
+                      animate={{
+                        scale: isTarget ? 1.15 : isCompleted ? 1.02 : 1,
+                        y: isTarget ? -2 : 0,
+                      }}
+                      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center border-2 transition-all cursor-pointer relative ${
+                        isTarget
+                          ? 'bg-cyan-50 border-cyan-400 text-cyan-600 shadow-md ring-3 ring-cyan-200/80'
+                          : isCompleted
+                          ? 'bg-emerald-600 border-emerald-400 text-white shadow-2xs'
+                          : 'bg-white border-slate-200 text-slate-400'
+                      }`}
+                    >
+                      {isCompleted ? (
+                        <Check className="w-4 h-4 stroke-[3]" />
+                      ) : (
+                        <Icon className="w-4 h-4" />
+                      )}
+
+                      {/* Pulsing ring on upcoming target node */}
+                      {isTarget && (
+                        <span className="absolute inset-0 rounded-xl border-2 border-cyan-400 animate-ping opacity-60" />
+                      )}
+                    </motion.div>
+
+                    {/* Stage Title */}
+                    <span
+                      className={`text-[10px] font-bold mt-2 text-center max-w-[70px] sm:max-w-[85px] leading-tight ${
+                        isTarget
+                          ? 'text-cyan-700 font-black'
+                          : isCompleted
+                          ? 'text-emerald-700 font-extrabold'
+                          : 'text-slate-400'
+                      }`}
+                    >
+                      {stage.label}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-)
+  )
 }
 
 export default function OrderTracking() {

@@ -73,13 +73,13 @@ export function CheckboxGroup({ items, selectedIds, onToggle }) {
 
   return (
     <>
-      {items.map((item) => (
+      {(items || []).map((item) => (
         <FilterCheckbox
           key={item.id}
           id={item.id}
           label={item.label}
           count={item.count}
-          checked={checkedIds.has(item.id)}
+          checked={checkedIds?.has(item.id)}
           onChange={() => toggle(item.id)}
         />
       ))}

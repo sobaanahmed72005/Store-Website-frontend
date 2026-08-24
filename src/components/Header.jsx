@@ -168,14 +168,6 @@ function NavDrawer({ open, onClose }) {
                 <span>Policies</span>
                 <span className="text-slate-400">→</span>
               </Link>
-              <Link
-                to="/order-tracking"
-                onClick={onClose}
-                className="text-[13px] font-medium text-slate-700 hover:text-cz-primary py-1.5 px-2 rounded hover:bg-slate-50 flex items-center justify-between"
-              >
-                <span>Order Tracking</span>
-                <span className="text-slate-400">→</span>
-              </Link>
             </div>
           </div>
         </div>

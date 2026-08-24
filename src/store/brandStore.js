@@ -161,6 +161,42 @@ export const useBrandStore = create(
           brands: state.brands.filter((b) => b.id !== id),
         })),
 
+      syncProductBrands: (distinctProductBrands) => {
+        if (!Array.isArray(distinctProductBrands) || distinctProductBrands.length === 0) return
+        set((state) => {
+          const existingTitles = new Set(state.brands.map((b) => (b.title || '').trim().toLowerCase()))
+          const newBrands = []
+
+          distinctProductBrands.forEach((title) => {
+            if (!title || typeof title !== 'string') return
+            const cleanTitle = title.trim()
+            if (!cleanTitle) return
+            const key = cleanTitle.toLowerCase()
+
+            if (!existingTitles.has(key)) {
+              existingTitles.add(key)
+              const simpleIconSlug = cleanTitle.toLowerCase().replace(/[^a-z0-9]/g, '')
+              const autoLogoUrl = `https://cdn.simpleicons.org/${simpleIconSlug}`
+
+              newBrands.push({
+                id: Date.now() + Math.floor(Math.random() * 10000),
+                title: cleanTitle,
+                date: `EST ${new Date().getFullYear()}`,
+                content: `${cleanTitle} Official Products & Accessories.`,
+                category: 'Product Brand',
+                iconName: 'ShieldCheck',
+                logoUrl: autoLogoUrl,
+                status: 'completed',
+                energy: 95,
+              })
+            }
+          })
+
+          if (newBrands.length === 0) return state
+          return { brands: [...state.brands, ...newBrands] }
+        })
+      },
+
       resetToDefault: () => set({ brands: INITIAL_BRANDS }),
     }),
     {
