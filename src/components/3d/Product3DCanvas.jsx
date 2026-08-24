@@ -1,10 +1,15 @@
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
+import { getProduct3DType, has3DModel } from '../../utils/has3DModel'
 
-export default function Product3DCanvas({ title = '', className = 'w-full h-full aspect-square' }) {
+export default function Product3DCanvas({ product, title = '', className = 'w-full h-full aspect-square' }) {
   const containerRef = useRef(null)
+  const productObj = product || { title, name: title }
+  const modelType = getProduct3DType(productObj)
 
   useEffect(() => {
+    if (!modelType) return
+
     const container = containerRef.current
     if (!container) return
 
@@ -36,9 +41,7 @@ export default function Product3DCanvas({ title = '', className = 'w-full h-full
 
     const productGroup = new THREE.Group()
 
-    const titleLower = title.toLowerCase()
-
-    if (titleLower.includes('headphone') || titleLower.includes('headset') || titleLower.includes('sony') || titleLower.includes('airpods')) {
+    if (modelType === 'headphones') {
       // --- 3D Headphones Mesh ---
       const headbandGeo = new THREE.TorusGeometry(1.6, 0.12, 16, 50, Math.PI)
       const matDark = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8, roughness: 0.2 })
@@ -61,7 +64,7 @@ export default function Product3DCanvas({ title = '', className = 'w-full h-full
       rightCup.position.set(1.6, -0.5, 0)
       productGroup.add(rightCup)
 
-    } else if (titleLower.includes('monitor') || titleLower.includes('odyssey') || titleLower.includes('display') || titleLower.includes('tv') || titleLower.includes('samsung')) {
+    } else if (modelType === 'monitor') {
       // --- 3D Curved Ultrawide Monitor Mesh ---
       const screenGeo = new THREE.BoxGeometry(3.8, 1.8, 0.1)
       const screenMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.9, roughness: 0.1 })
@@ -89,23 +92,17 @@ export default function Product3DCanvas({ title = '', className = 'w-full h-full
       productGroup.add(standBase)
 
     } else {
-      // --- Default 3D Tech Hardware / Laptop Mesh ---
-      const bodyGeo = new THREE.BoxGeometry(3.0, 0.2, 2.0)
-      const bodyMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.9, roughness: 0.2 })
+      // --- 3D Tech Hardware Mesh (for custom uploaded 3D files) ---
+      const bodyGeo = new THREE.BoxGeometry(3.0, 0.3, 2.0)
+      const bodyMat = new THREE.MeshStandardMaterial({ color: 0x0ea5e9, metalness: 0.9, roughness: 0.15 })
       const bodyMesh = new THREE.Mesh(bodyGeo, bodyMat)
       productGroup.add(bodyMesh)
 
-      const screenLidGeo = new THREE.BoxGeometry(3.0, 1.9, 0.08)
-      const screenLidMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.95, roughness: 0.15 })
-      const screenLidMesh = new THREE.Mesh(screenLidGeo, screenLidMat)
-      screenLidMesh.position.set(0, 0.95, -0.95)
-      productGroup.add(screenLidMesh)
-
-      const screenDispGeo = new THREE.PlaneGeometry(2.8, 1.7)
-      const screenDispMat = new THREE.MeshBasicMaterial({ color: 0x0284c7, wireframe: true })
-      const screenDispMesh = new THREE.Mesh(screenDispGeo, screenDispMat)
-      screenDispMesh.position.set(0, 0.95, -0.9)
-      productGroup.add(screenDispMesh)
+      const coreGeo = new THREE.BoxGeometry(2.6, 0.25, 1.6)
+      const coreMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true })
+      const coreMesh = new THREE.Mesh(coreGeo, coreMat)
+      coreMesh.position.set(0, 0.2, 0)
+      productGroup.add(coreMesh)
     }
 
     scene.add(productGroup)
@@ -161,7 +158,9 @@ export default function Product3DCanvas({ title = '', className = 'w-full h-full
       }
       renderer.dispose()
     }
-  }, [title])
+  }, [title, modelType])
+
+  if (!modelType) return null
 
   return (
     <div className={`group relative rounded-xl overflow-hidden shadow-inner border border-slate-200 select-none bg-slate-50 ${className}`}>
@@ -173,3 +172,4 @@ export default function Product3DCanvas({ title = '', className = 'w-full h-full
     </div>
   )
 }
+

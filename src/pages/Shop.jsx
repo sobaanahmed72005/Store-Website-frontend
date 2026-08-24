@@ -21,19 +21,22 @@ function ShopSidebar({ brands, selectedBrands, onToggleBrand }) {
   const { navCategories } = useCategories()
   return (
     <aside className="w-full lg:w-1/4 lg:shrink-0">
-      <div className="flex flex-col bg-cz-gold-light p-5">
+      <div className="flex flex-col bg-white rounded-xl border border-slate-200/80 shadow-sm p-5">
         <FilterAccordion title="Categories" separator={false}>
-          {[...navCategories]
-            .sort((a, b) => a.sort_order - b.sort_order || a.name.localeCompare(b.name))
-            .map((cat) => (
-              <Link
-                key={cat.slug}
-                to={categorySlugToPath(cat.slug)}
-                className="text-[14px] font-normal text-[#212121] cursor-pointer hover:underline"
-              >
-                {cat.name}
-              </Link>
-            ))}
+          <div className="flex flex-col gap-2">
+            {[...navCategories]
+              .sort((a, b) => a.sort_order - b.sort_order || a.name.localeCompare(b.name))
+              .map((cat) => (
+                <Link
+                  key={cat.slug}
+                  to={categorySlugToPath(cat.slug)}
+                  className="group flex items-center gap-2 py-1 px-1.5 -mx-1.5 rounded-lg text-[14px] font-medium text-slate-700 hover:text-[#0c4a6e] hover:bg-slate-100/70 hover:translate-x-1 transition-all duration-200"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#0c4a6e] opacity-0 group-hover:opacity-100 transition-opacity duration-200 shrink-0" />
+                  <span>{cat.name}</span>
+                </Link>
+              ))}
+          </div>
         </FilterAccordion>
 
         {brands.length > 0 && (
@@ -100,28 +103,21 @@ export default function Shop() {
   const brands = availableBrands.map((b) => ({ id: b, label: b }))
 
   return (
-    <div className="min-h-screen bg-cz-page flex flex-col">
+    <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans">
       <Navbar />
       <Header />
       <CategoryMenu />
 
-      <div className="mx-auto px-5 py-5 flex-1 w-full">
-        <section className="flex flex-col items-start mb-4">
-          <h1 className="text-[24px] font-medium text-[#353535]">Shop</h1>
+      <main className="max-w-[1280px] w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 flex-1">
+        <section className="flex flex-col items-start mb-5">
+          <h1 className="text-[24px] sm:text-[30px] font-bold text-[#0c4a6e] font-heading tracking-tight">Shop</h1>
           <SeoHeadingFiller h4="Filter and sort options" h5="Product listing" h6="Pagination" />
-          <div className="flex items-center gap-2 my-[10px] text-[14px]">
-            <span className="opacity-70">
-              <Link to="/">Home</Link>
-            </span>
-            <span className="opacity-70">/</span>
-            <span>Shop</span>
-          </div>
-          <p className="text-[14px] text-[#4b4b4b]">Products added by our store team, live from the catalog.</p>
+          <p className="text-[14px] sm:text-[15px] text-slate-600 leading-relaxed font-normal mt-1">Products added by our store team, live from the catalog.</p>
         </section>
 
-        {error && <div className="text-[14px] text-red-600 py-4">{error}</div>}
+        {error && <div className="text-[14px] text-red-600 py-4 font-medium">{error}</div>}
 
-        <div className="flex flex-col lg:flex-row gap-5">
+        <div className="flex flex-col lg:flex-row gap-6">
           <ShopSidebar
             brands={brands}
             selectedBrands={selectedBrands}
@@ -129,15 +125,15 @@ export default function Shop() {
           />
 
           <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between bg-cz-gold-light rounded-[8px] px-4 py-3 mb-4">
-              <span className="text-[14px] text-[#212121]">{total} Products</span>
+            <div className="flex items-center justify-between bg-white rounded-xl border border-slate-200/80 shadow-sm px-4 py-3 mb-5">
+              <span className="text-[14px] font-bold text-slate-800 font-heading">{total} Products</span>
               <div className="flex items-center gap-4">
                 <ViewToggle view={view} onChange={setView} />
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                   aria-label="Sort"
-                  className="text-[14px] text-[#212121] bg-transparent outline-none cursor-pointer"
+                  className="text-[14px] text-slate-700 bg-transparent outline-none cursor-pointer font-medium"
                 >
                   {Object.entries(SORT_OPTIONS).map(([key, { label }]) => (
                     <option key={key} value={key}>{label}</option>
@@ -149,16 +145,16 @@ export default function Shop() {
             {loading ? (
               <ProductGrid products={[]} loading={true} skeletonCount={12} className={view === 'grid' ? GRID_VIEW_CLASS : LIST_VIEW_CLASS} />
             ) : products.length === 0 ? (
-              <div className="flex flex-col items-center justify-center text-center py-20 border border-[#dedede] rounded-[10px] mb-10">
+              <div className="flex flex-col items-center justify-center text-center py-20 bg-white border border-slate-200/80 rounded-xl shadow-sm mb-10">
                 {selectedBrands.size > 0 ? (
                   <>
-                    <span className="text-[16px] text-[#212121] mb-2">No products match these filters.</span>
-                    <span className="text-[14px] text-[#4b4b4b]">Try clearing some filters to see more results.</span>
+                    <span className="text-[16px] font-bold text-slate-800 font-heading mb-2">No products match these filters.</span>
+                    <span className="text-[14px] text-slate-500">Try clearing some filters to see more results.</span>
                   </>
                 ) : (
                   <>
-                    <span className="text-[16px] text-[#212121] mb-2">No products here yet.</span>
-                    <span className="text-[14px] text-[#4b4b4b]">Check back soon — new arrivals are added regularly.</span>
+                    <span className="text-[16px] font-bold text-slate-800 font-heading mb-2">No products here yet.</span>
+                    <span className="text-[14px] text-slate-500">Check back soon — new arrivals are added regularly.</span>
                   </>
                 )}
               </div>
@@ -170,7 +166,7 @@ export default function Shop() {
             )}
           </div>
         </div>
-      </div>
+      </main>
 
       <Footer />
     </div>

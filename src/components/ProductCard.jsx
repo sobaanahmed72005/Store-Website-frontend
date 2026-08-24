@@ -50,6 +50,8 @@ export default function ProductCard({
   stock,
   inStock = true,
   hasVariants = false,
+  model_3d,
+  has_3d,
   onQuickView,
 }) {
   const [hovered, setHovered] = useState(false)
@@ -128,6 +130,8 @@ export default function ProductCard({
       price: pkrPrice,
       slug,
       stock: stock != null ? stock : inStock,
+      model_3d,
+      has_3d,
     })
   }
 

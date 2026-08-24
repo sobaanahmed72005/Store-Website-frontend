@@ -5,6 +5,7 @@ import { useCurrencyStore, parsePkr } from '../../store/currencyStore'
 import { triggerFlyToCart } from '../cart/FlyingCartAnimation'
 import { StarRating } from '../ProductCard'
 import Product3DCanvas from '../3d/Product3DCanvas'
+import { has3DModel } from '../../utils/has3DModel'
 
 export default function QuickViewModal({ product, onClose }) {
   const [activeImgIndex, setActiveImgIndex] = useState(0)
@@ -15,6 +16,7 @@ export default function QuickViewModal({ product, onClose }) {
 
   if (!product) return null
 
+  const canShow3D = has3DModel(product)
   const images = [...new Set([product.image, ...(product.images || [])].filter(Boolean))]
   const activeImage = images[activeImgIndex] || product.image
   const pkrPrice = parsePkr(product.price)
@@ -59,28 +61,30 @@ export default function QuickViewModal({ product, onClose }) {
 
         {/* Left Section: Photo / 3D Canvas Switcher */}
         <div className="w-full md:w-1/2 p-4 sm:p-6 bg-slate-50 flex flex-col items-center justify-center gap-3 border-b md:border-b-0 md:border-r border-slate-100">
-          <div className="flex items-center gap-2 self-start mb-1">
-            <button
-              type="button"
-              onClick={() => setShow3D(false)}
-              className={`px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                !show3D ? 'bg-cyan-500 text-white shadow-sm' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-              }`}
-            >
-              🖼 Photo View
-            </button>
-            <button
-              type="button"
-              onClick={() => setShow3D(true)}
-              className={`px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                show3D ? 'bg-cyan-500 text-white shadow-sm' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-              }`}
-            >
-              🧊 Interactive 3D Model
-            </button>
-          </div>
+          {canShow3D && (
+            <div className="flex items-center gap-2 self-start mb-1">
+              <button
+                type="button"
+                onClick={() => setShow3D(false)}
+                className={`px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                  !show3D ? 'bg-cyan-500 text-white shadow-sm' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                }`}
+              >
+                🖼 Photo View
+              </button>
+              <button
+                type="button"
+                onClick={() => setShow3D(true)}
+                className={`px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                  show3D ? 'bg-cyan-500 text-white shadow-sm' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                }`}
+              >
+                🧊 Interactive 3D Model
+              </button>
+            </div>
+          )}
 
-          {!show3D ? (
+          {!show3D || !canShow3D ? (
             <>
               <div className="relative w-full aspect-square max-h-[280px] sm:max-h-[340px] md:max-h-none bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm flex items-center justify-center p-3">
                 <img src={activeImage} alt={product.title} className="w-full h-full object-contain" />
@@ -104,7 +108,7 @@ export default function QuickViewModal({ product, onClose }) {
               )}
             </>
           ) : (
-            <Product3DCanvas title={product.title} className="w-full aspect-square max-h-[280px] sm:max-h-[340px] md:max-h-none bg-white rounded-xl" />
+            <Product3DCanvas product={product} title={product.title} className="w-full aspect-square max-h-[280px] sm:max-h-[340px] md:max-h-none bg-white rounded-xl" />
           )}
         </div>
 

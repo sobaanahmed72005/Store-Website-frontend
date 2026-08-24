@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
-import { api, uploadImage, uploadVideo, uploadDataset, resolveImageUrl } from '../../api/client'
+import { api, uploadImage, uploadVideo, uploadDataset, uploadModel3D, resolveImageUrl } from '../../api/client'
 import { extractYoutubeId, getYoutubeThumbnail } from '../../utils/youtube'
 import { ENDPOINTS } from '../../api/endpoints'
 import { ADMIN_PATH } from '../../config/adminPath'
@@ -77,6 +77,7 @@ export default function AdminProductForm() {
   const [uploading, setUploading] = useState(false)
   const [videoUploading, setVideoUploading] = useState(false)
   const [datasetUploading, setDatasetUploading] = useState(false)
+  const [model3DUploading, setModel3DUploading] = useState(false)
   const [contentImageUploading, setContentImageUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -356,6 +357,25 @@ export default function AdminProductForm() {
     setForm((prev) => ({ ...prev, dataset: '' }))
   }
 
+  const handleModel3DFileChange = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setModel3DUploading(true)
+    setError('')
+    try {
+      const { url } = await uploadModel3D(file)
+      setForm((prev) => ({ ...prev, model_3d: url }))
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setModel3DUploading(false)
+    }
+  }
+
+  const removeModel3D = () => {
+    setForm((prev) => ({ ...prev, model_3d: '' }))
+  }
+
   const handleContentImageFileChange = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -420,6 +440,7 @@ export default function AdminProductForm() {
         image: form.image,
         video: form.video || null,
         dataset: form.dataset || null,
+        model_3d: form.model_3d || null,
         content_image: form.content_image || null,
         content_image_caption: form.content_image_caption.trim() || null,
         content_video_url: form.content_video_url.trim() || null,
@@ -847,7 +868,7 @@ export default function AdminProductForm() {
                 <button
                   type="button"
                   aria-label="Remove 3D model file"
-                  onClick={() => setForm((f) => ({ ...f, model_3d: '' }))}
+                  onClick={removeModel3D}
                   className="w-5 h-5 rounded-full bg-white border border-[#dedede] text-[12px] text-red-600 flex items-center justify-center cursor-pointer"
                 >
                   ×
@@ -856,16 +877,14 @@ export default function AdminProductForm() {
             )}
             <input
               type="file"
-              accept=".glb,.gltf"
-              onChange={(e) => {
-                const file = e.target.files?.[0]
-                if (file) setForm((f) => ({ ...f, model_3d: file.name }))
-              }}
+              accept=".glb,.gltf,.obj"
+              onChange={handleModel3DFileChange}
               className="text-[13px]"
             />
           </div>
+          {model3DUploading && <div className="text-[13px] text-[#4b4b4b] mt-1">Uploading 3D model...</div>}
           <p className="text-[11px] text-[#9ca3af] mt-1">
-            Upload a .glb / .gltf 3D hardware file. If left blank, an interactive 3D model is automatically generated.
+            Upload a .glb / .gltf 3D hardware file. The 3D View option will only be visible on the product page when a 3D file is uploaded.
           </p>
         </div>
 

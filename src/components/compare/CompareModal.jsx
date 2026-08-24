@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useCompareStore } from '../../store/compareStore'
 import { useCurrencyStore, parsePkr } from '../../store/currencyStore'
 import Product3DCanvas from '../3d/Product3DCanvas'
+import { has3DModel } from '../../utils/has3DModel'
 
 export default function CompareModal() {
   const [viewMode, setViewMode] = useState('photo') // 'photo' or '3d'
@@ -12,6 +13,8 @@ export default function CompareModal() {
   const { format } = useCurrencyStore()
 
   if (!isModalOpen || items.length === 0) return null
+
+  const hasAny3D = items.some(has3DModel)
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/75 backdrop-blur-md animate-fadeIn">
@@ -24,31 +27,33 @@ export default function CompareModal() {
           </div>
 
           <div className="flex items-center gap-3">
-            {/* View Mode Toggle Pill Buttons */}
-            <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-full">
-              <button
-                type="button"
-                onClick={() => setViewMode('photo')}
-                className={`px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                  viewMode === 'photo'
-                    ? 'bg-cyan-500 text-white shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                🖼 Photo View
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode('3d')}
-                className={`px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                  viewMode === '3d'
-                    ? 'bg-cyan-500 text-white shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                🧊 Interactive 3D View
-              </button>
-            </div>
+            {/* View Mode Toggle Pill Buttons — shown if at least one product has a 3D view */}
+            {hasAny3D && (
+              <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-full">
+                <button
+                  type="button"
+                  onClick={() => setViewMode('photo')}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                    viewMode === 'photo'
+                      ? 'bg-cyan-500 text-white shadow-sm'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  🖼 Photo View
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('3d')}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                    viewMode === '3d'
+                      ? 'bg-cyan-500 text-white shadow-sm'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  🧊 Interactive 3D View
+                </button>
+              </div>
+            )}
 
             <button
               type="button"
@@ -79,10 +84,10 @@ export default function CompareModal() {
 
                     {/* Single Display Box rendering either 2D Photo or 3D Canvas */}
                     <div className="w-24 h-24 md:w-28 md:h-28 mx-auto bg-slate-50 rounded-xl p-2 border border-slate-200 mb-2.5 flex items-center justify-center overflow-hidden">
-                      {viewMode === 'photo' ? (
+                      {viewMode === 'photo' || !has3DModel(item) ? (
                         <img src={item.image} alt={item.title} className="w-full h-full object-contain" />
                       ) : (
-                        <Product3DCanvas title={item.title} className="w-full h-full" />
+                        <Product3DCanvas product={item} title={item.title} className="w-full h-full" />
                       )}
                     </div>
 

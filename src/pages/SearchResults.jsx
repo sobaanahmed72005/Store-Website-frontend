@@ -39,13 +39,6 @@ export default function SearchResults() {
         <section className="flex flex-col items-start mb-4">
           <h1 className="text-[24px] font-medium text-[#353535]">Search Results</h1>
           <SeoHeadingFiller h3="Matching products" h4="Result details" h5="No results guidance" h6="Related suggestions" />
-          <div className="flex items-center gap-2 my-[10px] text-[14px]">
-            <span className="opacity-70">
-              <Link to="/">Home</Link>
-            </span>
-            <span className="opacity-70">/</span>
-            <span>Search</span>
-          </div>
           {!loading && (
             <p className="text-[14px] text-[#4b4b4b]">
               {total > 0
