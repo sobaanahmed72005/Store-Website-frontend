@@ -197,15 +197,24 @@ export default function Checkout() {
     setApplyingDiscount(true)
     setDiscountError('')
     try {
-      const result = await api.post(ENDPOINTS.DISCOUNT_CODES.VALIDATE, { code: discountInput.trim(), subTotal })
+      const result = await api.post(
+        ENDPOINTS.DISCOUNT_CODES.VALIDATE,
+        { code: discountInput.trim(), subtotal: subTotal, subTotal },
+        { auth: true }
+      )
       if (result.valid) {
-        setAppliedDiscount(result.discount)
+        setAppliedDiscount({
+          code: result.code || discountInput.trim().toUpperCase(),
+          type: result.discount_type === 'percent' ? 'percentage' : result.discount_type,
+          value: Number(result.discount_value),
+          discountAmount: Number(result.discount_amount || 0),
+        })
         setDiscountInput('')
       } else {
-        setDiscountError(result.message || 'Invalid discount code')
+        setDiscountError(result.message || result.error || 'Invalid discount code')
       }
     } catch (err) {
-      setDiscountError(err.message || 'Failed to validate discount code')
+      setDiscountError(err.message || err.error || 'Failed to validate discount code')
     } finally {
       setApplyingDiscount(false)
     }
@@ -219,7 +228,9 @@ export default function Checkout() {
 
   let discountAmount = 0
   if (appliedDiscount) {
-    if (appliedDiscount.type === 'percentage') {
+    if (appliedDiscount.discountAmount > 0) {
+      discountAmount = appliedDiscount.discountAmount
+    } else if (appliedDiscount.type === 'percentage' || appliedDiscount.type === 'percent') {
       discountAmount = Math.round((subTotal * Number(appliedDiscount.value)) / 100)
     } else {
       discountAmount = Number(appliedDiscount.value)
