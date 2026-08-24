@@ -20,7 +20,7 @@ import SeoHeadingFiller from '../components/SeoHeadingFiller'
 function ShopSidebar({ brands, selectedBrands, onToggleBrand }) {
   const { navCategories } = useCategories()
   return (
-    <aside className="w-full lg:w-1/4 lg:shrink-0">
+    <aside className="w-full lg:w-[260px] xl:w-[280px] lg:shrink-0">
       <div className="flex flex-col bg-white rounded-xl border border-slate-200/80 shadow-sm p-5">
         <FilterAccordion title="Categories" separator={false}>
           <div className="flex flex-col gap-2">
@@ -38,10 +38,13 @@ function ShopSidebar({ brands, selectedBrands, onToggleBrand }) {
               ))}
           </div>
         </FilterAccordion>
-
-        {brands.length > 0 && (
-          <FilterAccordion title="Brand">
-            <CheckboxGroup items={brands} selectedIds={selectedBrands} onToggle={onToggleBrand} />
+        {brands.length > 1 && (
+          <FilterAccordion title="Brands">
+            <CheckboxGroup
+              options={brands}
+              selectedValues={selectedBrands}
+              onChange={onToggleBrand}
+            />
           </FilterAccordion>
         )}
       </div>
@@ -59,7 +62,7 @@ const SORT_OPTIONS = {
 }
 
 const LIST_VIEW_CLASS = 'grid grid-cols-1 gap-6 pb-10'
-const GRID_VIEW_CLASS = 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 pb-10'
+const GRID_VIEW_CLASS = 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-10'
 
 export default function Shop() {
   const { siteName } = useSiteSettings()
@@ -76,26 +79,20 @@ export default function Shop() {
     publisher: siteName || 'IT Solutions Trade & Service Pvt. Ltd.',
   })
 
-  // Independent of whatever brand filter/page is currently active, so the sidebar's checkbox
-  // list stays stable instead of shrinking to just whatever's on the current filtered page.
   useEffect(() => {
     api.get(ENDPOINTS.PRODUCTS.BRANDS).then(setAvailableBrands).catch(() => setAvailableBrands([]))
   }, [])
 
-  // Server-paginated (24/page), server-filtered by brand, and now server-sorted too — sorting
-  // client-side used to only reorder the current page's 24 products instead of the whole
-  // catalog, so "Price Low - High" could easily miss the true cheapest product sitting on a
-  // different page.
-  const params = new URLSearchParams()
-  if (selectedBrands.size > 0) params.set('brand', [...selectedBrands].join(','))
-  params.set('sort', sortBy)
-  const { products, loading, error, page, setPage, totalPages, total } = useProductList(ENDPOINTS.PRODUCTS.LIST(`?${params.toString()}`))
+  const { products, total, page, totalPages, loading, error, setPage } = useProductList({
+    brand: selectedBrands.size > 0 ? Array.from(selectedBrands) : undefined,
+    sort: sortBy,
+  })
 
-  const toggleBrand = (brand) => {
+  const toggleBrand = (brandId) => {
     setSelectedBrands((prev) => {
       const next = new Set(prev)
-      if (next.has(brand)) next.delete(brand)
-      else next.add(brand)
+      if (next.has(brandId)) next.delete(brandId)
+      else next.add(brandId)
       return next
     })
   }
@@ -108,7 +105,7 @@ export default function Shop() {
       <Header />
       <CategoryMenu />
 
-      <main className="max-w-[1280px] w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 flex-1">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1">
         <section className="flex flex-col items-start mb-5">
           <h1 className="text-[24px] sm:text-[30px] font-bold text-[#0c4a6e] font-heading tracking-tight">Shop</h1>
           <SeoHeadingFiller h4="Filter and sort options" h5="Product listing" h6="Pagination" />

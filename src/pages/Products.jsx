@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, Navigate, useSearchParams } from 'react-router-dom'
+import { Link, Navigate, useSearchParams, useMatch } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
@@ -20,7 +20,7 @@ import SeoHeadingFiller from '../components/SeoHeadingFiller'
 function ProductsSidebar({ brands, selectedBrands, onToggleBrand }) {
   const { navCategories } = useCategories()
   return (
-    <aside className="order-1 w-full lg:w-1/4 lg:shrink-0">
+    <aside className="order-1 w-full lg:w-[260px] xl:w-[280px] lg:shrink-0">
       <div className="flex flex-col bg-white rounded-xl border border-slate-200/80 shadow-sm p-5">
         <FilterAccordion title="Categories" separator={false}>
           <div className="flex flex-col gap-2">
@@ -41,7 +41,7 @@ function ProductsSidebar({ brands, selectedBrands, onToggleBrand }) {
 
         {brands.length > 0 && (
           <FilterAccordion title="Brand">
-            <CheckboxGroup items={brands} selectedIds={selectedBrands} onToggle={onToggleBrand} />
+            <CheckboxGroup options={brands} selectedValues={selectedBrands} onChange={onToggleBrand} />
           </FilterAccordion>
         )}
       </div>
@@ -50,7 +50,7 @@ function ProductsSidebar({ brands, selectedBrands, onToggleBrand }) {
 }
 
 const FILTER_CONFIG = {
-  featured:    { label: 'Products' },
+  featured:    { label: 'Featured Products' },
   on_sale:     { label: 'On Sale' },
   new_arrival: { label: 'New Arrivals' },
 }
@@ -65,7 +65,7 @@ const SORT_OPTIONS = {
 }
 
 const LIST_VIEW_CLASS = 'grid grid-cols-1 gap-6'
-const GRID_VIEW_CLASS = 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6'
+const GRID_VIEW_CLASS = 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6'
 
 export default function Products() {
   const { siteName } = useSiteSettings()
@@ -73,36 +73,39 @@ export default function Products() {
   const activeFilter = Object.keys(FILTER_CONFIG).find((k) => searchParams.get(k) === '1') || null
   const pageTitle = activeFilter ? FILTER_CONFIG[activeFilter].label : 'All Products'
 
-  // /shop is the all-products listing with the richer filtering UI, and bare /products (no
-  // recognized filter) is exactly that same "all products" content — a real duplicate — so it
-  // redirects there below instead of just soft-canonicalizing to it. The three filter variants
-  // (?featured=1/?on_sale=1/?new_arrival=1) show content /shop can't reproduce, so they stay
-  // real, independently indexed, self-canonical pages.
-  useSeo({
-    title: `${pageTitle} — Laptops, Gaming Gear & PC Components | ${siteName || 'IT Solutions'}`,
-    description: `${pageTitle} at ${siteName || 'IT Solutions'} — competitive prices and fast delivery.`,
-    canonical: activeFilter
-      ? `${window.location.origin}/products?${FILTER_CONFIG[activeFilter].param}`
-      : `${window.location.origin}/shop`,
-    keywords: `${pageTitle.toLowerCase()}, laptops Pakistan, gaming PC, PC components, buy laptop online`,
-    publisher: siteName || 'IT Solutions',
-  })
+  const isBareProductsRoute = useMatch('/products')
+  if (isBareProductsRoute && !activeFilter) return <Navigate to="/shop" replace />
 
   const [selectedBrands, setSelectedBrands] = useState(() => new Set())
   const [sortBy, setSortBy] = useState('newest')
   const [availableBrands, setAvailableBrands] = useState([])
   const [view, setView] = useState('grid')
 
-  // Independent of whatever brand filter/page is currently active, so the sidebar's checkbox
-  // list stays stable instead of shrinking to just whatever's on the current filtered page.
+  const origin = window.location.origin
+  const filterQuery = activeFilter ? `?${activeFilter}=1` : ''
+  const canonical = `${origin}/products${filterQuery}`
+
+  useSeo({
+    title: `${pageTitle} — Buy Online | ${siteName || 'IT Solutions'}`,
+    description: `Browse ${pageTitle.toLowerCase()} at ${siteName || 'IT Solutions'}. Best prices in Pakistan.`,
+    canonical,
+    publisher: siteName || 'IT Solutions',
+    jsonLd: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: `${origin}/` },
+          { '@type': 'ListItem', position: 2, name: pageTitle, item: canonical },
+        ],
+      },
+    ],
+  })
+
   useEffect(() => {
     api.get(ENDPOINTS.PRODUCTS.BRANDS).then(setAvailableBrands).catch(() => setAvailableBrands([]))
   }, [])
 
-  // Server-paginated (24/page), server-filtered by brand, and now server-sorted too — see
-  // Shop.jsx for why that matters (client-side-only filtering/sorting gave a wrong product
-  // count, could strand you on a page with zero visible results even when matches existed
-  // elsewhere, and "Price Low - High" could miss the true cheapest product on another page).
   const params = new URLSearchParams()
   if (activeFilter) params.set(activeFilter, '1')
   if (selectedBrands.size > 0) params.set('brand', [...selectedBrands].join(','))
@@ -124,19 +127,13 @@ export default function Products() {
 
   const brands = availableBrands.map((b) => ({ id: b, label: b }))
 
-  // Bare /products (no recognized filter) is a plain duplicate of /shop's "all products" view —
-  // send it there for real instead of rendering a second copy of the same content.
-  if (!activeFilter) {
-    return <Navigate to="/shop" replace />
-  }
-
   return (
     <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans">
       <Navbar />
       <Header />
       <CategoryMenu />
 
-      <main className="max-w-[1280px] w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 flex-1">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1">
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Content section */}
           <div className="order-2 flex-1 min-w-0">

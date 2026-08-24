@@ -167,7 +167,7 @@ export default function CategoryListing() {
       <Header />
       <CategoryMenu />
 
-      <main className="max-w-[1280px] w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 flex-1">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1">
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Content section */}
           <div className="order-2 flex-1 min-w-0">
@@ -191,7 +191,7 @@ export default function CategoryListing() {
                 products={[]}
                 loading={true}
                 skeletonCount={8}
-                className={view === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6' : 'grid grid-cols-1 gap-6'}
+                className={view === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6' : 'grid grid-cols-1 gap-6'}
               />
             ) : products.length === 0 ? (
               <div className="flex flex-col items-center justify-center text-center py-20 bg-white border border-slate-200/80 rounded-xl shadow-sm">
@@ -211,7 +211,7 @@ export default function CategoryListing() {
               <>
                 <ProductGrid
                   products={products}
-                  className={view === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6' : 'grid grid-cols-1 gap-6'}
+                  className={view === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6' : 'grid grid-cols-1 gap-6'}
                 />
                 <Pagination page={page} totalPages={totalPages} onChange={setPage} />
               </>
@@ -219,7 +219,7 @@ export default function CategoryListing() {
           </div>
 
           {/* Filter Sidebar */}
-          <aside className="order-1 w-full lg:w-1/4 lg:shrink-0">
+          <aside className="order-1 w-full lg:w-[260px] xl:w-[280px] lg:shrink-0">
             <div className="flex flex-col bg-white rounded-xl border border-slate-200/80 shadow-sm p-5">
               {subcategories.length > 0 && (
                 <FilterAccordion title="Categories" separator={false}>
