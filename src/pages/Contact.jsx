@@ -16,11 +16,11 @@ export default function Contact() {
   const [error, setError] = useState('')
 
   useSeo({
-    title: `Contact Us — Get in Touch | ${siteName || 'IT Solutions'}`,
-    description: `Contact ${siteName || 'IT Solutions'}. We're here to help with order inquiries, product questions, and technical support.`,
+    title: `Contact Us — Customer Support & Store Location | ${siteName || 'IT Solutions'} Pakistan`,
+    description: `Contact ${siteName || 'IT Solutions'} customer support. Get help with laptop sales, CCTV camera quotes, order tracking, and store address in Lahore, Pakistan. Phone/WhatsApp: ${sitePhone || '+92 300 1234567'}.`,
     canonical: `${window.location.origin}/contact`,
-    keywords: `contact ${siteName || 'IT Solutions'}, customer support, computer store contact`,
-    publisher: siteName || 'IT Solutions',
+    keywords: `contact ${siteName || 'IT Solutions'}, IT Solutions phone number, computer store Lahore location, customer support Pakistan`,
+    publisher: siteName || 'IT Solutions Trade & Service Pvt. Ltd.',
   })
 
   const handleChange = (e) => {

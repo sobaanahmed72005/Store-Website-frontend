@@ -41,7 +41,7 @@ function ProductsSidebar({ brands, selectedBrands, onToggleBrand }) {
 
         {brands.length > 0 && (
           <FilterAccordion title="Brand">
-            <CheckboxGroup options={brands} selectedValues={selectedBrands} onChange={onToggleBrand} />
+            <CheckboxGroup items={brands} selectedIds={selectedBrands} onToggle={onToggleBrand} />
           </FilterAccordion>
         )}
       </div>

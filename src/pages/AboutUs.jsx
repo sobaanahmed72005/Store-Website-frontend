@@ -39,11 +39,11 @@ export default function AboutUs() {
   const safeHighlights = Array.isArray(content?.highlights) ? content.highlights : []
 
   useSeo({
-    title: `About ${siteName || 'IT Solutions'} — Our Story & Store Details`,
-    description: safeParagraphs[0]?.slice(0, 155) || `Learn more about ${siteName || 'IT Solutions'}.`,
+    title: `About Us — ${siteName || 'IT Solutions'} Pakistan | Authorized Tech Store & Hardware Supplier`,
+    description: safeParagraphs[0]?.slice(0, 155) || `Learn about ${siteName || 'IT Solutions'} — Pakistan's trusted IT store for laptops, security surveillance systems, networking hardware, and solar solutions.`,
     canonical: `${window.location.origin}/about-us`,
-    keywords: `about ${siteName || 'IT Solutions'}, computer store Pakistan, laptop store Pakistan`,
-    publisher: siteName || 'IT Solutions',
+    keywords: `about ${siteName || 'IT Solutions'}, computer store Pakistan, laptop shop Lahore, IT hardware supplier Pakistan`,
+    publisher: siteName || 'IT Solutions Trade & Service Pvt. Ltd.',
   })
 
   return (

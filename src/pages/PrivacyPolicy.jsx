@@ -42,11 +42,11 @@ export default function PrivacyPolicy() {
   const safeSections = Array.isArray(content?.sections) ? content.sections : []
 
   useSeo({
-    title: `${title} — How We Protect Your Data | ${siteName || 'IT Solutions'}`,
-    description: `Read the privacy policy at ${siteName || 'IT Solutions'}.`,
+    title: `Privacy Policy — Data Security & Customer Protection | ${siteName || 'IT Solutions'} Pakistan`,
+    description: `Read the official privacy policy of ${siteName || 'IT Solutions'} Pakistan. Learn how we collect, protect, and encrypt customer order data and personal information.`,
     canonical: `${window.location.origin}/privacy-policy`,
-    keywords: `privacy policy, data protection, ${siteName || 'IT Solutions'} privacy`,
-    publisher: siteName || 'IT Solutions',
+    keywords: `privacy policy IT Solutions, data security online store Pakistan, customer privacy protection`,
+    publisher: siteName || 'IT Solutions Trade & Service Pvt. Ltd.',
   })
 
   return (

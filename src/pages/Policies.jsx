@@ -42,11 +42,11 @@ export default function Policies() {
   const safeSections = Array.isArray(content?.sections) ? content.sections : []
 
   useSeo({
-    title: `${title} — How It Works | ${siteName || 'IT Solutions'}`,
-    description: `Read the return and exchange policy at ${siteName || 'IT Solutions'}.`,
+    title: `${title} — 7-Day Replacement & Warranty Claim | ${siteName || 'IT Solutions'} Pakistan`,
+    description: `Read the official return, exchange, and 7-day replacement policy at ${siteName || 'IT Solutions'} Pakistan. Easy claims, brand warranty support, and refund guidelines.`,
     canonical: `${window.location.origin}/return-exchange`,
-    keywords: `return policy, exchange policy, ${siteName || 'IT Solutions'} returns`,
-    publisher: siteName || 'IT Solutions',
+    keywords: `return policy Pakistan, exchange policy IT Solutions, 7 day replacement warranty Pakistan`,
+    publisher: siteName || 'IT Solutions Trade & Service Pvt. Ltd.',
   })
 
   return (

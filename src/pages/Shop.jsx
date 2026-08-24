@@ -78,9 +78,17 @@ export default function Shop() {
   const activeBrandTitle = selectedBrandsList.length > 0 ? selectedBrandsList.join(', ') : 'All Brands'
 
   useSeo({
-    title: `${activeBrandTitle} Products — Buy Online in Pakistan | ${siteName || 'IT Solutions'}`,
-    description: `Explore all products for ${activeBrandTitle} with nationwide cash on delivery in Pakistan.`,
+    title: selectedBrands.size > 0
+      ? `Buy ${activeBrandTitle} Products Online in Pakistan — Best Prices | ${siteName || 'IT Solutions'}`
+      : `Shop Electronics & Tech Hardware Online in Pakistan | ${siteName || 'IT Solutions'}`,
+    description: selectedBrands.size > 0
+      ? `Shop official ${activeBrandTitle} products at ${siteName || 'IT Solutions'}. Compare prices, specifications, and buy online with cash on delivery across Pakistan.`
+      : `Explore the complete ${siteName || 'IT Solutions'} catalog — 4K CCTV security cameras, Wi-Fi 6 routers, solar panels, and laptops with nationwide cash on delivery in Pakistan.`,
     canonical: `${window.location.origin}/shop`,
+    keywords: selectedBrands.size > 0
+      ? `${activeBrandTitle.toLowerCase()} Pakistan, buy ${activeBrandTitle.toLowerCase()} online, ${activeBrandTitle.toLowerCase()} price Lahore`
+      : 'buy cctv camera pakistan, wifi 6 router pakistan, solar panel price pakistan, laptop hardware store pakistan, it solutions lahore',
+    publisher: siteName || 'IT Solutions Trade & Service Pvt. Ltd.',
   })
 
   useEffect(() => {
