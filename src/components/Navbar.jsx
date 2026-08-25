@@ -20,7 +20,7 @@ export default function Navbar() {
   }, [messages])
 
   return (
-    <div className="bg-cz-topbar text-[var(--cz-topbar-text)] text-[12px] sm:text-[13px] py-1.5 border-b border-slate-700/20">
+    <div className="bg-cz-topbar text-[var(--cz-topbar-text)] text-[12px] sm:text-[13px] py-1.5 border-b border-slate-700/20 overflow-hidden">
       <div className="mx-auto px-5 flex items-center justify-between gap-4">
         {/* Rotating marquee messages centered cleanly */}
         <div className="flex-1 text-center overflow-hidden relative h-[18px] min-w-0">
