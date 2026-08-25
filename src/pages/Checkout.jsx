@@ -244,13 +244,15 @@ function PaymentMethodDetails({ methodKey, method }) {
           {method.bankName && <><b>{method.bankName}</b><br /></>}
           {method.accountTitle && <>Account Title: {method.accountTitle}<br /></>}
           {method.accountNumber && <>Account #: {method.accountNumber}</>}
-          {method.instructions && <><br /><br />{method.instructions}</>}
-          <br /><br />
-          Enter your reference number below and upload a payment proof screenshot.
+          {method.instructions ? (
+            <><br /><br />{method.instructions}</>
+          ) : (
+            <><br /><br />Upload a payment proof screenshot below.</>
+          )}
         </>
       ) : (
         <>
-          {method.instructions || 'Send your payment using the details provided by this gateway, then enter your transaction reference below.'}
+          {method.instructions || 'Send your payment using the details provided by this gateway, then upload a payment proof screenshot below.'}
         </>
       )}
     </div>
@@ -423,7 +425,7 @@ export default function Checkout() {
     form.fullName.trim() &&
     form.address1.trim() &&
     selectedPaymentMethod &&
-    (selectedPaymentMethod === 'cod' || (paymentReference.trim() && paymentProofImage))
+    (selectedPaymentMethod === 'cod' || paymentProofImage)
 
   const helplinePhone = paymentMethods?.bank_transfer?.helplinePhone || ''
   const helplineEmail = paymentMethods?.bank_transfer?.helplineEmail || ''
@@ -435,8 +437,8 @@ export default function Checkout() {
       setError('Please select a payment method')
       return
     }
-    if (selectedPaymentMethod !== 'cod' && (!paymentReference.trim() || !paymentProofImage)) {
-      setError('Please enter your transaction reference and upload a screenshot of your payment')
+    if (selectedPaymentMethod !== 'cod' && !paymentProofImage) {
+      setError('Please upload a screenshot of your payment proof')
       return
     }
     setSubmitting(true)
@@ -454,7 +456,7 @@ export default function Checkout() {
           items: items.map((item) => ({ id: item.id, variantId: item.variantId ?? null, title: item.title, image: item.image, price: item.price, quantity: item.qty })),
           discount_code: appliedDiscount?.code,
           payment_method: selectedPaymentMethod,
-          payment_reference: paymentReference,
+          payment_reference: paymentReference || 'Screenshot Attached',
           payment_proof_image: paymentProofImage,
         },
         { auth: true }
@@ -583,14 +585,6 @@ export default function Checkout() {
                   ))}
                   {selectedPaymentMethod && selectedPaymentMethod !== 'cod' && (
                     <div className="flex flex-col gap-3 pt-2">
-                      <Input
-                        name="paymentReference"
-                        type="text"
-                        placeholder="Transaction ID / Reference"
-                        value={paymentReference}
-                        onChange={(e) => setPaymentReference(e.target.value)}
-                        required
-                      />
                       <div>
                         <label className="block text-[13px] font-semibold text-slate-700 mb-1">
                           Upload Payment Screenshot *

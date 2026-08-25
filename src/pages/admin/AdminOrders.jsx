@@ -364,7 +364,7 @@ export default function AdminOrders() {
                             <div className="flex flex-wrap items-center gap-2">
                               <span>
                                 Payment: {PAYMENT_METHOD_LABEL[order.payment_method] || order.payment_method}
-                                {order.payment_reference ? ` — Ref: ${order.payment_reference}` : ''}
+                                {order.payment_reference && order.payment_reference !== 'Screenshot Attached' && order.payment_reference !== 'N/A' ? ` — Ref: ${order.payment_reference}` : ''}
                               </span>
                               {!!order.is_duplicate_reference && (
                                 <span className="rounded-full bg-red-100 text-red-700 text-[11px] font-medium px-2 py-0.5">
