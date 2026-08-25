@@ -43,7 +43,8 @@ export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
-    <div className="min-h-screen flex bg-cz-gold-light">
+    <div className="h-screen flex bg-cz-gold-light overflow-hidden">
+      {/* Mobile backdrop */}
       <div
         aria-hidden="true"
         onClick={() => setSidebarOpen(false)}
@@ -52,12 +53,13 @@ export default function AdminLayout() {
         }`}
       />
 
+      {/* Left Sidebar - Fixed to screen height, never scrolls with page */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-[220px] shrink-0 overflow-y-auto bg-cz-topbar text-white flex flex-col transition-transform duration-300 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-[220px] shrink-0 bg-cz-topbar text-white flex flex-col transition-transform duration-300 lg:relative lg:translate-x-0 h-full ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="px-5 py-5 border-b border-white/10 flex items-center justify-between">
+        <div className="px-5 py-5 border-b border-white/10 flex items-center justify-between shrink-0">
           <div>
             <Logo iconOnly variant="light" size={56} textScale={0.28} />
             <div className="text-[12px] text-white/60 mt-0.5">Admin Panel</div>
@@ -71,7 +73,7 @@ export default function AdminLayout() {
             <CloseIcon size={18} />
           </button>
         </div>
-        <nav className="flex flex-col py-4 gap-1 px-3">
+        <nav className="flex flex-col py-4 gap-1 px-3 overflow-y-auto flex-1">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
@@ -88,7 +90,7 @@ export default function AdminLayout() {
             </NavLink>
           ))}
         </nav>
-        <div className="mt-auto px-3 py-4 border-t border-white/10 flex flex-col gap-2">
+        <div className="mt-auto px-3 py-4 border-t border-white/10 flex flex-col gap-2 shrink-0 bg-cz-topbar">
           <Link to="/" className="text-[13px] text-white/70 hover:text-white px-3">
             ← View Store
           </Link>
@@ -104,20 +106,24 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      <div className="flex-1 min-w-0 flex flex-col">
-        <div className="flex items-center gap-3 bg-cz-topbar text-white px-4 py-3 lg:hidden">
+      {/* Right Column Container */}
+      <div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden">
+        {/* Mobile top nav header */}
+        <div className="flex items-center gap-3 bg-cz-topbar text-white px-4 py-3 lg:hidden shrink-0">
           <button type="button" aria-label="Open menu" onClick={() => setSidebarOpen(true)}>
             <HamburgerIcon size={24} />
           </button>
           <Logo iconOnly variant="light" size={40} textScale={0.28} />
         </div>
 
-        <div className="flex items-center justify-end gap-1 bg-white border-b border-[#dedede] px-4 py-2">
+        {/* Top notification bar */}
+        <div className="flex items-center justify-end gap-1 bg-white border-b border-[#dedede] px-4 py-2 shrink-0">
           <SubscriberNotificationBell />
           <OrderNotificationBell />
         </div>
 
-        <main className="flex-1 min-w-0 overflow-x-hidden">
+        {/* Scrollable Main Content Area - ONLY this section scrolls vertically */}
+        <main className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden">
           <Outlet />
         </main>
       </div>
