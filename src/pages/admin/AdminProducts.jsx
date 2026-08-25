@@ -24,6 +24,7 @@ export default function AdminProducts() {
   const [products, setProducts] = useState([])
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [statusFilter, setStatusFilter] = useState('all')
 
   const queryPath = ENDPOINTS.ADMIN.PRODUCTS.BASE(lowStockOnly ? '?low_stock=1' : '')
   const separator = queryPath.includes('?') ? '&' : '?'
@@ -46,6 +47,17 @@ export default function AdminProducts() {
     setTotalPages(data.totalPages)
   }
 
+  const handleToggleActive = async (id) => {
+    try {
+      const res = await api.put(`${ENDPOINTS.ADMIN.PRODUCTS.BY_ID(id)}/toggle-active`, {}, { auth: true })
+      setProducts((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, is_active: res.is_active } : p))
+      )
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this product? This cannot be undone.')) return
     try {
@@ -55,6 +67,12 @@ export default function AdminProducts() {
       setError(err.message)
     }
   }
+
+  const filteredProducts = products.filter((p) => {
+    if (statusFilter === 'active') return p.is_active !== 0
+    if (statusFilter === 'hidden') return p.is_active === 0
+    return true
+  })
 
   return (
     <div className="p-8">
@@ -80,6 +98,38 @@ export default function AdminProducts() {
         </div>
       )}
 
+      {/* Filter Tabs */}
+      <div className="flex items-center gap-2 mb-4">
+        <span className="text-[13px] font-semibold text-slate-600 mr-1">Filter Visibility:</span>
+        <button
+          type="button"
+          onClick={() => setStatusFilter('all')}
+          className={`rounded-lg text-[12px] font-semibold px-3 py-1.5 transition-all cursor-pointer ${
+            statusFilter === 'all' ? 'bg-slate-800 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+          }`}
+        >
+          All Products ({products.length})
+        </button>
+        <button
+          type="button"
+          onClick={() => setStatusFilter('active')}
+          className={`rounded-lg text-[12px] font-semibold px-3 py-1.5 transition-all cursor-pointer ${
+            statusFilter === 'active' ? 'bg-emerald-700 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+          }`}
+        >
+          ✅ Active ({products.filter((p) => p.is_active !== 0).length})
+        </button>
+        <button
+          type="button"
+          onClick={() => setStatusFilter('hidden')}
+          className={`rounded-lg text-[12px] font-semibold px-3 py-1.5 transition-all cursor-pointer ${
+            statusFilter === 'hidden' ? 'bg-amber-800 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+          }`}
+        >
+          🔒 Hidden / Draft ({products.filter((p) => p.is_active === 0).length})
+        </button>
+      </div>
+
       <div className="bg-white rounded-[10px] border border-[#dedede] overflow-hidden">
         <table className="w-full text-[14px]">
           <thead>
@@ -89,6 +139,7 @@ export default function AdminProducts() {
               <th className="px-4 py-3 font-medium">Category</th>
               <th className="px-4 py-3 font-medium">Price</th>
               <th className="px-4 py-3 font-medium">Stock</th>
+              <th className="px-4 py-3 font-medium">Status</th>
               <th className="px-4 py-3 font-medium">Tags</th>
               <th className="px-4 py-3 font-medium" />
             </tr>
@@ -96,18 +147,18 @@ export default function AdminProducts() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-[#4b4b4b]">
+                <td colSpan={8} className="px-4 py-8 text-center text-[#4b4b4b]">
                   Loading...
                 </td>
               </tr>
-            ) : products.length === 0 ? (
+            ) : filteredProducts.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-[#4b4b4b]">
-                  No products yet.
+                <td colSpan={8} className="px-4 py-8 text-center text-[#4b4b4b]">
+                  No products found for this filter.
                 </td>
               </tr>
             ) : (
-              products.map((p) => {
+              filteredProducts.map((p) => {
                 const { price, oldPrice } = getEffectivePrice(p)
                 return (
                   <tr key={p.id} className="border-t border-[#dedede]">
@@ -118,7 +169,7 @@ export default function AdminProducts() {
                         <div className="w-12 h-12 rounded-md bg-cz-gold-light" />
                       )}
                     </td>
-                    <td className="px-4 py-3 text-[#212121]">{p.name}</td>
+                    <td className="px-4 py-3 text-[#212121] font-medium">{p.name}</td>
                     <td className="px-4 py-3 text-[#4b4b4b]">{p.category_name || '—'}</td>
                     <td className="px-4 py-3 text-[#212121]">
                       {format(price)}
@@ -128,6 +179,20 @@ export default function AdminProducts() {
                     </td>
                     <td className="px-4 py-3">
                       <span className={p.stock <= 5 ? 'text-red-600 font-medium' : 'text-[#212121]'}>{p.stock}</span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <button
+                        type="button"
+                        onClick={() => handleToggleActive(p.id)}
+                        title="Click to toggle Active / Hidden status"
+                        className={`rounded-full text-[11px] font-semibold px-2.5 py-1 transition-all cursor-pointer ${
+                          p.is_active !== 0
+                            ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
+                            : 'bg-amber-100 text-amber-900 hover:bg-amber-200'
+                        }`}
+                      >
+                        {p.is_active !== 0 ? '✅ Active' : '🔒 Hidden'}
+                      </button>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap gap-1">
@@ -143,10 +208,10 @@ export default function AdminProducts() {
                       </div>
                     </td>
                     <td className="px-4 py-3 text-right whitespace-nowrap">
-                      <Link to={`${ADMIN_PATH}/products/${p.id}/edit`} className="text-cz-primary hover:underline mr-3">
+                      <Link to={`${ADMIN_PATH}/products/${p.id}/edit`} className="text-cz-primary hover:underline mr-3 font-medium">
                         Edit
                       </Link>
-                      <button type="button" onClick={() => handleDelete(p.id)} className="text-red-600 hover:underline">
+                      <button type="button" onClick={() => handleDelete(p.id)} className="text-red-600 hover:underline font-medium cursor-pointer">
                         Delete
                       </button>
                     </td>

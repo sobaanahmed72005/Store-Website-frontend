@@ -30,6 +30,7 @@ const emptyForm = {
   is_featured: false,
   is_new_arrival: false,
   is_on_sale: false,
+  is_active: true,
 }
 
 function slugify(value) {
@@ -140,6 +141,7 @@ export default function AdminProductForm() {
           is_featured: Boolean(p.is_featured),
           is_new_arrival: Boolean(p.is_new_arrival),
           is_on_sale: Boolean(p.is_on_sale),
+          is_active: p.is_active !== undefined ? Boolean(p.is_active) : true,
         })
         setPendingOptionIds(p.attribute_option_ids || [])
         setGalleryImages(p.images || [])
@@ -792,6 +794,26 @@ export default function AdminProductForm() {
               />
             </div>
           )}
+        </div>
+
+        <div className="rounded-md border border-[#dedede] p-4 bg-slate-50 flex flex-col gap-2">
+          <label className="block text-[13px] font-bold text-slate-800">
+            Product Status (Store Visibility)
+          </label>
+          <label className="flex items-center gap-2 text-[14px] font-semibold text-slate-800 cursor-pointer">
+            <input
+              type="checkbox"
+              name="is_active"
+              checked={form.is_active}
+              onChange={handleChange}
+            />
+            <span>{form.is_active ? '✅ Active (Published on website)' : '🔒 Hidden (Draft / Hidden from website)'}</span>
+          </label>
+          <p className="text-[12px] text-slate-500">
+            {form.is_active
+              ? 'This product is published and visible to customers across your website.'
+              : 'This product is hidden from customer search and category pages, but safely stored in your Admin Panel.'}
+          </p>
         </div>
 
         <div className="flex flex-col gap-1.5">
