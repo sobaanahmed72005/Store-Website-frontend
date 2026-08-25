@@ -5,6 +5,7 @@ import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
 import Pagination from '../components/Pagination'
+import SearchableCitySelect from '../components/SearchableCitySelect'
 import { useAuth } from '../store/authStore'
 import { useCurrency } from '../store/currencyStore'
 import { useCart } from '../store/cartStore'
@@ -98,14 +99,7 @@ function ProfileSection() {
           />
         </div>
         <div>
-          <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">City</label>
-          <input
-            type="text"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            placeholder="Karachi, Lahore, etc."
-            className="w-full rounded-xl border border-slate-200 bg-slate-50/50 text-[14px] text-slate-800 px-4 py-2.5 outline-none focus:border-cz-primary focus:bg-white transition-all"
-          />
+          <SearchableCitySelect value={city} onChange={setCity} label="City" />
         </div>
       </div>
       <div>
