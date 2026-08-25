@@ -11,6 +11,7 @@ export default defineConfig({
     proxy: {
       '/robots.txt': { target: 'http://localhost:5000', changeOrigin: false },
       '/sitemap.xml': { target: 'http://localhost:5000', changeOrigin: false },
+      '/products-feed.xml': { target: 'http://localhost:5000', changeOrigin: false },
     },
   },
   // Vitest reads this same config — jsdom is needed since cartStore.js touches
