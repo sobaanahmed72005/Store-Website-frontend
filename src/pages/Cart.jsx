@@ -11,6 +11,9 @@ import { useAuth } from '../store/authStore'
 import { useSeo } from '../hooks/useSeo'
 import SeoHeadingFiller from '../components/SeoHeadingFiller'
 import { useSiteSettings } from '../store/siteSettingsStore'
+import { api, resolveImageUrl } from '../api/client'
+import { ENDPOINTS } from '../api/endpoints'
+import { getEffectivePrice } from '../utils/pricing'
 
 function QuantityStepper({ qty, onDecrease, onIncrease }) {
   return (
@@ -40,9 +43,12 @@ export default function Cart() {
     noindex: true,
   })
   const { format } = useCurrency()
-  const { items, updateQty, removeFromCart, subTotal, refreshPrices } = useCart()
+  const { items, addToCart, updateQty, removeFromCart, subTotal, refreshPrices } = useCart()
   const { user } = useAuth()
   const [priceNotice, setPriceNotice] = useState(null)
+
+  // Recommendations state
+  const [recommendations, setRecommendations] = useState([])
 
   useEffect(() => {
     refreshPrices().then(({ changed, removed }) => {
@@ -51,8 +57,42 @@ export default function Cart() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // Fetch top recommendations for cross-selling
+  useEffect(() => {
+    api
+      .get(ENDPOINTS.PRODUCTS.LIST('?limit=30'))
+      .then((data) => {
+        if (Array.isArray(data.products)) {
+          setRecommendations(data.products)
+        }
+      })
+      .catch(() => setRecommendations([]))
+  }, [])
+
   const totalProducts = items.length
   const totalItems = items.reduce((sum, item) => sum + item.qty, 0)
+
+  // Filter recommendations to exclude products already in the cart (show top 10)
+  const cartItemIds = new Set(items.map((i) => i.id))
+  const filteredRecommendations = recommendations
+    .filter((p) => !cartItemIds.has(p.id) && p.is_active !== 0)
+    .slice(0, 10)
+
+  const handleAddRecToCart = (product) => {
+    const { price } = getEffectivePrice(product)
+    addToCart(
+      {
+        id: product.id,
+        slug: product.slug,
+        title: product.name,
+        image: resolveImageUrl(product.image),
+        price: Number(price),
+        variantId: null,
+        variantLabel: null,
+      },
+      1
+    )
+  }
 
   return (
     <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans">
@@ -99,7 +139,7 @@ export default function Cart() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-12 gap-5 pb-10 items-start w-full">
+          <div className="grid grid-cols-12 gap-5 pb-6 items-start w-full">
             {/* Cart Items List Card */}
             <div className="cart-table-card lg:col-span-8 col-span-12 bg-white border border-slate-100 rounded-xl p-4 sm:p-6 shadow-sm">
               <div className="grid gap-3 overflow-hidden">
@@ -212,6 +252,76 @@ export default function Cart() {
               </Link>
             </div>
           </div>
+        )}
+
+        {/* You Might Also Like Recommendations - Touch-Swipe Carousel on Mobile & 5-Col Grid on Desktop */}
+        {filteredRecommendations.length > 0 && (
+          <section className="mt-8 pt-8 border-t border-slate-200/80">
+            <div className="flex items-center justify-between mb-4 sm:mb-5">
+              <div>
+                <h2 className="text-[18px] sm:text-[22px] font-bold text-[#0c4a6e] font-heading tracking-tight">
+                  You Might Also Like
+                </h2>
+                <p className="text-[12px] sm:text-[13px] text-slate-500 mt-0.5">
+                  Popular trending items customers frequently add to their order
+                </p>
+              </div>
+              <Link to="/shop" className="text-[12px] sm:text-[13px] font-semibold text-cz-primary hover:underline shrink-0">
+                Explore All →
+              </Link>
+            </div>
+
+            {/* Horizontal Swipe Scroll Row on Mobile, Grid on Desktop */}
+            <div className="flex sm:grid sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 overflow-x-auto snap-x snap-mandatory pb-3 sm:pb-0 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
+              {filteredRecommendations.map((p) => {
+                const { price, oldPrice } = getEffectivePrice(p)
+
+                return (
+                  <div
+                    key={p.id}
+                    className="snap-start shrink-0 w-[170px] sm:w-auto bg-white border border-slate-100 rounded-xl p-3 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group"
+                  >
+                    <div>
+                      <Link to={`/product/${p.slug}`} className="block relative aspect-square rounded-lg overflow-hidden bg-slate-50 mb-2.5">
+                        <img
+                          src={resolveImageUrl(p.image)}
+                          alt={p.name}
+                          className="w-full h-full object-contain p-1 group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </Link>
+                      <Link
+                        to={`/product/${p.slug}`}
+                        className="text-[12px] sm:text-[13px] font-semibold text-slate-800 hover:text-cz-primary line-clamp-2 leading-snug mb-1"
+                      >
+                        {p.name}
+                      </Link>
+                    </div>
+
+                    <div className="mt-2 pt-2 border-t border-slate-100 flex flex-col gap-2">
+                      <div className="flex items-baseline gap-1.5 flex-wrap">
+                        <span className="text-[13px] sm:text-[14px] font-bold text-cz-primary">
+                          {format(Number(price))}
+                        </span>
+                        {oldPrice && (
+                          <span className="text-[10px] sm:text-[11px] text-slate-400 line-through">
+                            {format(Number(oldPrice))}
+                          </span>
+                        )}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleAddRecToCart(p)}
+                        className="w-full py-1.5 px-2 rounded-lg bg-cz-sky/10 hover:bg-cz-primary text-cz-primary hover:text-white text-[11px] sm:text-[12px] font-bold transition-all flex items-center justify-center gap-1 shadow-xs cursor-pointer active:scale-95"
+                      >
+                        <span>+ Quick Add</span>
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </section>
         )}
       </main>
 
