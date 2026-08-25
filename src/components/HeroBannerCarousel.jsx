@@ -35,6 +35,11 @@ export default function HeroBannerCarousel({ visible = false }) {
   const [slides, setSlides] = useState(DEFAULT_SLIDES)
   const [currentIndex, setCurrentIndex] = useState(0)
 
+  // Touch Swipe Gesture State
+  const [touchStart, setTouchStart] = useState(null)
+  const [touchEnd, setTouchEnd] = useState(null)
+  const minSwipeDistance = 40
+
   useEffect(() => {
     api.get(ENDPOINTS.CONTENT.HERO_BANNERS)
       .then((data) => {
@@ -61,13 +66,46 @@ export default function HeroBannerCarousel({ visible = false }) {
 
   const currentSlide = slides[currentIndex] || slides[0]
 
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev === 0 ? slides.length - 1 : prev - 1))
+  }
+
+  const nextSlide = () => {
+    setCurrentIndex((prev) => (prev + 1) % slides.length)
+  }
+
+  // Touch handlers
+  const handleTouchStart = (e) => {
+    setTouchEnd(null)
+    setTouchStart(e.targetTouches[0].clientX)
+  }
+
+  const handleTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX)
+  }
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return
+    const distance = touchStart - touchEnd
+    if (distance > minSwipeDistance) {
+      nextSlide()
+    } else if (distance < -minSwipeDistance) {
+      prevSlide()
+    }
+  }
+
   return (
     <div
       className={`w-full max-w-6xl mx-auto px-4 transition-all duration-700 ease-out pointer-events-auto ${
         visible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-12 scale-95 pointer-events-none'
       }`}
     >
-      <div className="relative rounded-2xl overflow-hidden bg-[#06141A]/80 border border-[#0891B2]/40 backdrop-blur-xl shadow-2xl shadow-[#0891B2]/20">
+      <div
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        className="group relative rounded-2xl overflow-hidden bg-[#06141A]/80 border border-[#0891B2]/40 backdrop-blur-xl shadow-2xl shadow-[#0891B2]/20 select-none"
+      >
         {/* Banner Background Image with Gradient Overlay */}
         <div className="absolute inset-0 z-0">
           <img
@@ -105,12 +143,12 @@ export default function HeroBannerCarousel({ visible = false }) {
           )}
         </div>
 
-        {/* Slider Navigation Controls */}
+        {/* Slider Navigation Controls - Shows ONLY on Hover */}
         {slides.length > 1 && (
-          <div className="absolute bottom-6 right-6 z-20 flex items-center gap-3">
+          <div className="absolute bottom-6 right-6 z-20 hidden sm:flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none group-hover:pointer-events-auto">
             <button
               type="button"
-              onClick={() => setCurrentIndex((prev) => (prev === 0 ? slides.length - 1 : prev - 1))}
+              onClick={prevSlide}
               className="p-2 rounded-full bg-[#03070A]/70 text-white hover:bg-[#0891B2] border border-white/10 transition-all cursor-pointer"
               aria-label="Previous Slide"
             >
@@ -133,7 +171,7 @@ export default function HeroBannerCarousel({ visible = false }) {
 
             <button
               type="button"
-              onClick={() => setCurrentIndex((prev) => (prev + 1) % slides.length)}
+              onClick={nextSlide}
               className="p-2 rounded-full bg-[#03070A]/70 text-white hover:bg-[#0891B2] border border-white/10 transition-all cursor-pointer"
               aria-label="Next Slide"
             >

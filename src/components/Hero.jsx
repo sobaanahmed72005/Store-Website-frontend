@@ -16,6 +16,11 @@ export default function Hero() {
   const [slides, setSlides] = useState(null)
   const [active, setActive] = useState(0)
 
+  // Touch Swipe Gesture State
+  const [touchStart, setTouchStart] = useState(null)
+  const [touchEnd, setTouchEnd] = useState(null)
+  const minSwipeDistance = 40
+
   useEffect(() => {
     api.get(ENDPOINTS.CONTENT.HERO_BANNERS)
       .then((data) => {
@@ -47,11 +52,36 @@ export default function Hero() {
     setActive((i) => (i + 1) % slides.length)
   }
 
+  // Mobile Touch Handlers
+  const handleTouchStart = (e) => {
+    setTouchEnd(null)
+    setTouchStart(e.targetTouches[0].clientX)
+  }
+
+  const handleTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX)
+  }
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return
+    const distance = touchStart - touchEnd
+    if (distance > minSwipeDistance) {
+      nextSlide()
+    } else if (distance < -minSwipeDistance) {
+      prevSlide()
+    }
+  }
+
   return (
     <section className="mx-auto px-5 py-5">
       <div className="w-full">
-        {/* Full-width Hero Carousel */}
-        <div className="group relative rounded-2xl overflow-hidden aspect-[16/9] sm:aspect-[2.2/1] md:aspect-[2.4/1] bg-[#f8fafc] shadow-sm">
+        {/* Full-width Hero Carousel with Hover-Only Arrows & Touch Swiping */}
+        <div
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          className="group relative rounded-2xl overflow-hidden aspect-[16/9] sm:aspect-[2.2/1] md:aspect-[2.4/1] bg-[#f8fafc] shadow-sm select-none"
+        >
           {slides.map((slide, i) => {
             const theme = SLIDE_THEMES[i % SLIDE_THEMES.length]
             const ctaBg = slide.ctaBg || slide.color || theme.ctaBg
@@ -85,13 +115,13 @@ export default function Hero() {
             )
           })}
 
-          {/* Left Arrow Button */}
+          {/* Left Arrow Button - Shows ONLY on Hover */}
           {slides.length > 1 && (
             <button
               type="button"
               aria-label="Previous Slide"
               onClick={prevSlide}
-              className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-black/30 hover:bg-black/70 text-white backdrop-blur-sm flex items-center justify-center transition-all shadow-md active:scale-95 cursor-pointer"
+              className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-black/40 hover:bg-black/80 text-white backdrop-blur-sm hidden sm:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-md active:scale-95 cursor-pointer pointer-events-none group-hover:pointer-events-auto"
             >
               <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
@@ -99,13 +129,13 @@ export default function Hero() {
             </button>
           )}
 
-          {/* Right Arrow Button */}
+          {/* Right Arrow Button - Shows ONLY on Hover */}
           {slides.length > 1 && (
             <button
               type="button"
               aria-label="Next Slide"
               onClick={nextSlide}
-              className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-black/30 hover:bg-black/70 text-white backdrop-blur-sm flex items-center justify-center transition-all shadow-md active:scale-95 cursor-pointer"
+              className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-black/40 hover:bg-black/80 text-white backdrop-blur-sm hidden sm:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-md active:scale-95 cursor-pointer pointer-events-none group-hover:pointer-events-auto"
             >
               <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
