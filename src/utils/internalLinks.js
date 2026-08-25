@@ -19,6 +19,8 @@ const INTERNAL_ROUTES = {
   '/about-us': '/about-us',
   '/contact': '/contact',
   '/return-exchange': '/return-exchange',
+  '/privacy-policy': '/privacy-policy',
+  '/policies': '/return-exchange',
   '/new-arrivals': '/shop',
   '/monitors': '/category/monitors',
   '/lian-li': '/category/lian-li',
