@@ -1,0 +1,4 @@
+/robots.txt https://api.itsolutions.com.pk/robots.txt 200
+/sitemap.xml https://api.itsolutions.com.pk/sitemap.xml 200
+/products-feed.xml https://api.itsolutions.com.pk/products-feed.xml 200
+/* /index.html 200

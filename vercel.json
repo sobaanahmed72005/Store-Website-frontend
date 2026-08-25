@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/robots.txt", "destination": "https://api.itsolutions.com.pk/robots.txt" },
+    { "source": "/sitemap.xml", "destination": "https://api.itsolutions.com.pk/sitemap.xml" },
+    { "source": "/products-feed.xml", "destination": "https://api.itsolutions.com.pk/products-feed.xml" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
