@@ -144,6 +144,7 @@ export const ENDPOINTS = {
       BY_ID: (id) => `/admin/orders/${id}`,
       STATUS: (id) => `/admin/orders/${id}/status`,
       TRACKING: (id) => `/admin/orders/${id}/tracking`,
+      CITY: (id) => `/admin/orders/${id}/city`,
       BOOK_COURIER: (id) => `/admin/orders/${id}/book-courier`,
       INVOICE: (id) => `/admin/orders/${id}/invoice`,
     },
@@ -151,6 +152,7 @@ export const ENDPOINTS = {
     CUSTOMERS: {
       BASE: (qs = '') => `/admin/customers${qs}`,
       BY_ID: (id) => `/admin/customers/${id}`,
+      CITY: (id) => `/admin/customers/${id}/city`,
     },
 
     DISCOUNT_CODES: {

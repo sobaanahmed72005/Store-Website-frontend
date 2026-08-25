@@ -68,6 +68,37 @@ export default function AdminOrders() {
   const [downloadingInvoiceId, setDownloadingInvoiceId] = useState(null)
   const [bookingCourierId, setBookingCourierId] = useState(null)
   const [notice, setNotice] = useState('')
+  const [editingCityOrderId, setEditingCityOrderId] = useState(null)
+  const [orderCityDraft, setOrderCityDraft] = useState('')
+  const [savingOrderCity, setSavingOrderCity] = useState(false)
+
+  const handleStartEditOrderCity = (order) => {
+    setEditingCityOrderId(order.id)
+    setOrderCityDraft(order.shipping_city || '')
+    setError('')
+    setNotice('')
+  }
+
+  const handleSaveOrderCity = async (orderId) => {
+    if (!orderCityDraft.trim()) {
+      setError('City cannot be empty')
+      return
+    }
+    setSavingOrderCity(true)
+    setError('')
+    try {
+      await api.put(ENDPOINTS.ADMIN.ORDERS.CITY(orderId), { shipping_city: orderCityDraft.trim() }, { auth: true })
+      setOrders((prev) =>
+        prev.map((o) => (o.id === orderId ? { ...o, shipping_city: orderCityDraft.trim() } : o))
+      )
+      setEditingCityOrderId(null)
+      setNotice(`Order #${orderId} city updated to "${orderCityDraft.trim()}" (synced to customer & unshipped orders).`)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setSavingOrderCity(false)
+    }
+  }
 
   const applyOrdersPage = (data) => {
     setOrders(data.orders)
@@ -286,9 +317,47 @@ export default function AdminOrders() {
                   {expandedId === order.id && (
                     <tr className="border-t border-[#dedede] bg-cz-gold-light">
                       <td colSpan={6} className="px-4 py-4">
-                        <div className="text-[13px] text-[#4b4b4b] mb-2">
-                          Shipping: {order.shipping_name}, {order.shipping_address}
-                          {order.shipping_city ? `, ${order.shipping_city}` : ''} — {order.phone}
+                        <div className="text-[13px] text-[#4b4b4b] mb-2 flex items-center flex-wrap gap-2">
+                          <span>Shipping: {order.shipping_name}, {order.shipping_address} —</span>
+                          {editingCityOrderId === order.id ? (
+                            <span className="inline-flex items-center gap-1.5">
+                              <input
+                                type="text"
+                                value={orderCityDraft}
+                                onChange={(e) => setOrderCityDraft(e.target.value)}
+                                className="w-[120px] rounded border border-[#d1d5db] text-[13px] px-2 py-0.5 outline-none focus:border-cz-primary"
+                                placeholder="City"
+                                autoFocus
+                              />
+                              <button
+                                type="button"
+                                disabled={savingOrderCity}
+                                onClick={() => handleSaveOrderCity(order.id)}
+                                className="rounded bg-cz-primary text-white text-[12px] px-2 py-0.5 font-medium hover:bg-cz-primary-hover disabled:opacity-60"
+                              >
+                                {savingOrderCity ? '...' : 'Save'}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setEditingCityOrderId(null)}
+                                className="rounded border border-[#d1d5db] text-[12px] px-2 py-0.5 font-medium hover:bg-gray-100 text-[#4b4b4b]"
+                              >
+                                Cancel
+                              </button>
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5">
+                              <span className="font-semibold text-[#212121]">City: {order.shipping_city || 'Not set'}</span>
+                              <button
+                                type="button"
+                                onClick={() => handleStartEditOrderCity(order)}
+                                className="text-[12px] text-cz-primary hover:underline font-medium"
+                              >
+                                Edit City
+                              </button>
+                            </span>
+                          )}
+                          <span>— Phone: {order.phone}</span>
                         </div>
                         {order.payment_method && (
                           <div className="text-[13px] text-[#4b4b4b] mb-2">

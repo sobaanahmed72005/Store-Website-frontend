@@ -17,8 +17,11 @@ import { useSiteSettings } from '../store/siteSettingsStore'
 
 function ProfileSection() {
   const { user, updateSession } = useAuth()
-  const [name, setName] = useState(user.name)
-  const [email, setEmail] = useState(user.email)
+  const [name, setName] = useState(user?.name || '')
+  const [email, setEmail] = useState(user?.email || '')
+  const [phone, setPhone] = useState(user?.phone || user?.saved_phone || '')
+  const [address, setAddress] = useState(user?.saved_address || '')
+  const [city, setCity] = useState(user?.saved_city || '')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [saved, setSaved] = useState(false)
@@ -29,7 +32,11 @@ function ProfileSection() {
     setError('')
     setSaved(false)
     try {
-      const data = await api.put(ENDPOINTS.AUTH.ME, { name, email }, { auth: true })
+      const data = await api.put(
+        ENDPOINTS.AUTH.ME,
+        { name, email, phone, saved_phone: phone, saved_address: address, saved_city: city },
+        { auth: true }
+      )
       updateSession(data.user)
       setSaved(true)
     } catch (err) {
@@ -42,10 +49,14 @@ function ProfileSection() {
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-slate-100 p-5 sm:p-6 shadow-sm flex flex-col gap-4">
       <h3 className="text-[16px] font-bold text-slate-800 font-heading pb-2.5 border-b border-slate-100">
-        Profile Details
+        Profile & Shipping Details
       </h3>
       {error && <div className="text-[13px] text-rose-600 bg-rose-50 border border-rose-200 p-3 rounded-lg">{error}</div>}
-      {saved && <div className="text-[13px] text-emerald-700 bg-emerald-50 border border-emerald-200 p-3 rounded-lg font-semibold">✨ Profile updated successfully.</div>}
+      {saved && (
+        <div className="text-[13px] text-emerald-700 bg-emerald-50 border border-emerald-200 p-3 rounded-lg font-semibold">
+          ✨ Profile & shipping address updated successfully. Any unshipped orders have automatically been updated.
+        </div>
+      )}
       <div>
         <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">Full Name</label>
         <input
@@ -64,6 +75,38 @@ function ProfileSection() {
           required
           className="w-full rounded-xl border border-slate-200 bg-slate-50/50 text-[14px] text-slate-800 px-4 py-2.5 outline-none focus:border-cz-primary focus:bg-white transition-all"
         />
+      </div>
+      <div>
+        <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">Phone Number</label>
+        <input
+          type="tel"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          placeholder="03001234567"
+          className="w-full rounded-xl border border-slate-200 bg-slate-50/50 text-[14px] text-slate-800 px-4 py-2.5 outline-none focus:border-cz-primary focus:bg-white transition-all"
+        />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">Default Delivery Address</label>
+          <input
+            type="text"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            placeholder="House / Street address"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50/50 text-[14px] text-slate-800 px-4 py-2.5 outline-none focus:border-cz-primary focus:bg-white transition-all"
+          />
+        </div>
+        <div>
+          <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">City</label>
+          <input
+            type="text"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            placeholder="Karachi, Lahore, etc."
+            className="w-full rounded-xl border border-slate-200 bg-slate-50/50 text-[14px] text-slate-800 px-4 py-2.5 outline-none focus:border-cz-primary focus:bg-white transition-all"
+          />
+        </div>
       </div>
       <div>
         <button
