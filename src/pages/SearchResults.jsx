@@ -35,7 +35,7 @@ export default function SearchResults() {
       <Header />
       <CategoryMenu />
 
-      <div className="mx-auto px-5 py-5 flex-1 w-full">
+      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1">
         <section className="flex flex-col items-start mb-4">
           <h1 className="text-[24px] font-medium text-[#353535]">Search Results</h1>
           <SeoHeadingFiller h3="Matching products" h4="Result details" h5="No results guidance" h6="Related suggestions" />
@@ -65,11 +65,11 @@ export default function SearchResults() {
           </div>
         ) : (
           <>
-            <ProductGrid products={results} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 pb-10" />
+            <ProductGrid products={results} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 pb-10" />
             <Pagination page={page} totalPages={totalPages} onChange={setPage} />
           </>
         )}
-      </div>
+      </main>
 
       <Footer />
     </div>

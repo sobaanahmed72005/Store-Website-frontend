@@ -69,7 +69,7 @@ export default function GamingZoneSection() {
         }}
       />
 
-      <div className="max-w-7xl mx-auto px-5 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Header */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-10">
           <div>

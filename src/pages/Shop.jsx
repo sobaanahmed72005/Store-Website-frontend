@@ -122,7 +122,7 @@ export default function Shop() {
       <Header />
       <CategoryMenu />
 
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1">
+      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1">
         <section className="flex flex-col items-start mb-5">
           <h1 className="text-[24px] sm:text-[30px] font-bold text-[#0c4a6e] font-heading tracking-tight">
             {selectedBrands.size > 0 ? `${activeBrandTitle} Products` : 'Shop All Products'}

@@ -94,7 +94,7 @@ export default function CategoryIcons() {
   if (categories.length === 0) return null
 
   return (
-    <section className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
       <div className="relative group/section">
         {/* Navigation Arrows for desktop — ONLY show on section hover when overflowing */}
         {hasOverflow && canScrollLeft && (

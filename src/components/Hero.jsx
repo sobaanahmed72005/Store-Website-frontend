@@ -73,7 +73,7 @@ export default function Hero() {
   }
 
   return (
-    <section className="mx-auto px-5 py-5">
+    <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-5">
       <div className="w-full">
         {/* Full-width Hero Carousel with Hover-Only Arrows & Touch Swiping */}
         <div

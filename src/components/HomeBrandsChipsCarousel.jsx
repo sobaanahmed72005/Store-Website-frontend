@@ -46,7 +46,7 @@ export default function HomeBrandsChipsCarousel() {
   if (!storeBrands || storeBrands.length === 0) return null
 
   return (
-    <section className="mx-auto px-5 pt-4 pb-4">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-4">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-[20px] sm:text-[24px] font-bold text-[#0c4a6e] font-heading tracking-tight">
           Browse By Brand

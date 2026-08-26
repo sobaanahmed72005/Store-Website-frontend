@@ -37,7 +37,7 @@ function SectionHeading({ heading, seeAllHref }) {
 function ProductSection({ heading, seeAllHref, products, loading, onQuickView }) {
   if (!loading && products.length === 0) return null
   return (
-    <section className="mx-auto px-5 pt-[30px] pb-0 md:pb-[30px]">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-[30px] pb-0 md:pb-[30px]">
       <SectionHeading heading={heading} seeAllHref={seeAllHref} />
       <ProductGrid
         products={products}
@@ -46,7 +46,7 @@ function ProductSection({ heading, seeAllHref, products, loading, onQuickView })
         seeAllHref={seeAllHref}
         seeAllTitle={heading}
         onQuickView={onQuickView}
-        className="grid grid-cols-2 md:grid-cols-5 gap-6"
+        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"
       />
     </section>
   )
@@ -142,7 +142,7 @@ function HomeSeoContentSection() {
   }, [])
 
   return (
-    <section className="mx-auto px-5 py-6 sm:py-8 my-4">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 my-4">
       <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 sm:p-8">
         <h2 className="text-[22px] sm:text-[26px] font-bold text-[#0c4a6e] font-heading tracking-tight mb-3 w-full">
           {seoContent.title}
