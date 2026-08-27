@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useSiteSettings } from '../store/siteSettingsStore'
+import AnnouncementBar from './AnnouncementBar'
 
 const DEFAULT_MESSAGES = [
   'We operate only one official store.',
@@ -15,7 +16,9 @@ export default function Navbar() {
   const marqueeList = [...messages, ...messages]
 
   return (
-    <div className="bg-cz-topbar text-[var(--cz-topbar-text)] text-[12px] sm:text-[13px] py-1.5 border-b border-slate-700/20 overflow-hidden relative">
+    <>
+      <AnnouncementBar />
+      <div className="bg-cz-topbar text-[var(--cz-topbar-text)] text-[12px] sm:text-[13px] py-1.5 border-b border-slate-700/20 overflow-hidden relative">
       <style>{`
         @keyframes navbarMarquee {
           0% { transform: translateX(0%); }
@@ -53,5 +56,6 @@ export default function Navbar() {
         </Link>
       </div>
     </div>
+    </>
   )
 }

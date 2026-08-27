@@ -179,7 +179,6 @@ export default function Footer() {
 
   return (
     <footer className="mt-auto border-t border-slate-200">
-      <MarqueeBar messages={marqueeMessages} />
       <Newsletter />
 
       <div className="bg-white py-[45px] lg:py-14">
