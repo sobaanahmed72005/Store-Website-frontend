@@ -402,7 +402,7 @@ export default function Checkout() {
     setUploadingProof(true)
     setProofError('')
     try {
-      const url = await uploadImage(file)
+      const url = await uploadImage(file, '/orders/payment-proof')
       setPaymentProofImage(url)
     } catch (err) {
       setProofError(err.message || 'Failed to upload screenshot')
