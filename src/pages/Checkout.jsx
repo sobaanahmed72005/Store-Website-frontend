@@ -23,40 +23,67 @@ function Input({ ...props }) {
   )
 }
 
-const LEOPARDS_PAKISTAN_CITIES = [
-  'Abbottabad', 'Ahmedpur East', 'Ali Pur Chatta', 'Arifwala', 'Attock',
-  'Badin', 'Bahawalnagar', 'Bahawalpur', 'Bannu', 'Batten',
-  'Bhai Pheru', 'Bhakkar', 'Bhalwal', 'Bhimber', 'Burewala',
-  'Chakwal', 'Chaman', 'Charsadda', 'Chichawatni', 'Chiniot',
-  'Chishtian', 'Chitral', 'Chunian', 'Dadu', 'Daska',
-  'Dera Ghazi Khan', 'Dera Ismail Khan', 'Dina', 'Faisalabad',
-  'Fateh Jang', 'Gojra', 'Gujar Khan', 'Gujranwala', 'Gujrat',
-  'Hafizabad', 'Hangu', 'Haripur', 'Haroonabad', 'Hasan Abdal',
-  'Hasilpur', 'Haveli Lakha', 'Hub', 'Hyderabad', 'Islamabad',
-  'Jacobabad', 'Jalalpur Jattan', 'Jampur', 'Jang', 'Jhelum',
-  'Kabal', 'Kabirwala', 'Kahuta', 'Kallarkahar', 'Kamalia',
-  'Kamber Ali Khan', 'Kamoke', 'Kandhkot', 'Karachi', 'Karak',
-  'Kashmore', 'Kasur', 'Khairpur', 'Khanewal', 'Khanpur',
-  'Kharian', 'Khushab', 'Khuzdar', 'Kohat', 'Kot Addu',
-  'Kotli', 'Kotri', 'Lahore', 'Lalamusa', 'Larkana',
-  'Layyah', 'Liaquatpur', 'Lodhran', 'Mandi Bahauddin', 'Mansehra',
-  'Mardan', 'Mian Channu', 'Mianwali', 'Mingora (Swat)', 'Mirpur (AJK)',
-  'Mirpur Khas', 'Multan', 'Muridke', 'Murree', 'Muzaffarabad',
-  'Muzaffargarh', 'Nankana Sahib', 'Narowal', 'Nawabshah (Shaheed Benazirabad)', 'Nowshera',
-  'Okara', 'Pakpattan', 'Pattoki', 'Peshawar', 'Pishin',
-  'Quetta', 'Rahim Yar Khan', 'Raiwind', 'Rajanpur', 'Rawalpindi',
-  'Renala Khurd', 'Sadiqabad', 'Sahiwal', 'Sambrial', 'Samundri',
-  'Sargodha', 'Shahkot', 'Sheikhupura', 'Shikarpur', 'Shorkot',
-  'Sialkot', 'Sukkur', 'Swabi', 'Tando Adam', 'Tando Allahyar',
-  'Taxila', 'Toba Tek Singh', 'Turbat', 'Umerkot', 'Vehari',
-  'Wah Cantt', 'Wazirabad', 'Zhob', 'Ziarat',
+const PAKISTAN_PROVINCES = [
+  'Punjab',
+  'Sindh',
+  'Khyber Pakhtunkhwa',
+  'Balochistan',
+  'Islamabad Capital Territory',
+  'Azad Jammu & Kashmir',
+  'Gilgit-Baltistan',
 ]
 
-function SearchableCitySelect({ value, onChange }) {
+const CITIES_BY_PROVINCE = {
+  'Punjab': [
+    'Ahmedpur East', 'Ali Pur Chatta', 'Arifwala', 'Attock', 'Bahawalnagar', 'Bahawalpur',
+    'Batten', 'Bhai Pheru', 'Bhakkar', 'Bhalwal', 'Burewala', 'Chakwal', 'Chichawatni',
+    'Chiniot', 'Chishtian', 'Chunian', 'Daska', 'Dera Ghazi Khan', 'Dina', 'Faisalabad',
+    'Fateh Jang', 'Gojra', 'Gujar Khan', 'Gujranwala', 'Gujrat', 'Hafizabad', 'Haroonabad',
+    'Hasan Abdal', 'Hasilpur', 'Haveli Lakha', 'Jalalpur Jattan', 'Jampur', 'Jang', 'Jhelum',
+    'Kabirwala', 'Kahuta', 'Kallarkahar', 'Kamalia', 'Kamoke', 'Kasur', 'Khanewal', 'Khanpur',
+    'Kharian', 'Khushab', 'Kot Addu', 'Lahore', 'Lalamusa', 'Layyah', 'Liaquatpur', 'Lodhran',
+    'Mandi Bahauddin', 'Mian Channu', 'Mianwali', 'Multan', 'Muridke', 'Murree', 'Muzaffargarh',
+    'Nankana Sahib', 'Narowal', 'Okara', 'Pakpattan', 'Pattoki', 'Rahim Yar Khan', 'Raiwind',
+    'Rajanpur', 'Rawalpindi', 'Renala Khurd', 'Sadiqabad', 'Sahiwal', 'Sambrial', 'Samundri',
+    'Sargodha', 'Shahkot', 'Sheikhupura', 'Shorkot', 'Sialkot', 'Taxila', 'Toba Tek Singh',
+    'Vehari', 'Wah Cantt', 'Wazirabad',
+  ],
+  'Sindh': [
+    'Badin', 'Dadu', 'Hyderabad', 'Jacobabad', 'Kamber Ali Khan', 'Kandhkot', 'Karachi',
+    'Kashmore', 'Khairpur', 'Kotri', 'Larkana', 'Mirpur Khas', 'Nawabshah (Shaheed Benazirabad)',
+    'Shikarpur', 'Sukkur', 'Tando Adam', 'Tando Allahyar', 'Umerkot',
+  ],
+  'Khyber Pakhtunkhwa': [
+    'Abbottabad', 'Bannu', 'Charsadda', 'Chitral', 'Dera Ismail Khan', 'Hangu', 'Haripur',
+    'Kabal', 'Karak', 'Kohat', 'Mansehra', 'Mardan', 'Mingora (Swat)', 'Nowshera', 'Peshawar', 'Swabi',
+  ],
+  'Balochistan': [
+    'Chaman', 'Hub', 'Khuzdar', 'Pishin', 'Quetta', 'Turbat', 'Zhob', 'Ziarat',
+  ],
+  'Islamabad Capital Territory': [
+    'Islamabad',
+  ],
+  'Azad Jammu & Kashmir': [
+    'Bhimber', 'Kotli', 'Mirpur (AJK)', 'Muzaffarabad',
+  ],
+  'Gilgit-Baltistan': [
+    'Gilgit', 'Skardu',
+  ],
+}
+
+const LEOPARDS_PAKISTAN_CITIES = Array.from(
+  new Set(Object.values(CITIES_BY_PROVINCE).flat())
+).sort()
+
+function SearchableCitySelect({ value, onChange, province }) {
   const [isOpen, setIsOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [isOther, setIsOther] = useState(false)
   const [customCity, setCustomCity] = useState('')
+
+  const availableCities = (province && CITIES_BY_PROVINCE[province])
+    ? CITIES_BY_PROVINCE[province]
+    : LEOPARDS_PAKISTAN_CITIES
 
   useEffect(() => {
     if (!value) return
@@ -71,7 +98,7 @@ function SearchableCitySelect({ value, onChange }) {
     }
   }, [value])
 
-  const filteredCities = LEOPARDS_PAKISTAN_CITIES.filter((c) =>
+  const filteredCities = availableCities.filter((c) =>
     c.toLowerCase().includes(searchTerm.toLowerCase().trim())
   )
 
@@ -289,6 +316,7 @@ export default function Checkout() {
     address1: '',
     address2: '',
     city: '',
+    province: 'Punjab',
     postalCode: '',
     notes: '',
   })
@@ -393,6 +421,16 @@ export default function Checkout() {
 
   const handleChange = (e) => {
     const { name, value } = e.target
+    if (name === 'province') {
+      const citiesInNewProvince = CITIES_BY_PROVINCE[value] || LEOPARDS_PAKISTAN_CITIES
+      const currentCityValid = form.city && citiesInNewProvince.includes(form.city)
+      setForm((prev) => ({
+        ...prev,
+        province: value,
+        city: currentCityValid ? prev.city : '',
+      }))
+      return
+    }
     setForm((prev) => ({ ...prev, [name]: value }))
   }
 
@@ -443,7 +481,7 @@ export default function Checkout() {
     }
     setSubmitting(true)
     try {
-      const shippingAddress = [form.address1, form.address2].filter(Boolean).join(', ')
+      const shippingAddress = [form.address1, form.address2, form.province].filter(Boolean).join(', ')
       await api.post(
         ENDPOINTS.ORDERS.BASE,
         {
@@ -526,10 +564,33 @@ export default function Checkout() {
                   <Input name="address2" type="text" placeholder="Apartment, suite, unit, etc." value={form.address2} onChange={handleChange} />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  <Select value="Pakistan" />
-                  <Select value="Punjab" />
+                  <div>
+                    <label className="block text-[13px] font-semibold text-slate-700 mb-1">Country *</label>
+                    <div className="w-full flex items-center justify-between rounded-xl border border-slate-200 bg-slate-100/70 text-[14px] text-slate-700 px-4 py-2.5 font-medium cursor-not-allowed">
+                      <span>Pakistan</span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] font-semibold text-slate-700 mb-1">Province / State *</label>
+                    <div className="relative">
+                      <select
+                        name="province"
+                        value={form.province}
+                        onChange={handleChange}
+                        className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50/50 text-[14px] text-slate-800 px-4 py-2.5 pr-9 outline-none focus:border-cz-primary focus:bg-white transition-all cursor-pointer font-medium"
+                      >
+                        {PAKISTAN_PROVINCES.map((prov) => (
+                          <option key={prov} value={prov}>
+                            {prov}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDownIcon size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+                    </div>
+                  </div>
                 </div>
                 <SearchableCitySelect
+                  province={form.province}
                   value={form.city}
                   onChange={(cityVal) => setForm((prev) => ({ ...prev, city: cityVal }))}
                 />
