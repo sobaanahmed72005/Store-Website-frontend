@@ -22,6 +22,7 @@ const navItems = [
   { to: `${ADMIN_PATH}/brands`, label: 'Brands Orbit' },
   { to: `${ADMIN_PATH}/products`, label: 'Products' },
   { to: `${ADMIN_PATH}/bulk-sale`, label: 'Bulk Sale' },
+  { to: `${ADMIN_PATH}/bulk-price-update`, label: 'Bulk Price Update' },
   { to: `${ADMIN_PATH}/categories`, label: 'Categories' },
   { to: `${ADMIN_PATH}/orders`, label: 'Orders' },
   { to: `${ADMIN_PATH}/customers`, label: 'Customers' },

@@ -135,6 +135,8 @@ export const ENDPOINTS = {
       BY_ID: (id) => `/admin/products/${id}`,
       BRANDS: '/admin/products/brands',
       BULK_SALE: '/admin/products/bulk-sale',
+      BULK_PRICE_UPDATE_PREVIEW: '/admin/products/bulk-price-update/preview',
+      BULK_PRICE_UPDATE: '/admin/products/bulk-price-update',
       REVIEWS: (productId) => `/admin/products/${productId}/reviews`,
     },
 
