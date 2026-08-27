@@ -364,5 +364,10 @@ describe('api/client', () => {
       const { resolveImageUrl } = await import('./client')
       expect(resolveImageUrl('/uploads/x.png')).toBe('http://api.test/uploads/x.png')
     })
+
+    it('prefixes payment proof paths with the full API base including /api', async () => {
+      const { resolveImageUrl } = await import('./client')
+      expect(resolveImageUrl('/orders/payment-proof/123.jpg')).toBe('http://api.test/api/orders/payment-proof/123.jpg')
+    })
   })
 })

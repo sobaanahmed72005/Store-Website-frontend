@@ -178,6 +178,10 @@ export function resolveImageUrl(image) {
     }
     return image
   }
+  if (image.startsWith('/orders/payment-proof/')) {
+    const apiBase = BASE_URL.replace(/\/$/, '')
+    return `${apiBase}${image}`
+  }
   const origin = BASE_URL.replace(/\/api\/?$/, '')
   return `${origin}${image}`
 }
