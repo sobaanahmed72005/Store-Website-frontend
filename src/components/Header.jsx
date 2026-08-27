@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
 import Logo from './Logo'
 import SearchBar from './SearchBar'
+import Navbar from './Navbar'
 import { useNavItems } from '../hooks/useNavItems'
 import { useCategories } from '../store/categoryStore'
 import { categorySlugToPath } from '../utils/categoryPath'
@@ -440,8 +441,10 @@ export default function Header() {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
 
   return (
-    <div className="bg-cz-header text-[var(--cz-header-text)] py-2.5 sticky top-0 z-[100] shadow-md border-b border-cyan-900/30 backdrop-blur-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-[100] shadow-md">
+      <Navbar />
+      <div className="bg-cz-header text-[var(--cz-header-text)] py-2.5 border-b border-cyan-900/30 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Desktop & Tablet Header Layout */}
         <div className="hidden md:flex items-center justify-between gap-4 py-2">
           <div className="flex items-center gap-3 shrink-0">
@@ -562,6 +565,7 @@ export default function Header() {
           </div>
         )}
       </div>
+    </div>
 
       <NavDrawer open={navOpen} onClose={() => setNavOpen(false)} />
 
@@ -583,6 +587,6 @@ export default function Header() {
           removeFromWishlist(item.id)
         }}
       />
-    </div>
+    </header>
   )
 }

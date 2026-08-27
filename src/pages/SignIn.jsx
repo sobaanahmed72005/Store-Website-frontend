@@ -92,7 +92,6 @@ export default function SignIn() {
   if (challengeId) {
     return (
       <div className="min-h-screen bg-cz-page flex flex-col">
-        <Navbar />
         <Header />
         <CategoryMenu />
         <div className="flex-1 flex items-center justify-center py-[50px] px-5">
@@ -108,7 +107,6 @@ export default function SignIn() {
 
   return (
     <div className="min-h-screen bg-cz-page flex flex-col">
-      <Navbar />
       <Header />
       <CategoryMenu />
 

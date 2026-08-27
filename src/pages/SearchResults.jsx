@@ -31,7 +31,6 @@ export default function SearchResults() {
 
   return (
     <div className="min-h-screen bg-cz-page flex flex-col">
-      <Navbar />
       <Header />
       <CategoryMenu />
 

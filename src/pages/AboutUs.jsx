@@ -48,7 +48,6 @@ export default function AboutUs() {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans">
-      <Navbar />
       <Header />
       <CategoryMenu />
 

@@ -23,7 +23,6 @@ function CategoryNotFound({ slug }) {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans">
-      <Navbar />
       <Header />
       <CategoryMenu />
       <div className="flex-1 flex flex-col items-center justify-center text-center py-20 px-5">
@@ -163,7 +162,6 @@ export default function CategoryListing() {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans">
-      <Navbar />
       <Header />
       <CategoryMenu />
 

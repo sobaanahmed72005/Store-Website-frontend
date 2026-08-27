@@ -18,7 +18,6 @@ export default function NotFound() {
   })
   return (
     <div className="min-h-screen bg-cz-page flex flex-col">
-      <Navbar />
       <Header />
       <CategoryMenu />
       <div className="flex-1 flex flex-col items-center justify-center text-center py-20 px-5">

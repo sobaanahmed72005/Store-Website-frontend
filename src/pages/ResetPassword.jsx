@@ -48,7 +48,6 @@ export default function ResetPassword() {
 
   return (
     <div className="min-h-screen bg-cz-page flex flex-col">
-      <Navbar />
       <Header />
       <CategoryMenu />
 

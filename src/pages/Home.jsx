@@ -279,7 +279,6 @@ export default function Home() {
     <div className="min-h-screen bg-cz-page">
       <h1 className="sr-only">{siteName || 'IT Solutions'} — Laptops, Gaming Gear & PC Components in Pakistan</h1>
       <SeoHeadingFiller h3="Shop by category" h4="Popular categories" h5="Store highlights" h6="Quick links" />
-      <Navbar />
       <Header />
       <CategoryMenu />
       <Hero />
