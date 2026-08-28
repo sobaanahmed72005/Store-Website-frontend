@@ -14,6 +14,7 @@ const emptyForm = {
   default_weight_grams: 1000,
   origin_city: 'self',
   shipper_id: '',
+  shippers: [],
   has_api_key: false,
   has_api_password: false,
 }
@@ -28,6 +29,8 @@ export default function AdminCourier() {
   const [form, setForm] = useState(emptyForm)
   const [apiKeyInput, setApiKeyInput] = useState('')
   const [apiPasswordInput, setApiPasswordInput] = useState('')
+  const [newShipperId, setNewShipperId] = useState('')
+  const [newShipperName, setNewShipperName] = useState('')
   const [testing, setTesting] = useState(false)
   const [testResult, setTestResult] = useState(null)
 
@@ -40,6 +43,31 @@ export default function AdminCourier() {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
     setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
+  }
+
+  const handleAddShipper = () => {
+    if (!newShipperId.trim()) return
+    const id = newShipperId.trim()
+    const name = newShipperName.trim() || `Shipper ${id}`
+    const existing = form.shippers || []
+    if (existing.some((s) => s.id === id)) return
+    const updated = [...existing, { id, name }]
+    setForm((prev) => ({
+      ...prev,
+      shippers: updated,
+      shipper_id: prev.shipper_id || id,
+    }))
+    setNewShipperId('')
+    setNewShipperName('')
+  }
+
+  const handleRemoveShipper = (idToRemove) => {
+    const updated = (form.shippers || []).filter((s) => s.id !== idToRemove)
+    setForm((prev) => ({
+      ...prev,
+      shippers: updated,
+      shipper_id: prev.shipper_id === idToRemove ? (updated[0]?.id || '') : prev.shipper_id,
+    }))
   }
 
   const handleSubmit = (e) => {
@@ -164,15 +192,65 @@ export default function AdminCourier() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-[13px] text-[#4b4b4b] mb-1">Shipper ID (optional)</label>
-              <input
-                name="shipper_id"
-                value={form.shipper_id}
-                onChange={handleChange}
-                placeholder="Only needed for multi-shipper Leopards accounts"
-                className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2.5 outline-none focus:border-cz-primary"
-              />
+            <div className="border border-[#dedede] rounded-md p-4 bg-[#f9fafb]">
+              <label className="block text-[13px] font-medium text-[#212121] mb-1">Registered Shippers (Multi-Shipper Accounts)</label>
+              <p className="text-[12px] text-[#6b7280] mb-3">Add your Leopards Shipper IDs and location names. When booking an order, you will be able to select which shipper/location to book from.</p>
+
+              {(form.shippers || []).length > 0 && (
+                <div className="flex flex-col gap-2 mb-4">
+                  {form.shippers.map((shipper) => (
+                    <div key={shipper.id} className="flex items-center justify-between bg-white border border-[#d1d5db] rounded-md px-3 py-2 text-[13px]">
+                      <div>
+                        <span className="font-semibold text-[#212121]">{shipper.name}</span>
+                        <span className="ml-2 text-[#6b7280] font-mono">(ID: {shipper.id})</span>
+                        {form.shipper_id === shipper.id && (
+                          <span className="ml-2 bg-green-100 text-green-800 text-[11px] font-medium px-2 py-0.5 rounded">Default</span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {form.shipper_id !== shipper.id && (
+                          <button
+                            type="button"
+                            onClick={() => setForm((prev) => ({ ...prev, shipper_id: shipper.id }))}
+                            className="text-cz-primary text-[12px] hover:underline"
+                          >
+                            Set Default
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveShipper(shipper.id)}
+                          className="text-red-600 text-[12px] hover:underline"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  value={newShipperId}
+                  onChange={(e) => setNewShipperId(e.target.value)}
+                  placeholder="Shipper ID (e.g. 101)"
+                  className="rounded-md border border-[#d1d5db] text-[13px] px-3 py-2 outline-none focus:border-cz-primary w-full sm:w-1/3"
+                />
+                <input
+                  value={newShipperName}
+                  onChange={(e) => setNewShipperName(e.target.value)}
+                  placeholder="Location Name (e.g. Main Warehouse)"
+                  className="rounded-md border border-[#d1d5db] text-[13px] px-3 py-2 outline-none focus:border-cz-primary w-full sm:w-2/3"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddShipper}
+                  className="rounded-md bg-cz-primary hover:bg-cz-primary-hover text-white text-[13px] px-4 py-2 font-medium shrink-0"
+                >
+                  + Add Shipper
+                </button>
+              </div>
             </div>
 
             <div>

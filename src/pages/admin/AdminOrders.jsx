@@ -72,6 +72,10 @@ export default function AdminOrders() {
   const [orderCityDraft, setOrderCityDraft] = useState('')
   const [savingOrderCity, setSavingOrderCity] = useState(false)
 
+  const [courierSettings, setCourierSettings] = useState(null)
+  const [shipperModalOrder, setShipperModalOrder] = useState(null)
+  const [selectedShipperId, setSelectedShipperId] = useState('')
+
   const handleStartEditOrderCity = (order) => {
     setEditingCityOrderId(order.id)
     setOrderCityDraft(order.shipping_city || '')
@@ -107,7 +111,10 @@ export default function AdminOrders() {
     if (data.orders.length) markOrdersSeen(Math.max(...data.orders.map((o) => o.id)))
   }
 
-  const load = useCallback(() => api.get(ENDPOINTS.ADMIN.ORDERS.BASE(), { auth: true }).then(applyOrdersPage), [])
+  const load = useCallback(() => {
+    api.get(ENDPOINTS.ADMIN.COURIER_SETTINGS.BASE, { auth: true }).then(setCourierSettings).catch(() => {})
+    return api.get(ENDPOINTS.ADMIN.ORDERS.BASE(), { auth: true }).then(applyOrdersPage)
+  }, [])
   const { loading, error, setError } = useAdminForm(load)
 
   const goToPage = (nextPage) => api.get(ENDPOINTS.ADMIN.ORDERS.BASE(`?page=${nextPage}`), { auth: true }).then(applyOrdersPage)
@@ -137,12 +144,31 @@ export default function AdminOrders() {
     }
   }
 
-  const handleBookCourier = async (orderId) => {
+  const handleStartBookCourier = (order) => {
+    const shippers = courierSettings?.shippers || []
+    if (shippers.length > 1) {
+      setShipperModalOrder(order)
+      setSelectedShipperId(courierSettings.shipper_id || shippers[0]?.id || '')
+    } else {
+      handleBookCourier(order.id)
+    }
+  }
+
+  const handleConfirmBookCourier = () => {
+    if (!shipperModalOrder) return
+    const orderId = shipperModalOrder.id
+    const shipperId = selectedShipperId
+    setShipperModalOrder(null)
+    handleBookCourier(orderId, shipperId)
+  }
+
+  const handleBookCourier = async (orderId, shipperId) => {
     setBookingCourierId(orderId)
     setError('')
     setNotice('')
     try {
-      const result = await api.post(ENDPOINTS.ADMIN.ORDERS.BOOK_COURIER(orderId), {}, { auth: true })
+      const body = shipperId ? { shipper_id: shipperId } : {}
+      const result = await api.post(ENDPOINTS.ADMIN.ORDERS.BOOK_COURIER(orderId), body, { auth: true })
       setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, courier_name: result.courier_name, tracking_number: result.tracking_number } : o)))
       setTrackingDrafts((prev) => ({ ...prev, [orderId]: { courier_name: result.courier_name, tracking_number: result.tracking_number } }))
       setNotice(`Order #${orderId} booked with Leopards — tracking number ${result.tracking_number}.`)
@@ -438,7 +464,7 @@ export default function AdminOrders() {
                               <button
                                 type="button"
                                 disabled={bookingCourierId === order.id}
-                                onClick={() => handleBookCourier(order.id)}
+                                onClick={() => handleStartBookCourier(order)}
                                 className="rounded-md border border-cz-primary text-cz-primary hover:bg-cz-primary hover:text-white text-[13px] font-medium px-4 py-2 transition-colors disabled:opacity-60"
                               >
                                 {bookingCourierId === order.id ? 'Booking...' : 'Book with Leopards'}
@@ -464,6 +490,47 @@ export default function AdminOrders() {
         </table>
       </div>
       <Pagination page={page} totalPages={totalPages} onChange={goToPage} />
+
+      {shipperModalOrder && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-xl">
+            <h3 className="text-[16px] font-semibold text-[#212121] mb-2">Select Shipper Location</h3>
+            <p className="text-[13px] text-[#6b7280] mb-4">
+              Choose which shipper address / warehouse location to book Order #{shipperModalOrder.id} from:
+            </p>
+            <div className="mb-5">
+              <label className="block text-[12px] font-medium text-[#4b4b4b] mb-1">Shipper Account</label>
+              <select
+                value={selectedShipperId}
+                onChange={(e) => setSelectedShipperId(e.target.value)}
+                className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2.5 outline-none focus:border-cz-primary"
+              >
+                {(courierSettings?.shippers || []).map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name} (ID: {s.id})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShipperModalOrder(null)}
+                className="px-4 py-2 rounded-md border border-[#d1d5db] text-[13px] text-[#4b4b4b] hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmBookCourier}
+                className="px-4 py-2 rounded-md bg-cz-primary text-white text-[13px] font-medium hover:bg-cz-primary-hover"
+              >
+                Book with Leopards
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
