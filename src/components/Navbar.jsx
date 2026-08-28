@@ -18,7 +18,7 @@ export default function Navbar() {
   return (
     <>
       <AnnouncementBar />
-      <div className="bg-cz-topbar text-[var(--cz-topbar-text)] text-[12px] sm:text-[13px] py-1.5 border-b border-slate-700/20 overflow-hidden relative">
+      <div className="bg-cz-topbar text-[var(--cz-topbar-text)] text-[12px] sm:text-[13px] py-2 border-b border-slate-700/20 overflow-hidden relative">
       <style>{`
         @keyframes navbarMarquee {
           0% { transform: translateX(0%); }

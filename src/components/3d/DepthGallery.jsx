@@ -62,7 +62,7 @@ export default function DepthGallery({ items, activeIndex, onSelectIndex, title 
 
   return (
     <div className="relative w-full h-full flex items-center justify-center overflow-hidden bg-white rounded-xl select-none" style={{ perspective: 1200 }}>
-      <AnimatePresence initial={false} custom={direction} mode="popLayout">
+      <AnimatePresence initial={false} custom={direction} mode="sync">
         <motion.div
           key={page}
           custom={direction}
@@ -70,16 +70,16 @@ export default function DepthGallery({ items, activeIndex, onSelectIndex, title 
           initial="enter"
           animate="center"
           exit="exit"
-          className="w-full h-full flex items-center justify-center p-0"
+          className="absolute inset-0 flex items-center justify-center p-4 sm:p-6"
           style={{ transformStyle: 'preserve-3d', willChange: 'transform, opacity, filter' }}
         >
           {currentItem.type === 'video' ? (
-            <video src={currentItem.src || currentItem.image} controls className="w-full h-full object-contain bg-black" />
+            <video src={currentItem.src || currentItem.image} controls className="max-w-full max-h-full object-contain bg-black rounded-lg" />
           ) : (
             <img
               src={currentItem.src || currentItem.image}
               alt={currentItem.alt || title || `Product image ${page + 1}`}
-              className="w-full h-full object-contain"
+              className="max-w-full max-h-full object-contain drop-shadow-sm select-none"
               draggable={false}
             />
           )}

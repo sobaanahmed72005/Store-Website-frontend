@@ -419,7 +419,7 @@ export default function Product() {
       <Header />
       <CategoryMenu />
 
-      <div className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1">
+      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
           <Gallery items={galleryItems} title={product.name} product={product} />
 
