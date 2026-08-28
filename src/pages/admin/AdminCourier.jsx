@@ -158,7 +158,7 @@ export default function AdminCourier() {
       <SeoHeadingFiller h2="Courier settings" h3="Credentials" h4="Tracking" h5="Test connection" h6="Save action" />
       <p className="text-[13px] text-[#4b4b4b] mb-6">
         Once enabled, orders are auto-booked with Leopards the moment you mark them Shipped, and this store checks
-        Leopards for live status updates every 30 minutes — advancing order status automatically as your package moves.
+        Leopards for live status updates every 15 minutes — advancing order status automatically as your package moves.
       </p>
 
       {error && <div className="text-[14px] text-red-600 mb-4">{error}</div>}
