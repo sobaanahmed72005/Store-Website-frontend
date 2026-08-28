@@ -14,6 +14,7 @@ import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../store/siteSettingsStore'
 import { useProductList } from '../hooks/useProductList'
 import SeoHeadingFiller from '../components/SeoHeadingFiller'
+import QuickViewModal from '../components/modals/QuickViewModal'
 
 function CategoryNotFound({ slug }) {
   const label = slug
@@ -51,6 +52,7 @@ export default function CategoryListing() {
   const [selectedBrands, setSelectedBrands] = useState(() => new Set())
   const [selectedOptionIds, setSelectedOptionIds] = useState(() => new Set())
   const [view, setView] = useState('grid')
+  const [quickViewProduct, setQuickViewProduct] = useState(null)
 
   useEffect(() => {
     setSelectedBrands(new Set())
@@ -209,6 +211,7 @@ export default function CategoryListing() {
               <>
                 <ProductGrid
                   products={products}
+                  onQuickView={setQuickViewProduct}
                   className={view === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6' : 'grid grid-cols-1 gap-6'}
                 />
                 <Pagination page={page} totalPages={totalPages} onChange={setPage} />
@@ -266,6 +269,10 @@ export default function CategoryListing() {
       </main>
 
       <Footer />
+
+      {quickViewProduct && (
+        <QuickViewModal product={quickViewProduct} onClose={() => setQuickViewProduct(null)} />
+      )}
     </div>
   )
 }

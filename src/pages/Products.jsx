@@ -16,6 +16,7 @@ import { api } from '../api/client'
 import { ENDPOINTS } from '../api/endpoints'
 import { categorySlugToPath } from '../utils/categoryPath'
 import SeoHeadingFiller from '../components/SeoHeadingFiller'
+import QuickViewModal from '../components/modals/QuickViewModal'
 
 function ProductsSidebar({ brands, selectedBrands, onToggleBrand }) {
   const { navCategories } = useCategories()
@@ -80,6 +81,7 @@ export default function Products() {
   const [sortBy, setSortBy] = useState('newest')
   const [availableBrands, setAvailableBrands] = useState([])
   const [view, setView] = useState('grid')
+  const [quickViewProduct, setQuickViewProduct] = useState(null)
 
   const origin = window.location.origin
   const filterQuery = activeFilter ? `?${activeFilter}=1` : ''
@@ -176,7 +178,7 @@ export default function Products() {
               </div>
             ) : (
               <>
-                <ProductGrid products={products} className={view === 'grid' ? GRID_VIEW_CLASS : LIST_VIEW_CLASS} />
+                <ProductGrid products={products} onQuickView={setQuickViewProduct} className={view === 'grid' ? GRID_VIEW_CLASS : LIST_VIEW_CLASS} />
                 <Pagination page={page} totalPages={totalPages} onChange={setPage} />
               </>
             )}
@@ -191,6 +193,10 @@ export default function Products() {
       </main>
 
       <Footer />
+
+      {quickViewProduct && (
+        <QuickViewModal product={quickViewProduct} onClose={() => setQuickViewProduct(null)} />
+      )}
     </div>
   )
 }

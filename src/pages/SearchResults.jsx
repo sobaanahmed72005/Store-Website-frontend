@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Header from '../components/Header'
@@ -10,11 +11,13 @@ import { useProductList } from '../hooks/useProductList'
 import SeoHeadingFiller from '../components/SeoHeadingFiller'
 import { useSiteSettings } from '../store/siteSettingsStore'
 import { ENDPOINTS } from '../api/endpoints'
+import QuickViewModal from '../components/modals/QuickViewModal'
 
 export default function SearchResults() {
   const { siteName } = useSiteSettings()
   const [searchParams] = useSearchParams()
   const query = searchParams.get('q') || ''
+  const [quickViewProduct, setQuickViewProduct] = useState(null)
   // Search result pages are dynamic/user-driven and low-value for organic search —
   // noindex rather than robots.txt disallow, so the tag itself can still be crawled and honored.
   useSeo({
@@ -64,13 +67,17 @@ export default function SearchResults() {
           </div>
         ) : (
           <>
-            <ProductGrid products={results} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 pb-10" />
+            <ProductGrid products={results} onQuickView={setQuickViewProduct} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 pb-10" />
             <Pagination page={page} totalPages={totalPages} onChange={setPage} />
           </>
         )}
       </main>
 
       <Footer />
+
+      {quickViewProduct && (
+        <QuickViewModal product={quickViewProduct} onClose={() => setQuickViewProduct(null)} />
+      )}
     </div>
   )
 }

@@ -14,6 +14,7 @@ import { useProductList } from '../hooks/useProductList'
 import { api } from '../api/client'
 import { ENDPOINTS } from '../api/endpoints'
 import SeoHeadingFiller from '../components/SeoHeadingFiller'
+import QuickViewModal from '../components/modals/QuickViewModal'
 
 function ShopSidebar({ brands, selectedBrands, onToggleBrand }) {
   return (
@@ -67,6 +68,7 @@ export default function Shop() {
   const [sortBy, setSortBy] = useState('newest')
   const [availableBrands, setAvailableBrands] = useState([])
   const [view, setView] = useState('grid')
+  const [quickViewProduct, setQuickViewProduct] = useState(null)
 
   useEffect(() => {
     if (brandParam) {
@@ -179,7 +181,7 @@ export default function Shop() {
               </div>
             ) : (
               <>
-                <ProductGrid products={products} className={view === 'grid' ? GRID_VIEW_CLASS : LIST_VIEW_CLASS} />
+                <ProductGrid products={products} onQuickView={setQuickViewProduct} className={view === 'grid' ? GRID_VIEW_CLASS : LIST_VIEW_CLASS} />
                 <Pagination page={page} totalPages={totalPages} onChange={setPage} />
               </>
             )}
@@ -188,6 +190,10 @@ export default function Shop() {
       </main>
 
       <Footer />
+
+      {quickViewProduct && (
+        <QuickViewModal product={quickViewProduct} onClose={() => setQuickViewProduct(null)} />
+      )}
     </div>
   )
 }

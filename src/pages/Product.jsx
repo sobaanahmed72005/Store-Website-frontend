@@ -21,6 +21,7 @@ import SeoHeadingFiller from '../components/SeoHeadingFiller'
 import Product3DCanvas from '../components/3d/Product3DCanvas'
 import DepthGallery from '../components/3d/DepthGallery'
 import { has3DModel } from '../utils/has3DModel'
+import QuickViewModal from '../components/modals/QuickViewModal'
 
 function ProductNotFound() {
   return (
@@ -180,6 +181,7 @@ export default function Product() {
   const [reviewSubmitting, setReviewSubmitting] = useState(false)
   const [reviewSubmitted, setReviewSubmitted] = useState(false)
   const [reviewEligibility, setReviewEligibility] = useState(null)
+  const [quickViewProduct, setQuickViewProduct] = useState(null)
 
   useEffect(() => {
     setChecked(false)
@@ -730,12 +732,16 @@ export default function Product() {
         {relatedProducts.length > 0 && (
           <div className="mt-12">
             <h2 className="text-[20px] sm:text-[22px] font-bold text-[#0c4a6e] font-heading tracking-tight mb-5">Related Products</h2>
-            <ProductGrid products={relatedProducts} />
+            <ProductGrid products={relatedProducts} onQuickView={setQuickViewProduct} />
           </div>
         )}
       </div>
 
       <Footer />
+
+      {quickViewProduct && (
+        <QuickViewModal product={quickViewProduct} onClose={() => setQuickViewProduct(null)} />
+      )}
     </div>
   )
 }
