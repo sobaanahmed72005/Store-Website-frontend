@@ -31,6 +31,10 @@ export default function AdminCourier() {
   const [apiPasswordInput, setApiPasswordInput] = useState('')
   const [newShipperId, setNewShipperId] = useState('')
   const [newShipperName, setNewShipperName] = useState('')
+  const [newShipperCity, setNewShipperCity] = useState('')
+  const [newShipperPhone, setNewShipperPhone] = useState('')
+  const [newShipperAddress, setNewShipperAddress] = useState('')
+  const [newShipperReturnAddress, setNewShipperReturnAddress] = useState('')
   const [testing, setTesting] = useState(false)
   const [testResult, setTestResult] = useState(null)
 
@@ -49,16 +53,24 @@ export default function AdminCourier() {
     if (!newShipperId.trim()) return
     const id = newShipperId.trim()
     const name = newShipperName.trim() || `Shipper ${id}`
+    const origin_city = newShipperCity.trim()
+    const phone = newShipperPhone.trim()
+    const address = newShipperAddress.trim()
+    const return_address = newShipperReturnAddress.trim() || address
+
     const existing = form.shippers || []
     if (existing.some((s) => s.id === id)) return
-    const updated = [...existing, { id, name }]
+    const updated = [...existing, { id, name, origin_city, phone, address, return_address }]
     setForm((prev) => ({
       ...prev,
       shippers: updated,
-      shipper_id: prev.shipper_id || id,
     }))
     setNewShipperId('')
     setNewShipperName('')
+    setNewShipperCity('')
+    setNewShipperPhone('')
+    setNewShipperAddress('')
+    setNewShipperReturnAddress('')
   }
 
   const handleRemoveShipper = (idToRemove) => {
@@ -66,7 +78,7 @@ export default function AdminCourier() {
     setForm((prev) => ({
       ...prev,
       shippers: updated,
-      shipper_id: prev.shipper_id === idToRemove ? (updated[0]?.id || '') : prev.shipper_id,
+      shipper_id: prev.shipper_id === idToRemove ? '' : prev.shipper_id,
     }))
   }
 
@@ -193,63 +205,121 @@ export default function AdminCourier() {
             </div>
 
             <div className="border border-[#dedede] rounded-md p-4 bg-[#f9fafb]">
-              <label className="block text-[13px] font-medium text-[#212121] mb-1">Registered Shippers (Multi-Shipper Accounts)</label>
-              <p className="text-[12px] text-[#6b7280] mb-3">Add your Leopards Shipper IDs and location names. When booking an order, you will be able to select which shipper/location to book from.</p>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-[13px] font-medium text-[#212121]">Registered Shippers (Multi-Shipper Accounts)</label>
+                {form.shipper_id && (
+                  <button
+                    type="button"
+                    onClick={() => setForm((prev) => ({ ...prev, shipper_id: '' }))}
+                    className="text-[12px] text-amber-700 hover:underline"
+                  >
+                    Clear Default (Require Selection on Every Order)
+                  </button>
+                )}
+              </div>
+              <p className="text-[12px] text-[#6b7280] mb-3">Add your Leopards Shipper profiles with exact city, address, phone, and return details. If no default is selected, you will choose the shipper for each order.</p>
 
               {(form.shippers || []).length > 0 && (
-                <div className="flex flex-col gap-2 mb-4">
+                <div className="flex flex-col gap-3 mb-4">
                   {form.shippers.map((shipper) => (
-                    <div key={shipper.id} className="flex items-center justify-between bg-white border border-[#d1d5db] rounded-md px-3 py-2 text-[13px]">
-                      <div>
-                        <span className="font-semibold text-[#212121]">{shipper.name}</span>
-                        <span className="ml-2 text-[#6b7280] font-mono">(ID: {shipper.id})</span>
-                        {form.shipper_id === shipper.id && (
-                          <span className="ml-2 bg-green-100 text-green-800 text-[11px] font-medium px-2 py-0.5 rounded">Default</span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {form.shipper_id !== shipper.id && (
+                    <div key={shipper.id} className="bg-white border border-[#d1d5db] rounded-md p-3 text-[13px]">
+                      <div className="flex items-center justify-between border-b border-[#f0f0f0] pb-2 mb-2">
+                        <div>
+                          <span className="font-semibold text-[#212121]">{shipper.name}</span>
+                          <span className="ml-2 text-[#6b7280] font-mono">(ID: {shipper.id})</span>
+                          {form.shipper_id === shipper.id ? (
+                            <span className="ml-2 bg-green-100 text-green-800 text-[11px] font-medium px-2 py-0.5 rounded">Default Shipper</span>
+                          ) : (
+                            <span className="ml-2 text-[11px] text-[#888]">(No Default)</span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3">
+                          {form.shipper_id !== shipper.id ? (
+                            <button
+                              type="button"
+                              onClick={() => setForm((prev) => ({ ...prev, shipper_id: shipper.id }))}
+                              className="text-cz-primary text-[12px] font-medium hover:underline"
+                            >
+                              Make Default
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setForm((prev) => ({ ...prev, shipper_id: '' }))}
+                              className="text-gray-500 text-[12px] hover:underline"
+                            >
+                              Unset Default
+                            </button>
+                          )}
                           <button
                             type="button"
-                            onClick={() => setForm((prev) => ({ ...prev, shipper_id: shipper.id }))}
-                            className="text-cz-primary text-[12px] hover:underline"
+                            onClick={() => handleRemoveShipper(shipper.id)}
+                            className="text-red-600 text-[12px] hover:underline"
                           >
-                            Set Default
+                            Remove
                           </button>
-                        )}
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveShipper(shipper.id)}
-                          className="text-red-600 text-[12px] hover:underline"
-                        >
-                          Remove
-                        </button>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-[12px] text-[#4b4b4b]">
+                        <div><span className="text-[#888]">Origin City:</span> {shipper.origin_city || shipper.city || 'Self / Registered'}</div>
+                        <div><span className="text-[#888]">Phone:</span> {shipper.phone || 'N/A'}</div>
+                        <div className="sm:col-span-2"><span className="text-[#888]">Pickup Address:</span> {shipper.address || 'N/A'}</div>
+                        <div className="sm:col-span-2"><span className="text-[#888]">Return Address:</span> {shipper.return_address || shipper.address || 'N/A'}</div>
                       </div>
                     </div>
                   ))}
                 </div>
               )}
 
-              <div className="flex flex-col sm:flex-row gap-2">
-                <input
-                  value={newShipperId}
-                  onChange={(e) => setNewShipperId(e.target.value)}
-                  placeholder="Shipper ID (e.g. 101)"
-                  className="rounded-md border border-[#d1d5db] text-[13px] px-3 py-2 outline-none focus:border-cz-primary w-full sm:w-1/3"
-                />
-                <input
-                  value={newShipperName}
-                  onChange={(e) => setNewShipperName(e.target.value)}
-                  placeholder="Location Name (e.g. Main Warehouse)"
-                  className="rounded-md border border-[#d1d5db] text-[13px] px-3 py-2 outline-none focus:border-cz-primary w-full sm:w-2/3"
-                />
-                <button
-                  type="button"
-                  onClick={handleAddShipper}
-                  className="rounded-md bg-cz-primary hover:bg-cz-primary-hover text-white text-[13px] px-4 py-2 font-medium shrink-0"
-                >
-                  + Add Shipper
-                </button>
+              <div className="bg-white border border-[#d1d5db] rounded-md p-3 flex flex-col gap-2">
+                <div className="text-[13px] font-medium text-[#212121]">Add New Shipper Profile</div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <input
+                    value={newShipperId}
+                    onChange={(e) => setNewShipperId(e.target.value)}
+                    placeholder="Shipper AC / ID (e.g. 232478)"
+                    className="rounded-md border border-[#d1d5db] text-[13px] px-3 py-2 outline-none focus:border-cz-primary font-mono"
+                  />
+                  <input
+                    value={newShipperName}
+                    onChange={(e) => setNewShipperName(e.target.value)}
+                    placeholder="Shipper / Vendor Name (e.g. NABEEL IRSHAD)"
+                    className="rounded-md border border-[#d1d5db] text-[13px] px-3 py-2 outline-none focus:border-cz-primary"
+                  />
+                  <input
+                    value={newShipperCity}
+                    onChange={(e) => setNewShipperCity(e.target.value)}
+                    placeholder="Origin City (e.g. BUREWALA)"
+                    className="rounded-md border border-[#d1d5db] text-[13px] px-3 py-2 outline-none focus:border-cz-primary"
+                  />
+                  <input
+                    value={newShipperPhone}
+                    onChange={(e) => setNewShipperPhone(e.target.value)}
+                    placeholder="Contact Phone (e.g. 03006939443)"
+                    className="rounded-md border border-[#d1d5db] text-[13px] px-3 py-2 outline-none focus:border-cz-primary"
+                  />
+                  <input
+                    value={newShipperAddress}
+                    onChange={(e) => setNewShipperAddress(e.target.value)}
+                    placeholder="Shipper Address (e.g. OFFICE # 61, MULTAN ROAD, BUREWALA)"
+                    className="sm:col-span-2 rounded-md border border-[#d1d5db] text-[13px] px-3 py-2 outline-none focus:border-cz-primary"
+                  />
+                  <input
+                    value={newShipperReturnAddress}
+                    onChange={(e) => setNewShipperReturnAddress(e.target.value)}
+                    placeholder="Return Address (Optional, defaults to Shipper Address)"
+                    className="sm:col-span-2 rounded-md border border-[#d1d5db] text-[13px] px-3 py-2 outline-none focus:border-cz-primary"
+                  />
+                </div>
+                <div className="flex justify-end mt-1">
+                  <button
+                    type="button"
+                    onClick={handleAddShipper}
+                    className="rounded-md bg-cz-primary hover:bg-cz-primary-hover text-white text-[13px] px-4 py-2 font-medium"
+                  >
+                    + Save Shipper Profile
+                  </button>
+                </div>
               </div>
             </div>
 

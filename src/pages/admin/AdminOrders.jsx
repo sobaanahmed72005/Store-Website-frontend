@@ -146,9 +146,9 @@ export default function AdminOrders() {
 
   const handleStartBookCourier = (order) => {
     const shippers = courierSettings?.shippers || []
-    if (shippers.length > 1) {
+    if (shippers.length > 0) {
       setShipperModalOrder(order)
-      setSelectedShipperId(courierSettings.shipper_id || shippers[0]?.id || '')
+      setSelectedShipperId(courierSettings?.shipper_id || shippers[0]?.id || '')
     } else {
       handleBookCourier(order.id)
     }
@@ -507,7 +507,7 @@ export default function AdminOrders() {
               >
                 {(courierSettings?.shippers || []).map((s) => (
                   <option key={s.id} value={s.id}>
-                    {s.name} (ID: {s.id})
+                    {s.name} (ID: {s.id}) {s.origin_city || s.city ? `— Origin: ${s.origin_city || s.city}` : ''}
                   </option>
                 ))}
               </select>
