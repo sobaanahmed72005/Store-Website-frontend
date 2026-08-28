@@ -35,6 +35,8 @@ export default function AdminCourier() {
   const [newShipperPhone, setNewShipperPhone] = useState('')
   const [newShipperAddress, setNewShipperAddress] = useState('')
   const [newShipperReturnAddress, setNewShipperReturnAddress] = useState('')
+  const [editingShipperId, setEditingShipperId] = useState(null)
+  const [editDraft, setEditDraft] = useState(null)
   const [testing, setTesting] = useState(false)
   const [testResult, setTestResult] = useState(null)
 
@@ -71,6 +73,39 @@ export default function AdminCourier() {
     setNewShipperPhone('')
     setNewShipperAddress('')
     setNewShipperReturnAddress('')
+  }
+
+  const handleStartEditShipper = (shipper) => {
+    setEditingShipperId(shipper.id)
+    setEditDraft({ ...shipper })
+  }
+
+  const handleCancelEditShipper = () => {
+    setEditingShipperId(null)
+    setEditDraft(null)
+  }
+
+  const handleSaveEditShipper = () => {
+    if (!editDraft || !editDraft.id.trim()) return
+    const updated = (form.shippers || []).map((s) =>
+      s.id === editingShipperId
+        ? {
+            id: editDraft.id.trim(),
+            name: editDraft.name.trim() || `Shipper ${editDraft.id}`,
+            origin_city: (editDraft.origin_city || '').trim(),
+            phone: (editDraft.phone || '').trim(),
+            address: (editDraft.address || '').trim(),
+            return_address: (editDraft.return_address || '').trim(),
+          }
+        : s
+    )
+    setForm((prev) => ({
+      ...prev,
+      shippers: updated,
+      shipper_id: prev.shipper_id === editingShipperId ? editDraft.id.trim() : prev.shipper_id,
+    }))
+    setEditingShipperId(null)
+    setEditDraft(null)
   }
 
   const handleRemoveShipper = (idToRemove) => {
@@ -223,49 +258,132 @@ export default function AdminCourier() {
                 <div className="flex flex-col gap-3 mb-4">
                   {form.shippers.map((shipper) => (
                     <div key={shipper.id} className="bg-white border border-[#d1d5db] rounded-md p-3 text-[13px]">
-                      <div className="flex items-center justify-between border-b border-[#f0f0f0] pb-2 mb-2">
-                        <div>
-                          <span className="font-semibold text-[#212121]">{shipper.name}</span>
-                          <span className="ml-2 text-[#6b7280] font-mono">(ID: {shipper.id})</span>
-                          {form.shipper_id === shipper.id ? (
-                            <span className="ml-2 bg-green-100 text-green-800 text-[11px] font-medium px-2 py-0.5 rounded">Default Shipper</span>
-                          ) : (
-                            <span className="ml-2 text-[11px] text-[#888]">(No Default)</span>
-                          )}
+                      {editingShipperId === shipper.id ? (
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center justify-between border-b border-[#f0f0f0] pb-2">
+                            <span className="font-semibold text-[#212121]">Edit Shipper Profile</span>
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={handleSaveEditShipper}
+                                className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-[12px] font-medium"
+                              >
+                                Save Changes
+                              </button>
+                              <button
+                                type="button"
+                                onClick={handleCancelEditShipper}
+                                className="px-3 py-1 border border-[#d1d5db] hover:bg-gray-100 text-[#4b4b4b] rounded text-[12px]"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
+                            <div>
+                              <label className="block text-[11px] text-[#6b7280]">Shipper ID / AC</label>
+                              <input
+                                value={editDraft.id}
+                                onChange={(e) => setEditDraft((prev) => ({ ...prev, id: e.target.value }))}
+                                className="w-full rounded border border-[#d1d5db] text-[12px] px-2.5 py-1.5 font-mono"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[11px] text-[#6b7280]">Shipper / Vendor Name</label>
+                              <input
+                                value={editDraft.name}
+                                onChange={(e) => setEditDraft((prev) => ({ ...prev, name: e.target.value }))}
+                                className="w-full rounded border border-[#d1d5db] text-[12px] px-2.5 py-1.5"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[11px] text-[#6b7280]">Origin City</label>
+                              <input
+                                value={editDraft.origin_city || ''}
+                                onChange={(e) => setEditDraft((prev) => ({ ...prev, origin_city: e.target.value }))}
+                                className="w-full rounded border border-[#d1d5db] text-[12px] px-2.5 py-1.5"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[11px] text-[#6b7280]">Contact Phone</label>
+                              <input
+                                value={editDraft.phone || ''}
+                                onChange={(e) => setEditDraft((prev) => ({ ...prev, phone: e.target.value }))}
+                                className="w-full rounded border border-[#d1d5db] text-[12px] px-2.5 py-1.5"
+                              />
+                            </div>
+                            <div className="sm:col-span-2">
+                              <label className="block text-[11px] text-[#6b7280]">Pickup Address</label>
+                              <input
+                                value={editDraft.address || ''}
+                                onChange={(e) => setEditDraft((prev) => ({ ...prev, address: e.target.value }))}
+                                className="w-full rounded border border-[#d1d5db] text-[12px] px-2.5 py-1.5"
+                              />
+                            </div>
+                            <div className="sm:col-span-2">
+                              <label className="block text-[11px] text-[#6b7280]">Return Address</label>
+                              <input
+                                value={editDraft.return_address || ''}
+                                onChange={(e) => setEditDraft((prev) => ({ ...prev, return_address: e.target.value }))}
+                                className="w-full rounded border border-[#d1d5db] text-[12px] px-2.5 py-1.5"
+                              />
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                          {form.shipper_id !== shipper.id ? (
-                            <button
-                              type="button"
-                              onClick={() => setForm((prev) => ({ ...prev, shipper_id: shipper.id }))}
-                              className="text-cz-primary text-[12px] font-medium hover:underline"
-                            >
-                              Make Default
-                            </button>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => setForm((prev) => ({ ...prev, shipper_id: '' }))}
-                              className="text-gray-500 text-[12px] hover:underline"
-                            >
-                              Unset Default
-                            </button>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveShipper(shipper.id)}
-                            className="text-red-600 text-[12px] hover:underline"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-[12px] text-[#4b4b4b]">
-                        <div><span className="text-[#888]">Origin City:</span> {shipper.origin_city || shipper.city || 'Self / Registered'}</div>
-                        <div><span className="text-[#888]">Phone:</span> {shipper.phone || 'N/A'}</div>
-                        <div className="sm:col-span-2"><span className="text-[#888]">Pickup Address:</span> {shipper.address || 'N/A'}</div>
-                        <div className="sm:col-span-2"><span className="text-[#888]">Return Address:</span> {shipper.return_address || shipper.address || 'N/A'}</div>
-                      </div>
+                      ) : (
+                        <>
+                          <div className="flex items-center justify-between border-b border-[#f0f0f0] pb-2 mb-2">
+                            <div>
+                              <span className="font-semibold text-[#212121]">{shipper.name}</span>
+                              <span className="ml-2 text-[#6b7280] font-mono">(ID: {shipper.id})</span>
+                              {form.shipper_id === shipper.id ? (
+                                <span className="ml-2 bg-green-100 text-green-800 text-[11px] font-medium px-2 py-0.5 rounded">Default Shipper</span>
+                              ) : (
+                                <span className="ml-2 text-[11px] text-[#888]">(No Default)</span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-3">
+                              {form.shipper_id !== shipper.id ? (
+                                <button
+                                  type="button"
+                                  onClick={() => setForm((prev) => ({ ...prev, shipper_id: shipper.id }))}
+                                  className="text-cz-primary text-[12px] font-medium hover:underline"
+                                >
+                                  Make Default
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => setForm((prev) => ({ ...prev, shipper_id: '' }))}
+                                  className="text-gray-500 text-[12px] hover:underline"
+                                >
+                                  Unset Default
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => handleStartEditShipper(shipper)}
+                                className="text-blue-600 text-[12px] font-medium hover:underline"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveShipper(shipper.id)}
+                                className="text-red-600 text-[12px] hover:underline"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-[12px] text-[#4b4b4b]">
+                            <div><span className="text-[#888]">Origin City:</span> {shipper.origin_city || shipper.city || 'Self / Registered'}</div>
+                            <div><span className="text-[#888]">Phone:</span> {shipper.phone || 'N/A'}</div>
+                            <div className="sm:col-span-2"><span className="text-[#888]">Pickup Address:</span> {shipper.address || 'N/A'}</div>
+                            <div className="sm:col-span-2"><span className="text-[#888]">Return Address:</span> {shipper.return_address || shipper.address || 'N/A'}</div>
+                          </div>
+                        </>
+                      )}
                     </div>
                   ))}
                 </div>
