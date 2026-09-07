@@ -34,8 +34,9 @@ export default function SearchBar({ placeholder = 'What are you looking for?' })
         .get(ENDPOINTS.PRODUCTS.SUGGEST(query))
         .then((data) => {
           if (requestId.current !== thisRequest) return // stale response from an earlier keystroke
-          setSuggestions(data)
-          setOpen(true)
+          const list = Array.isArray(data) ? data : data?.suggestions || []
+          setSuggestions(list)
+          setOpen(list.length > 0)
           setActiveIndex(-1)
         })
         .catch((err) => console.error('Failed to load search suggestions:', err))
