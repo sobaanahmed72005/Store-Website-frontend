@@ -12,8 +12,10 @@ import {
   Clock,
   Check,
   Copy,
+  AlertTriangle,
+  XCircle,
+  ExternalLink,
 } from 'lucide-react'
-import Navbar from '../components/Navbar'
 import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
 import Footer from '../components/Footer'
@@ -31,45 +33,45 @@ const STAGES = [
     label: 'Confirmed',
     fullTitle: 'Order Verified & Approved',
     icon: FileCheck,
-    location: 'Lahore Processing Center',
-    timestamp: '10:30 AM',
+    location: 'Order Processing Center',
+    timestamp: 'Confirmed',
     desc: 'Payment authorized & order confirmed by merchant.',
   },
   {
-    id: 'processing',
+    id: 'packed',
     label: 'Packed',
     fullTitle: 'Inspected & Sealed',
     icon: PackageCheck,
-    location: 'Lahore Logistics Warehouse',
-    timestamp: '02:15 PM',
+    location: 'Logistics Warehouse',
+    timestamp: 'Packed',
     desc: 'Quality check passed. Package sealed with security tape.',
   },
   {
     id: 'dispatched',
     label: 'Dispatched',
-    fullTitle: 'Handed over to Express Courier',
+    fullTitle: 'Handed over to Leopards Courier',
     icon: Truck,
-    location: 'Leopards Express Terminal',
-    timestamp: '05:40 PM',
-    desc: 'Package dispatched under Courier Waybill LPD-9847120.',
+    location: 'Leopards Courier Terminal',
+    timestamp: 'Dispatched',
+    desc: 'Package dispatched under Leopards Courier Waybill.',
   },
   {
-    id: 'transit',
+    id: 'shipped',
     label: 'In Transit',
     fullTitle: 'Regional Expressway Transit',
     icon: MapPin,
-    location: 'Islamabad Sorting Hub',
-    timestamp: 'In Progress',
+    location: 'Sorting Hub',
+    timestamp: 'In Transit',
     desc: 'Package sorted and loaded onto express transit line.',
   },
   {
-    id: 'delivery',
+    id: 'out_for_delivery',
     label: 'Out for Delivery',
     fullTitle: 'Last-Mile Courier Delivery',
     icon: HomeIcon,
     location: 'Local Delivery Branch',
-    timestamp: 'Est. 11:00 AM',
-    desc: 'Rider assigned and en route for doorstep delivery.',
+    timestamp: 'Out for Delivery',
+    desc: 'Courier rider assigned and en route for doorstep delivery.',
   },
   {
     id: 'delivered',
@@ -82,32 +84,54 @@ const STAGES = [
   },
 ]
 
+const STATUS_LABEL = {
+  pending: 'Pending Confirmation',
+  confirmed: 'Confirmed',
+  packed: 'Packed',
+  shipped: 'Shipped / In Transit',
+  out_for_delivery: 'Out for Delivery',
+  delivered: 'Delivered',
+  cancelled: 'Cancelled',
+  returned: 'Returned',
+}
+
+const STATUS_COLOR = {
+  pending: 'bg-amber-50 text-amber-800 border-amber-200',
+  confirmed: 'bg-sky-50 text-sky-800 border-sky-200',
+  packed: 'bg-blue-50 text-blue-800 border-blue-200',
+  shipped: 'bg-indigo-50 text-indigo-800 border-indigo-200',
+  out_for_delivery: 'bg-purple-50 text-purple-800 border-purple-200',
+  delivered: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+  cancelled: 'bg-rose-50 text-rose-800 border-rose-200',
+  returned: 'bg-amber-100 text-amber-900 border-amber-300',
+}
+
 function getStageIndex(status) {
   if (status === 'delivered') return 5
-  if (status === 'delivery') return 4
-  if (status === 'transit') return 3
+  if (status === 'out_for_delivery' || status === 'delivery') return 4
+  if (status === 'shipped' || status === 'transit' || status === 'in_transit') return 3
   if (status === 'dispatched') return 2
-  if (status === 'processing') return 1
-  return 0
+  if (status === 'packed' || status === 'processing') return 1
+  return 0 // pending, confirmed
 }
 
 function formatEstDelivery(order) {
   if (order?.estimated_delivery) return order.estimated_delivery
   if (order?.estimated_delivery_date) return order.estimated_delivery_date
-  
+
   const created = order?.created_at ? new Date(order.created_at) : new Date()
   const estDate = new Date(created)
-  
+
   // Calculate 10 business days (skipping weekends)
   let count = 0
   while (count < 10) {
     estDate.setDate(estDate.getDate() + 1)
     const day = estDate.getDay()
-    if (day !== 0 && day !== 6) { // 0 = Sun, 6 = Sat
+    if (day !== 0 && day !== 6) {
       count++
     }
   }
-  
+
   return estDate.toLocaleDateString(undefined, {
     weekday: 'short',
     month: 'short',
@@ -116,14 +140,15 @@ function formatEstDelivery(order) {
 }
 
 function UltraOrderJourneyCanvas({ order }) {
-  const status = order?.status || 'dispatched'
+  const status = order?.status || 'confirmed'
   const trackingNumber = order?.tracking_number || `LPD-${order?.id || '9847120'}-PK`
   const estDeliveryText = formatEstDelivery(order)
   const activeIndex = getStageIndex(status)
 
-  // When order is in-progress towards a stage (e.g. 'transit'),
-  // van rides on the connecting segment line BEFORE that stage (midway between previous completed stage and upcoming stage)
-  const vanStep = activeIndex === 0 ? 0 : activeIndex === 5 ? 5 : activeIndex - 0.5
+  const isReturned = status === 'returned'
+  const isCancelled = status === 'cancelled'
+
+  const vanStep = isReturned ? 3 : isCancelled ? 0 : activeIndex
   const vanProgressPercent = (vanStep / (STAGES.length - 1)) * 100
 
   const trackContainerRef = useRef(null)
@@ -131,7 +156,6 @@ function UltraOrderJourneyCanvas({ order }) {
   // Auto-center the track scroll onto the active van location on mobile screens
   useEffect(() => {
     if (!trackContainerRef.current) return
-    // Only auto-scroll on mobile screens where scroll container is active
     if (window.innerWidth >= 640) return
 
     const timer = setTimeout(() => {
@@ -146,12 +170,6 @@ function UltraOrderJourneyCanvas({ order }) {
     return () => clearTimeout(timer)
   }, [order?.id, status, vanProgressPercent])
 
-  const scrollTrack = (direction) => {
-    if (!trackContainerRef.current) return
-    const amount = direction === 'left' ? -220 : 220
-    trackContainerRef.current.scrollBy({ left: amount, behavior: 'smooth' })
-  }
-
   return (
     <div className="w-full bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-6 shadow-md shadow-slate-200/50 mb-6 relative overflow-hidden">
       {/* Compact Header Info */}
@@ -162,27 +180,66 @@ function UltraOrderJourneyCanvas({ order }) {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/80">
-                TRACKING ORDER #{order?.id || '---'}
+              <span className={`w-2 h-2 rounded-full ${isReturned ? 'bg-amber-500 animate-ping' : isCancelled ? 'bg-rose-500' : 'bg-emerald-500 animate-pulse'}`} />
+              <span className={`text-[10px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-full border ${STATUS_COLOR[status] || STATUS_COLOR.confirmed}`}>
+                {STATUS_LABEL[status] || 'TRACKING ORDER'} #{order?.id || '---'}
               </span>
             </div>
             <h3 className="text-sm font-black text-slate-900 font-mono tracking-tight mt-0.5">
-              WAYBILL: {trackingNumber}
+              LEOPARDS WAYBILL: {trackingNumber}
             </h3>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200/80">
-          <Clock className="w-3.5 h-3.5 text-cyan-600 shrink-0" />
-          <div className="text-right">
-            <span className="text-[9px] uppercase font-bold text-slate-400 block leading-none">Est. Delivery</span>
-            <span className="text-[11px] font-black text-slate-800 leading-none">{estDeliveryText}</span>
+        <div className="flex items-center gap-3 flex-wrap">
+          {order?.tracking_url && (
+            <a
+              href={order.tracking_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-cyan-700 bg-cyan-50 hover:bg-cyan-100 border border-cyan-200/80 px-3 py-1.5 rounded-xl transition-all shadow-2xs"
+            >
+              <span>Track live on Leopards</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+          )}
+
+          <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200/80">
+            <Clock className="w-3.5 h-3.5 text-cyan-600 shrink-0" />
+            <div className="text-right">
+              <span className="text-[9px] uppercase font-bold text-slate-400 block leading-none">Est. Delivery</span>
+              <span className="text-[11px] font-black text-slate-800 leading-none">{estDeliveryText}</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Horizontal Scroll Track Wrapper (Mobile Swipable & Auto-Centered, Full-width Desktop) */}
+      {/* Special Status Alert Banners (Returned / Cancelled) */}
+      {isReturned && (
+        <div className="mt-4 bg-amber-50 border border-amber-300 rounded-xl p-3.5 flex items-center gap-3 text-amber-900 text-xs sm:text-sm font-semibold">
+          <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
+          <div>
+            <div className="font-bold text-amber-950">Package Marked for Return</div>
+            <div className="text-amber-800 text-xs mt-0.5">
+              Leopards Courier reported this shipment as returned or returning to merchant. Please contact support if you need assistance.
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isCancelled && (
+        <div className="mt-4 bg-rose-50 border border-rose-300 rounded-xl p-3.5 flex items-center gap-3 text-rose-900 text-xs sm:text-sm font-semibold">
+          <XCircle className="w-5 h-5 text-rose-600 shrink-0" />
+          <div>
+            <div className="font-bold text-rose-950">Order Cancelled</div>
+            <div className="text-rose-800 text-xs mt-0.5">
+              This order has been cancelled and package delivery is inactive.
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Horizontal Scroll Track Wrapper */}
       <div className="relative pt-4 pb-2 group">
         <div
           ref={trackContainerRef}
@@ -190,41 +247,55 @@ function UltraOrderJourneyCanvas({ order }) {
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           <div className="relative my-2 px-4 sm:px-6 min-w-[620px] sm:min-w-0">
-            {/* Background Grey Rail (Runs from center of 1st node to center of last node) */}
+            {/* Background Grey Rail */}
             <div className="absolute top-5 left-6 right-6 h-1.5 bg-slate-100 rounded-full" />
 
-            {/* Animated Gradient Fluid Progress Line (Fills behind the traveling van) */}
+            {/* Animated Gradient Fluid Progress Line */}
             <motion.div
               initial={{ width: '0%' }}
               animate={{ width: `calc((100% - 48px) * ${vanProgressPercent / 100})` }}
               transition={{ type: 'spring', stiffness: 90, damping: 18 }}
-              className="absolute top-5 left-6 h-1.5 bg-gradient-to-r from-cyan-500 via-blue-500 to-emerald-500 rounded-full shadow-xs"
+              className={`absolute top-5 left-6 h-1.5 rounded-full shadow-xs ${
+                isReturned
+                  ? 'bg-amber-500'
+                  : isCancelled
+                  ? 'bg-rose-400'
+                  : 'bg-gradient-to-r from-cyan-500 via-blue-500 to-emerald-500'
+              }`}
             />
 
             {/* Traveling Courier Van */}
-            <motion.div
-              initial={{ left: '24px' }}
-              animate={{ left: `calc(24px + (100% - 48px) * ${vanProgressPercent / 100})` }}
-              transition={{ type: 'spring', stiffness: 90, damping: 18 }}
-              style={{ transform: 'translateX(-50%)' }}
-              className="absolute -top-2.5 z-30 pointer-events-none flex flex-col items-center"
-            >
-              <div className="w-10 h-10 rounded-xl bg-slate-900 border-2 border-cyan-400 flex items-center justify-center text-cyan-300 shadow-md relative">
-                <Truck className="w-5 h-5 animate-bounce" />
-                <span className="absolute -bottom-1 w-5 h-1 bg-cyan-400 rounded-full blur-2xs animate-pulse" />
-              </div>
-            </motion.div>
+            {!isCancelled && (
+              <motion.div
+                initial={{ left: '24px' }}
+                animate={{ left: `calc(24px + (100% - 48px) * ${vanProgressPercent / 100})` }}
+                transition={{ type: 'spring', stiffness: 90, damping: 18 }}
+                style={{ transform: 'translateX(-50%)' }}
+                className="absolute -top-2.5 z-30 pointer-events-none flex flex-col items-center"
+              >
+                <div className={`w-10 h-10 rounded-xl border-2 flex items-center justify-center shadow-md relative ${
+                  isReturned
+                    ? 'bg-amber-900 border-amber-400 text-amber-200'
+                    : 'bg-slate-900 border-cyan-400 text-cyan-300'
+                }`}>
+                  <Truck className="w-5 h-5 animate-bounce" />
+                  <span className={`absolute -bottom-1 w-5 h-1 rounded-full blur-2xs animate-pulse ${
+                    isReturned ? 'bg-amber-400' : 'bg-cyan-400'
+                  }`} />
+                </div>
+              </motion.div>
+            )}
 
             {/* Step Nodes */}
             <div className="relative z-10 flex items-center justify-between">
               {STAGES.map((stage, idx) => {
                 const Icon = stage.icon
-                const isCompleted = idx < activeIndex
-                const isTarget = idx === activeIndex
+                const isCompleted = !isCancelled && !isReturned && idx < activeIndex
+                const isTarget = !isCancelled && !isReturned && idx === activeIndex
 
                 return (
                   <div key={stage.id} className="flex flex-col items-center group relative">
-                    {/* Compact Node Box */}
+                    {/* Node Box */}
                     <motion.div
                       animate={{
                         scale: isTarget ? 1.15 : isCompleted ? 1.02 : 1,
@@ -236,6 +307,8 @@ function UltraOrderJourneyCanvas({ order }) {
                           ? 'bg-cyan-50 border-cyan-400 text-cyan-600 shadow-md ring-3 ring-cyan-200/80'
                           : isCompleted
                           ? 'bg-emerald-600 border-emerald-400 text-white shadow-2xs'
+                          : isReturned && idx === 3
+                          ? 'bg-amber-500 border-amber-600 text-white shadow-md'
                           : 'bg-white border-slate-200 text-slate-400'
                       }`}
                     >
@@ -245,7 +318,7 @@ function UltraOrderJourneyCanvas({ order }) {
                         <Icon className="w-4 h-4" />
                       )}
 
-                      {/* Pulsing ring on upcoming target node */}
+                      {/* Pulsing ring on target node */}
                       {isTarget && (
                         <span className="absolute inset-0 rounded-xl border-2 border-cyan-400 animate-ping opacity-60" />
                       )}
@@ -258,6 +331,8 @@ function UltraOrderJourneyCanvas({ order }) {
                           ? 'text-cyan-700 font-black'
                           : isCompleted
                           ? 'text-emerald-700 font-extrabold'
+                          : isReturned && idx === 3
+                          ? 'text-amber-800 font-bold'
                           : 'text-slate-400'
                       }`}
                     >
@@ -300,41 +375,29 @@ export default function OrderTracking() {
       .get(ENDPOINTS.ORDERS.BY_USER(user.id, '?limit=100'), { auth: true })
       .then((data) => {
         const raw = Array.isArray(data?.orders) ? data.orders : []
-        const activeOnly = raw.map((o) => ({ ...o, status: 'delivery' }))
-          .filter((o) => o.status !== 'cancelled')
-        
-        // Demo order fallback with 'delivery' status so In Transit is completed
-        if (activeOnly.length === 0) {
-          activeOnly.push({
-            id: 22,
-            status: 'delivery',
-            tracking_number: 'LPD-22-PK',
-            created_at: new Date().toISOString(),
-            total_amount: 6999,
-            items: [
-              { id: 1, product_name: 'EZVIZ H6c 2MP Smart Indoor Camera', quantity: 1, price: 6999 },
-            ],
-          })
-        }
+        setOrders(raw)
 
-        setOrders(activeOnly)
-        if (activeOnly.length > 0) {
-          setSelectedOrderId(activeOnly[0].id)
+        if (raw.length > 0) {
+          setSelectedOrderId(raw[0].id)
         }
       })
       .catch(() => {
-        setOrders([
+        // Fallback demo order for preview
+        const fallback = [
           {
             id: 22,
-            status: 'delivery',
+            status: 'shipped',
             tracking_number: 'LPD-22-PK',
+            courier_name: 'Leopards Courier',
+            tracking_url: 'https://pk.leopardscourier.com/tracking#LPD-22-PK',
             created_at: new Date().toISOString(),
             total_amount: 6999,
             items: [
               { id: 1, product_name: 'EZVIZ H6c 2MP Smart Indoor Camera', quantity: 1, price: 6999 },
             ],
           },
-        ])
+        ]
+        setOrders(fallback)
         setSelectedOrderId(22)
       })
       .finally(() => setLoading(false))
@@ -366,7 +429,7 @@ export default function OrderTracking() {
             Order Tracking
           </h1>
           <p className="text-[13px] sm:text-[14px] font-medium text-black mt-1">
-            Track your active, in-progress orders and live courier package delivery status.
+            Track your active orders and live Leopards Courier package delivery status.
           </p>
           <SeoHeadingFiller h4="Active orders" h5="Courier tracking" h6="Support options" />
         </div>
@@ -381,17 +444,17 @@ export default function OrderTracking() {
               <Truck className="w-6 h-6" />
             </div>
             <h3 className="text-[16px] font-bold text-slate-800 font-heading mb-1">
-              No Active Orders In Progress
+              No Orders Found
             </h3>
             <p className="text-[13px] text-slate-500 max-w-md mb-6 leading-relaxed">
-              You currently have no active orders in progress. Past order history is available in your account.
+              You currently have no order history.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3">
               <Link
                 to="/account"
                 className="rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-[13px] font-semibold px-5 py-2.5 transition-all"
               >
-                View Full Account & History
+                View Account Details
               </Link>
               <Link
                 to="/shop"
@@ -406,19 +469,23 @@ export default function OrderTracking() {
             {/* Live Master Tracking Canvas FIXED AT TOP */}
             {selectedOrder && <UltraOrderJourneyCanvas order={selectedOrder} />}
 
-            {/* List of Active Orders BELOW */}
+            {/* List of Orders BELOW */}
             <div className="mb-4">
               <h2 className="text-lg sm:text-xl font-bold text-[#0c4a6e] font-heading tracking-tight">
-                Orders ({orders.length})
+                Your Orders ({orders.length})
               </h2>
               <p className="text-xs sm:text-sm font-medium text-black mt-0.5">
-                Click any order below to track live
+                Click any order below to view visual timeline and live courier status
               </p>
             </div>
 
             <div className="flex flex-col gap-4 mb-8">
               {orders.map((order) => {
                 const isSelected = order.id === selectedOrder?.id
+                const status = order.status || 'confirmed'
+                const colorClass = STATUS_COLOR[status] || STATUS_COLOR.confirmed
+                const labelText = STATUS_LABEL[status] || status
+
                 return (
                   <div
                     key={order.id}
@@ -447,8 +514,8 @@ export default function OrderTracking() {
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <span className="rounded-lg border text-[12px] font-semibold px-3.5 py-1 bg-emerald-50 text-emerald-800 border-emerald-200 capitalize">
-                          {order.status || 'In Progress'}
+                        <span className={`rounded-lg border text-[12px] font-bold px-3 py-1 capitalize ${colorClass}`}>
+                          {labelText}
                         </span>
                       </div>
                     </div>
@@ -468,7 +535,7 @@ export default function OrderTracking() {
 
                     {/* Tracking Details Footer */}
                     <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-[13px] flex-wrap gap-2">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-slate-500">Waybill:</span>
                         <span className="font-mono font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
                           {order.tracking_number || `LPD-${order.id}-PK`}
@@ -485,6 +552,17 @@ export default function OrderTracking() {
                             <Copy className="w-3.5 h-3.5" />
                             <span>{copiedId === order.id ? 'Copied ✓' : 'Copy'}</span>
                           </button>
+                        )}
+                        {order.tracking_url && (
+                          <a
+                            href={order.tracking_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-cyan-600 hover:text-cyan-800 ml-1"
+                          >
+                            <span>Live Leopards Tracking ↗</span>
+                          </a>
                         )}
                       </div>
 
