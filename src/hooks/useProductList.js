@@ -16,6 +16,8 @@ export function useProductList(queryPath) {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [total, setTotal] = useState(0)
+  const [suggestedQuery, setSuggestedQuery] = useState(null)
+  const [isCorrected, setIsCorrected] = useState(false)
   const prevQueryPath = useRef(queryPath)
 
   useEffect(() => {
@@ -26,6 +28,8 @@ export function useProductList(queryPath) {
       setProducts([])
       setTotalPages(1)
       setTotal(0)
+      setSuggestedQuery(null)
+      setIsCorrected(false)
       setLoading(false)
       if (page !== 1) setPage(1)
       return
@@ -45,13 +49,17 @@ export function useProductList(queryPath) {
         setProducts(data.products)
         setTotalPages(data.totalPages)
         setTotal(data.total)
+        setSuggestedQuery(data.suggestedQuery || null)
+        setIsCorrected(!!data.isCorrected)
       })
       .catch((err) => {
         setError(err.message)
         setProducts([])
+        setSuggestedQuery(null)
+        setIsCorrected(false)
       })
       .finally(() => setLoading(false))
   }, [queryPath, page])
 
-  return { products, loading, error, page, setPage, totalPages, total }
+  return { products, loading, error, page, setPage, totalPages, total, suggestedQuery, isCorrected }
 }
