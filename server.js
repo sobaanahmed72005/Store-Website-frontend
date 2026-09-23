@@ -39,8 +39,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// robots.txt/sitemap.xml are generated per-tenant by the backend from the live product/category catalog
-for (const routePath of ['/robots.txt', '/sitemap.xml']) {
+// robots.txt/sitemap.xml/products-feed.xml/llms.txt are generated per-tenant by the backend
+for (const routePath of ['/robots.txt', '/sitemap.xml', '/products-feed.xml', '/llms.txt']) {
   app.get(routePath, async (req, res) => {
     try {
       const target = BACKEND_INTERNAL_URL ? `${BACKEND_INTERNAL_URL}${routePath}` : `${BACKEND_ORIGIN}${routePath}`;
