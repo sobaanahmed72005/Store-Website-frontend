@@ -67,12 +67,17 @@ export function useSeo({
     if (googleSiteVerification) {
       upsertMeta('name', 'google-site-verification', googleSiteVerification)
     }
+    const finalImage = image || `${window.location.origin}/og-image.jpg`
     upsertMeta('property', 'og:title', title)
     upsertMeta('property', 'og:description', description)
     upsertMeta('property', 'og:type', 'website')
     upsertMeta('property', 'og:url', canonical)
-    upsertMeta('property', 'og:image', image)
-    upsertMeta('name', 'twitter:card', image ? 'summary_large_image' : 'summary')
+    upsertMeta('property', 'og:image', finalImage)
+    upsertMeta('property', 'og:image:width', '1200')
+    upsertMeta('property', 'og:image:height', '630')
+    upsertMeta('property', 'og:image:type', 'image/jpeg')
+    upsertMeta('name', 'twitter:card', 'summary_large_image')
+    upsertMeta('name', 'twitter:image', finalImage)
     upsertMeta('name', 'robots', noindex ? 'noindex, follow' : 'index, follow')
     upsertLink('canonical', canonical)
     upsertJsonLd(jsonLd)
