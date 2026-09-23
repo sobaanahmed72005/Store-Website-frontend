@@ -99,6 +99,9 @@ export default function Hero() {
                   alt={slide.title || `Banner ${i + 1}`}
                   width={1200}
                   height={500}
+                  fetchPriority={i === 0 ? 'high' : 'auto'}
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  decoding="async"
                   className="w-full h-full object-cover"
                 />
                 {slide.cta && (

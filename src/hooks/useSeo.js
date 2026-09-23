@@ -57,12 +57,16 @@ export function useSeo({
   jsonLd,
   keywords,
   publisher,
+  googleSiteVerification,
 } = {}) {
   useEffect(() => {
     if (title) document.title = title
     upsertMeta('name', 'description', description)
     upsertMeta('name', 'keywords', keywords)
     upsertMeta('name', 'publisher', publisher)
+    if (googleSiteVerification) {
+      upsertMeta('name', 'google-site-verification', googleSiteVerification)
+    }
     upsertMeta('property', 'og:title', title)
     upsertMeta('property', 'og:description', description)
     upsertMeta('property', 'og:type', 'website')
@@ -73,5 +77,5 @@ export function useSeo({
     upsertLink('canonical', canonical)
     upsertJsonLd(jsonLd)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [title, description, canonical, image, noindex, keywords, publisher, JSON.stringify(jsonLd)])
+  }, [title, description, canonical, image, noindex, keywords, publisher, googleSiteVerification, JSON.stringify(jsonLd)])
 }
