@@ -244,7 +244,7 @@ export default function CategoryListing() {
               </h2>
               <div className="text-[14px] text-slate-600 leading-relaxed space-y-3">
                 <p>
-                  Welcome to IT Solutions Pakistan&apos;s official store for <strong>{dbCategory.name}</strong>. We bring you 100% genuine products with official brand warranty, competitive market prices, and fast nationwide delivery across Pakistan, including Lahore, Karachi, Islamabad, Rawalpindi, Multan, and Peshawar.
+                  Welcome to IT Solutions Pakistan&apos;s official store for <strong>{dbCategory.name}</strong>. We bring you 100% genuine products with official brand warranty, competitive market prices, free shipping on your first order, and fast nationwide delivery across Pakistan, including Lahore, Karachi, Islamabad, Rawalpindi, Multan, and Peshawar.
                 </p>
                 <p>
                   Whether you are upgrading your home setup or equipping your enterprise office, explore our curated range of {dbCategory.name.toLowerCase()} designed for durability and high performance. All orders are backed by Cash on Delivery (COD) and dedicated technical support.
