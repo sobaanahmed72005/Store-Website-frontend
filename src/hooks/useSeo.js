@@ -64,8 +64,9 @@ export function useSeo({
     upsertMeta('name', 'description', description)
     upsertMeta('name', 'keywords', keywords)
     upsertMeta('name', 'publisher', publisher)
-    if (googleSiteVerification) {
-      upsertMeta('name', 'google-site-verification', googleSiteVerification)
+    const gVerification = googleSiteVerification || import.meta.env.VITE_GOOGLE_SITE_VERIFICATION
+    if (gVerification) {
+      upsertMeta('name', 'google-site-verification', gVerification)
     }
     const finalImage = image || `${window.location.origin}/og-image.jpg`
     upsertMeta('property', 'og:title', title)
