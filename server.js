@@ -13,25 +13,21 @@ const BACKEND_ORIGIN = new URL(process.env.VITE_API_URL || 'http://localhost:500
 
 // Railway private-network address for the backend (see Railway dashboard: frontend service's
 // BACKEND_INTERNAL_URL var, referencing the backend service's RAILWAY_PRIVATE_DOMAIN + PORT).
-// Reaching the backend this way instead of through its public itsolutions.com.pk URL skips
-// Cloudflare's edge entirely for this internal call — fetching the public URL made the request
-// bounce through Cloudflare twice (once here, once for the outer client response), and Cloudflare's
-// AI Crawl Control feature injected its managed robots.txt block on each pass, duplicating it.
 const BACKEND_INTERNAL_URL = process.env.BACKEND_INTERNAL_URL || null;
 
 // Only meaningful together with BACKEND_INTERNAL_URL: requireCloudflare (backend's
 // middleware/cloudflare.js) rejects any production request without this header, since it's how
-// the backend normally proves a request actually came through Cloudflare. A private-network
-// request never touches Cloudflare, so this has to be attached by hand instead. Referenced from
-// the backend service's own CLOUDFLARE_SHARED_SECRET var (not copy-pasted) so it can't drift out
-// of sync if that value is ever rotated.
+// the backend normally proves a request actually came through Cloudflare.
 const CLOUDFLARE_SHARED_SECRET = process.env.CLOUDFLARE_SHARED_SECRET || null;
+
+// User-Agent pattern for search engines, social media previews, and AI crawlers
+const BOT_USER_AGENT_REGEX =
+  /Googlebot|Google-InspectionTool|AdsBot-Google|bingbot|Yahoo! Slurp|DuckDuckBot|Baiduspider|YandexBot|Applebot|facebookexternalhit|Twitterbot|LinkedInBot|Slackbot|WhatsApp|TelegramBot|Discordbot|GPTBot|ChatGPT-User|PerplexityBot|ClaudeBot|Google-Extended|anthropic-ai|ia_archiver|archive\.org_bot/i;
 
 const app = express();
 app.disable('x-powered-by');
 
-// Carried over from the old public/serve.json (used by the `serve` package this replaces) so
-// removing that package doesn't silently drop these headers.
+// Carried over from public headers
 app.use((req, res, next) => {
   res.setHeader('X-Robots-Tag', 'index, follow');
   res.setHeader('X-Frame-Options', 'DENY');
@@ -43,9 +39,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// robots.txt/sitemap.xml are generated per-tenant by the backend from the live product/category
-// catalog (see backend's controllers/seoController.js) — proxied here rather than duplicated as
-// static files in this build so they can't drift out of sync with the catalog.
+// robots.txt/sitemap.xml are generated per-tenant by the backend from the live product/category catalog
 for (const routePath of ['/robots.txt', '/sitemap.xml']) {
   app.get(routePath, async (req, res) => {
     try {
@@ -64,10 +58,66 @@ for (const routePath of ['/robots.txt', '/sitemap.xml']) {
   });
 }
 
+// Bot Detection & Dynamic Rendering Middleware
+app.use(async (req, res, next) => {
+  if (req.method !== 'GET') return next();
+
+  const userAgent = req.headers['user-agent'] || '';
+  if (!BOT_USER_AGENT_REGEX.test(userAgent)) {
+    return next();
+  }
+
+  const path = req.path;
+  const isPrerenderable =
+    path === '/' ||
+    path === '/shop' ||
+    path.startsWith('/product/') ||
+    path.startsWith('/category/') ||
+    ['/about-us', '/contact', '/return-exchange', '/privacy-policy'].includes(path);
+
+  if (!isPrerenderable) {
+    return next();
+  }
+
+  try {
+    const encodedPath = encodeURIComponent(req.originalUrl || path);
+    const target = BACKEND_INTERNAL_URL
+      ? `${BACKEND_INTERNAL_URL}/prerender?path=${encodedPath}`
+      : `${BACKEND_ORIGIN}/prerender?path=${encodedPath}`;
+
+    const headers = {};
+    if (BACKEND_INTERNAL_URL && CLOUDFLARE_SHARED_SECRET) {
+      headers['X-Origin-Shared-Secret'] = CLOUDFLARE_SHARED_SECRET;
+    }
+    if (req.headers.host) {
+      headers['Host'] = req.headers.host;
+    }
+    if (req.headers['x-forwarded-host']) {
+      headers['X-Forwarded-Host'] = req.headers['x-forwarded-host'];
+    }
+    if (req.headers['x-store-slug']) {
+      headers['X-Store-Slug'] = req.headers['x-store-slug'];
+    }
+
+    const upstream = await fetch(target, { headers });
+
+    if (upstream.status === 200) {
+      const html = await upstream.text();
+      res.status(200);
+      res.type('text/html; charset=utf-8');
+      return res.send(html);
+    }
+
+    next();
+  } catch (err) {
+    console.error('Prerender proxy error:', err.message);
+    next();
+  }
+});
+
 app.use(express.static(DIST_DIR));
 
-// SPA fallback: any route not matched above (or on disk) is a client-side route. Express 5's
-// router (path-to-regexp v8) requires wildcards to be named — bare '*' throws at startup.
+// SPA fallback: any route not matched above (or on disk) is a client-side route.
 app.get('/*splat', (req, res) => {
   res.sendFile(path.join(DIST_DIR, 'index.html'));
 });
