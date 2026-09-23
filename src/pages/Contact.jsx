@@ -17,10 +17,43 @@ export default function Contact() {
 
   useSeo({
     title: `Contact Us — Customer Support & Store Location | ${siteName || 'IT Solutions'} Pakistan`,
-    description: `Contact ${siteName || 'IT Solutions'} customer support. Get help with laptop sales, CCTV camera quotes, order tracking, and store address in Lahore, Pakistan. Phone/WhatsApp: ${sitePhone || '+92 300 1234567'}.`,
+    description: `Contact ${siteName || 'IT Solutions'} customer support. Get help with laptop sales, CCTV camera quotes, order tracking, and store address in Lahore, Pakistan. Phone/WhatsApp: ${sitePhone || '+92 300 4265499'}.`,
     canonical: `${window.location.origin}/contact`,
     keywords: `contact ${siteName || 'IT Solutions'}, IT Solutions phone number, computer store Lahore location, customer support Pakistan`,
     publisher: siteName || 'IT Solutions Trade & Service Pvt. Ltd.',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'ContactPage',
+      mainEntity: {
+        '@type': 'LocalBusiness',
+        name: 'IT Solutions Trade & Service Pvt. Ltd.',
+        telephone: '+92 300 4265499',
+        email: 'itsolutions543@gmail.com',
+        priceRange: 'PKR',
+        address: {
+          '@type': 'PostalAddress',
+          streetAddress: 'Office # 19, 2nd Floor, Fazal Trade Center, Near Hafeez Center, Gulberg III',
+          addressLocality: 'Lahore',
+          addressRegion: 'Punjab',
+          postalCode: '54660',
+          addressCountry: 'PK',
+        },
+        geo: {
+          '@type': 'GeoCoordinates',
+          latitude: 31.5126,
+          longitude: 74.3436,
+        },
+        openingHoursSpecification: [
+          {
+            '@type': 'OpeningHoursSpecification',
+            dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+            opens: '10:00',
+            closes: '20:00',
+          },
+        ],
+        hasMap: 'https://maps.google.com/?q=Fazal+Trade+Center+Hafeez+Center+Gulberg+Lahore',
+      },
+    },
   })
 
   const handleChange = (e) => {
@@ -161,6 +194,72 @@ export default function Contact() {
               </button>
             </form>
           )}
+        </div>
+
+        {/* Store Location & Map Info Card */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
+          <div className="bg-white rounded-xl border border-slate-100 p-6 shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="text-[13px] font-semibold text-[#0c4a6e] font-heading tracking-wider uppercase mb-1">
+                Physical Store Location
+              </div>
+              <h3 className="text-[18px] font-bold text-slate-800 font-heading mb-3">
+                IT Solutions Lahore
+              </h3>
+              <p className="text-[14px] text-slate-600 leading-relaxed mb-4">
+                Office # 19, 2nd Floor, Fazal Trade Center, Near Hafeez Center, Gulberg III, Lahore, Punjab 54660, Pakistan
+              </p>
+              <div className="space-y-1.5 text-[13px] text-slate-600 mb-4">
+                <p><strong>Phone / WhatsApp:</strong> +92 300 4265499</p>
+                <p><strong>Support Email:</strong> itsolutions543@gmail.com</p>
+                <p><strong>Working Hours:</strong> Monday – Saturday (10:00 AM – 8:00 PM PKT)</p>
+              </div>
+            </div>
+
+            {/* Interactive Embedded Google Map */}
+            <div className="w-full h-[200px] rounded-xl overflow-hidden border border-slate-200 shadow-inner mb-4 relative bg-slate-100 mt-4">
+              <iframe
+                title="IT Solutions Store Location Map"
+                src="https://maps.google.com/maps?q=Fazal+Trade+Center+Hafeez+Center+Gulberg+III+Lahore&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen=""
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="w-full h-full"
+              />
+            </div>
+
+            <a
+              href="https://maps.google.com/?q=Fazal+Trade+Center+Hafeez+Center+Gulberg+Lahore"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0c4a6e] hover:bg-[#083b58] text-white text-[13px] font-semibold px-5 py-2.5 shadow transition-all self-start"
+            >
+              📍 Open Directions in Google Maps
+            </a>
+          </div>
+
+          <div className="bg-white rounded-xl border border-slate-100 p-6 shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="text-[13px] font-semibold text-emerald-700 font-heading tracking-wider uppercase mb-1">
+                Nationwide Delivery & COD
+              </div>
+              <h3 className="text-[18px] font-bold text-slate-800 font-heading mb-3">
+                Serving All Cities Across Pakistan
+              </h3>
+              <p className="text-[14px] text-slate-600 leading-relaxed mb-4">
+                We provide fast Cash on Delivery (COD) and courier dispatch to Lahore, Karachi, Islamabad, Rawalpindi, Faisalabad, Multan, Peshawar, Quetta, and 200+ cities nationwide.
+              </p>
+              <ul className="text-[13px] text-slate-600 space-y-2.5 list-disc list-inside bg-slate-50 p-4 rounded-xl border border-slate-100">
+                <li><strong>Official Brand Warranty:</strong> 100% Original products</li>
+                <li><strong>Free Shipping:</strong> On your first order nationwide</li>
+                <li><strong>7-Day Return Guarantee:</strong> Hassle-free return & exchange</li>
+                <li><strong>Dedicated Technical Support:</strong> Direct WhatsApp & phone assistance</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </main>
 

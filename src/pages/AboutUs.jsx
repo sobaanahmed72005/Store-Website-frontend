@@ -44,6 +44,28 @@ export default function AboutUs() {
     canonical: `${window.location.origin}/about-us`,
     keywords: `about ${siteName || 'IT Solutions'}, computer store Pakistan, laptop shop Lahore, IT hardware supplier Pakistan`,
     publisher: siteName || 'IT Solutions Trade & Service Pvt. Ltd.',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'IT Solutions Trade & Service Pvt. Ltd.',
+      url: window.location.origin,
+      logo: `${window.location.origin}/favicon.svg`,
+      contactPoint: {
+        '@type': 'ContactPoint',
+        telephone: '+92 300 4265499',
+        contactType: 'customer service',
+        areaServed: 'PK',
+        availableLanguage: ['en', 'ur'],
+      },
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'Office # 19, 2nd Floor, Fazal Trade Center, Near Hafeez Center, Gulberg III',
+        addressLocality: 'Lahore',
+        addressRegion: 'Punjab',
+        postalCode: '54660',
+        addressCountry: 'PK',
+      },
+    },
   })
 
   return (
