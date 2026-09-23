@@ -140,7 +140,9 @@ export default function CategoryListing() {
         ? `Shop ${dbCategory.name} at ${siteName || 'IT Solutions'} — competitive prices and fast delivery.`
         : undefined,
     canonical: dbCategory ? canonical : undefined,
-    keywords: dbCategory ? `${dbCategory.name.toLowerCase()}, laptops Pakistan, buy online, computer store Pakistan` : undefined,
+    keywords: dbCategory
+      ? `${dbCategory.name.toLowerCase()}, buy ${dbCategory.name.toLowerCase()} in pakistan, ${dbCategory.name.toLowerCase()} price pakistan, online computer store pakistan`
+      : undefined,
     publisher: dbCategory ? siteName || 'IT Solutions' : undefined,
     noindex: !dbCategory,
     jsonLd: dbCategory
