@@ -43,10 +43,15 @@ app.use((req, res, next) => {
 for (const routePath of ['/robots.txt', '/sitemap.xml', '/products-feed.xml', '/llms.txt']) {
   app.get(routePath, async (req, res) => {
     try {
-      const target = BACKEND_INTERNAL_URL ? `${BACKEND_INTERNAL_URL}${routePath}` : `${BACKEND_ORIGIN}${routePath}`;
+      const baseUrl = BACKEND_INTERNAL_URL || BACKEND_ORIGIN;
+      const cleanBaseUrl = baseUrl.replace(/\/api\/?$/, '');
+      const target = `${cleanBaseUrl}${routePath}`;
       const headers = BACKEND_INTERNAL_URL && CLOUDFLARE_SHARED_SECRET
         ? { 'X-Origin-Shared-Secret': CLOUDFLARE_SHARED_SECRET }
         : {};
+      if (req.headers.host) {
+        headers['Host'] = req.headers.host;
+      }
       const upstream = await fetch(target, { headers });
       const body = Buffer.from(await upstream.arrayBuffer());
       res.status(upstream.status);
