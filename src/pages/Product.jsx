@@ -385,7 +385,32 @@ export default function Product() {
               },
             },
             ...(reviewStats.count > 0
-              ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: reviewStats.average, reviewCount: reviewStats.count } }
+              ? {
+                  aggregateRating: {
+                    '@type': 'AggregateRating',
+                    ratingValue: reviewStats.average,
+                    reviewCount: reviewStats.count,
+                  },
+                  ...(reviews && reviews.length > 0
+                    ? {
+                        review: reviews.slice(0, 10).map((r) => ({
+                          '@type': 'Review',
+                          author: {
+                            '@type': 'Person',
+                            name: r.author_name || 'Verified Buyer',
+                          },
+                          datePublished: r.created_at ? new Date(r.created_at).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10),
+                          reviewRating: {
+                            '@type': 'Rating',
+                            ratingValue: Number(r.rating) || 5,
+                            bestRating: 5,
+                            worstRating: 1,
+                          },
+                          ...(r.comment ? { reviewBody: r.comment } : {}),
+                        })),
+                      }
+                    : {}),
+                }
               : {}),
           },
           {
