@@ -421,7 +421,30 @@ export default function Product() {
       <Header />
       <CategoryMenu />
 
-      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1">
+      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex-1">
+        {/* Visible Breadcrumbs for SEO & User Navigation */}
+        <nav aria-label="Breadcrumb" className="mb-4 text-[13px] text-slate-500 font-medium">
+          <ol className="flex items-center flex-wrap gap-1.5">
+            <li>
+              <Link to="/" className="hover:text-[#0c4a6e] transition-colors">Home</Link>
+            </li>
+            {product.category_slug && (
+              <>
+                <li className="text-slate-400">/</li>
+                <li>
+                  <Link to={`/category/${product.category_slug}`} className="hover:text-[#0c4a6e] transition-colors">
+                    {product.category_name}
+                  </Link>
+                </li>
+              </>
+            )}
+            <li className="text-slate-400">/</li>
+            <li className="text-slate-800 font-semibold truncate max-w-[280px] sm:max-w-none" aria-current="page">
+              {product.name}
+            </li>
+          </ol>
+        </nav>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
           <Gallery items={galleryItems} title={product.name} product={product} />
 

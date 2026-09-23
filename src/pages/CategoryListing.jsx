@@ -169,7 +169,24 @@ export default function CategoryListing() {
       <Header />
       <CategoryMenu />
 
-      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1">
+      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex-1">
+        {/* Visible Breadcrumbs for SEO & User Navigation */}
+        <nav aria-label="Breadcrumb" className="mb-4 text-[13px] text-slate-500 font-medium">
+          <ol className="flex items-center flex-wrap gap-1.5">
+            <li>
+              <Link to="/" className="hover:text-[#0c4a6e] transition-colors">Home</Link>
+            </li>
+            <li className="text-slate-400">/</li>
+            <li>
+              <Link to="/shop" className="hover:text-[#0c4a6e] transition-colors">Shop</Link>
+            </li>
+            <li className="text-slate-400">/</li>
+            <li className="text-slate-800 font-semibold truncate" aria-current="page">
+              {dbCategory.name}
+            </li>
+          </ol>
+        </nav>
+
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Content section */}
           <div className="order-2 flex-1 min-w-0">
