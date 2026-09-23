@@ -236,6 +236,21 @@ export default function CategoryListing() {
                 <Pagination page={page} totalPages={totalPages} onChange={setPage} />
               </>
             )}
+
+            {/* Category SEO Content Section */}
+            <section className="mt-10 p-6 sm:p-8 bg-white rounded-xl border border-slate-200/80 shadow-sm">
+              <h2 className="text-[18px] sm:text-[20px] font-bold text-[#0c4a6e] font-heading mb-3">
+                Buy {dbCategory.name} Online in Pakistan — IT Solutions
+              </h2>
+              <div className="text-[14px] text-slate-600 leading-relaxed space-y-3">
+                <p>
+                  Welcome to IT Solutions Pakistan&apos;s official store for <strong>{dbCategory.name}</strong>. We bring you 100% genuine products with official brand warranty, competitive market prices, and fast nationwide delivery across Pakistan, including Lahore, Karachi, Islamabad, Rawalpindi, Multan, and Peshawar.
+                </p>
+                <p>
+                  Whether you are upgrading your home setup or equipping your enterprise office, explore our curated range of {dbCategory.name.toLowerCase()} designed for durability and high performance. All orders are backed by Cash on Delivery (COD) and dedicated technical support.
+                </p>
+              </div>
+            </section>
           </div>
 
           {/* Filter Sidebar */}

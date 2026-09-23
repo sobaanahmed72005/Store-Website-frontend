@@ -341,7 +341,48 @@ export default function Product() {
               url: canonical,
               priceCurrency: 'PKR',
               price: parsePkr(getEffectivePrice(product).price),
+              priceValidUntil: '2027-12-31',
+              itemCondition: 'https://schema.org/NewCondition',
               availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+              seller: {
+                '@type': 'Organization',
+                name: 'IT Solutions Trade & Service Pvt. Ltd.',
+              },
+              shippingDetails: {
+                '@type': 'OfferShippingDetails',
+                shippingRate: {
+                  '@type': 'MonetaryAmount',
+                  value: '0',
+                  currency: 'PKR',
+                },
+                shippingDestination: {
+                  '@type': 'DefinedRegion',
+                  addressCountry: 'PK',
+                },
+                deliveryTime: {
+                  '@type': 'ShippingDeliveryTime',
+                  handlingTime: {
+                    '@type': 'QuantitativeValue',
+                    minValue: 1,
+                    maxValue: 2,
+                    unitCode: 'DAY',
+                  },
+                  transitTime: {
+                    '@type': 'QuantitativeValue',
+                    minValue: 2,
+                    maxValue: 4,
+                    unitCode: 'DAY',
+                  },
+                },
+              },
+              hasMerchantReturnPolicy: {
+                '@type': 'MerchantReturnPolicy',
+                applicableCountry: 'PK',
+                returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+                merchantReturnDays: 7,
+                returnMethod: 'https://schema.org/ReturnByMail',
+                returnFees: 'https://schema.org/FreeReturn',
+              },
             },
             ...(reviewStats.count > 0
               ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: reviewStats.average, reviewCount: reviewStats.count } }
