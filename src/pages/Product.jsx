@@ -348,33 +348,62 @@ export default function Product() {
                 '@type': 'Organization',
                 name: 'IT Solutions Trade & Service Pvt. Ltd.',
               },
-              shippingDetails: {
-                '@type': 'OfferShippingDetails',
-                shippingRate: {
-                  '@type': 'MonetaryAmount',
-                  value: '0',
-                  currency: 'PKR',
-                },
-                shippingDestination: {
-                  '@type': 'DefinedRegion',
-                  addressCountry: 'PK',
-                },
-                deliveryTime: {
-                  '@type': 'ShippingDeliveryTime',
-                  handlingTime: {
-                    '@type': 'QuantitativeValue',
-                    minValue: 1,
-                    maxValue: 2,
-                    unitCode: 'DAY',
+              shippingDetails: [
+                {
+                  '@type': 'OfferShippingDetails',
+                  shippingRate: {
+                    '@type': 'MonetaryAmount',
+                    value: '0',
+                    currency: 'PKR',
                   },
-                  transitTime: {
-                    '@type': 'QuantitativeValue',
-                    minValue: 2,
-                    maxValue: 4,
-                    unitCode: 'DAY',
+                  shippingDestination: {
+                    '@type': 'DefinedRegion',
+                    addressCountry: 'PK',
+                  },
+                  deliveryTime: {
+                    '@type': 'ShippingDeliveryTime',
+                    handlingTime: {
+                      '@type': 'QuantitativeValue',
+                      minValue: 1,
+                      maxValue: 2,
+                      unitCode: 'DAY',
+                    },
+                    transitTime: {
+                      '@type': 'QuantitativeValue',
+                      minValue: 1,
+                      maxValue: 5,
+                      unitCode: 'DAY',
+                    },
                   },
                 },
-              },
+                {
+                  '@type': 'OfferShippingDetails',
+                  shippingRate: {
+                    '@type': 'MonetaryAmount',
+                    value: '180',
+                    currency: 'PKR',
+                  },
+                  shippingDestination: {
+                    '@type': 'DefinedRegion',
+                    addressCountry: 'PK',
+                  },
+                  deliveryTime: {
+                    '@type': 'ShippingDeliveryTime',
+                    handlingTime: {
+                      '@type': 'QuantitativeValue',
+                      minValue: 1,
+                      maxValue: 2,
+                      unitCode: 'DAY',
+                    },
+                    transitTime: {
+                      '@type': 'QuantitativeValue',
+                      minValue: 1,
+                      maxValue: 5,
+                      unitCode: 'DAY',
+                    },
+                  },
+                },
+              ],
               hasMerchantReturnPolicy: {
                 '@type': 'MerchantReturnPolicy',
                 applicableCountry: 'PK',
@@ -688,12 +717,12 @@ export default function Product() {
               )}
             </div>
 
-            <div className="flex items-center gap-4 pt-3 border-t border-slate-100 text-[13px] text-slate-600 font-medium">
+            <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-slate-100 text-[13px] text-slate-600 font-medium">
               <span className="flex items-center gap-1.5 text-[#0891b2] font-semibold">
-                🚚 <span>Free Delivery on 1st Order</span>
+                🚚 <span>Free Delivery on 1st Order (Rs. 180 Standard)</span>
               </span>
               <span>•</span>
-              <span>Fast 2-4 Days Delivery in Pakistan</span>
+              <span>Fast 1–5 Days Delivery in Pakistan</span>
               <span>•</span>
               <span>7 Days Returns</span>
             </div>
