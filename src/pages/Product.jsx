@@ -23,6 +23,22 @@ import DepthGallery from '../components/3d/DepthGallery'
 import { has3DModel } from '../utils/has3DModel'
 import QuickViewModal from '../components/modals/QuickViewModal'
 
+const getPriceValidUntil = () => {
+  const now = new Date();
+  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  if (endOfMonth.getDate() - now.getDate() < 3) {
+    const endOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 2, 0);
+    const y = endOfNextMonth.getFullYear();
+    const m = String(endOfNextMonth.getMonth() + 1).padStart(2, '0');
+    const d = String(endOfNextMonth.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+  const y = endOfMonth.getFullYear();
+  const m = String(endOfMonth.getMonth() + 1).padStart(2, '0');
+  const d = String(endOfMonth.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+};
+
 function ProductNotFound() {
   return (
     <div className="min-h-screen bg-cz-page flex flex-col">
@@ -341,7 +357,7 @@ export default function Product() {
               url: canonical,
               priceCurrency: 'PKR',
               price: parsePkr(getEffectivePrice(product).price),
-              priceValidUntil: '2027-12-31',
+              priceValidUntil: getPriceValidUntil(),
               itemCondition: 'https://schema.org/NewCondition',
               availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
               seller: {
