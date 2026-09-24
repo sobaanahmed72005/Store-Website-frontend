@@ -65,5 +65,6 @@ export function useSiteSettings() {
     try { localStorage.setItem('itsolutions_cached_logo', resolvedLogo) } catch {}
   }
   const logoUrl = resolvedLogo || (typeof window !== 'undefined' ? localStorage.getItem('itsolutions_cached_logo') : null)
-  return { ...state, logoUrl }
+  const sitePhone = state.brand?.phone ? state.brand.phone.split('|')[0].trim() : '+92 300 4265499'
+  return { ...state, logoUrl, sitePhone }
 }

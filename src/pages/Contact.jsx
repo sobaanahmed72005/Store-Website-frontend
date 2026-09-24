@@ -105,9 +105,9 @@ export default function Contact() {
               <h2 className="text-[17px] sm:text-[19px] font-bold text-slate-800 font-heading">Send Us a Message</h2>
               <p className="text-[13px] text-slate-500 mt-0.5">Fill out the form below and our support team will respond promptly.</p>
             </div>
-            {sitePhone && (
+            {displayPhone && (
               <a
-                href={`https://wa.me/${sitePhone.replace(/[^0-9]/g, '')}`}
+                href={`https://wa.me/${displayPhone.replace(/[^0-9]/g, '')}`}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-[13px] font-semibold shadow transition-all shrink-0"
