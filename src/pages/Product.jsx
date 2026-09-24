@@ -687,6 +687,16 @@ export default function Product() {
                 </a>
               )}
             </div>
+
+            <div className="flex items-center gap-4 pt-3 border-t border-slate-100 text-[13px] text-slate-600 font-medium">
+              <span className="flex items-center gap-1.5 text-[#0891b2] font-semibold">
+                🚚 <span>Free Delivery on 1st Order</span>
+              </span>
+              <span>•</span>
+              <span>Fast 2-4 Days Delivery in Pakistan</span>
+              <span>•</span>
+              <span>7 Days Returns</span>
+            </div>
           </div>
         </div>
 
