@@ -29,12 +29,31 @@ app.disable('x-powered-by');
 
 // Carried over from public headers
 app.use((req, res, next) => {
-  res.setHeader('X-Robots-Tag', 'index, follow');
+  const SENSITIVE_PATHS = [
+    '/cart',
+    '/checkout',
+    '/sign-in',
+    '/sign-up',
+    '/forgot-password',
+    '/reset-password',
+    '/checkout/success',
+    '/checkout/cancelled',
+    '/account',
+    '/order-tracking',
+    '/unsubscribe',
+  ];
+
+  if (SENSITIVE_PATHS.includes(req.path)) {
+    res.setHeader('X-Robots-Tag', 'noindex, follow');
+  } else {
+    res.setHeader('X-Robots-Tag', 'index, follow');
+  }
+
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: https://www.google-analytics.com; connect-src 'self' https: https://www.google-analytics.com https://analytics.google.com https://*.google-analytics.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
   );
   next();
 });
