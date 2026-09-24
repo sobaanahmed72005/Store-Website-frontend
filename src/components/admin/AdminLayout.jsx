@@ -34,6 +34,7 @@ const navItems = [
   { to: `${ADMIN_PATH}/policies`, label: 'Policies Page' },
   { to: `${ADMIN_PATH}/privacy-policy`, label: 'Privacy Policy Page' },
   { to: `${ADMIN_PATH}/newsletter`, label: 'Newsletter' },
+  { to: `${ADMIN_PATH}/blog`, label: 'Blog & Articles' },
   { to: `${ADMIN_PATH}/promo-emails`, label: 'Promo Emails' },
   { to: `${ADMIN_PATH}/audit-log`, label: 'Audit Log' },
 ]

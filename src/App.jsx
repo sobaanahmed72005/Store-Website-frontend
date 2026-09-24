@@ -68,6 +68,9 @@ const AdminBrands = lazy(() => import('./pages/admin/AdminBrands'))
 const AdminAnnouncement = lazy(() => import('./pages/admin/AdminAnnouncement'))
 const AdminEmailTemplates = lazy(() => import('./pages/admin/AdminEmailTemplates'))
 const AdminPromotionalEmails = lazy(() => import('./pages/admin/AdminPromotionalEmails'))
+import Blog from './pages/Blog'
+import BlogPost from './pages/BlogPost'
+const AdminBlog = lazy(() => import('./pages/admin/AdminBlog'))
 const AdminAuditLog = lazy(() => import('./pages/admin/AdminAuditLog'))
 
 function StoreNotFound() {
@@ -132,6 +135,8 @@ function App() {
       <Route path="/category/:slug" element={<CategoryListing />} />
       <Route path="/about-us" element={<AboutUs />} />
       <Route path="/contact" element={<Contact />} />
+      <Route path="/blog" element={<Blog />} />
+      <Route path="/blog/:slug" element={<BlogPost />} />
       <Route path="/return-exchange" element={<Policies />} />
       <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       <Route path="/search" element={<SearchResults />} />
@@ -176,6 +181,7 @@ function App() {
         <Route path="policies" element={<AdminPolicies />} />
         <Route path="privacy-policy" element={<AdminPrivacyPolicy />} />
         <Route path="newsletter" element={<AdminNewsletter />} />
+        <Route path="blog" element={<AdminBlog />} />
         <Route path="promo-emails" element={<AdminPromotionalEmails />} />
         <Route path="audit-log" element={<AdminAuditLog />} />
         <Route path="*" element={<AdminNotFound />} />

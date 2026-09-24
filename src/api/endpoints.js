@@ -98,6 +98,15 @@ export const ENDPOINTS = {
     BASE: '/contact',
   },
 
+  BLOG: {
+    LIST: (qs = '') => `/blog${qs}`,
+    BY_SLUG: (slug) => `/blog/${slug}`,
+    ADMIN_ALL: '/blog/admin/all',
+    ADMIN_CREATE: '/blog/admin/create',
+    ADMIN_UPDATE: (id) => `/blog/admin/update/${id}`,
+    ADMIN_DELETE: (id) => `/blog/admin/delete/${id}`,
+  },
+
   ORDERS: {
     BASE: '/orders',
     CHECK_FIRST_ORDER: (qs = '') => `/orders/check-first-order${qs}`,
