@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Navbar from '../components/Navbar'
 import Header from '../components/Header'
 import CategoryMenu from '../components/CategoryMenu'
@@ -9,17 +9,85 @@ import { useSeo } from '../hooks/useSeo'
 import { useSiteSettings } from '../store/siteSettingsStore'
 import SeoHeadingFiller from '../components/SeoHeadingFiller'
 
+const defaultContactContent = {
+  mainBranch: {
+    tagline: 'MAIN BRANCH LOCATION',
+    title: 'IT Solutions Lahore Store',
+    address: 'Office # 19, 2nd Floor, Fazal Trade Center, Near Hafeez Center, Gulberg III, Lahore, Punjab 54660, Pakistan',
+    phone: '+92 300 4265499',
+    email: 'itsolutions543@gmail.com',
+    hours: 'Monday – Saturday (10:00 AM – 8:00 PM PKT)',
+    mapQuery: 'Office # 19, 2nd Floor, Fazal Trade Center, Near Hafeez Center, Gulberg III, Lahore, Punjab 54660, Pakistan',
+  },
+  deliveryCard: {
+    tagline: 'NATIONWIDE DELIVERY & BRANCH NETWORK',
+    title: 'Serving All Cities Across Pakistan',
+    description:
+      'We provide fast Cash on Delivery (COD) and courier dispatch to Lahore, Karachi, Islamabad, Rawalpindi, Faisalabad, Multan, Burewala, Peshawar, Quetta, and 200+ cities nationwide.',
+    features: [
+      { title: 'Official Brand Warranty:', description: '100% Original products with brand support' },
+      { title: 'Free Shipping:', description: 'On your 1st order nationwide (Rs 180 standard)' },
+      { title: '7-Day Return Guarantee:', description: 'Hassle-free return & exchange policy' },
+      { title: 'Dedicated Technical Support:', description: 'Direct WhatsApp & phone assistance' },
+    ],
+  },
+  regionalBranch: {
+    title: 'Burewala Regional Branch',
+    address: 'Store # 12, Main College Road, Burewala, Vehari, Punjab 61010',
+    mapQuery: 'Main College Road Burewala',
+  },
+}
+
 export default function Contact() {
   const { siteName, brand } = useSiteSettings()
   const [form, setForm] = useState({ name: '', email: '', phone: '', subject: '', message: '' })
   const [status, setStatus] = useState('idle')
   const [error, setError] = useState('')
+  const [content, setContent] = useState(defaultContactContent)
 
-  const displayAddress = brand?.address || 'Office # 19, 2nd Floor, Fazal Trade Center, Near Hafeez Center, Gulberg III, Lahore, Punjab 54660, Pakistan'
-  const displayPhone = brand?.phone || '+92 300 4265499'
-  const displayEmail = brand?.email || 'itsolutions543@gmail.com'
-  const displayHours = brand?.hours || 'Monday – Saturday (10:00 AM – 8:00 PM PKT)'
-  const mapQuery = encodeURIComponent(displayAddress)
+  useEffect(() => {
+    let isMounted = true
+    api
+      .get(ENDPOINTS.CONTENT.CONTACT_US)
+      .then((data) => {
+        if (isMounted && data) {
+          setContent({
+            mainBranch: {
+              ...defaultContactContent.mainBranch,
+              ...(data.mainBranch || {}),
+            },
+            deliveryCard: {
+              ...defaultContactContent.deliveryCard,
+              ...(data.deliveryCard || {}),
+              features: Array.isArray(data.deliveryCard?.features) && data.deliveryCard.features.length
+                ? data.deliveryCard.features
+                : defaultContactContent.deliveryCard.features,
+            },
+            regionalBranch: {
+              ...defaultContactContent.regionalBranch,
+              ...(data.regionalBranch || {}),
+            },
+          })
+        }
+      })
+      .catch(() => {
+        // Fallback gracefully to default contact content
+      })
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  const mainBranch = content.mainBranch || defaultContactContent.mainBranch
+  const deliveryCard = content.deliveryCard || defaultContactContent.deliveryCard
+  const regionalBranch = content.regionalBranch || defaultContactContent.regionalBranch
+
+  const displayAddress = mainBranch.address || brand?.address || defaultContactContent.mainBranch.address
+  const displayPhone = mainBranch.phone || brand?.phone || defaultContactContent.mainBranch.phone
+  const displayEmail = mainBranch.email || brand?.email || defaultContactContent.mainBranch.email
+  const displayHours = mainBranch.hours || brand?.hours || defaultContactContent.mainBranch.hours
+  const mainMapQuery = encodeURIComponent(mainBranch.mapQuery || displayAddress)
+  const regionalMapQuery = encodeURIComponent(regionalBranch.mapQuery || regionalBranch.address)
 
   useSeo({
     title: `Contact Us — Customer Support & Store Location | ${siteName || 'IT Solutions'} Pakistan`,
@@ -57,7 +125,7 @@ export default function Contact() {
             closes: '20:00',
           },
         ],
-        hasMap: `https://maps.google.com/?q=${mapQuery}`,
+        hasMap: `https://maps.google.com/?q=${mainMapQuery}`,
       },
     },
   })
@@ -207,10 +275,10 @@ export default function Contact() {
           <div className="bg-white rounded-xl border border-slate-100 p-6 shadow-sm flex flex-col justify-between">
             <div>
               <div className="text-[13px] font-semibold text-[#0c4a6e] font-heading tracking-wider uppercase mb-1">
-                Main Branch Location
+                {mainBranch.tagline}
               </div>
               <h3 className="text-[18px] font-bold text-slate-800 font-heading mb-2">
-                IT Solutions Lahore Store
+                {mainBranch.title}
               </h3>
               <p className="text-[14px] text-slate-600 leading-relaxed mb-3">
                 {displayAddress}
@@ -225,8 +293,8 @@ export default function Contact() {
             {/* Interactive Embedded Google Map */}
             <div className="w-full h-[280px] rounded-xl overflow-hidden border border-slate-200 shadow-sm mb-4 relative bg-slate-100">
               <iframe
-                title="IT Solutions Lahore Store Location Map"
-                src={`https://maps.google.com/maps?q=${mapQuery}&t=&z=16&ie=UTF8&iwloc=&output=embed`}
+                title={`${mainBranch.title} Location Map`}
+                src={`https://maps.google.com/maps?q=${mainMapQuery}&t=&z=16&ie=UTF8&iwloc=&output=embed`}
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
@@ -238,7 +306,7 @@ export default function Contact() {
             </div>
 
             <a
-              href={`https://maps.google.com/?q=${mapQuery}`}
+              href={`https://maps.google.com/?q=${mainMapQuery}`}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0c4a6e] hover:bg-[#083b58] text-white text-[13px] font-semibold px-5 py-2.5 shadow transition-all self-start"
@@ -250,32 +318,36 @@ export default function Contact() {
           <div className="bg-white rounded-xl border border-slate-100 p-6 shadow-sm flex flex-col justify-between">
             <div>
               <div className="text-[13px] font-semibold text-emerald-700 font-heading tracking-wider uppercase mb-1">
-                Nationwide Delivery & Branch Network
+                {deliveryCard.tagline}
               </div>
               <h3 className="text-[18px] font-bold text-slate-800 font-heading mb-2">
-                Serving All Cities Across Pakistan
+                {deliveryCard.title}
               </h3>
               <p className="text-[14px] text-slate-600 leading-relaxed mb-4">
-                We provide fast Cash on Delivery (COD) and courier dispatch to Lahore, Karachi, Islamabad, Rawalpindi, Faisalabad, Multan, Burewala, Peshawar, Quetta, and 200+ cities nationwide.
+                {deliveryCard.description}
               </p>
-              <ul className="text-[13px] text-slate-600 space-y-2.5 list-disc list-inside bg-slate-50 p-4 rounded-xl border border-slate-100 mb-4">
-                <li><strong>Official Brand Warranty:</strong> 100% Original products with brand support</li>
-                <li><strong>Free Shipping:</strong> On your 1st order nationwide (Rs 180 standard)</li>
-                <li><strong>7-Day Return Guarantee:</strong> Hassle-free return & exchange policy</li>
-                <li><strong>Dedicated Technical Support:</strong> Direct WhatsApp & phone assistance</li>
-              </ul>
+              {Array.isArray(deliveryCard.features) && deliveryCard.features.length > 0 && (
+                <ul className="text-[13px] text-slate-600 space-y-2.5 list-disc list-inside bg-slate-50 p-4 rounded-xl border border-slate-100 mb-4">
+                  {deliveryCard.features.map((feat, idx) => (
+                    <li key={idx}>
+                      {feat.title && <strong>{feat.title} </strong>}
+                      {feat.description}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
 
             <div className="border-t border-slate-100 pt-4 mt-2">
-              <h4 className="text-[14px] font-bold text-slate-800 mb-1">Burewala Regional Branch</h4>
-              <p className="text-[13px] text-slate-600 mb-3">Store # 12, Main College Road, Burewala, Vehari, Punjab 61010</p>
+              <h4 className="text-[14px] font-bold text-slate-800 mb-1">{regionalBranch.title}</h4>
+              <p className="text-[13px] text-slate-600 mb-3">{regionalBranch.address}</p>
               <a
-                href="https://maps.google.com/?q=Main+College+Road+Burewala"
+                href={`https://maps.google.com/?q=${regionalMapQuery}`}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-[13px] font-semibold px-4 py-2 transition-all"
               >
-                🗺️ Burewala Map Location
+                🗺️ {regionalBranch.title || 'Regional Branch'} Map Location
               </a>
             </div>
           </div>

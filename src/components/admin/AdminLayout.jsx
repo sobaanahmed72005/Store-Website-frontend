@@ -30,6 +30,7 @@ const navItems = [
   { to: `${ADMIN_PATH}/reviews`, label: 'Reviews' },
   { to: `${ADMIN_PATH}/email-templates`, label: 'Email Templates' },
   { to: `${ADMIN_PATH}/about-us`, label: 'About Us Page' },
+  { to: `${ADMIN_PATH}/contact-page`, label: 'Contact Us Page' },
   { to: `${ADMIN_PATH}/footer`, label: 'Footer / Store Info' },
   { to: `${ADMIN_PATH}/policies`, label: 'Policies Page' },
   { to: `${ADMIN_PATH}/privacy-policy`, label: 'Privacy Policy Page' },

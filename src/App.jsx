@@ -50,6 +50,7 @@ const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'))
 const AdminCustomers = lazy(() => import('./pages/admin/AdminCustomers'))
 const AdminReviews = lazy(() => import('./pages/admin/AdminReviews'))
 const AdminAboutUs = lazy(() => import('./pages/admin/AdminAboutUs'))
+const AdminContact = lazy(() => import('./pages/admin/AdminContact'))
 const AdminFooter = lazy(() => import('./pages/admin/AdminFooter'))
 const AdminProfile = lazy(() => import('./pages/admin/AdminProfile'))
 const AdminCurrency = lazy(() => import('./pages/admin/AdminCurrency'))
@@ -177,6 +178,7 @@ function App() {
         <Route path="reviews" element={<AdminReviews />} />
         <Route path="email-templates" element={<AdminEmailTemplates />} />
         <Route path="about-us" element={<AdminAboutUs />} />
+        <Route path="contact-page" element={<AdminContact />} />
         <Route path="footer" element={<AdminFooter />} />
         <Route path="policies" element={<AdminPolicies />} />
         <Route path="privacy-policy" element={<AdminPrivacyPolicy />} />

@@ -46,6 +46,7 @@ export const ENDPOINTS = {
     ABOUT_US: '/content/about-us',
     FOOTER_BRAND: '/content/footer-brand',
     HOMEPAGE_SEO: '/content/homepage-seo',
+    CONTACT_US: '/content/contact-us',
   },
 
   CURRENCY: {
@@ -220,6 +221,7 @@ export const ENDPOINTS = {
       PRIVACY_POLICY: '/admin/content/privacy-policy',
       ABOUT_US: '/admin/content/about-us',
       HOMEPAGE_SEO: '/admin/content/homepage-seo',
+      CONTACT_US: '/admin/content/contact-us',
     },
   },
 }
