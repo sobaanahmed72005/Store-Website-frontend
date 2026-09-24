@@ -704,6 +704,10 @@ export default function Product() {
                 <img
                   src={resolveImageUrl(product.content_image)}
                   alt={product.content_image_caption || product.name}
+                  width={500}
+                  height={400}
+                  loading="lazy"
+                  decoding="async"
                   className="max-w-full max-h-[400px] rounded-xl border border-slate-200 object-contain shadow-sm"
                 />
                 {product.content_image_caption && (
@@ -724,6 +728,10 @@ export default function Product() {
                   <img
                     src={getYoutubeThumbnail(contentVideoId)}
                     alt={product.content_video_title || product.name}
+                    width={400}
+                    height={225}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover"
                   />
                   <span className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/10 to-transparent" />
