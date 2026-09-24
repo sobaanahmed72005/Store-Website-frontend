@@ -28,6 +28,21 @@ function upsertLink(rel, href) {
   el.setAttribute('href', href)
 }
 
+function upsertHreflang(lang, href) {
+  let el = document.querySelector(`link[rel="alternate"][hreflang="${lang}"]`)
+  if (!href) {
+    if (el) el.remove()
+    return
+  }
+  if (!el) {
+    el = document.createElement('link')
+    el.setAttribute('rel', 'alternate')
+    el.setAttribute('hreflang', lang)
+    document.head.appendChild(el)
+  }
+  el.setAttribute('href', href)
+}
+
 function upsertJsonLd(data) {
   const id = 'seo-jsonld'
   let el = document.getElementById(id)
@@ -44,7 +59,7 @@ function upsertJsonLd(data) {
   el.textContent = JSON.stringify(Array.isArray(data) ? data : [data])
 }
 
-// Manages per-page <title>, meta description, canonical link, Open Graph/Twitter
+// Manages per-page <title>, meta description, canonical link, hreflang, Open Graph/Twitter
 // tags, robots directive, and JSON-LD — the app has no server-side rendering, so
 // this all runs client-side on mount/update (Googlebot's second indexing wave
 // picks these up after JS execution).
@@ -81,6 +96,9 @@ export function useSeo({
     upsertMeta('name', 'twitter:image', finalImage)
     upsertMeta('name', 'robots', noindex ? 'noindex, follow' : 'index, follow')
     upsertLink('canonical', canonical)
+    const targetUrl = canonical || window.location.href.split('?')[0].split('#')[0]
+    upsertHreflang('en-PK', targetUrl)
+    upsertHreflang('x-default', targetUrl)
     upsertJsonLd(jsonLd)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [title, description, canonical, image, noindex, keywords, publisher, googleSiteVerification, JSON.stringify(jsonLd)])
