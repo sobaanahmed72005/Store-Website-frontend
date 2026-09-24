@@ -177,7 +177,7 @@ function HomeSeoContentSection() {
 }
 
 export default function Home() {
-  const { siteName, logoUrl } = useSiteSettings()
+  const { siteName, logoUrl, brand } = useSiteSettings()
   const [featured, setFeatured] = useState(homeCache.featured || [])
   const [newArrivals, setNewArrivals] = useState(homeCache.newArrivals || [])
   const [onSale, setOnSale] = useState(homeCache.onSale || [])
