@@ -10,14 +10,20 @@ import { useSiteSettings } from '../store/siteSettingsStore'
 import SeoHeadingFiller from '../components/SeoHeadingFiller'
 
 export default function Contact() {
-  const { siteName, sitePhone } = useSiteSettings()
+  const { siteName, brand } = useSiteSettings()
   const [form, setForm] = useState({ name: '', email: '', phone: '', subject: '', message: '' })
   const [status, setStatus] = useState('idle')
   const [error, setError] = useState('')
 
+  const displayAddress = brand?.address || 'Office # 19, 2nd Floor, Fazal Trade Center, Near Hafeez Center, Gulberg III, Lahore, Punjab 54660, Pakistan'
+  const displayPhone = brand?.phone || '+92 300 4265499'
+  const displayEmail = brand?.email || 'itsolutions543@gmail.com'
+  const displayHours = brand?.hours || 'Monday – Saturday (10:00 AM – 8:00 PM PKT)'
+  const mapQuery = encodeURIComponent(displayAddress)
+
   useSeo({
     title: `Contact Us — Customer Support & Store Location | ${siteName || 'IT Solutions'} Pakistan`,
-    description: `Contact ${siteName || 'IT Solutions'} customer support. Get help with laptop sales, CCTV camera quotes, order tracking, and store address in Lahore, Pakistan. Phone/WhatsApp: ${sitePhone || '+92 300 4265499'}.`,
+    description: `Contact ${siteName || 'IT Solutions'} customer support. Get help with laptop sales, CCTV camera quotes, order tracking, and store address in Lahore, Pakistan. Phone/WhatsApp: ${displayPhone}.`,
     canonical: `${window.location.origin}/contact`,
     keywords: `contact ${siteName || 'IT Solutions'}, IT Solutions phone number, computer store Lahore location, customer support Pakistan`,
     publisher: siteName || 'IT Solutions Trade & Service Pvt. Ltd.',
@@ -26,13 +32,13 @@ export default function Contact() {
       '@type': 'ContactPage',
       mainEntity: {
         '@type': 'LocalBusiness',
-        name: 'IT Solutions Trade & Service Pvt. Ltd.',
-        telephone: '+92 300 4265499',
-        email: 'itsolutions543@gmail.com',
+        name: siteName || 'IT Solutions Trade & Service Pvt. Ltd.',
+        telephone: displayPhone,
+        email: displayEmail,
         priceRange: 'PKR',
         address: {
           '@type': 'PostalAddress',
-          streetAddress: 'Office # 19, 2nd Floor, Fazal Trade Center, Near Hafeez Center, Gulberg III',
+          streetAddress: displayAddress,
           addressLocality: 'Lahore',
           addressRegion: 'Punjab',
           postalCode: '54660',
@@ -51,7 +57,7 @@ export default function Contact() {
             closes: '20:00',
           },
         ],
-        hasMap: 'https://maps.google.com/?q=Fazal+Trade+Center+Hafeez+Center+Gulberg+Lahore',
+        hasMap: `https://maps.google.com/?q=${mapQuery}`,
       },
     },
   })
@@ -207,12 +213,12 @@ export default function Contact() {
                 IT Solutions Lahore Store
               </h3>
               <p className="text-[14px] text-slate-600 leading-relaxed mb-3">
-                Office # 19, 2nd Floor, Fazal Trade Center, Near Hafeez Center, Gulberg III, Lahore, Punjab 54660, Pakistan
+                {displayAddress}
               </p>
               <div className="space-y-1.5 text-[13px] text-slate-600 mb-4">
-                <p><strong>Phone / WhatsApp:</strong> +92 300 4265499</p>
-                <p><strong>Support Email:</strong> itsolutions543@gmail.com</p>
-                <p><strong>Working Hours:</strong> Monday – Saturday (10:00 AM – 8:00 PM PKT)</p>
+                <p><strong>Phone / WhatsApp:</strong> {displayPhone}</p>
+                <p><strong>Support Email:</strong> {displayEmail}</p>
+                <p><strong>Working Hours:</strong> {displayHours}</p>
               </div>
             </div>
 
@@ -220,7 +226,7 @@ export default function Contact() {
             <div className="w-full h-[280px] rounded-xl overflow-hidden border border-slate-200 shadow-sm mb-4 relative bg-slate-100">
               <iframe
                 title="IT Solutions Lahore Store Location Map"
-                src="https://maps.google.com/maps?q=Fazal+Trade+Center+Hafeez+Center+Gulberg+III+Lahore&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                src={`https://maps.google.com/maps?q=${mapQuery}&t=&z=16&ie=UTF8&iwloc=&output=embed`}
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
@@ -232,7 +238,7 @@ export default function Contact() {
             </div>
 
             <a
-              href="https://maps.google.com/?q=Fazal+Trade+Center+Hafeez+Center+Gulberg+Lahore"
+              href={`https://maps.google.com/?q=${mapQuery}`}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0c4a6e] hover:bg-[#083b58] text-white text-[13px] font-semibold px-5 py-2.5 shadow transition-all self-start"
