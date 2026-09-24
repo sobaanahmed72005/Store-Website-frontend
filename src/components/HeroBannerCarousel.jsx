@@ -111,6 +111,8 @@ export default function HeroBannerCarousel({ visible = false }) {
           <img
             src={currentSlide.image}
             alt={currentSlide.title}
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover object-center transition-all duration-700 scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-[#03070A] via-[#03070A]/85 to-transparent" />

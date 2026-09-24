@@ -168,6 +168,8 @@ export default function GamingZoneSection() {
                     <img
                       src={gear.image}
                       alt={gear.title}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover rounded-lg group-hover:scale-110 transition-transform duration-500"
                     />
                   </div>

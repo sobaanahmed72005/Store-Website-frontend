@@ -87,6 +87,8 @@ export default function HomeBrandsChipsCarousel() {
                 <img
                   src={brand.logoUrl}
                   alt={brand.title}
+                  loading="lazy"
+                  decoding="async"
                   className="w-5 h-5 object-contain grayscale group-hover/chip:grayscale-0 transition-all"
                   onError={(e) => { e.target.style.display = 'none' }}
                 />

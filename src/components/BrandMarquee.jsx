@@ -118,6 +118,8 @@ export default function BrandMarquee() {
                 <img
                   src={currentBrand.logo}
                   alt={currentBrand.name}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-contain filter drop-shadow-md group-hover:scale-105 transition-transform"
                 />
               </motion.div>

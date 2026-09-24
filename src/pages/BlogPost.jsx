@@ -186,7 +186,7 @@ export default function BlogPost() {
         {/* Cover Image Banner */}
         {post.cover_image && (
           <div className="mb-10 rounded-2xl overflow-hidden shadow-md border border-slate-200 bg-slate-100 max-h-[420px]">
-            <img src={post.cover_image} alt={post.title} className="w-full h-full object-cover" />
+            <img src={post.cover_image} alt={post.title} loading="lazy" decoding="async" className="w-full h-full object-cover" />
           </div>
         )}
 
@@ -213,6 +213,8 @@ export default function BlogPost() {
                         <img
                           src={prod.image || '/icon.png'}
                           alt={prod.name}
+                          loading="lazy"
+                          decoding="async"
                           className="w-full h-full object-contain group-hover:scale-105 transition-transform"
                         />
                       </Link>

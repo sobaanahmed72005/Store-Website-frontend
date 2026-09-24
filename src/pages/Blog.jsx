@@ -180,6 +180,8 @@ export default function Blog() {
                     <img
                       src={heroPost.cover_image || 'https://images.unsplash.com/photo-1557597774-9d273605dfa9?w=1200&q=80'}
                       alt={heroPost.title}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute top-4 left-4 bg-[#0891b2] text-white text-xs font-bold px-3 py-1 rounded-lg shadow-sm">
@@ -225,8 +227,9 @@ export default function Blog() {
                     <img
                       src={post.cover_image || 'https://images.unsplash.com/photo-1557597774-9d273605dfa9?w=800&q=80'}
                       alt={post.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md text-slate-800 text-[11px] font-bold px-2.5 py-1 rounded-lg border border-slate-200/60 shadow-xs">
                       {post.category || 'Tech Guide'}

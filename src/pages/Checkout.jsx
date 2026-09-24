@@ -712,7 +712,7 @@ export default function Checkout() {
               {items.map((item, index) => (
                 <div key={`${item.id}-${item.variantId ?? ''}`} className="flex items-center gap-3">
                   <div className="w-[52px] h-[52px] rounded-lg border border-slate-100 bg-slate-50 overflow-hidden shrink-0">
-                    <img src={item.image} alt={item.title} width={52} height={52} className="w-full h-full object-contain p-1" />
+                    <img src={item.image} alt={item.title} width={52} height={52} loading="lazy" decoding="async" className="w-full h-full object-contain p-1" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[13px] font-semibold text-slate-800 line-clamp-1">{item.title}</p>

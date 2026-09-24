@@ -156,7 +156,7 @@ export default function Cart() {
                       <div className="grid grid-cols-12 w-full items-center">
                         <div className="lg:col-span-7 col-span-12 flex items-center">
                           <div className="w-[64px] h-[64px] aspect-square object-cover rounded-lg overflow-hidden shrink-0 border border-slate-100 bg-slate-50">
-                            <img src={item.image} alt={item.title} width={64} height={64} className="w-full h-full object-contain p-1" />
+                            <img src={item.image} alt={item.title} width={64} height={64} loading="lazy" decoding="async" className="w-full h-full object-contain p-1" />
                           </div>
                           <div className="flex flex-col ps-3.5 flex-1 min-w-0">
                             <Link to={item.slug ? `/product/${item.slug}` : '/shop'} className="text-[14px] font-semibold text-slate-800 hover:text-cz-primary transition-colors leading-snug truncate">
@@ -192,7 +192,7 @@ export default function Cart() {
                     <div className="pb-3.5 pt-1 border-b border-slate-100 lg:hidden flex flex-col last:border-none">
                       <div className="w-full gap-3 items-start grid grid-cols-4">
                         <div className="overflow-hidden rounded-lg border border-slate-100 bg-slate-50 aspect-square">
-                          <img src={item.image} alt={item.title} width={80} height={80} className="w-full h-full object-contain p-1" />
+                          <img src={item.image} alt={item.title} width={80} height={80} loading="lazy" decoding="async" className="w-full h-full object-contain p-1" />
                         </div>
                         <div className="col-span-3">
                           <div className="flex flex-col gap-1">
