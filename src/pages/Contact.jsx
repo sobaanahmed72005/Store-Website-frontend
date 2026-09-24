@@ -196,17 +196,17 @@ export default function Contact() {
           )}
         </div>
 
-        {/* Store Location & Map Info Card */}
+        {/* Store Location & Interactive Google Maps Embed Card */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
           <div className="bg-white rounded-xl border border-slate-100 p-6 shadow-sm flex flex-col justify-between">
             <div>
               <div className="text-[13px] font-semibold text-[#0c4a6e] font-heading tracking-wider uppercase mb-1">
-                Physical Store Location
+                Main Branch Location
               </div>
-              <h3 className="text-[18px] font-bold text-slate-800 font-heading mb-3">
-                IT Solutions Lahore
+              <h3 className="text-[18px] font-bold text-slate-800 font-heading mb-2">
+                IT Solutions Lahore Store
               </h3>
-              <p className="text-[14px] text-slate-600 leading-relaxed mb-4">
+              <p className="text-[14px] text-slate-600 leading-relaxed mb-3">
                 Office # 19, 2nd Floor, Fazal Trade Center, Near Hafeez Center, Gulberg III, Lahore, Punjab 54660, Pakistan
               </p>
               <div className="space-y-1.5 text-[13px] text-slate-600 mb-4">
@@ -217,9 +217,9 @@ export default function Contact() {
             </div>
 
             {/* Interactive Embedded Google Map */}
-            <div className="w-full h-[200px] rounded-xl overflow-hidden border border-slate-200 shadow-inner mb-4 relative bg-slate-100 mt-4">
+            <div className="w-full h-[280px] rounded-xl overflow-hidden border border-slate-200 shadow-sm mb-4 relative bg-slate-100">
               <iframe
-                title="IT Solutions Store Location Map"
+                title="IT Solutions Lahore Store Location Map"
                 src="https://maps.google.com/maps?q=Fazal+Trade+Center+Hafeez+Center+Gulberg+III+Lahore&t=&z=16&ie=UTF8&iwloc=&output=embed"
                 width="100%"
                 height="100%"
@@ -244,20 +244,33 @@ export default function Contact() {
           <div className="bg-white rounded-xl border border-slate-100 p-6 shadow-sm flex flex-col justify-between">
             <div>
               <div className="text-[13px] font-semibold text-emerald-700 font-heading tracking-wider uppercase mb-1">
-                Nationwide Delivery & COD
+                Nationwide Delivery & Branch Network
               </div>
-              <h3 className="text-[18px] font-bold text-slate-800 font-heading mb-3">
+              <h3 className="text-[18px] font-bold text-slate-800 font-heading mb-2">
                 Serving All Cities Across Pakistan
               </h3>
               <p className="text-[14px] text-slate-600 leading-relaxed mb-4">
-                We provide fast Cash on Delivery (COD) and courier dispatch to Lahore, Karachi, Islamabad, Rawalpindi, Faisalabad, Multan, Peshawar, Quetta, and 200+ cities nationwide.
+                We provide fast Cash on Delivery (COD) and courier dispatch to Lahore, Karachi, Islamabad, Rawalpindi, Faisalabad, Multan, Burewala, Peshawar, Quetta, and 200+ cities nationwide.
               </p>
-              <ul className="text-[13px] text-slate-600 space-y-2.5 list-disc list-inside bg-slate-50 p-4 rounded-xl border border-slate-100">
-                <li><strong>Official Brand Warranty:</strong> 100% Original products</li>
-                <li><strong>Free Shipping:</strong> On your first order nationwide</li>
-                <li><strong>7-Day Return Guarantee:</strong> Hassle-free return & exchange</li>
+              <ul className="text-[13px] text-slate-600 space-y-2.5 list-disc list-inside bg-slate-50 p-4 rounded-xl border border-slate-100 mb-4">
+                <li><strong>Official Brand Warranty:</strong> 100% Original products with brand support</li>
+                <li><strong>Free Shipping:</strong> On your 1st order nationwide (Rs 180 standard)</li>
+                <li><strong>7-Day Return Guarantee:</strong> Hassle-free return & exchange policy</li>
                 <li><strong>Dedicated Technical Support:</strong> Direct WhatsApp & phone assistance</li>
               </ul>
+            </div>
+
+            <div className="border-t border-slate-100 pt-4 mt-2">
+              <h4 className="text-[14px] font-bold text-slate-800 mb-1">Burewala Regional Branch</h4>
+              <p className="text-[13px] text-slate-600 mb-3">Store # 12, Main College Road, Burewala, Vehari, Punjab 61010</p>
+              <a
+                href="https://maps.google.com/?q=Main+College+Road+Burewala"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-[13px] font-semibold px-4 py-2 transition-all"
+              >
+                🗺️ Burewala Map Location
+              </a>
             </div>
           </div>
         </div>
