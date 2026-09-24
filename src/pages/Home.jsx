@@ -212,6 +212,11 @@ export default function Home() {
   }, [])
 
   const origin = window.location.origin
+  const firstPhone = brand?.phone ? brand.phone.split('|')[0].trim() : '+92 300 4265499'
+  const socialUrls = Object.values(brand?.social || {}).filter(
+    (url) => typeof url === 'string' && url.trim().length > 0
+  )
+
   useSeo({
     title: `${siteName || 'IT Solutions'} — 4K CCTV Cameras, Wi-Fi Routers, Solar Systems & Laptops in Pakistan`,
     description: `Shop original 4K CCTV security cameras, enterprise Wi-Fi 6 routers, solar panels, and laptops in Pakistan at ${siteName || 'IT Solutions'}. Official warranty & fast nationwide delivery on your order!`,
@@ -223,17 +228,38 @@ export default function Home() {
       {
         '@context': 'https://schema.org',
         '@type': 'LocalBusiness',
+        '@id': `${origin}/#localbusiness`,
         name: siteName || 'IT Solutions Trade & Service Pvt. Ltd.',
         url: origin,
-        logo: logoUrl || undefined,
-        description: 'Pakistan\'s trusted online IT store for laptops, 4K CCTV security cameras, Wi-Fi 6 routers, and solar power inverters.',
+        logo: logoUrl || `${origin}/favicon.svg`,
+        image: logoUrl || `${origin}/favicon.svg`,
+        description: brand?.description || 'Pakistan\'s trusted online IT store for laptops, 4K CCTV security cameras, Wi-Fi 6 routers, and solar power inverters.',
+        telephone: firstPhone,
+        email: brand?.email || 'itsolutions543@gmail.com',
         priceRange: 'PKR',
         address: {
           '@type': 'PostalAddress',
+          streetAddress: brand?.address || 'Office # 19, 2nd Floor, Fazal Trade Center, Near Hafeez Center, Gulberg III',
           addressLocality: 'Lahore',
           addressRegion: 'Punjab',
+          postalCode: '54660',
           addressCountry: 'PK',
         },
+        geo: {
+          '@type': 'GeoCoordinates',
+          latitude: 31.5126,
+          longitude: 74.3436,
+        },
+        openingHoursSpecification: [
+          {
+            '@type': 'OpeningHoursSpecification',
+            dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+            opens: '10:00',
+            closes: '20:00',
+          },
+        ],
+        hasMap: 'https://maps.google.com/?q=Fazal+Trade+Center+Hafeez+Center+Gulberg+Lahore',
+        sameAs: socialUrls.length > 0 ? socialUrls : undefined,
         paymentAccepted: 'Cash on Delivery, Bank Transfer, Credit Card',
       },
       {
