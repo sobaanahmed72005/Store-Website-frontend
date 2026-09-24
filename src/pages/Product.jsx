@@ -402,6 +402,7 @@ export default function Product() {
             name: product.name,
             image: galleryImages,
             description: product.description || undefined,
+            category: product.category_name || product.category || undefined,
             brand: product.brand ? { '@type': 'Brand', name: product.brand } : undefined,
             sku: extractSkuFromProduct(product),
             mpn: extractSkuFromProduct(product),
