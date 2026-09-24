@@ -10,15 +10,6 @@ import { useSiteSettings } from '../store/siteSettingsStore'
 import SeoHeadingFiller from '../components/SeoHeadingFiller'
 
 const defaultContactContent = {
-  mainBranch: {
-    tagline: 'MAIN BRANCH LOCATION',
-    title: 'IT Solutions Lahore Store',
-    address: 'Office # 19, 2nd Floor, Fazal Trade Center, Near Hafeez Center, Gulberg III, Lahore, Punjab 54660, Pakistan',
-    phone: '+92 300 4265499',
-    email: 'itsolutions543@gmail.com',
-    hours: 'Monday – Saturday (10:00 AM – 8:00 PM PKT)',
-    mapQuery: 'Office # 19, 2nd Floor, Fazal Trade Center, Near Hafeez Center, Gulberg III, Lahore, Punjab 54660, Pakistan',
-  },
   deliveryCard: {
     tagline: 'NATIONWIDE DELIVERY & BRANCH NETWORK',
     title: 'Serving All Cities Across Pakistan',
@@ -52,10 +43,6 @@ export default function Contact() {
       .then((data) => {
         if (isMounted && data) {
           setContent({
-            mainBranch: {
-              ...defaultContactContent.mainBranch,
-              ...(data.mainBranch || {}),
-            },
             deliveryCard: {
               ...defaultContactContent.deliveryCard,
               ...(data.deliveryCard || {}),
@@ -78,15 +65,16 @@ export default function Contact() {
     }
   }, [])
 
-  const mainBranch = content.mainBranch || defaultContactContent.mainBranch
   const deliveryCard = content.deliveryCard || defaultContactContent.deliveryCard
   const regionalBranch = content.regionalBranch || defaultContactContent.regionalBranch
 
-  const displayAddress = mainBranch.address || brand?.address || defaultContactContent.mainBranch.address
-  const displayPhone = mainBranch.phone || brand?.phone || defaultContactContent.mainBranch.phone
-  const displayEmail = mainBranch.email || brand?.email || defaultContactContent.mainBranch.email
-  const displayHours = mainBranch.hours || brand?.hours || defaultContactContent.mainBranch.hours
-  const mainMapQuery = encodeURIComponent(mainBranch.mapQuery || displayAddress)
+  // Main Branch information fetched directly from global site/brand settings (configured in Admin -> Footer / Store Info)
+  const displayAddress = brand?.address || 'Office # 19, 2nd Floor, Fazal Trade Center, Near Hafeez Center, Gulberg III, Lahore, Punjab 54660, Pakistan'
+  const displayPhone = brand?.phone || '+92 300 4265499'
+  const displayEmail = brand?.email || 'itsolutions543@gmail.com'
+  const displayHours = brand?.hours || 'Monday – Saturday (10:00 AM – 8:00 PM PKT)'
+
+  const mainMapQuery = encodeURIComponent(displayAddress)
   const regionalMapQuery = encodeURIComponent(regionalBranch.mapQuery || regionalBranch.address)
 
   useSeo({
@@ -275,10 +263,10 @@ export default function Contact() {
           <div className="bg-white rounded-xl border border-slate-100 p-6 shadow-sm flex flex-col justify-between">
             <div>
               <div className="text-[13px] font-semibold text-[#0c4a6e] font-heading tracking-wider uppercase mb-1">
-                {mainBranch.tagline}
+                MAIN BRANCH LOCATION
               </div>
               <h3 className="text-[18px] font-bold text-slate-800 font-heading mb-2">
-                {mainBranch.title}
+                {siteName || 'IT Solutions'} Lahore Store
               </h3>
               <p className="text-[14px] text-slate-600 leading-relaxed mb-3">
                 {displayAddress}
@@ -293,7 +281,7 @@ export default function Contact() {
             {/* Interactive Embedded Google Map */}
             <div className="w-full h-[280px] rounded-xl overflow-hidden border border-slate-200 shadow-sm mb-4 relative bg-slate-100">
               <iframe
-                title={`${mainBranch.title} Location Map`}
+                title="IT Solutions Lahore Store Location Map"
                 src={`https://maps.google.com/maps?q=${mainMapQuery}&t=&z=16&ie=UTF8&iwloc=&output=embed`}
                 width="100%"
                 height="100%"

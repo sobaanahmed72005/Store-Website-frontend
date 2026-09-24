@@ -7,15 +7,6 @@ import SeoHeadingFiller from '../../components/SeoHeadingFiller'
 import { useSiteSettings } from '../../store/siteSettingsStore'
 
 const defaultContactData = {
-  mainBranch: {
-    tagline: 'MAIN BRANCH LOCATION',
-    title: 'IT Solutions Lahore Store',
-    address: 'Office # 19, 2nd Floor, Fazal Trade Center, Near Hafeez Center, Gulberg III, Lahore, Punjab 54660, Pakistan',
-    phone: '+92 300 4265499',
-    email: 'itsolutions543@gmail.com',
-    hours: 'Monday – Saturday (10:00 AM – 8:00 PM PKT)',
-    mapQuery: 'Office # 19, 2nd Floor, Fazal Trade Center, Near Hafeez Center, Gulberg III, Lahore, Punjab 54660, Pakistan',
-  },
   deliveryCard: {
     tagline: 'NATIONWIDE DELIVERY & BRANCH NETWORK',
     title: 'Serving All Cities Across Pakistan',
@@ -36,7 +27,7 @@ const defaultContactData = {
 }
 
 export default function AdminContact() {
-  const { siteName } = useSiteSettings()
+  const { siteName, brand } = useSiteSettings()
   useSeo({
     title: `Contact Us Page — Manage Your Store | ${siteName || 'IT Solutions'} Admin Panel`,
     canonical: `${window.location.origin}${window.location.pathname}`,
@@ -50,10 +41,6 @@ export default function AdminContact() {
       api.get(ENDPOINTS.CONTENT.CONTACT_US).then((data) => {
         if (data) {
           setContactData({
-            mainBranch: {
-              ...defaultContactData.mainBranch,
-              ...(data.mainBranch || {}),
-            },
             deliveryCard: {
               ...defaultContactData.deliveryCard,
               ...(data.deliveryCard || {}),
@@ -72,13 +59,6 @@ export default function AdminContact() {
   )
 
   const { loading, saving, saved, error, save } = useAdminForm(load)
-
-  const updateMainBranch = (field, value) => {
-    setContactData((prev) => ({
-      ...prev,
-      mainBranch: { ...prev.mainBranch, [field]: value },
-    }))
-  }
 
   const updateDeliveryCard = (field, value) => {
     setContactData((prev) => ({
@@ -132,16 +112,6 @@ export default function AdminContact() {
       api.put(
         ENDPOINTS.ADMIN.CONTENT.CONTACT_US,
         {
-          mainBranch: {
-            ...contactData.mainBranch,
-            tagline: contactData.mainBranch.tagline.trim(),
-            title: contactData.mainBranch.title.trim(),
-            address: contactData.mainBranch.address.trim(),
-            phone: contactData.mainBranch.phone.trim(),
-            email: contactData.mainBranch.email.trim(),
-            hours: contactData.mainBranch.hours.trim(),
-            mapQuery: contactData.mainBranch.mapQuery.trim(),
-          },
           deliveryCard: {
             tagline: contactData.deliveryCard.tagline.trim(),
             title: contactData.deliveryCard.title.trim(),
@@ -168,9 +138,17 @@ export default function AdminContact() {
       <div className="mb-6">
         <h1 className="text-[22px] font-semibold text-[#212121]">Contact Us Page Editor</h1>
         <p className="text-[13px] text-[#6b7280] mt-1">
-          Customize the Main Branch details, Google Maps embed query, Nationwide Delivery & Branch Network card, feature bullets, and Regional Branch details.
+          Edit Nationwide Delivery & Branch Network Card and Regional Branch details. Main Store details & WhatsApp support inherit directly from Footer / Store Info.
         </p>
-        <SeoHeadingFiller h3="Main branch location" h4="Delivery network" h5="Regional branch" h6="Save changes" />
+        <SeoHeadingFiller h3="Delivery network" h4="Regional branch" h5="Store sync notice" h6="Save changes" />
+      </div>
+
+      {/* Info notice about Main Branch inheritance */}
+      <div className="mb-6 p-4 rounded-lg bg-sky-50 border border-sky-200 text-sky-900 text-[13px] flex flex-col gap-1">
+        <strong className="font-semibold text-[14px]">ℹ️ Main Branch Location & WhatsApp Support</strong>
+        <span>
+          Main Store address ({brand?.address || 'Lahore Store'}), Phone/WhatsApp ({brand?.phone || '+92 300 4265499'}), Email, and Working Hours are automatically fetched from <strong>Footer / Store Info</strong> so you only have to update them in one place!
+        </span>
       </div>
 
       {error && <div className="text-[14px] text-red-600 mb-4 bg-red-50 p-3 rounded-md border border-red-200">{error}</div>}
@@ -181,97 +159,9 @@ export default function AdminContact() {
       )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-8">
-        {/* Main Branch Location Section */}
-        <div className="bg-white rounded-[10px] border border-[#dedede] p-6 shadow-sm">
-          <h2 className="text-[16px] font-semibold text-[#212121] mb-1">1. Main Branch Location & Contact</h2>
-          <p className="text-[12px] text-[#6b7280] mb-4">Displayed on the left side of the Contact page with interactive map embed.</p>
-
-          <div className="grid grid-cols-1 gap-4">
-            <div>
-              <label className="block text-[13px] font-medium text-[#374151] mb-1">Section Tagline</label>
-              <input
-                type="text"
-                value={contactData.mainBranch.tagline}
-                onChange={(e) => updateMainBranch('tagline', e.target.value)}
-                className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2 outline-none focus:border-cz-primary"
-                placeholder="MAIN BRANCH LOCATION"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[13px] font-medium text-[#374151] mb-1">Branch Title</label>
-              <input
-                type="text"
-                value={contactData.mainBranch.title}
-                onChange={(e) => updateMainBranch('title', e.target.value)}
-                className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2 outline-none focus:border-cz-primary"
-                placeholder="IT Solutions Lahore Store"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[13px] font-medium text-[#374151] mb-1">Physical Address</label>
-              <textarea
-                rows={2}
-                value={contactData.mainBranch.address}
-                onChange={(e) => updateMainBranch('address', e.target.value)}
-                className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2 outline-none focus:border-cz-primary resize-none"
-                placeholder="Store address..."
-              />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-[13px] font-medium text-[#374151] mb-1">Phone / WhatsApp Number</label>
-                <input
-                  type="text"
-                  value={contactData.mainBranch.phone}
-                  onChange={(e) => updateMainBranch('phone', e.target.value)}
-                  className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2 outline-none focus:border-cz-primary"
-                  placeholder="+92 300 4265499"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[13px] font-medium text-[#374151] mb-1">Support Email</label>
-                <input
-                  type="email"
-                  value={contactData.mainBranch.email}
-                  onChange={(e) => updateMainBranch('email', e.target.value)}
-                  className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2 outline-none focus:border-cz-primary"
-                  placeholder="itsolutions543@gmail.com"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-[13px] font-medium text-[#374151] mb-1">Working Hours</label>
-              <input
-                type="text"
-                value={contactData.mainBranch.hours}
-                onChange={(e) => updateMainBranch('hours', e.target.value)}
-                className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2 outline-none focus:border-cz-primary"
-                placeholder="Monday – Saturday (10:00 AM – 8:00 PM PKT)"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[13px] font-medium text-[#374151] mb-1">Google Maps Location Search Query</label>
-              <input
-                type="text"
-                value={contactData.mainBranch.mapQuery}
-                onChange={(e) => updateMainBranch('mapQuery', e.target.value)}
-                className="w-full rounded-md border border-[#d1d5db] text-[14px] px-3 py-2 outline-none focus:border-cz-primary"
-                placeholder="Location address or coordinates for Google Maps map embed"
-              />
-              <p className="text-[11px] text-[#6b7280] mt-1">Used for embedding map iframe and linking 'Open Directions in Google Maps'.</p>
-            </div>
-          </div>
-        </div>
-
         {/* Nationwide Delivery & Branch Network Section */}
         <div className="bg-white rounded-[10px] border border-[#dedede] p-6 shadow-sm">
-          <h2 className="text-[16px] font-semibold text-[#212121] mb-1">2. Nationwide Delivery & Branch Network Card</h2>
+          <h2 className="text-[16px] font-semibold text-[#212121] mb-1">1. Nationwide Delivery & Branch Network Card</h2>
           <p className="text-[12px] text-[#6b7280] mb-4">Displayed on the right side of the Contact page with feature bullet list.</p>
 
           <div className="grid grid-cols-1 gap-4">
@@ -356,7 +246,7 @@ export default function AdminContact() {
 
         {/* Regional Branch Section */}
         <div className="bg-white rounded-[10px] border border-[#dedede] p-6 shadow-sm">
-          <h2 className="text-[16px] font-semibold text-[#212121] mb-1">3. Regional Branch Info</h2>
+          <h2 className="text-[16px] font-semibold text-[#212121] mb-1">2. Regional Branch Info</h2>
           <p className="text-[12px] text-[#6b7280] mb-4">Displayed at the bottom of the right-hand Delivery card.</p>
 
           <div className="grid grid-cols-1 gap-4">
