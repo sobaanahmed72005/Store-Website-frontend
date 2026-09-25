@@ -6,7 +6,9 @@ const HOSTNAMES = new Set([
 
 const INTERNAL_ROUTES = {
   '/': '/',
+  '/blog': '/blog',
   '/products': '/shop',
+  '/shop': '/shop',
   '/signin': '/signin',
   '/signup': '/signup',
   '/forgotpassword': '/signin',
@@ -22,6 +24,8 @@ const INTERNAL_ROUTES = {
   '/privacy-policy': '/privacy-policy',
   '/policies': '/return-exchange',
   '/new-arrivals': '/shop',
+  '/search': '/search',
+  '/unsubscribe': '/unsubscribe',
   '/monitors': '/category/monitors',
   '/lian-li': '/category/lian-li',
   '/laptops-pakistan-ppt.74.aspx': '/laptops',
@@ -100,7 +104,28 @@ function deriveCategorySlug(pathname) {
   return `/category/${slug}`
 }
 
-const ALREADY_INTERNAL_PREFIXES = ['/category/', '/product/']
+const ALREADY_INTERNAL_PREFIXES = [
+  '/category/',
+  '/product/',
+  '/blog',
+  '/shop',
+  '/products',
+  '/laptops',
+  '/cart',
+  '/checkout',
+  '/account',
+  '/signin',
+  '/signup',
+  '/forgot-password',
+  '/reset-password',
+  '/order-tracking',
+  '/about-us',
+  '/contact',
+  '/return-exchange',
+  '/privacy-policy',
+  '/search',
+  '/unsubscribe',
+]
 
 export function resolveInternalPath(href) {
   if (!href) return null
