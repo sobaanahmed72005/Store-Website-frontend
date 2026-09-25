@@ -2,6 +2,18 @@ import { create } from 'zustand'
 import { api, resolveImageUrl } from '../api/client'
 import { ENDPOINTS } from '../api/endpoints'
 
+function getCachedBrand() {
+  if (typeof window === 'undefined') return DEFAULT_BRAND
+  try {
+    const raw = localStorage.getItem('itsolutions_cached_brand')
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      return { ...DEFAULT_BRAND, ...parsed, social: { ...DEFAULT_BRAND.social, ...parsed.social } }
+    }
+  } catch {}
+  return DEFAULT_BRAND
+}
+
 const DEFAULT_BRAND = {
   description: '',
   address: '',
@@ -18,7 +30,7 @@ export const useSiteSettingsStore = create((set) => ({
   logo: null,
   favicon: null,
   storeStatus: 'checking',
-  brand: DEFAULT_BRAND,
+  brand: getCachedBrand(),
 
   setSiteName: (siteName) => set({ siteName }),
   setLogo: (logo) => set({ logo }),
@@ -39,7 +51,13 @@ export const useSiteSettingsStore = create((set) => ({
 
     api
       .get(ENDPOINTS.CONTENT.FOOTER_BRAND)
-      .then((data) => set({ brand: { ...DEFAULT_BRAND, ...data, social: { ...DEFAULT_BRAND.social, ...data.social } } }))
+      .then((data) => {
+        const mergedBrand = { ...DEFAULT_BRAND, ...data, social: { ...DEFAULT_BRAND.social, ...data.social } }
+        set({ brand: mergedBrand })
+        try {
+          localStorage.setItem('itsolutions_cached_brand', JSON.stringify(mergedBrand))
+        } catch {}
+      })
       .catch((err) => console.error('Failed to load footer brand content:', err))
   },
 }))

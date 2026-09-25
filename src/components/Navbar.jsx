@@ -2,18 +2,12 @@ import { Link } from 'react-router-dom'
 import { useSiteSettings } from '../store/siteSettingsStore'
 import AnnouncementBar from './AnnouncementBar'
 
-const DEFAULT_MESSAGES = [
-  'We operate only one official store.',
-  'Prices may vary due to currency changes.',
-  'Beware of fake stores claiming our name.',
-]
-
 export default function Navbar() {
   const { brand } = useSiteSettings()
-  const messages = brand.marqueeMessages?.length > 0 ? brand.marqueeMessages : DEFAULT_MESSAGES
+  const messages = Array.isArray(brand.marqueeMessages) ? brand.marqueeMessages : []
 
   // Duplicate list twice so the infinite marquee seamlessly loops without gaps
-  const marqueeList = [...messages, ...messages]
+  const marqueeList = messages.length > 0 ? [...messages, ...messages] : []
 
   return (
     <>
