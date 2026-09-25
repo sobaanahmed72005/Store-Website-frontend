@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { api, resolveImageUrl, resolveImageSrcSet } from '../api/client'
 import { ENDPOINTS } from '../api/endpoints'
+import { upsertHeroPreload } from '../hooks/useSeo'
 
 const DEFAULT_SLIDES = [
   {
@@ -39,6 +40,12 @@ export default function HeroBannerCarousel({ visible = false }) {
   const [touchStart, setTouchStart] = useState(null)
   const [touchEnd, setTouchEnd] = useState(null)
   const minSwipeDistance = 40
+
+  useEffect(() => {
+    if (slides[0]?.image) {
+      upsertHeroPreload(slides[0].image)
+    }
+  }, [slides])
 
   useEffect(() => {
     api.get(ENDPOINTS.CONTENT.HERO_BANNERS)

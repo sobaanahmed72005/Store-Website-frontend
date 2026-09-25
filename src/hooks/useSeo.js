@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { resolveImageUrl, resolveImageSrcSet } from '../api/client'
 
 function upsertMeta(attr, key, content) {
   let el = document.querySelector(`meta[${attr}="${key}"]`)
@@ -57,6 +58,31 @@ function upsertJsonLd(data) {
     document.head.appendChild(el)
   }
   el.textContent = JSON.stringify(Array.isArray(data) ? data : [data])
+}
+
+export function upsertHeroPreload(image, widths = [600, 900, 1400, 1920]) {
+  if (!image) return
+  const href = resolveImageUrl(image)
+  const srcset = resolveImageSrcSet(image, widths)
+  if (!href) return
+
+  let el = document.getElementById('hero-image-preload')
+  if (!el) {
+    el = document.createElement('link')
+    el.id = 'hero-image-preload'
+    el.setAttribute('rel', 'preload')
+    el.setAttribute('as', 'image')
+    el.setAttribute('fetchpriority', 'high')
+    document.head.appendChild(el)
+  }
+  el.setAttribute('href', href)
+  if (srcset) {
+    el.setAttribute('imagesrcset', srcset)
+    el.setAttribute('imagesizes', '100vw')
+  } else {
+    el.removeAttribute('imagesrcset')
+    el.removeAttribute('imagesizes')
+  }
 }
 
 // Manages per-page <title>, meta description, canonical link, hreflang, Open Graph/Twitter
