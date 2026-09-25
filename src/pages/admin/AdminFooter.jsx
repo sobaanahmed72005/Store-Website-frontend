@@ -235,13 +235,13 @@ export default function AdminFooter() {
                     <input
                       value={link.label}
                       onChange={(e) => updateColumnLink(colIndex, linkIndex, 'label', e.target.value)}
-                      placeholder="Label"
+                      placeholder="Label (e.g. Blog)"
                       className="w-2/5 rounded-md border border-[#d1d5db] text-[13px] px-2 py-1.5 outline-none focus:border-cz-primary"
                     />
                     <input
                       value={link.href}
                       onChange={(e) => updateColumnLink(colIndex, linkIndex, 'href', e.target.value)}
-                      placeholder="/path or https://..."
+                      placeholder="URL (e.g. /blog)"
                       className="flex-1 rounded-md border border-[#d1d5db] text-[13px] px-2 py-1.5 outline-none focus:border-cz-primary"
                     />
                     <button

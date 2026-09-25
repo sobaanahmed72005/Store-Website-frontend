@@ -156,15 +156,23 @@ function FooterColumn({ col }) {
         />
       </button>
       <div className={`flex-col ${open ? 'flex' : 'hidden'} sm:flex pb-[15px] sm:pb-0`}>
-        {col.links.map((link) => (
-          <SiteLink
-            key={link.label}
-            href={link.href}
-            className="text-[14px] text-slate-800 font-bold mb-[12px] hover:text-cz-primary hover:underline transition-colors"
-          >
-            {link.label}
-          </SiteLink>
-        ))}
+        {col.links.map((link, idx) => {
+          const displayLabel = link.label?.trim()
+            ? link.label.trim()
+            : link.href
+            ? link.href.replace(/^\//, '').replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+            : ''
+          if (!displayLabel || !link.href) return null
+          return (
+            <SiteLink
+              key={`${displayLabel}-${link.href}-${idx}`}
+              href={link.href}
+              className="text-[14px] text-slate-800 font-bold mb-[12px] hover:text-cz-primary hover:underline transition-colors"
+            >
+              {displayLabel}
+            </SiteLink>
+          )
+        })}
       </div>
     </div>
   )
