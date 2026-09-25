@@ -186,4 +186,28 @@ export function resolveImageUrl(image) {
   return `${origin}${image}`
 }
 
+export function resolveImageSrcSet(image, widths = [300, 600, 900, 1200]) {
+  if (!image) return undefined
+  const src = resolveImageUrl(image)
+  if (!src) return undefined
+
+  // SVG images and data/blob URIs scale natively without needing srcset
+  if (src.endsWith('.svg') || src.startsWith('data:') || src.startsWith('blob:')) {
+    return undefined
+  }
+
+  // Google Drive / LH3 hosted images support =w{width} parameter
+  if (src.includes('lh3.googleusercontent.com/d/')) {
+    return widths.map((w) => `${src}=w${w} ${w}w`).join(', ')
+  }
+
+  // Local uploaded images support ?w={width} parameter
+  if (src.includes('/uploads/')) {
+    const separator = src.includes('?') ? '&' : '?'
+    return widths.map((w) => `${src}${separator}w=${w} ${w}w`).join(', ')
+  }
+
+  return undefined
+}
+
 export { BASE_URL }

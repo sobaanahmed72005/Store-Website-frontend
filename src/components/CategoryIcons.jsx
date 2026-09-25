@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCategories } from '../store/categoryStore'
-import { resolveImageUrl } from '../api/client'
+import { resolveImageUrl, resolveImageSrcSet } from '../api/client'
 import { ChevronLeftIcon, ChevronRightIcon } from './icons'
 
 function categorySlugToPath(slug) {
@@ -140,9 +140,11 @@ export default function CategoryIcons() {
                   {cat.image ? (
                     <img
                       src={resolveImageUrl(cat.image)}
+                      srcSet={resolveImageSrcSet(cat.image, [100, 200, 300])}
+                      sizes="80px"
                       alt={cat.name}
-                      width={400}
-                      height={400}
+                      width={150}
+                      height={150}
                       loading="lazy"
                       decoding="async"
                       className="w-full h-full object-cover transition-transform duration-300 group-hover/item:scale-110"

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { api } from '../api/client'
+import { api, resolveImageUrl, resolveImageSrcSet } from '../api/client'
 import { ENDPOINTS } from '../api/endpoints'
 
 const DEFAULT_SLIDES = [
@@ -109,9 +109,11 @@ export default function HeroBannerCarousel({ visible = false }) {
         {/* Banner Background Image with Gradient Overlay */}
         <div className="absolute inset-0 z-0">
           <img
-            src={currentSlide.image}
+            src={resolveImageUrl(currentSlide.image)}
+            srcSet={resolveImageSrcSet(currentSlide.image, [600, 900, 1400, 1920])}
+            sizes="100vw"
             alt={currentSlide.title}
-            loading="lazy"
+            loading="eager"
             decoding="async"
             className="w-full h-full object-cover object-center transition-all duration-700 scale-105"
           />

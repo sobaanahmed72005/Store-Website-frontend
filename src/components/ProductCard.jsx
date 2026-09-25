@@ -7,6 +7,7 @@ import { useCurrencyStore, parsePkr } from '../store/currencyStore'
 import { useCompareStore } from '../store/compareStore'
 import { triggerFlyToCart } from './cart/FlyingCartAnimation'
 import { HeartIcon } from './icons'
+import { resolveImageUrl, resolveImageSrcSet } from '../api/client'
 
 const STAR_PATH =
   'M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z'
@@ -238,7 +239,9 @@ export default function ProductCard({
             gallery.map((src, i) => (
               <img
                 key={src}
-                src={src}
+                src={resolveImageUrl(src)}
+                srcSet={resolveImageSrcSet(src, [300, 600, 900])}
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 alt={title}
                 width={400}
                 height={400}

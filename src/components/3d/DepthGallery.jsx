@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeftIcon, ChevronRightIcon } from '../icons'
+import { resolveImageUrl, resolveImageSrcSet } from '../../api/client'
 
 const depthVariants = {
   enter: (direction) => ({
@@ -77,7 +78,9 @@ export default function DepthGallery({ items, activeIndex, onSelectIndex, title 
             <video src={currentItem.src || currentItem.image} controls className="max-w-full max-h-full object-contain bg-black rounded-lg" />
           ) : (
             <img
-              src={currentItem.src || currentItem.image}
+              src={resolveImageUrl(currentItem.src || currentItem.image)}
+              srcSet={resolveImageSrcSet(currentItem.src || currentItem.image, [400, 800, 1200])}
+              sizes="(max-width: 768px) 100vw, 50vw"
               alt={currentItem.alt || title || `Product image ${page + 1}`}
               className="max-w-full max-h-full object-contain drop-shadow-sm select-none"
               draggable={false}
