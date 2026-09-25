@@ -47,13 +47,22 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Most Right side: Order Tracking Link (100% Untouched) */}
-        <Link
-          to="/order-tracking"
-          className="shrink-0 text-[13px] font-medium text-[var(--cz-topbar-text)] hover:text-cz-gold transition-colors cursor-pointer z-10 bg-cz-topbar pl-3"
-        >
-          Order Tracking
-        </Link>
+        {/* Top Right links: Blog & Order Tracking */}
+        <div className="shrink-0 flex items-center gap-3 text-[13px] font-medium z-10 bg-cz-topbar pl-3">
+          <Link
+            to="/blog"
+            className="text-[var(--cz-topbar-text)] hover:text-cz-gold transition-colors cursor-pointer"
+          >
+            Blog
+          </Link>
+          <span className="text-white/30 text-[11px]">|</span>
+          <Link
+            to="/order-tracking"
+            className="text-[var(--cz-topbar-text)] hover:text-cz-gold transition-colors cursor-pointer"
+          >
+            Order Tracking
+          </Link>
+        </div>
       </div>
     </div>
     </>
