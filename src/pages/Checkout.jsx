@@ -500,9 +500,13 @@ export default function Checkout() {
         { auth: true }
       )
 
+      const createdOrderId = createdOrder?.id
       setOrderPlaced(true)
       clearCart()
-      navigate('/account', { replace: true, state: { orderPlaced: true } })
+      navigate(`/checkout/success?orderId=${createdOrderId || ''}`, {
+        replace: true,
+        state: { orderId: createdOrderId, email: form.email, phone: form.phone },
+      })
     } catch (err) {
       setError(err.message)
     } finally {

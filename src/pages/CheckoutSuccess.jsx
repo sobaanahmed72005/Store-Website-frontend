@@ -1,25 +1,74 @@
 import { useEffect } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams, useLocation } from 'react-router-dom'
 import { useCart } from '../store/cartStore'
+import { useAuth } from '../store/authStore'
 import Logo from '../components/Logo'
 import { useSeo } from '../hooks/useSeo'
 import SeoHeadingFiller from '../components/SeoHeadingFiller'
 import { useSiteSettings } from '../store/siteSettingsStore'
 
+const GOOGLE_MERCHANT_ID = 5858415197
+
 export default function CheckoutSuccess() {
   const { siteName } = useSiteSettings()
+  const { user } = useAuth()
+  const location = useLocation()
+  const locationState = location.state || {}
+
   useSeo({
     title: `Payment Successful — Order Confirmed | ${siteName || 'IT Solutions'}`,
     canonical: `${window.location.origin}/checkout/success`,
     noindex: true,
   })
   const [params] = useSearchParams()
-  const orderId = params.get('orderId')
+  const orderId = params.get('orderId') || locationState.orderId
   const { clearCart } = useCart()
 
   useEffect(() => {
     clearCart()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Google Customer Reviews Opt-in Script Integration
+  useEffect(() => {
+    const currentOrderId = orderId || 'ORDER'
+    const customerEmail = locationState.email || user?.email
+
+    if (!customerEmail) return
+
+    // Calculate estimated delivery date: 4 days from order placement (YYYY-MM-DD)
+    const deliveryDate = new Date()
+    deliveryDate.setDate(deliveryDate.getDate() + 4)
+    const estDeliveryDate = deliveryDate.toISOString().split('T')[0]
+
+    window.renderOptIn = function () {
+      if (window.gapi && window.gapi.load) {
+        window.gapi.load('surveyoptin', function () {
+          window.gapi.surveyoptin.render({
+            merchant_id: GOOGLE_MERCHANT_ID,
+            order_id: String(currentOrderId),
+            email: String(customerEmail),
+            delivery_country: 'PK',
+            estimated_delivery_date: estDeliveryDate,
+          })
+        })
+      }
+    }
+
+    const script = document.createElement('script')
+    script.src = 'https://apis.google.com/js/platform.js?onload=renderOptIn'
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script)
+
+    return () => {
+      try {
+        if (script.parentNode) script.parentNode.removeChild(script)
+        delete window.renderOptIn
+      } catch {
+        // Ignore unmount error
+      }
+    }
+  }, [orderId, locationState.email, user?.email])
 
   return (
     <div className="min-h-screen bg-cz-page flex flex-col">
