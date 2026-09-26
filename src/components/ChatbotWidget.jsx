@@ -9,16 +9,16 @@ import './ChatbotWidget.css';
 const INITIAL_WELCOME_MSG = {
   id: 'welcome-1',
   role: 'model',
-  content: "Hello! 👋 I'm your official AI Shopping Assistant. How can I help you find laptops, CCTV cameras, solar inverters, or check store policies today?",
+  content: "Hello! 👋 Welcome to IT Solutions Pakistan! I'm your AI Shopping Assistant. Ask me anything about our HP, Dell & Lenovo laptops, CCTV security systems, solar inverters, store location in Hafeez Center Lahore, or delivery policies!",
   timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
 };
 
 const QUICK_PILLS = [
-  "💻 What laptops are available?",
-  "🎥 Show security cameras",
-  "⚡ Solar inverters & specs",
-  "🚚 What is the shipping fee?",
-  "🔄 How does 7-day return work?",
+  "💻 Available Laptops & Prices",
+  "🎥 CCTV Security Systems",
+  "⚡ Solar Inverters",
+  "🚚 Delivery & COD Info",
+  "📍 Store Address & Hours",
 ];
 
 export default function ChatbotWidget() {
