@@ -187,18 +187,43 @@ export default function ChatbotWidget() {
     setErrorMsg(null);
   };
 
-  // Helper to render text with clickable internal React Router links for /product/slug or /category/slug
+  // Helper to parse Markdown **bold text** and clickable internal links (/product/slug or /category/slug) securely via React elements
   const renderFormattedContent = (content) => {
-    const parts = content.split(/(\/(?:product|category)\/[a-zA-Z0-9_-]+)/g);
-    return parts.map((part, idx) => {
-      if (/^\/(?:product|category)\/[a-zA-Z0-9_-]+$/.test(part)) {
+    if (!content || typeof content !== 'string') return content;
+
+    // Helper to extract clickable Router links from plain text chunks
+    const renderLinksInText = (textSegment, baseKey) => {
+      const parts = textSegment.split(/(\/(?:product|category)\/[a-zA-Z0-9_-]+)/g);
+      return parts.map((part, idx) => {
+        if (/^\/(?:product|category)\/[a-zA-Z0-9_-]+$/.test(part)) {
+          return (
+            <Link
+              key={`${baseKey}-link-${idx}`}
+              to={part}
+              onClick={() => setIsOpen(false)}
+              className="underline text-blue-600 font-semibold hover:text-blue-800"
+            >
+              {part}
+            </Link>
+          );
+        }
+        return part;
+      });
+    };
+
+    // Split text by Markdown bold delimiters (**bold text**)
+    const boldParts = content.split(/\*\*([^*]+)\*\*/g);
+
+    return boldParts.map((part, idx) => {
+      // Odd indices are text inside **...**
+      if (idx % 2 === 1) {
         return (
-          <Link key={idx} to={part} onClick={() => setIsOpen(false)} className="underline text-blue-600 font-medium hover:text-blue-800">
-            {part}
-          </Link>
+          <strong key={`bold-${idx}`} className="font-semibold text-slate-900">
+            {renderLinksInText(part, `bold-${idx}`)}
+          </strong>
         );
       }
-      return part;
+      return renderLinksInText(part, `text-${idx}`);
     });
   };
 
