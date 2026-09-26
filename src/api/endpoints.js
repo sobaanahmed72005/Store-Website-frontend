@@ -224,4 +224,9 @@ export const ENDPOINTS = {
       CONTACT_US: '/admin/content/contact-us',
     },
   },
+
+  CHAT: {
+    SEND: '/chat',
+  },
 }
+

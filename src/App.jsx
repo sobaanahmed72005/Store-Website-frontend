@@ -34,6 +34,7 @@ import AdminLayout from './components/admin/AdminLayout'
 import FlyingCartAnimation from './components/cart/FlyingCartAnimation'
 import CompareDrawer from './components/compare/CompareDrawer'
 import CompareModal from './components/compare/CompareModal'
+import ChatbotWidget from './components/ChatbotWidget'
 
 // The entire admin panel (including recharts, which only AdminReports uses) is lazy-loaded —
 // a storefront visitor never touches any of this, so none of it belongs in the bundle they pay
@@ -191,6 +192,7 @@ function App() {
       <Route path="*" element={<NotFound />} />
       </Routes>
       </Suspense>
+      <ChatbotWidget />
     </>
   )
 }
